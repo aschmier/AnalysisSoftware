@@ -13,6 +13,81 @@
 
 PROGNAME=$0
 
+function GiveBinningDalitz13TeVRBins()
+{
+	echo "How many p_T bins do you want to use for the Pi0? 12(5GeV), 15(8GeV), 18(16GeV)";
+	read answer
+		if [ $answer = 12 ]; then
+		    echo "12 Bins --> Max p_T = 2.7 GeV ...";
+		    correctPi0=1
+		    BinsPtPi0=12
+		elif [ $answer = 15 ]; then
+		    echo "15 Bins --> Max p_T = 16 GeV ...";
+		    correctPi0=1
+		    BinsPtPi0=15
+		elif [ $answer = 18 ]; then
+		    echo "18 Bins --> Max p_T = 16 GeV ...";
+		    correctPi0=1
+		    BinsPtPi0=18
+		else
+		    echo "Pi0 Binning was not set correctly. Please try again.";
+		    correctPi0=0
+		fi
+        echo "How many p_t bins do you want to use for the dummy eta meson? 7 (4.4GeV), 10 (14 GeV)"
+        read answer
+		if [ $answer = 7 ]; then
+		    echo "7 Bins --> Max p_T = 4.4 GeV ...";
+		    correctEta=1
+		    BinsPtEta=7
+		elif [ $answer = 10 ]; then
+		    echo "10 Bins --> Max p_T = 14 GeV ...";
+		    correctEta=1
+		    BinsPtEta=10
+		else
+		    echo "Eta Binning was not set correctly. Please try again.";
+		    correctEta=0
+		fi
+
+}
+
+
+function GiveBinningDalitz13TeV()
+{
+	echo "How many p_T bins do you want to use for the Pi0? 12(5GeV), 15(8GeV), 18(16GeV)";
+	read answer
+		if [ $answer = 12 ]; then
+		    echo "12 Bins --> Max p_T = 5 GeV ...";
+		    correctPi0=1
+		    BinsPtPi0=12
+		elif [ $answer = 15 ]; then
+		    echo "15 Bins --> Max p_T = 8 GeV ...";
+		    correctPi0=1
+		    BinsPtPi0=15
+		elif [ $answer = 19 ]; then
+		    echo "19 Bins --> Max p_T = 16 GeV ...";
+		    correctPi0=1
+		    BinsPtPi0=19
+		else
+		    echo "Pi0 Binning was not set correctly. Please try again.";
+		    correctPi0=0
+		fi
+        echo "How many p_t bins do you want to use for the eta meson? 7 (4.4GeV), 10 (14 GeV)"
+        read answer
+		if [ $answer = 7 ]; then
+		    echo "7 Bins --> Max p_T = 4.4 GeV ...";
+		    correctEta=1
+		    BinsPtEta=7
+		elif [ $answer = 10 ]; then
+		    echo "10 Bins --> Max p_T = 14 GeV ...";
+		    correctEta=1
+		    BinsPtEta=10
+		else
+		    echo "Eta Binning was not set correctly. Please try again.";
+		    correctEta=0
+		fi
+
+}
+
 function GiveBinningDalitz7TeV()
 {
 	echo "How many p_T bins do you want to use for the Pi0? 19(4GeV), 21(5GeV), 24(8GeV), 26(15GeV)";
@@ -971,7 +1046,7 @@ done
 correct=0
 while [ $correct -eq 0 ]
 do
-    echo "Which collision system do you want to process? 7TeV (pp@7TeV), 5TeV2017 (pp@5TeV2017), 900GeV (pp@900GeV), 2.76TeV (pp@2.76TeV), PbPb_2.76TeV (PbPb@2.76TeV), pPb_5.023TeV (PbPb@2.76TeV)"
+    echo "Which collision system do you want to process? 13TeVRBins (pp@13TeVRBins), 13TeV (pp@13TeV), 7TeV (pp@7TeV), 5TeV2017 (pp@5TeV2017), 900GeV (pp@900GeV), 2.76TeV (pp@2.76TeV), PbPb_2.76TeV (PbPb@2.76TeV), pPb_5.023TeV (PbPb@2.76TeV)"
     read energy
     if [ $energy = "7TeV" ]; then
       
@@ -1006,6 +1081,45 @@ do
          #elif [ $correctEta -eq 0 ]; then
          #correct=0
          #else 
+         correct=1
+         #fi
+      #else
+      #   echo "Command not found. Please try again.";
+      #fi
+    elif [ $energy = "13TeV" ]; then
+
+         Conference="No"
+         Con=0
+         if [ $ONLYCORRECTION -eq 0 ]; then
+         GiveBinningDalitz13TeV
+         correctPi0=1
+         correctEta=1
+         fi
+         #if [ $correctPi0 -eq 0 ]; then
+         #correct=0
+         #elif [ $correctEta -eq 0 ]; then
+         #correct=0
+         #else
+         correct=1
+         #fi
+      #else
+      #   echo "Command not found. Please try again.";
+      #fi
+
+    elif [ $energy = "13TeVRBins" ]; then
+
+         Conference="No"
+         Con=0
+         if [ $ONLYCORRECTION -eq 0 ]; then
+         GiveBinningDalitz13TeVRBins
+         correctPi0=1
+         correctEta=1
+         fi
+         #if [ $correctPi0 -eq 0 ]; then
+         #correct=0
+         #elif [ $correctEta -eq 0 ]; then
+         #correct=0
+         #else
          correct=1
          #fi
       #else
@@ -1218,7 +1332,7 @@ if [ $ONLYRESULTS -eq 0 ]; then
 					      fi
 					fi
 					
-					root -x -q -l -b TaskV1/CompareMesonQuantitiesDalitz.C\+\+\(\"$Pi0dataRAWFILE\"\,\"$Pi0MCRAWFILE\"\,\"$cutSelection\"\,\"Pi0\"\,\"$Suffix\"\,\"$energy\"\)
+					echo 'root -x -q -l -b TaskV1/CompareMesonQuantitiesDalitz.C\+\+\(\"$Pi0dataRAWFILE\"\,\"$Pi0MCRAWFILE\"\,\"$cutSelection\"\,\"Pi0\"\,\"$Suffix\"\,\"$energy\"\)'
 				fi	
 				
 				if [ $Noeta -eq 0  ] && [ "$energy" != "PbPb_2.76TeV" ] && [ "$energy" != "pPb_5.023TeV" ]; then
@@ -1251,7 +1365,7 @@ if [ $ONLYRESULTS -eq 0 ]; then
 								fi
 
 							fi
-							 root -x -q -l -b TaskV1/CompareMesonQuantitiesDalitz.C\+\+\(\"$Pi0EtadataRAWFILE\"\,\"$Pi0EtaMCRAWFILE\"\,\"$cutSelection\"\,\"Pi0EtaBinning\"\,\"$Suffix\"\,\"$energy\"\)
+							 echo 'root -x -q -l -b TaskV1/CompareMesonQuantitiesDalitz.C\+\+\(\"$Pi0EtadataRAWFILE\"\,\"$Pi0EtaMCRAWFILE\"\,\"$cutSelection\"\,\"Pi0EtaBinning\"\,\"$Suffix\"\,\"$energy\"\)'
 						fi
 					fi
 					
@@ -1280,20 +1394,20 @@ if [ $ONLYRESULTS -eq 0 ]; then
 							
 							fi
 						fi
-		 				root -x -q -l -b TaskV1/CompareMesonQuantitiesDalitz.C\+\+\(\"$EtadataRAWFILE\"\,\"$EtaMCRAWFILE\"\,\"$cutSelection\"\,\"Eta\"\,\"$Suffix\"\,\"$energy\"\)
+                                                    echo 'root -x -q -l -b TaskV1/CompareMesonQuantitiesDalitz.C\+\+\(\"$EtadataRAWFILE\"\,\"$EtaMCRAWFILE\"\,\"$cutSelection\"\,\"Eta\"\,\"$Suffix\"\,\"$energy\"\)'
 					fi
 				
 				fi
 				if [ $MCFILE -eq 1 ] && [ $energy != "PbPb_2.76TeV" ]; then 
 	  
-				    root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFile\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"\"\,$mode\)
+				 echo   'root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFile\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"\"\,$mode\)'
 
 
 				    if [ $MERGINGMC -eq 1 ]; then
 					#DataRootFileBC
 					
-					root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFileBC\"\,\"$MCRootFileBC\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"BC\"\,$mode\)
-					root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFileD\"\,\"$MCRootFileD\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"D\"\,$mode\)
+                                        echo 'root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFileBC\"\,\"$MCRootFileBC\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"BC\"\,$mode\)
+					root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFileD\"\,\"$MCRootFileD\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"D\"\,$mode\)'
 				
 				
 				    fi				
@@ -1365,7 +1479,7 @@ if [ $ONLYRESULTS -eq 0 ]; then
 						
 			fi
                         if [ "$energy" == "5TeV2017" ]; then
-                                root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFile\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"\"\,$mode\)
+                                echo 'root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFile\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"\"\,$mode\)'
                         fi
 
 		fi
