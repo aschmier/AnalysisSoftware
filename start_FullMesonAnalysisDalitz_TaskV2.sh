@@ -10,7 +10,9 @@
 #Input 2: Input directory  Default:$PWD 
 #Input 3: Output directory Default: $PWD/Results  (directory will be created if it does not exist)
 #
-
+#rm TaskV1/**.d
+#rm TaskV1/**.pcm
+#rm TaskV1/**_C.so
 PROGNAME=$0
 
 function GiveBinningDalitz13TeVRBins()
@@ -27,8 +29,8 @@ function GiveBinningDalitz13TeVRBins()
 		    BinsPtPi0=15
 		elif [ $answer = 17 ]; then
 		    echo "17 Bins --> Max p_T = 12 GeV ...";
-		    correctPi0=1
-		    BinsPtPi0=17
+		    correctPi0=2
+		    BinsPtPi0=14
 		elif [ $answer = 18 ]; then
 		    echo "18 Bins --> Max p_T = 16 GeV ...";
 		    correctPi0=1
@@ -37,21 +39,24 @@ function GiveBinningDalitz13TeVRBins()
 		    echo "Pi0 Binning was not set correctly. Please try again.";
 		    correctPi0=0
 		fi
-        echo "How many p_t bins do you want to use for the dummy eta meson? 7 (4.4GeV), 9 (10 GeV)"
+        echo "How many p_t bins do you want to use for the dummy eta meson? 7 (4.4GeV), 9 (10 GeV), 21 (10GeV)"
         read answer
 		if [ $answer = 7 ]; then
 		    echo "7 Bins --> Max p_T = 4.4 GeV ...";
 		    correctEta=1
 		    BinsPtEta=7
-		elif [ $answer = 9 ]; then
+		elif [ $answer = 21 ]; then
 		    echo "9 Bins --> Max p_T = 10 GeV ...";
 		    correctEta=1
 		    BinsPtEta=9
+        elif [ $answer = 22 ]; then
+		    echo "21 Bins --> Max p_T = 10 GeV, New binning";
+		    correctEta=1
+		    BinsPtEta=10
 		else
 		    echo "Eta Binning was not set correctly. Please try again.";
 		    correctEta=0
 		fi
-
 }
 
 
@@ -75,10 +80,10 @@ function GiveBinningDalitz13TeV()
 		    echo "31 Bins --> Max p_T = 16 GeV ...";
 		    correctPi0=1
 		    BinsPtPi0=31
-		elif [ $answer = 30 ]; then
+		elif [ $answer = 29 ]; then
 		    echo "30 Bins --> Max p_T = 12 GeV ...";
 		    correctPi0=1
-		    BinsPtPi0=30
+		    BinsPtPi0=29
 		else
 		    echo "Pi0 Binning was not set correctly. Please try again.";
 		    correctPi0=0
@@ -89,10 +94,10 @@ function GiveBinningDalitz13TeV()
 		    echo "7 Bins --> Max p_T = 4.4 GeV ...";
 		    correctEta=1
 		    BinsPtEta=7
-		elif [ $answer = 10 ]; then
+		elif [ $answer = 21 ]; then
 		    echo "10 Bins --> Max p_T = 14 GeV ...";
 		    correctEta=1
-		    BinsPtEta=10
+		    BinsPtEta=17
 		else
 		    echo "Eta Binning was not set correctly. Please try again.";
 		    correctEta=0
@@ -151,7 +156,7 @@ function GiveBinningDalitz7TeV()
 
 function GiveBinningDalitz5TeV2017()
 {
-	echo "How many p_T bins do you want to use for the Pi0? 19(4GeV), 21(5GeV), 24(8GeV), 25(?), 26(15GeV)";
+	echo "How many p_T bins do you want to use for the Pi0? 16(RBins) 19(4GeV), 21(5GeV), 24(8GeV), 25(?), 26(15GeV)";
 	read answer
 		if [ $answer = 19 ]; then
 		    echo "19 Bins --> Max p_T = 4 GeV ...";
@@ -161,6 +166,10 @@ function GiveBinningDalitz5TeV2017()
 		    echo "21 Bins --> Max p_T = 5 GeV ...";
 		    correctPi0=1
 		    BinsPtPi0=21
+		    		elif [ $answer = 16 ]; then
+		    echo "18 Bins --> Max p_T = RBins ...";
+		    correctPi0=2
+		    BinsPtPi0=16
 		elif [ $answer = 24 ]; then
 		    echo "24 Bins --> Max p_T = 8 GeV ...";
 		    correctPi0=1
@@ -594,7 +603,6 @@ echo "///////////////////////////////////////////////////////////"
 echo "///////////////////////////////////////////////////////////"
 echo "///////////////////////////////////////////////////////////"
 echo "///////////////////////////////////////////////////////////"
-
 	root -x -l -b -q TaskV1/ProduceFinalResults.C\+\+\($1\,\"Dalitz\"\,\"kTRUE\"\,$AddPileUpCorr\,$mode\)
 }
 
@@ -1500,7 +1508,7 @@ if [ $ONLYRESULTS -eq 0 ]; then
 						
 			fi
                         if [ "$energy" == "5TeV2017" ]; then
-                                echo 'root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFile\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"\"\,$mode\)'
+                                root -x -q -l -b TaskQA/ElectronQAv1.C\+\+\(\"$DataRootFile\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"$energy\"\,\"\"\,$mode\)
                         fi
 
 		fi
