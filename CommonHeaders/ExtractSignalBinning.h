@@ -213,7 +213,7 @@
                     trigger     = 51;
                 if (triggerSet == 5)
                     trigger     = 01;
-            } else if (energy.CompareTo("5TeV") == 0 || energy.CompareTo("7TeV") == 0  || energy.BeginsWith("8TeV") || energy.CompareTo("13TeV") == 0 || energy.Contains("pPb_8TeV") ){
+            } else if (energy.CompareTo("5TeV") == 0 || energy.CompareTo("7TeV") == 0  || energy.CompareTo("8TeV") == 0 || energy.CompareTo("13TeV") == 0 || energy.CompareTo("pPb_8TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 ){
                 if (triggerSet == 1)
                     trigger     = 52;
                 if (triggerSet == 2)
@@ -1086,6 +1086,8 @@
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0) {
                 if (mode == 0){
                     return 4;
+                } else if ( mode == 1 ){
+                    return 5;
                 } else if (mode == 2 || mode == 4){
                     switch (trigger){
                         case 83:
@@ -2179,6 +2181,7 @@
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0){
                 if( mode==0){ //PCM-PCM
                     startPtBin = 1;}
+                else if( mode==1 ) startPtBin = 1;
                 else if( mode==2 || mode==13 ){
                      startPtBin = 1;
                     // if(specialTrigg == 2 )                        startPtBin = 17;
@@ -3856,6 +3859,7 @@
                             default: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigCombPt, binning, 24 ); break;
                         }
                         break;
+                    case 1: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVDalitzTrigINT7Pt, binning, 9 ); break;
                     case 2:
                         switch(SpecialTrigger) {
                             case 0: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigINT7Pt, binning, 30 ); break;
