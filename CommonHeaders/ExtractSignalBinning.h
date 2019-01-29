@@ -1089,6 +1089,7 @@
                 } else if ( mode == 1 ){
                     return 5;
                 } else if (mode == 2 || mode == 4){
+
                     switch (trigger){
                         case 83:
                             return 5;
