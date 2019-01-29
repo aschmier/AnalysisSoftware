@@ -177,7 +177,7 @@
     std::vector<Double_t> fBinsPi013TeVRBinsDalitzPt {// size: 19
         0.0, 0.3, 0.4, 0.6, 0.8, 1., 1.4, 1.8,  2.2, 2.6, 3., 4.0,
         5.0, 6.0, 7.0, 8.0, 10., 12., 16. };
-    std::vector<Int_t>    fBinsPi013TeVRBinsDalitzPtRebin {// size: 18
+    std::vector<Int_t>    fBinsPi013TeVRBinsDalitzPtRebin {// size: 18//
         3, 1, 2, 2, 2, 4, 4, 4, 4, 4,
         10, 10, 10, 10, 10, 20, 20, 40};
     // PCM-EMC
