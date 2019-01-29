@@ -2962,7 +2962,7 @@
                         else   maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32); break;
                             switch(SpecialTrigger) {
                             case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
-                            case 4:
+                            case 4: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
                             case 5: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
                             case 2: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
                             case 3: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
