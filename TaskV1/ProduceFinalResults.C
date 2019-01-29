@@ -129,7 +129,7 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
         }
         fileNameSysErrEta = "SystematicErrorsNew/SystematicErrorAveraged_Eta_8TeV_16_May_2015.dat";
         cout << "You have choosen 8TeV" << endl;
-    } else if( optionEnergy.CompareTo("13TeV") == 0) {
+        } else if ((optionEnergy.CompareTo("13TeV")==0)||(optionEnergy.CompareTo("13TeVRBins")== 0)){
         minPtForFits=0.4;
         minPtForFitsEta=0.4;
 
@@ -398,7 +398,7 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
 
         histoPi0ToChargedPhojet = (TH1D*)fileMCGenerated->Get(Form("Pi0ToCharged_generatedSpectrum_%s_Phojet","7TeV"));
         histoPi0ToChargedPythia = (TH1D*)fileMCGenerated->Get(Form("Pi0ToCharged_generatedSpectrum_%s_Pythia","7TeV"));
-    } else if(optionEnergy.CompareTo("13TeV")==0){
+    } else if ((optionEnergy.CompareTo("13TeV") == 0)  || (optionEnergy.CompareTo("13TeVRBins") == 0) ){
         cout << "Caution!!! use 7TeV MC generated EtaToPi0 and Pi0ToCharged spectra" << endl;
         histoEtaToPi0Phojet = (TH1D*)fileMCGenerated->Get(Form("EtaToPi0_generatedSpectrum_7TeV_Phojet"));
         histoEtaToPi0Pythia = (TH1D*)fileMCGenerated->Get(Form("EtaToPi0_generatedSpectrum_7TeV_Pythia"));
