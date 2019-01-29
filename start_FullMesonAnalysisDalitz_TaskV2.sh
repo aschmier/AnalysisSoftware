@@ -49,6 +49,10 @@ function GiveBinningDalitz13TeVRBins()
 		    echo "9 Bins --> Max p_T = 10 GeV ...";
 		    correctEta=1
 		    BinsPtEta=9
+		elif [ $answer = 10 ]; then
+		    echo "10 Bins --> Max p_T = 14 GeV ...";
+		    correctEta=1
+		    BinsPtEta=10
 		else
 		    echo "Eta Binning was not set correctly. Please try again.";
 		    correctEta=0
