@@ -2957,15 +2957,17 @@
                                 break;
                         }
                         break;
-                    case 1:
-                        switch(SpecialTrigger) {
-                            case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 20 ); break;
+                            case 1:
+                        if( energy.Contains("RBins")) maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVRBinsDalitzPt, binning, 84 );
+                        else   maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32); break;
+                            switch(SpecialTrigger) {
+                            case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
                             case 4:
-                            case 5: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 20 ); break;
-                            case 2: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 20 ); break;
-                            case 3: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 20 ); break;
+                            case 5: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
+                            case 2: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
+                            case 3: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
                         }
-                        break;
+                      break;
 
                     case 2:
                     cout<<"13 TeV "<<energy<<" Binning used for mode "<<mode<<" with SpecialTrigger:" << SpecialTrigger << "   fBinsPi013TeVPCMEMCTrig...Pt";
