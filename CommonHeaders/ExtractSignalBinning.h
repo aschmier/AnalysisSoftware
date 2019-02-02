@@ -2957,7 +2957,7 @@
                                 break;
                         }
                         break;
-                            case 1:
+                    case 1:
                         if( energy.Contains("RBins")) maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVRBinsDalitzPt, binning, 84 );
                         else   maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32); break;
                             switch(SpecialTrigger) {
