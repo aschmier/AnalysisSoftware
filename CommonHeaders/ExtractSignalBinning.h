@@ -2969,7 +2969,6 @@
                             case 5: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
                         }
                       break;
-
                     case 2:
                     cout<<"13 TeV "<<energy<<" Binning used for mode "<<mode<<" with SpecialTrigger:" << SpecialTrigger << "   fBinsPi013TeVPCMEMCTrig...Pt";
                         switch(SpecialTrigger) {
