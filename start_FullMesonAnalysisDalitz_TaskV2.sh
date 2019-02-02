@@ -76,14 +76,14 @@ function GiveBinningDalitz13TeV()
 		    echo "28 Bins --> Max p_T = 9 GeV ...";
 		    correctPi0=1
 		    BinsPtPi0=28
-		elif [ $answer = 31 ]; then
-		    echo "31 Bins --> Max p_T = 16 GeV ...";
-		    correctPi0=1
-		    BinsPtPi0=31
 		elif [ $answer = 29 ]; then
-		    echo "30 Bins --> Max p_T = 12 GeV ...";
+		    echo "31 Bins --> Max p_T = 12 GeV ...";
 		    correctPi0=1
 		    BinsPtPi0=29
+		elif [ $answer = 31 ]; then
+		    echo "30 Bins --> Max p_T = 16 GeV ...";
+		    correctPi0=1
+		    BinsPtPi0=31
 		else
 		    echo "Pi0 Binning was not set correctly. Please try again.";
 		    correctPi0=0
