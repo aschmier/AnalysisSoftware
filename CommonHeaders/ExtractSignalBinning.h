@@ -336,7 +336,7 @@
                 }
             } else if (energy.CompareTo("5TeV") == 0 || energy.Contains("5TeV2017") || energy.CompareTo("5TeVSpecial") == 0) {
                 if ( mode == 0 || mode == 1 )
-                    return 3;
+                    return 3;//previous was 5 for PCM-Daliz
                 if ( mode == 2 )
                     return 9;
                 if ( mode == 4  || mode == 5){
@@ -2962,10 +2962,10 @@
                         else   maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32); break;
                             switch(SpecialTrigger) {
                             case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
-                            case 4: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
-                            case 5: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
                             case 2: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
                             case 3: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
+                            case 4: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
+                            case 5: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVDalitzPt, binning, 32 ); break;
                         }
                       break;
 
