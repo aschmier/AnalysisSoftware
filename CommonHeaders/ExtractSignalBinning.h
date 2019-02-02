@@ -42,7 +42,6 @@
     Double_t fBGFitRange_FixedPzPiZero[2]           = {0,0};
 
 
-
     //****************************************************************************************************
     //****************** Pt binning for Inter/Extrapolations *********************************************
     //****************************************************************************************************
@@ -185,7 +184,6 @@
     //*************************************************************************************************
     //******************** Initialize Single bin for invariant mass plot ******************************
     //*************************************************************************************************
-
     Int_t ReturnSingleInvariantMassBinPlotting(
         TString meson,
         TString energy,
@@ -2564,7 +2562,6 @@
                 if ( mode == 0){
                     startPtBin = 1;
                 }
-
             }
         } else if ( meson.CompareTo("Rho") == 0 || meson.CompareTo("K0Star") == 0){
             startPtBin     = 1;
@@ -5678,6 +5675,7 @@
                     fStartPtBin                 = GetStartBin("Pi0", energy, modi, specialTrigg, centrality);
                     GetBinning( fBinsPt, maxPtBinAvail, "Pi0", energy, modi, specialTrigg, isDCA, DoJetAnalysis);
                     cout<<energy<<" "<<setPi0<<" Start Bin:  "<<fStartPtBin<<endl;
+
                     CheckBinSize(fNBinsPt,maxPtBinAvail,kTRUE);
                     GetOptimumNColumnsAndRows(fNBinsPt, fStartPtBin, fColumn, fRow);
                     //Rebinning, because not implemented in getBinning
@@ -6939,6 +6937,7 @@
                                 case 5: CopyVectorToArray(fBinsEta13TeVPCMEMCTrigEG1PtRebin,fNRebin); break;
                                 // case 5: CopyVectorToArray(fBinsEta13TeVPCMEMCTrigINT7PtRebin,fNRebin); break;
                                 default: CopyVectorToArray(fBinsEta13TeVPCMEMCTrigINT7PtRebin,fNRebin); break;
+
                             }
                             break;
                         case 3: //PCM-PHOS
@@ -6999,7 +6998,6 @@
                             break;
                         case 4:
                             switch(specialTrigg) {
-
                                 case 0: CopyVectorToArray(fBinsEta13TeVEMCTrigINT7PtRebin,fNRebin); break;
                                 case 2: CopyVectorToArray(fBinsEta13TeVEMCTrigEG1PtRebin, fNRebin); break;
                                 case 3: CopyVectorToArray(fBinsEta13TeVEMCTrigEG2PtRebin, fNRebin); break;
@@ -7882,6 +7880,7 @@
                                 fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevPtRebinPHOS[i];
                             } else{
                                 fNRebin[i] = fBinsPi0OmegaBinning7TevPtRebinPHOS[i];
+
                             }
                         } else {
                             if (setPi0.CompareTo("Omega") == 0){
