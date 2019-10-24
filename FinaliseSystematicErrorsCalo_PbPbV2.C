@@ -413,6 +413,7 @@ void FinaliseSystematicErrorsCalo_PbPbV2(     const char* nameDataFileErrors  = 
                 for (Int_t k = 0;k < nPtBins;k++){
                       error =  (5.32285e-01 + -2.01078e-01*ptBins[k] + 2.37952e-02*ptBins[k]*ptBins[k])*1.5;
                       if ( meson.CompareTo("Eta") == 0 ) error = 0;
+                      if(mode == 5 && error> 3.5) error = 3.5;
                     errorsMean[i][k]            = error;
                     errorsMeanErr[i][k]         = error*0.01;
                     errorsMeanCorr[i][k]        = error;
@@ -469,6 +470,7 @@ void FinaliseSystematicErrorsCalo_PbPbV2(     const char* nameDataFileErrors  = 
                       if(ptBins[k] > 12.0) error = 1.32874 + 0.16*(ptBins[k]-12)*(ptBins[k]-12);
                       if(meson.Contains("Eta")) error *= 1.2;
                       if(meson.Contains("EtaToPi0")) error *= 0.5;
+                      if(mode == 5 && error> 4) error = 4;
                       errorsMean[i][k]        = error;
                       errorsMeanErr[i][k]     = 0.01*error;
                       errorsMeanCorr[i][k]    = error;
@@ -489,6 +491,7 @@ void FinaliseSystematicErrorsCalo_PbPbV2(     const char* nameDataFileErrors  = 
                     if(meson.Contains("Eta")) error *= 1.2;
                     if(meson.Contains("EtaToPi0")) error *= 0.5;
                     if(mode == 5) error /= 2.;
+                    if(mode == 5 && error> 4.5) error = 4.5;
                     errorsMean[i][k]            = error;
                     errorsMeanErr[i][k]         = error*0.01;
                     errorsMeanCorr[i][k]        = error;

@@ -6213,6 +6213,8 @@
                 triggerRejec    = 2464;
             } else if (!strTrigger.CompareTo("a2")){  // EG2
                 triggerRejec    = 909;
+            } else if (!strTrigger.CompareTo("ap")){  // PHI7
+                triggerRejec    = 7647;
             }
         } else  if (energy.BeginsWith("8TeV")){
             cout << "Trigger used: " << trigger << endl;
@@ -6281,6 +6283,7 @@
         if (trigger.Atoi() == 10 || trigger.Atoi() == 52 || trigger.Atoi() == 83  || trigger.Atoi() == 85 || trigger.Atoi() == 81 || trigger.Contains("8e") || trigger.Contains("8d")) {
             selTrig                     = 1;
         }
+        if ( trigger.Contains("ap") ) selTrig = 1;
 
         Double_t    xSec                = ReturnCorrectXSection(energy, selTrig);
         Double_t    xSecINEL            = ReturnCorrectXSection(energy, 3);

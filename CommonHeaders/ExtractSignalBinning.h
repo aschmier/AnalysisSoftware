@@ -1481,7 +1481,7 @@
             } else if (energy.CompareTo("5TeV") == 0 || energy.Contains("5TeV2017") || energy.CompareTo("5TeVSpecial") == 0){
                 if( energy.Contains("2017") ||  energy.Contains("Special") ){
                     if ( mode == 0){
-                        startPtBin = 2;
+                        startPtBin = 1;
                         if( energy.Contains("Ref1"))
                             startPtBin = 1;
                         if(DoJetAnalysis)
@@ -1998,7 +1998,7 @@
             } else if (energy.CompareTo("5TeV") == 0 || energy.Contains("5TeV2017") || energy.CompareTo("5TeVSpecial") == 0){
               if( energy.Contains("2017") || energy.Contains("Special")){
                   if ( mode == 0){
-                      startPtBin = 2;
+                      startPtBin = 1;
                       if( energy.Contains("Ref1"))
                         startPtBin = 1;
                       if(DoJetAnalysis)
@@ -2029,7 +2029,7 @@
                     if( energy.Contains("Ref1")){
                       startPtBin = 4;
                     } else {
-                      startPtBin = 9;
+                      startPtBin = 8;
                       if (specialTrigg == 4) startPtBin = 14;
                     }
                   } else if ( mode == 13 ){
@@ -2675,7 +2675,7 @@
                   } else if ( mode == 4  || mode == 5){
                     if(energy.Contains("2017")){
                       if(energy.Contains("Ref1")){
-                          maxNBins = 33;
+                          maxNBins = 34;
                           for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsPi0PbPb5TeVEMCPt[i];
                           }

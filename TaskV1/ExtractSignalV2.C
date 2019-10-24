@@ -3623,6 +3623,7 @@ void SetCorrectMCHistogrammNames(TString mesonType){
         else                ObjectNameMCPi0Acc                  = "MC_Pi0InAcc_Pt";
         ObjectNameMCPi0AccWOWeights         = "MC_Pi0WOWeightInAcc_Pt";
         if(fMode == 4 && (fEnergyFlag.CompareTo("pPb_5.023TeV") == 0|| fEnergyFlag.CompareTo("pPb_5.023TeVRun2") == 0) ) ObjectNameMCPi0AccWOWeights = "MC_Pi0InAcc_Pt";
+        if(fMode == 5 && (fEnergyFlag.Contains("5TeV2017") || fEnergyFlag.Contains("PbPb_5.02TeV"))) ObjectNameMCPi0AccWOWeights = "MC_Pi0InAcc_Pt";
         if(fMode == 4 || fMode == 12 || fMode == 5 || fMode==14)
             ObjectNameMCPi0AccWOEvtWeights    = "MC_Pi0WOEvtWeightInAcc_Pt";
         else

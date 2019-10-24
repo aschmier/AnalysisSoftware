@@ -240,6 +240,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TString nameMCYield                                 = "MCYield_Meson_oldBinWOWeights";
     if ( mode == 4 || mode == 5 ){
         nameCorrectedYield                              = "CorrectedYieldNormEff";
+        if(mode == 5 && (optionEnergy.Contains("5TeV2017") || optionEnergy.Contains("PbPb_5.02TeV") )) nameCorrectedYield = "CorrectedYieldTrueEff";
         nameEfficiency                                  = "MesonEffiPt";
         nameMassMC                                      = "histoMassMesonRecMC";
         nameWidthMC                                     = "histoFWHMMesonRecMC";

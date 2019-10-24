@@ -409,8 +409,8 @@ void CompareDifferentDirectories(   TString FolderList              = "",
           for(Int_t i = 0; i< NumberOfCuts; i++){
               if(i==0){
                   // Set ratio min and max
-                  Double_t minYRatio = 0.45;
-                  Double_t maxYRatio = 1.55;
+                  Double_t minYRatio = 0.75;
+                  Double_t maxYRatio = 1.25;
                   if (mode != 0 && mode!= 1 ){
                       minYRatio = 0.75;
                       maxYRatio = 1.55;
@@ -707,7 +707,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
 
         for(Int_t i = 0; i< NumberOfCuts; i++){
             if(i==0){
-                Double_t minYRatio = 0.95;
+                Double_t minYRatio = 0.45;
                 Double_t maxYRatio = 1.05;
                 SetStyleHistoTH1ForGraphs(histoRatioAcceptanceCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
                 DrawGammaSetMarker(histoRatioAcceptanceCut[i], 20, 1.,color[0],color[0]);
