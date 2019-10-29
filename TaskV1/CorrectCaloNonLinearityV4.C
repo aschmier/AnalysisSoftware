@@ -426,6 +426,12 @@ void CorrectCaloNonLinearityV4(
     TH1D* histMCResults         = new TH1D("Mean mass MC","; #it{E}_{Cluster} (GeV); mean mass MC",fNBinsPt,fBinsPt);
     TH1D* histDataResults       = new TH1D("Mean mass Data","; #it{E}_{Cluster} (GeV); mean mass Data",fNBinsPt,fBinsPt);
     TH1D* histDataMCResults     = new TH1D("Mean mass ratio MC/Data","; #it{E}_{Cluster} (GeV); mean mass ratio (MC/Data)",fNBinsPt,fBinsPt);
+    TH1D* histMCAmplitude         = new TH1D("Amplitude","; #it{E}_{Cluster} (GeV); Amplitude",fNBinsPt,fBinsPt);
+    TH1D* histDataAmplitude       = new TH1D("Amplitude","; #it{E}_{Cluster} (GeV); Amplitude",fNBinsPt,fBinsPt);
+    TH1D* histMCTail         = new TH1D("Tail","; #it{E}_{Cluster} (GeV); Tail",fNBinsPt,fBinsPt);
+    TH1D* histDataTail       = new TH1D("Tail","; #it{E}_{Cluster} (GeV); Tail",fNBinsPt,fBinsPt);
+    TH1D* histMCSigma         = new TH1D("Sigma","; #it{E}_{Cluster} (GeV); Sigma",fNBinsPt,fBinsPt);
+    TH1D* histDataSigma       = new TH1D("Sigma","; #it{E}_{Cluster} (GeV); Sigma",fNBinsPt,fBinsPt);
     histMCResults->SetDirectory(0);
     histDataResults->SetDirectory(0);
     histMCResults->GetXaxis()->SetRangeUser(fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
@@ -750,10 +756,24 @@ void CorrectCaloNonLinearityV4(
             if(iDataMC==0) {
                 histDataResults->SetBinContent(iClusterPt+1,fFitReco->GetParameter(1));
                 histDataResults->SetBinError(iClusterPt+1,fFitReco->GetParError(1));
+
+                histDataAmplitude->SetBinContent(iClusterPt+1,fFitReco->GetParameter(0));
+                histDataAmplitude->SetBinError(iClusterPt+1,fFitReco->GetParError(0));
+                histDataTail->SetBinContent(iClusterPt+1,fFitReco->GetParameter(3));
+                histDataTail->SetBinError(iClusterPt+1,fFitReco->GetParError(3));
+                histDataSigma->SetBinContent(iClusterPt+1,fFitReco->GetParameter(2));
+                histDataSigma->SetBinError(iClusterPt+1,fFitReco->GetParError(2));
             }
             else if(iDataMC==1) {
                 histMCResults->SetBinContent(iClusterPt+1,fFitReco->GetParameter(1));
                 histMCResults->SetBinError(iClusterPt+1,fFitReco->GetParError(1));
+
+                histMCAmplitude->SetBinContent(iClusterPt+1,fFitReco->GetParameter(0));
+                histMCAmplitude->SetBinError(iClusterPt+1,fFitReco->GetParError(0));
+                histMCTail->SetBinContent(iClusterPt+1,fFitReco->GetParameter(3));
+                histMCTail->SetBinError(iClusterPt+1,fFitReco->GetParError(3));
+                histMCSigma->SetBinContent(iClusterPt+1,fFitReco->GetParameter(2));
+                histMCSigma->SetBinError(iClusterPt+1,fFitReco->GetParError(2));
             }
             fFitReco->SetNpx(100000);
 
@@ -1012,6 +1032,95 @@ void CorrectCaloNonLinearityV4(
     canvasMassPDG->SaveAs(Form("%s/MeanMass_Pi0_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
     canvasMassPDG->Clear();
     delete canvasMassPDG;
+
+    Double_t textsize = 0.07;
+    TCanvas *canvasmonitor = new TCanvas("canvasmonitor","",200,10,1400,1400);  // gives the page size
+    TLegend *legendmonitorSigma   = GetAndSetLegend2(0.4, 0.91 , 0.7, 0.98, textsize, 2, "", 42, 0.35);
+    TLegend *legendmonitorTail   = GetAndSetLegend2(0.4, 0.91 , 0.7, 0.98, textsize, 2, "", 42, 0.35);
+    TLegend *legendmonitorAmplitude   = GetAndSetLegend2(0.4, 0.91 , 0.7, 0.98, textsize, 2, "", 42, 0.35);
+    TPad *padmonitorSigma;
+    TPad *padmonitorTail;
+    TPad *padmonitorAmplitude;
+
+    DrawGammaCanvasSettings(canvasmonitor, 0.08, 0.02, 0.055, 0.08);
+    canvasmonitor->cd();
+
+    padmonitorSigma = new TPad("padmonitorSigma","",0,0.66,1,0.99);
+    padmonitorSigma->SetTopMargin(0.1);
+    padmonitorSigma->SetBottomMargin(0.1);
+    padmonitorSigma->SetRightMargin(0.02);
+    padmonitorSigma->SetLeftMargin(0.07);
+    padmonitorSigma->SetTickx();
+    padmonitorSigma->SetTicky();
+    padmonitorSigma->cd();
+    padmonitorSigma->SetLogx(1);
+    padmonitorSigma->SetLogy(0);
+
+    padmonitorTail = new TPad("padmonitorTail","",0,0.33,1,0.66);
+    padmonitorTail->SetTopMargin(0.1);
+    padmonitorTail->SetBottomMargin(0.1);
+    padmonitorTail->SetRightMargin(0.02);
+    padmonitorTail->SetLeftMargin(0.07);
+    padmonitorTail->SetTickx();
+    padmonitorTail->SetTicky();
+    padmonitorTail->cd();
+    padmonitorTail->SetLogx(1);
+    padmonitorTail->SetLogy(0);
+
+    padmonitorAmplitude = new TPad("padmonitorAmplitude","",0,0.,1,0.33);
+    padmonitorAmplitude->SetTopMargin(0.1);
+    padmonitorAmplitude->SetBottomMargin(0.1);
+    padmonitorAmplitude->SetRightMargin(0.02);
+    padmonitorAmplitude->SetLeftMargin(0.07);
+    padmonitorAmplitude->SetTickx();
+    padmonitorAmplitude->SetTicky();
+    padmonitorAmplitude->cd();
+    padmonitorAmplitude->SetLogx(1);
+    padmonitorAmplitude->SetLogy(1);
+
+    padmonitorAmplitude->cd();
+    legendmonitorSigma->AddEntry(histDataAmplitude,"Data", "pl");
+    SetStyleHistoTH1ForGraphs(histDataAmplitude, "#it{E}_{Cluster} (GeV)","Amplitude",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histDataAmplitude, markerStyle[0], 2., color[2], color[2]);
+    histDataAmplitude->DrawCopy("pl");
+    legendmonitorSigma->AddEntry(histMCAmplitude,"MC", "pl");
+    SetStyleHistoTH1ForGraphs(histMCAmplitude, "#it{E}_{Cluster} (GeV)","Amplitude",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histMCAmplitude, markerStyle[1], 2., color[5], color[5]);
+    histMCAmplitude->DrawCopy("pl,same");
+    legendmonitorSigma->Draw();
+
+
+    padmonitorTail->cd();
+    legendmonitorTail->AddEntry(histDataTail,"Data", "pl");
+    SetStyleHistoTH1ForGraphs(histDataTail, "#it{E}_{Cluster} (GeV)","Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histDataTail, markerStyle[0], 2., color[2], color[2]);
+    histDataTail->DrawCopy("pl");
+    legendmonitorTail->AddEntry(histMCTail,"MC", "pl");
+    SetStyleHistoTH1ForGraphs(histMCTail, "#it{E}_{Cluster} (GeV)","Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histMCTail, markerStyle[1], 2., color[5], color[5]);
+    histMCTail->DrawCopy("pl,same");
+    legendmonitorTail->Draw();
+
+    padmonitorSigma->cd();
+    legendmonitorAmplitude->AddEntry(histDataSigma,"Data", "pl");
+    SetStyleHistoTH1ForGraphs(histDataSigma, "#it{E}_{Cluster} (GeV)","Sigma",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histDataSigma, markerStyle[0], 2., color[2], color[2]);
+    histDataSigma->DrawCopy("pl");
+    legendmonitorAmplitude->AddEntry(histMCSigma,"MC", "pl");
+    SetStyleHistoTH1ForGraphs(histMCSigma, "#it{E}_{Cluster} (GeV)","Sigma",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histMCSigma, markerStyle[1], 2., color[5], color[5]);
+    histMCSigma->DrawCopy("pl,same");
+    legendmonitorAmplitude->Draw();
+
+    canvasmonitor->cd();
+    padmonitorSigma->Draw();
+    padmonitorTail->Draw();
+    padmonitorAmplitude->Draw();
+
+    canvasmonitor->Update();
+    canvasmonitor->SaveAs(Form("%s/Monitor_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
+    canvasmonitor->Clear();
+    delete canvasmonitor;
 
     //*********************************************************************************************************************************
     //****************************** Fitting ratio of mean mass position in MC/data ***************************************************
