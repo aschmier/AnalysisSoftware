@@ -6,14 +6,14 @@ MODE=$5
 echo -e "DPGTrackIncAccAndEMC" > runlistsToMerge.txt
 listsToMerge=`cat runlistsToMerge.txt`
 
-DOWNLOADON=1
+DOWNLOADON=0
 MERGEON=1
-MERGEONData=0
+MERGEONData=1
 MERGEONMC=1
-MERGEONFASTAndWOSDD=0
+MERGEONFASTAndWOSDD=1
 SINGLERUN=1
 SEPARATEON=0
-MERGEONSINGLEData=0
+MERGEONSINGLEData=1
 MERGEONSINGLEMC=1
 MERGEONSINGLEMCJJ=0
 CLEANUP=1
@@ -192,15 +192,15 @@ if [ $3 = "AODSKIMMB" ]; then
 #     LHC13dData="child_1"
 #     LHC13eData="child_2"
 #     LHC13fData="591" #skim MB
-    TRAINDIR=20190903-EMCtriggerStat
-    LHC13beData="";
-    LHC13bcData="602"
-    LHC13bData="child_1"
-    LHC13cData="child_2"
-    LHC13deData="603" #skim MB
-    LHC13dData="child_1"
-    LHC13eData="child_2"
-    LHC13fData="604" #skim MB
+#     TRAINDIR=20190903-EMCtriggerStat
+#     LHC13beData="";
+#     LHC13bcData="602"
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+#     LHC13deData="603" #skim MB
+#     LHC13dData="child_1"
+#     LHC13eData="child_2"
+#     LHC13fData="604" #skim MB
 #     TRAINDIR=20190916-PCMEMCSys
 #     LHC13beData="";
 #     LHC13bcData="619"
@@ -216,6 +216,18 @@ if [ $3 = "AODSKIMMB" ]; then
 #     LHC13fData="613" #skim MB
 #     LHC13fData="617" #skim MB
 #     LHC13fData="643" #skim MB
+    TRAINDIR=20191010-FullStatAllMethods
+    LHC13beData="";
+#     LHC13bcData="672"
+#     LHC13bcData="673"
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+#     LHC13deData="668" #skim MB
+#     LHC13deData="674" #skim MB
+#     LHC13dData="child_1"
+#     LHC13eData="child_2"
+#     LHC13fData="667" #skim MB
+#     LHC13fData="675" #skim MB
 
 elif [ $3 = "AODSKIMEMC7" ]; then
     TRAINDIR=20190831-EMCNonLin2
@@ -242,17 +254,26 @@ elif [ $3 = "AODSKIMEGAJE" ]; then
 #     LHC13eData="child_4"
 #     LHC13fData="606" #skim EGA
 
-    TRAINDIR=20190916-PCMEMCSys
+#     TRAINDIR=20190916-PCMEMCSys
 #     LHC13beData="627" #skim EGA
 #     LHC13beData="634" #skim EGA
-    LHC13beData="645" #skim EGA
+#     LHC13beData="645" #skim EGA
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+#     LHC13dData="child_3"
+#     LHC13eData="child_4"
+#     LHC13fData="628" #skim EGA
+#     LHC13fData="635" #skim EGA
+#     LHC13fData="646" #skim EGA
+    
+    TRAINDIR=20191010-FullStatAllMethods
+    LHC13beData="670" #skim EGA
     LHC13bData="child_1"
     LHC13cData="child_2"
     LHC13dData="child_3"
     LHC13eData="child_4"
-#     LHC13fData="628" #skim EGA
-#     LHC13fData="635" #skim EGA
-    LHC13fData="646" #skim EGA
+    LHC13fData="671" #skim EGA
+
 elif [ $3 = "AODSKIMPHI7" ]; then
 #     TRAINDIR=20190831-EMCNonLin
 #     LHC13beData="597" #skim PHI7
@@ -281,7 +302,7 @@ else
 #     LHC16tDataFast="child_2";
 #     LHC16qData="child_3";
 #     LHC16tData="child_4";
-    TRAINDIR=20190916-PCMEMCSys
+#     TRAINDIR=20190916-PCMEMCSys
 #     LHC16qtData="622";
 #     LHC16qtData="623";
 #     LHC16qtData="637";
@@ -293,10 +314,10 @@ else
 #     LHC16tData="child_4";
 #     LHC18j5MC="756"
 #     LHC18j5MC="768"
-    LHC18j5MC="774"
-    LHC18j5_1MC="child_1"
-    LHC18j5_2MC="child_2"
-    LHC18j5_3MC="child_3"
+#     LHC18j5MC="774"
+#     LHC18j5_1MC="child_1"
+#     LHC18j5_2MC="child_2"
+#     LHC18j5_3MC="child_3"
 #     LHC18f3MCMoth="757";
 #     LHC18f3MCMoth="761";
 #     LHC18f3MCMoth="775";
@@ -314,6 +335,15 @@ else
 #     LHC17g8aMCMoth="764"
 #     LHC17g8aMC="child_2"
 #     LHC17g8aMCFast="child_1"
+
+    TRAINDIR=20191010-FullStatAllMethods
+    LHC16qtData="669";
+#     LHC16qtData="676";
+#     LHC16qDataFast="child_1";
+    LHC16tDataFast="child_2";
+#     LHC16qData="child_3";
+    LHC16tData="child_4";
+
 fi
 
 

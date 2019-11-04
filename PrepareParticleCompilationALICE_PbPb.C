@@ -573,17 +573,17 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
 
         Int_t tobeMerged[10][2]          = {{0,1}, {3,4}, {5,6}, {7,8}, {10,2}, {2,3}, {4,5}, {6,7}, {8,9}, {17,18}};
 
-        TFile* filePbPb5TeV             = new TFile("ExternalInputPbPb/IdentifiedCharged_5.02TeV/Spectra_PbPbLHC15o_Combined_23-11-18_Histograms.root");
-        TList* listSummedPionStat       = (TList*)filePbPb5TeV->Get("Summed_Pion");
-        TList* listSummedPionSyst       = (TList*)filePbPb5TeV->Get("Summed_Pion_Sys");
-        TList* listSummedKaonStat       = (TList*)filePbPb5TeV->Get("Summed_Kaon");
-        TList* listSummedKaonSyst       = (TList*)filePbPb5TeV->Get("Summed_Kaon_Sys");
-        TList* listSummedProtonStat     = (TList*)filePbPb5TeV->Get("Summed_Proton");
-        TList* listSummedProtonSyst     = (TList*)filePbPb5TeV->Get("Summed_Proton_Sys");
-        TList* listSummedKaonPionStat   = (TList*)filePbPb5TeV->Get("Summed_Kaon_Over_Summed_Pion");
-        TList* listSummedKaonPionSyst   = (TList*)filePbPb5TeV->Get("Summed_Kaon_Over_Summed_Pion_Sys");
-        TList* listSummedProtonPionStat = (TList*)filePbPb5TeV->Get("Summed_Proton_Over_Summed_Pion");
-        TList* listSummedProtonPionSyst = (TList*)filePbPb5TeV->Get("Summed_Proton_Over_Summed_Pion_Sys");
+        TFile* filePbPb5TeV             = new TFile("ExternalInputPbPb/IdentifiedCharged_5.02TeV/20191031_Spectra_PbPbLHC15o_Combined_Histograms.root");
+        TList* listSummedPionStat       = (TList*)filePbPb5TeV->Get("Summed_Pion_Stat");
+        TList* listSummedPionSyst       = (TList*)filePbPb5TeV->Get("Summed_Pion_Syst");
+        TList* listSummedKaonStat       = (TList*)filePbPb5TeV->Get("Summed_Kaon_Stat");
+        TList* listSummedKaonSyst       = (TList*)filePbPb5TeV->Get("Summed_Kaon_Syst");
+        TList* listSummedProtonStat     = (TList*)filePbPb5TeV->Get("Summed_Proton_Stat");
+        TList* listSummedProtonSyst     = (TList*)filePbPb5TeV->Get("Summed_Proton_Syst");
+        TList* listSummedKaonPionStat   = (TList*)filePbPb5TeV->Get("Summed_Kaon_Over_Summed_Pion_Stat");
+        TList* listSummedKaonPionSyst   = (TList*)filePbPb5TeV->Get("Summed_Kaon_Over_Summed_Pion_Syst");
+        TList* listSummedProtonPionStat = (TList*)filePbPb5TeV->Get("Summed_Proton_Over_Summed_Pion_Stat");
+        TList* listSummedProtonPionSyst = (TList*)filePbPb5TeV->Get("Summed_Proton_Over_Summed_Pion_Syst");
 
         TH1D* histoChargedPionSpecStat[20]      = {NULL};
         TH1D* histoChargedPionSpecSyst[20]      = {NULL};
@@ -608,8 +608,8 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
 
         for (Int_t cent = 0; cent < 10; cent++){
             // read pi+ + pi- spectrum
-            histoChargedPionSpecStat[cent]      = (TH1D*)listSummedPionStat->FindObject(Form("hSpectraSummedPion_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
-            histoChargedPionSpecSyst[cent]      = (TH1D*)listSummedPionSyst->FindObject(Form("hSpectraSummedPion_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
+            histoChargedPionSpecStat[cent]      = (TH1D*)listSummedPionStat->FindObject(Form("hSpectraSummedPion_Stat_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
+            histoChargedPionSpecSyst[cent]      = (TH1D*)listSummedPionSyst->FindObject(Form("hSpectraSummedPion_Syst_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
             // calculate average charged pions spectrum
             if (histoChargedPionSpecStat[cent] && histoChargedPionSpecSyst[cent] ){
                 histoChargedPionSpecStat[cent]->Sumw2();
@@ -626,8 +626,8 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
             }
 
             // read K+ + K- spectrum
-            histoChargedKaonSpecStat[cent]      = (TH1D*)listSummedKaonStat->FindObject(Form("hSpectraSummedKaon_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
-            histoChargedKaonSpecSyst[cent]      = (TH1D*)listSummedKaonSyst->FindObject(Form("hSpectraSummedKaon_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
+            histoChargedKaonSpecStat[cent]      = (TH1D*)listSummedKaonStat->FindObject(Form("hSpectraSummedKaon_Stat_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
+            histoChargedKaonSpecSyst[cent]      = (TH1D*)listSummedKaonSyst->FindObject(Form("hSpectraSummedKaon_Syst_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
             // calculate average charged kaons spectrum
             if (histoChargedKaonSpecStat[cent] && histoChargedKaonSpecSyst[cent] ){
                 histoChargedKaonSpecStat[cent]->Sumw2();
@@ -644,8 +644,8 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
             }
 
             // read p + anti-p spectrum
-            histoChargedProtonSpecStat[cent]      = (TH1D*)listSummedProtonStat->FindObject(Form("hSpectraSummedProton_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
-            histoChargedProtonSpecSyst[cent]      = (TH1D*)listSummedProtonSyst->FindObject(Form("hSpectraSummedProton_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
+            histoChargedProtonSpecStat[cent]      = (TH1D*)listSummedProtonStat->FindObject(Form("hSpectraSummedProton_Stat_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
+            histoChargedProtonSpecSyst[cent]      = (TH1D*)listSummedProtonSyst->FindObject(Form("hSpectraSummedProton_Syst_PbPb_Combined_%s",centNameReadChId[cent].Data() ));
             // calculate average charged proton spectrum
             if (histoChargedProtonSpecStat[cent] && histoChargedProtonSpecSyst[cent] ){
                 histoChargedProtonSpecStat[cent]->Sumw2();
@@ -661,8 +661,8 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
                 cout << "couldn't find charged proton inputs for " << centName[cent].Data() << endl;
             }
             // Kaon over pion ratio
-            histoKaonPionRatioStat[cent]  = (TH1D*)listSummedKaonPionStat->FindObject(Form("hSpectraRatioSummedKaon_over_SummedPion_PbPb_Combined_%s", centNameReadChId[cent].Data() ));
-            histoKaonPionRatioSyst[cent]  = (TH1D*)listSummedKaonPionSyst->FindObject(Form("hSpectraRatioSummedKaon_over_SummedPion_PbPb_Combined_%s", centNameReadChId[cent].Data() ));
+            histoKaonPionRatioStat[cent]  = (TH1D*)listSummedKaonPionStat->FindObject(Form("hSpectraRatioSummedKaon_over_SummedPion_Syst_PbPb_Combined_%s", centNameReadChId[cent].Data() ));
+            histoKaonPionRatioSyst[cent]  = (TH1D*)listSummedKaonPionSyst->FindObject(Form("hSpectraRatioSummedKaon_over_SummedPion_Syst_PbPb_Combined_%s", centNameReadChId[cent].Data() ));
             if (histoKaonPionRatioStat[cent] && histoKaonPionRatioSyst[cent] ){
                 histoKaonPionRatioStat[cent]->Sumw2();
                 histoKaonPionRatioSyst[cent]->Sumw2();
@@ -672,8 +672,8 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
             }
 
             // Proton over pion ratio
-            histoProtonPionRatioStat[cent]  = (TH1D*)listSummedProtonPionStat->FindObject(Form("hSpectraRatioSummedProton_over_SummedPion_PbPb_Combined_%s", centNameReadChId[cent].Data() ));
-            histoProtonPionRatioSyst[cent]  = (TH1D*)listSummedProtonPionSyst->FindObject(Form("hSpectraRatioSummedProton_over_SummedPion_PbPb_Combined_%s", centNameReadChId[cent].Data() ));
+            histoProtonPionRatioStat[cent]  = (TH1D*)listSummedProtonPionStat->FindObject(Form("hSpectraRatioSummedProton_over_SummedPion_Syst_PbPb_Combined_%s", centNameReadChId[cent].Data() ));
+            histoProtonPionRatioSyst[cent]  = (TH1D*)listSummedProtonPionSyst->FindObject(Form("hSpectraRatioSummedProton_over_SummedPion_Syst_PbPb_Combined_%s", centNameReadChId[cent].Data() ));
             if (histoProtonPionRatioStat[cent] && histoProtonPionRatioSyst[cent] ){
                 histoProtonPionRatioStat[cent]->Sumw2();
                 histoProtonPionRatioSyst[cent]->Sumw2();
@@ -709,8 +709,8 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
         }
 
         //*********************************** temporary pi, K, p RAA - PbPb 5.02TeV with measured ref ***************************************************************
-        // Nicolo (09.06.2019)
-        TFile* fileIdentfiedChargedRAA      = new TFile("ExternalInputPbPb/IdentifiedCharged_5.02TeV/20190609_RAA5TeV_MeasuredReference_Histograms.root");
+        // Nicolo (31.10.2019)
+        TFile* fileIdentfiedChargedRAA      = new TFile("ExternalInputPbPb/IdentifiedCharged_5.02TeV/20191031_RAA5TeV_MeasuredReference_Histograms_allCents.root");
         TH1D* histoChargedPionRAAStat[20]        = {NULL};
         TH1D* histoChargedPionRAASyst[20]        = {NULL};
         TH1D* histoChargedKaonRAAStat[20]        = {NULL};
@@ -724,7 +724,7 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
         TGraphAsymmErrors* graphChargedProtonRAAStat[20]     = {NULL};
         TGraphAsymmErrors* graphChargedProtonRAASyst[20]     = {NULL};
 
-        for (Int_t cent = 0; cent < 15; cent++){
+        for (Int_t cent = 0; cent < 20; cent++){
             // read charged pion RAA
             histoChargedPionRAAStat[cent]      = (TH1D*)fileIdentfiedChargedRAA->Get(Form("hRAAStatPion_%s",centNameReadChHa[cent].Data() ));
             histoChargedPionRAASyst[cent]      = (TH1D*)fileIdentfiedChargedRAA->Get(Form("hRAASystPion_%s",centNameReadChHa[cent].Data() ));
@@ -735,12 +735,6 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
             histoChargedProtonRAAStat[cent]    = (TH1D*)fileIdentfiedChargedRAA->Get(Form("hRAAStatProton_%s",centNameReadChHa[cent].Data() ));
             histoChargedProtonRAASyst[cent]    = (TH1D*)fileIdentfiedChargedRAA->Get(Form("hRAASystProton_%s",centNameReadChHa[cent].Data() ));
         }
-//         for (Int_t centb = 0; centb < 6; centb++){
-//             // read pi+ + pi- RAA
-//             histoChargedPionRAAStat[centb+6]   = (TH1D*)fileChargedIdentifiedSpectraAndRAAAdd->Get(Form("hPionRAA_%s",centNameReadChId[centb+6].Data() ));
-//             histoChargedPionRAASyst[centb+6]   = (TH1D*)fileChargedIdentifiedSpectraAndRAAAdd->Get(Form("hPionRAASyst_%s",centNameReadChId[centb+6].Data() ));
-//         }
-
 
         //*********************************** Final ch hadron - PbPb 5.02TeV RAA **********************************************************
         // Documentation: ???
@@ -836,7 +830,27 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
                                                                                 Form("histoNeutralLambdaSpecSyst%s",centName[centb+11].Data()) , kTRUE);
         }
 
+//         TFile* fileK0sFinalPbPb     = new TFile("ExternalInputPbPb/NeutralKaon_PbPb_5.02TeV/Results-SystematicsR-K0Short.root");
+//         TFile* fileLambdaFinalPbPb  = new TFile("ExternalInputPbPb/NeutralKaon_PbPb_5.02TeV/Results-SystematicsR-Lambda.root");
+        TFile* fileDMesonRAA[20]                        = {NULL};
+        TH1D* histoDMesonRAAStat[20]                    = {NULL};
+        TGraphAsymmErrors* graphDMesonRAAStat[20]       = {NULL};
+        TGraphAsymmErrors* graphDMesonRAASyst[20]       = {NULL};
 
+        for (Int_t cent = 0; cent < 20; cent++){
+            // read D Meson RAA
+            fileDMesonRAA[cent]           = new TFile(Form("ExternalInputPbPb/IdentifiedCharged_5.02TeV/Average_DmesonRaa_%s_relStatUncAndUncorrSystWPID.root",centNameReadChHa[cent].Data()));
+            if (fileDMesonRAA[cent] && !fileDMesonRAA[cent]->IsZombie()){
+                histoDMesonRAAStat[cent]      = (TH1D*)fileDMesonRAA[cent]->Get("hDmesonAverageRAB");
+                histoDMesonRAAStat[cent]->SetName(Form("histoDMesonRAAStat%s",centName[cent].Data()));
+                graphDMesonRAAStat[cent]      = ConvertHistoToGraphAndRemoveZeros(histoDMesonRAAStat[cent],Form("graphDMesonRAAStat%s",centName[cent].Data()) );
+                TGraphAsymmErrors* graphTemp1   = (TGraphAsymmErrors*)fileDMesonRAA[cent]->Get("gRAB_DmesonAverage_DataSystematicsAB");
+                TGraphAsymmErrors* graphTemp2   = (TGraphAsymmErrors*)fileDMesonRAA[cent]->Get("gRAB_DmesonAverage_DataSystematicsPP");
+                graphDMesonRAASyst[cent]      = AddErrorsOfGraphsQuadratically(graphTemp1,graphTemp2);
+                graphDMesonRAASyst[cent]->SetName(Form("graphDMesonRAASyst%s",centName[cent].Data()));
+            }
+        }
+        
         // convert histos also to graph and remove 0s
         for (Int_t cent = 0; cent < 20; cent++){
             graphChargedPionSpecStat[cent]          = ConvertHistoToGraphAndRemoveZeros(histoChargedPionSpecStat[cent],Form("graphChargedPionSpecStat%s",centName[cent].Data()) );
@@ -933,6 +947,11 @@ void PrepareParticleCompilationALICE_PbPb(TString energy = "PbPb_5.02TeV"){
             if(graphChargedKaonRAASyst[cent])  graphChargedKaonRAASyst[cent]->Write("graphChargedKaonRAASyst", TObject::kOverwrite);
             if(graphChargedProtonRAAStat[cent])  graphChargedProtonRAAStat[cent]->Write("graphChargedProtonRAAStat", TObject::kOverwrite);
             if(graphChargedProtonRAASyst[cent])  graphChargedProtonRAASyst[cent]->Write("graphChargedProtonRAASyst", TObject::kOverwrite);
+            
+            if(histoDMesonRAAStat[cent])  histoDMesonRAAStat[cent]->Write("histoDMesonRAAStat", TObject::kOverwrite);
+            if(graphDMesonRAAStat[cent])  graphDMesonRAAStat[cent]->Write("graphDMesonRAAStat", TObject::kOverwrite);
+            if(graphDMesonRAASyst[cent])  graphDMesonRAASyst[cent]->Write("graphDMesonRAASyst", TObject::kOverwrite);
+            
 
         }
 
