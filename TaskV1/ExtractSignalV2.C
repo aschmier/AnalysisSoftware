@@ -389,7 +389,7 @@ void ExtractSignalV2(
         //******************************************************************************************************
         if ( (mode == 2 || mode == 4 || mode == 12 || mode == 13 ) && optionMC.CompareTo("kTRUE") == 0 ){
             cout << "testing whether output with diff time cut exists in file for MC" << endl;
-            fEventCutSelectionRead          = fEventCutSelection;
+//             fEventCutSelectionRead          = fEventCutSelection;
             fGammaCutSelectionRead          = fGammaCutSelection;
             fMesonCutSelectionRead          = fMesonCutSelection;
             fClusterCutSelectionRead        = fClusterCutSelection;

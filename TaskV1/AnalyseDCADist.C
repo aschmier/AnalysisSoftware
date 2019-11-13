@@ -207,16 +207,16 @@ void AnalyseDCADist(    TString meson           ="",
     Int_t numberMesonBackground         [6][fNBinsPt];
     Int_t numberMesonGarbage            [6][fNBinsPt];
     for (Int_t i = 0; i < 6 ; i++){
-      for (Int_t j = fStartPtBin; j < fNBinsPt ; j++){
-	numberMeson[i][j]                       = 0;
-	numberMesonFromK0s[i][j]                = 0;
-	numberMesonFromEta[i][j]                = 0;
-	numberMesonFromSomething[i][j]          = 0;
-	numberMesonPrimary[i][j]                = 0;
-	numberMesonDalitz[i][j]                 = 0;
-	numberMesonBackground[i][j]             = 0;
-	numberMesonGarbage[i][j]                = 0;
-      }
+        for (Int_t j = fStartPtBin; j < fNBinsPt ; j++){
+            numberMeson[i][j]                       = 0;
+            numberMesonFromK0s[i][j]                = 0;
+            numberMesonFromEta[i][j]                = 0;
+            numberMesonFromSomething[i][j]          = 0;
+            numberMesonPrimary[i][j]                = 0;
+            numberMesonDalitz[i][j]                 = 0;
+            numberMesonBackground[i][j]             = 0;
+            numberMesonGarbage[i][j]                = 0;
+        }
     }
 
     //##########################################
@@ -1292,6 +1292,7 @@ void AnalyseDCADist(    TString meson           ="",
     if (kMC){
       TFile* fDataInputComp                       = new TFile(Form("%s/%s/%s_Data_GammaConvV1DCATestAnalysed.root",cutSelection.Data(),optionEnergy.Data(),meson.Data()));
       if(fDataInputComp){
+        cout << "found data file" << endl;
         gSystem->Exec("mkdir -p "+outputDir+"/Monitoring");
         for (Int_t cat = 0; cat < 6; cat++){
           for (Int_t j = fStartPtBin; j < fNBinsPt; j++){

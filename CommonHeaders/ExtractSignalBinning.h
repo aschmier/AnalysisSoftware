@@ -2997,7 +2997,10 @@
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCTrigEG1CentPt,binning, 19);
                                 break;
                             default:
-                                maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCPt,binning,50);
+                                if ( centrality.CompareTo("0-100%") == 0)
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCCombTrigPt,binning,77);
+                                else 
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCCombTrigCentPt,binning,50);
                                 break;
                         }
                         break;
@@ -3036,7 +3039,10 @@
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG1CentPt,binning,13);
                                 break;
                             default:
-                                maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCPt,binning,36);
+                                if ( centrality.CompareTo("0-100%") == 0)
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCCombTrigPt,binning,61);
+                                else 
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCCombTrigCentPt,binning,37);
                                 break;
                         }
                         break;
@@ -3850,6 +3856,12 @@
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCTrigEG1CentPt,binning, 8);
                                 break;
                             default:
+                                if (centrality.CompareTo("0-100%") == 0)
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCCombTrigPt,binning, 44);
+                                else
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCCombTrigCentPt,binning, 24);
+                                
+                                
                                 break;
                         }
                         break;
@@ -3890,6 +3902,10 @@
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG1CentPt,binning, 9);
                                 break;
                             default:
+                                if (centrality.CompareTo("0-100%") == 0)
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigPt,binning, 41);
+                                else 
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigCentPt,binning, 22);
                                 break;
                         }
                         break;
@@ -5651,24 +5667,25 @@
                     optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
                     optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
                     optionBGSmoothingVar2       = "noSmoothing";
-                    nIterBGFit                  = 11;
-                    if (modi == 0){
-                      if( !energy.CompareTo("pPb_5.023TeVRun2") ){
-                        if(centrality.Contains("60-100%"))
-                            nIterBGFit                  = 7;
-                        else
-                            nIterBGFit                  = 8;
-                      }else if( !energy.CompareTo("pPb_5.023TeV") ){
-                        if(centrality.Contains("0-20%") || centrality.Contains("40-60%"))
-                          nIterBGFit                = 6;
-                        else if(centrality.Contains("20-40%"))
-                          nIterBGFit                = 7;
-                        else if(centrality.Contains("60-100%"))
-                          nIterBGFit                = 8;
-                        else if(centrality.CompareTo(""))
-                          nIterBGFit                = 7;
-                      }
-                    }
+//                     nIterBGFit                  = 11;
+                    nIterBGFit                  = 8;
+//                     if (modi == 0){
+//                       if( !energy.CompareTo("pPb_5.023TeVRun2") ){
+//                         if(centrality.Contains("60-100%"))
+//                             nIterBGFit                  = 7;
+//                         else
+//                             nIterBGFit                  = 8;
+//                       }else if( !energy.CompareTo("pPb_5.023TeV") ){
+//                         if(centrality.Contains("0-20%") || centrality.Contains("40-60%"))
+//                           nIterBGFit                = 6;
+//                         else if(centrality.Contains("20-40%"))
+//                           nIterBGFit                = 7;
+//                         else if(centrality.Contains("60-100%"))
+//                           nIterBGFit                = 8;
+//                         else if(centrality.CompareTo(""))
+//                           nIterBGFit                = 7;
+//                       }
+//                     }
                     fMaxYFracBGOverIntHist      = 50;
                 }
             //*********************************************************************************************
@@ -6808,38 +6825,40 @@
                     optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
                     optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
                     optionBGSmoothingVar2       = "noSmoothing";
-                    nIterBGFit                  = 11;
-                    if (modi == 0){
-                      if( !energy.CompareTo("pPb_5.023TeVCent") )
-                        nIterBGFit                  = 8;
-                      else if( !energy.CompareTo("pPb_5.023TeVRun2") )
-                        nIterBGFit                  = 8;
-                      else if( !energy.CompareTo("pPb_5.023TeV") ){
-                        if(centrality.Contains("0-20%"))
-                          nIterBGFit                = 8;
-                        else if(centrality.Contains("20-40%"))
-                          nIterBGFit                = 8;
-                        else if(centrality.Contains("40-60%"))
-                          nIterBGFit                = 8;
-                        else if(centrality.Contains("60-100%"))
-                          nIterBGFit                = 8;
-                      }
-                    }
+                    nIterBGFit                  = 8;
+//                     nIterBGFit                  = 11;
+//                     if (modi == 0){
+//                       if( !energy.CompareTo("pPb_5.023TeVCent") )
+//                         nIterBGFit                  = 8;
+//                       else if( !energy.CompareTo("pPb_5.023TeVRun2") )
+//                         nIterBGFit                  = 8;
+//                       else if( !energy.CompareTo("pPb_5.023TeV") ){
+//                         if(centrality.Contains("0-20%"))
+//                           nIterBGFit                = 8;
+//                         else if(centrality.Contains("20-40%"))
+//                           nIterBGFit                = 8;
+//                         else if(centrality.Contains("40-60%"))
+//                           nIterBGFit                = 8;
+//                         else if(centrality.Contains("60-100%"))
+//                           nIterBGFit                = 8;
+//                       }
+//                     }
                 } else {
                     optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
                     optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
                     optionBGSmoothingVar2       = "noSmoothing";
-                    nIterBGFit                  = 11;
-                    if (modi == 0){
-                      if( !energy.CompareTo("pPb_5.023TeVRun2") )
-                        nIterBGFit                  = 8;
-                        if(centrality.Contains("0-100%"))
-                            nIterBGFit                  = 7;
-                      else if( !energy.CompareTo("pPb_5.023TeV") ){
-                        if(centrality.CompareTo(""))
-                          nIterBGFit                = 8;
-                      }
-                    }
+                    nIterBGFit                  = 8;
+//                     nIterBGFit                  = 11;
+//                     if (modi == 0){
+//                       if( !energy.CompareTo("pPb_5.023TeVRun2") )
+//                         nIterBGFit                  = 8;
+//                         if(centrality.Contains("0-100%"))
+//                             nIterBGFit                  = 7;
+//                       else if( !energy.CompareTo("pPb_5.023TeV") ){
+//                         if(centrality.CompareTo(""))
+//                           nIterBGFit                = 8;
+//                       }
+//                     }
                 }
                 fMaxYFracBGOverIntHist          = 20;
             //*********************************************************************************************

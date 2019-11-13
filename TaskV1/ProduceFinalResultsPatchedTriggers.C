@@ -180,7 +180,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         } else if (mode == 10){
             maxPtGlobalCluster          = 200;
         }
-    } else if (optionEnergy.Contains("pPb_8TeV")){
+    } else if (optionEnergy.Contains("pPb_8TeV") || optionEnergy.Contains("pPb_5.023TeV")){
       if(mode==2 || mode==4){
         maxPtGlobalCluster          = 50;
       } else if (mode == 10){
@@ -1025,7 +1025,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         if (optionEnergy.CompareTo("2.76TeV") == 0){
             maxTriggReject = 8200;
         } else if (mode == 4 && optionEnergy.CompareTo("pPb_5.023TeV") == 0){
-            maxTriggReject = 200;
+            maxTriggReject = 5000;
         } else if (mode == 10 && optionEnergy.BeginsWith("8TeV")){
             maxTriggReject = 49000;
         } else if (mode == 10 && optionEnergy.Contains("pPb_8TeV")){
@@ -1242,6 +1242,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         } else if( optionEnergy.Contains("pPb_8TeV") ){
             if (mode == 2 || mode == 4 || mode == 10 )
                 maxTriggRejectLin = 499;
+        } else if( optionEnergy.Contains("pPb_5.023TeV") ){
+            if (mode == 2 || mode == 4 || mode == 10 )
+                maxTriggRejectLin = 2500;
         }
         TH2F * histo2DTriggRejectLinear;
         histo2DTriggRejectLinear = new TH2F("histo2DTriggRejectLinear","histo2DTriggRejectLinear",1000,0., maxPtGlobalCluster,15000,minTriggRejectLin, maxTriggRejectLin);
@@ -1313,9 +1316,14 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                         histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,1000);
                     else if (triggerName[i].Contains("EG1"))
                         histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,30);
-                } else if (optionEnergy.CompareTo("pPb_8TeV")==0){
+                } else if (optionEnergy.CompareTo("pPb_8TeV")==0 ){
                     if (triggerName[i].Contains("EG2"))
                         histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,550);
+                    else if (triggerName[i].Contains("EG1"))
+                        histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,5);
+                } else if ( optionEnergy.CompareTo("pPb_5.023TeV")==0){
+                    if (triggerName[i].Contains("EG2"))
+                        histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,2500);
                     else if (triggerName[i].Contains("EG1"))
                         histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,5);
                 }
@@ -1434,6 +1442,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                         histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,1000);
                     else if (triggerName[i].Contains("EG1"))
                         histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,30);
+                } else if ( optionEnergy.CompareTo("pPb_5.023TeV")==0){
+                    if (triggerName[i].Contains("EG2"))
+                        histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,2500);
+                    else if (triggerName[i].Contains("EG1"))
+                        histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,5);
                 }
 
                 histo2DTriggRejectLinear->DrawCopy();
@@ -2321,7 +2334,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
     if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
       if(mode == 2){
-        minCorrYieldUnscaled        = 1e-8;
+        minCorrYieldUnscaled        = 1e-11;
         maxCorrYieldUnscaled        = 1;
       }else if(mode == 4){
         minCorrYieldUnscaled        = 2e-8;
@@ -4063,7 +4076,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
     if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
       if(mode == 2){
-        minCorrYield       = 1e-8;
+        minCorrYield       = 1e-10;
         maxCorrYield       = 1;
       }else if(mode == 4){
         minCorrYield       = 1e-8;
@@ -5103,7 +5116,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
         if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
             if(mode == 2){
-                minCorrYieldUnscaledEta         = 1e-8;
+                minCorrYieldUnscaledEta         = 1e-10;
                 maxCorrYieldUnscaledEta         = 1e-1;
             }else if(mode == 4){
                 minCorrYieldUnscaledEta         = 9e-9;
@@ -6345,10 +6358,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         }
         if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
             if(mode == 2){
-                minCorrYieldEta     = 1e-8;
+                minCorrYieldEta     = 1e-10;
                 maxCorrYieldEta     = 1e-1;
             }else if(mode == 4){
-                minCorrYieldEta     = 3e-9;
+                minCorrYieldEta     = 3e-11;
                 maxCorrYieldEta     = 7e-2;
             }else if(mode == 3){
                 minCorrYieldEta     = 7e-6;
