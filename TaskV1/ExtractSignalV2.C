@@ -382,6 +382,7 @@ void ExtractSignalV2(
     //***************************** Get Main folder for cut ************************************************
     //******************************************************************************************************
     HistosGammaConversion       = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
+
     // couldn't find main folder for cut
     if(HistosGammaConversion == NULL){
         //******************************************************************************************************
@@ -825,7 +826,7 @@ void ExtractSignalV2(
     cout << (TDatabasePDG::Instance())->GetParticle(fMesonId) << endl;
     fMesonMassExpect                            = (TDatabasePDG::Instance())->GetParticle(fMesonId)->Mass();
     // calculate number of events for normalization
-    if (fEnergyFlag.Contains("PbPb") || fEnergyFlag.Contains("pPb")){
+    if (fEnergyFlag.Contains("PbPb")){// || fEnergyFlag.Contains("pPb")){
         fNEvents        = fEventQuality->GetBinContent(1);
     } else {
         fNEvents        = GetNEvents(fEventQuality);
@@ -926,6 +927,7 @@ void ExtractSignalV2(
 
         fFitSignalInvMassPtBin[iPt]             = 0x00;
         fFitSignalInvMassPtBinStd[iPt]          = 0x00;
+        fFitBGSubtractedSignalInvMassPtBin[iPt] = 0x00;
         fMesonResidualBGlin[iPt]                = 0;
         fMesonResidualBGlinError[iPt]           = 0;
         fMesonResidualBGcon[iPt]                = 0;
@@ -978,6 +980,13 @@ void ExtractSignalV2(
                 fMesonChi2[3][iPt]                      = fFitReco->GetChisquare()/fFitReco->GetNDF();
             else
                 fMesonChi2[3][iPt]                      = -1;
+
+            MakeBGFitSubtractedInvMassInPtBins(fHistoMappingSignalInvMassPtBin[iPt], fMesonIntDeltaRange,iPt,kFALSE,Form("ExpFitFuncNormalBin%02d",iPt),kFALSE);
+            fHistoMappingSignalRemainingBGSubInvMassPtBin[iPt]  = (TH1D*)fCopySignal->Clone(Form("histoSignalRemainingBGSubtractedBin%02d",iPt));
+            fHistoMappingRemainingBGInvMassPtBin[iPt]           = (TH1D*)fCopyOnlyBG->Clone(Form("histoRemainingBGBin%02d",iPt));
+            fFitBGSubtractedSignalInvMassPtBin[iPt]             = fFitReco;
+            fFitRemainingBGInvMassPtBin[iPt]                    = fFitLinearBck;
+            fFitBGSubtractedSignalPeakPosInvMassPtBin[iPt]      = fFitGausExp; //dfasd
         } else {
             fFileErrLog << "Using Crystal Ball function"<<endl;
             FitCBSubtractedInvMassInPtBins(fHistoMappingSignalInvMassPtBin[iPt], fMesonIntDeltaRange,iPt,kFALSE,Form("CBFitFuncNormalBin%02d",iPt),kFALSE);
@@ -1841,6 +1850,14 @@ void ExtractSignalV2(
         PlotWithManyFitSubtractedInvMassInPtBins(   fHistoMappingSignalInvMassPtBin, fFitBckInvMassPtBin, fFitBckOtherInvMassPtBin, nOtherFits, labelsOtherFits, nameMesonSub,
                                                     nameCanvasSub, namePadSub, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
                                                     fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, "pol1 BG");
+
+        nameMesonSub    = Form("%s_MesonSubtractedRemaingBGSubtracted%s", plotPrefix.Data(), plotSuffix.Data());
+        nameCanvasSub   = "MesonCanvasSubtracted";
+        namePadSub      = "MesonPadSubtracted";
+        cout << nameMesonSub.Data() << endl;
+        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalRemainingBGSubInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitBGSubtractedSignalInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub,
+                                            fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess,
+                                            fCollisionSystem,"MC validated");
 
         if (iBckSwitch == 5){
             nameMesonSub    = Form("%s_MesonSignalBckRatioFits%s", plotPrefix.Data(), plotSuffix.Data());
@@ -3454,6 +3471,7 @@ void Initialize(TString setPi0, Int_t numberOfBins, Int_t triggerSet){
     // initial  fit-pt-arrays for  data inv mass
     fFitSignalInvMassPtBin                                          = new TF1*[fNBinsPt];
     fFitSignalInvMassPtBinStd                                       = new TF1*[fNBinsPt];
+    fFitBGSubtractedSignalInvMassPtBin                              = new TF1*[fNBinsPt];
     fFitRemainingBGInvMassPtBin                                     = new TF1*[fNBinsPt];
     fFitTrueSignalInvMassPtBin                                      = new TF1*[fNBinsPt];
     fFitTrueSignalInvMassPtReweightedBin                            = new TF1*[fNBinsPt];
@@ -3467,6 +3485,7 @@ void Initialize(TString setPi0, Int_t numberOfBins, Int_t triggerSet){
 
     fFitSignalPeakPosInvMassPtBin                                   = new TF1*[fNBinsPt];
     fFitSignalPeakPosInvMassPtBinStd                                = new TF1*[fNBinsPt];
+    fFitBGSubtractedSignalPeakPosInvMassPtBin                       = new TF1*[fNBinsPt];
     fFitBckInvMassPtBin                                             = new TF1*[fNBinsPt];
     fFitBckInvMassPtBinStd                                          = new TF1*[fNBinsPt];
 
@@ -3535,6 +3554,7 @@ void Initialize(TString setPi0, Int_t numberOfBins, Int_t triggerSet){
 
         fFitSignalInvMassPtBin[i]                                           = NULL;
         fFitSignalInvMassPtBinStd[i]                                        = NULL;
+        fFitBGSubtractedSignalInvMassPtBin[i]                               = NULL;
         fFitRemainingBGInvMassPtBin[i]                                      = NULL;
         fFitTrueSignalInvMassPtBin[i]                                       = NULL;
         fFitTrueSignalInvMassPtReweightedBin[i]                             = NULL;
@@ -3548,6 +3568,7 @@ void Initialize(TString setPi0, Int_t numberOfBins, Int_t triggerSet){
 
         fFitSignalPeakPosInvMassPtBin[i]                                    = NULL;
         fFitSignalPeakPosInvMassPtBinStd[i]                                 = NULL;
+        fFitBGSubtractedSignalPeakPosInvMassPtBin[i]                        = NULL;
         fFitBckInvMassPtBin[i]                                              = NULL;
         fFitBckInvMassPtBinStd[i]                                           = NULL;
 
@@ -4857,6 +4878,11 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
             } else if ( fMode == 2 || fMode == 13) {  // PCM-EMC, PCM-DMC
                 mesonAmplitudeMin = mesonAmplitude*98./100.;
                 mesonAmplitudeMax = mesonAmplitude*600./100.;
+                TString trigger = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
+                if(!fEnergyFlag.CompareTo("pPb_8TeV")){
+                    fMesonFitRange[0] = 0.03;
+                    fMesonFitRange[1] = 0.30;
+                }
                 if(fBinsPt[ptBin] >= 3.0 ) {
                     if (fIsMC == 0){
                         fMesonLambdaTail            = 0.011;
@@ -4986,6 +5012,8 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                 if( fEnergyFlag.BeginsWith("8TeV") ){
                   mesonAmplitudeMin = mesonAmplitude*90./100.;
                   mesonAmplitudeMax = mesonAmplitude*600./100.;
+                    fMesonFitRange[0] = 0.03;
+                    fMesonFitRange[1] = 0.30;
                 }else if(fDoJetAnalysis){
                     fMesonWidthRange[0]         = 0.007;
                     fMesonWidthRange[1]         = 0.020;
@@ -6597,6 +6625,92 @@ void FitCBSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle,D
 }
 
 
+
+// Analog to the Funktion used for Crystalball
+//****************************************************************************
+//*** Fit of subtracted Signal+ BG with Gaus + tail + Lin BG        ******
+//*** linear BG subtracted in this function after initial fit without   ******
+//*** peak region, final fit only with Gaus + tail              ******
+//*** additional outputs: fCopySignal - only Signal         ******
+//***                     fCopyOnlyBG - only remaining BG       ******
+//****************************************************************************
+void MakeBGFitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle,Double_t * mesonIntDeltaRangeFit, Int_t ptBin,Bool_t vary,TString functionname ,Bool_t kMC){
+    if(vary){};
+    cout <<"Start making BG fit subtracted inv mass"<<endl;
+
+    fCopySignal = (TH1D*)histoMappingSignalInvMassPtBinSingle->Clone("fCopySignal");
+    fCopySignal->Sumw2();
+    fCopyOnlyBG = (TH1D*)histoMappingSignalInvMassPtBinSingle->Clone("fCopyOnlyBG");
+    fCopyOnlyBG->Sumw2();
+
+    cout <<"Start Fitting spectra with Gaus fit"<<endl;
+    histoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
+
+    fFitReco =fFitSignalPeakPosInvMassPtBin[ptBin];
+    fFitGausExp = fFitSignalPeakPosInvMassPtBin[ptBin];
+    fFitLinearBck = fFitBckInvMassPtBin[ptBin];
+
+    fFitLinearBckExcl = NULL;
+    fFitLinearBckExcl = new TF1("LinearEx",LinearBGExclusionnew,fMesonMassPlotRange[0],fMesonMassPlotRange[1],2);
+    fCopyOnlyBG->Fit(fFitLinearBckExcl,"QRME0","",fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
+    TVirtualFitter * fitter2 = TVirtualFitter::GetFitter();
+    Int_t nFreePar2 = fFitLinearBckExcl->GetNumberFreeParameters();
+    double * covMatrix2 = fitter2->GetCovarianceMatrix();
+    for (Int_t i = 1; i < fCopySignal->GetXaxis()->FindBin(fMesonMassRange[1])+1; i++){
+        Double_t startBinEdge = fCopySignal->GetXaxis()->GetBinLowEdge(i);
+        Double_t endBinEdge = fCopySignal->GetXaxis()->GetBinUpEdge(i);
+        Double_t intLinearBack = fFitLinearBck->Integral(startBinEdge, endBinEdge)/(endBinEdge-startBinEdge) ;
+        Double_t errorLinearBck = TMath::Power((TMath::Power( (endBinEdge-startBinEdge)*fFitLinearBckExcl->GetParError(0),2)+TMath::Power(0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)*fFitLinearBckExcl->GetParError(1),2)+2*covMatrix2[nFreePar2*nFreePar2-2]*(endBinEdge-startBinEdge)*0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)),0.5)/(endBinEdge-startBinEdge);
+        fCopyOnlyBG->SetBinContent(i,intLinearBack);
+        fCopyOnlyBG->SetBinError(i,errorLinearBck);
+        fCopySignal->SetBinContent(i,fCopySignal->GetBinContent(i)-intLinearBack);
+        fCopySignal->SetBinError(i,TMath::Sqrt(errorLinearBck*errorLinearBck+ fCopySignal->GetBinError(i)*fCopySignal->GetBinError(i)));
+    }
+
+    fFitReco->SetLineColor(3);
+    fFitReco->SetLineWidth(1);
+    fFitReco->SetLineStyle(1);
+    fFitReco->SetNpx(10000);
+
+    Int_t binCenterStart;
+    Double_t startBinEdge;
+    Int_t binCenterEnd;
+    Double_t endBinEdge;
+
+    TVirtualFitter * fitter = TVirtualFitter::GetFitter();
+
+    if(TString(gMinuit->fCstatu.Data()).CompareTo("CONVERGED") == 0 || TString(gMinuit->fCstatu.Data()).CompareTo("SUCCESSFUL") == 0 ){
+        binCenterStart = histoMappingSignalInvMassPtBinSingle->GetXaxis()->FindBin(fFitReco->GetParameter(1)+mesonIntDeltaRangeFit[0]);
+        startBinEdge = histoMappingSignalInvMassPtBinSingle->GetBinCenter(binCenterStart)- 0.5*histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+        binCenterEnd = histoMappingSignalInvMassPtBinSingle->GetXaxis()->FindBin(fFitReco->GetParameter(1)+mesonIntDeltaRangeFit[1]);
+        endBinEdge = histoMappingSignalInvMassPtBinSingle->GetBinCenter(binCenterEnd)+ 0.5*histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+
+        Int_t nFreePar = fFitReco->GetNumberFreeParameters();
+        double * covMatrix = fitter->GetCovarianceMatrix();
+
+        if (!kMC){
+            Float_t intLinearBack = fFitLinearBck->GetParameter(0)*(endBinEdge-startBinEdge)+
+                0.5*fFitLinearBck->GetParameter(1)*(endBinEdge*endBinEdge-startBinEdge*startBinEdge);
+
+            Double_t errorConst = fFitReco->GetParError(5);
+            Double_t errorLin = fFitReco->GetParError(6);
+            if (errorConst == 0) errorConst = fFitLinearBck->GetParError(0);
+            if (errorLin == 0) errorLin = fFitLinearBck->GetParError(1);
+            if (errorConst == 0) errorConst = TMath::Abs(fFitLinearBck->GetParameter(0)*0.005);
+            if (errorLin == 0) errorLin = TMath::Abs(fFitLinearBck->GetParameter(1)*0.005);
+            Float_t errorLinearBck = TMath::Power((TMath::Power( (endBinEdge-startBinEdge)*errorConst,2)+TMath::Power(0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)*errorLin,2)+2*covMatrix[nFreePar*nFreePar-2]*(endBinEdge-startBinEdge)*0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)),0.5);
+
+            fIntLinearBck = intLinearBack/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+            fIntLinearBckError = errorLinearBck/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+
+        } else {
+            fIntLinearBck = 0;
+            fIntLinearBckError = 0;
+        }
+    }
+    fFitReco->DrawCopy("same");
+}
+
 //****************************************************************************
 //*** Integration of Invariant Mass Histogram in given integration window ****
 //****************************************************************************
@@ -7730,9 +7844,11 @@ void Delete(){
     if (fHistoMappingRatioSBInvMassPtBin)                       delete[] fHistoMappingRatioSBInvMassPtBin;
     if (fFitSignalInvMassPtBin)                                 delete[] fFitSignalInvMassPtBin;
     if (fFitSignalInvMassPtBinStd)                              delete[] fFitSignalInvMassPtBinStd;
+    if (fFitBGSubtractedSignalInvMassPtBin)                     delete[] fFitBGSubtractedSignalInvMassPtBin;
     if (fFitRemainingBGInvMassPtBin)                            delete[] fFitRemainingBGInvMassPtBin;
     if (fFitRemainingBGInvMassLeftPtBin)                        delete[] fFitRemainingBGInvMassLeftPtBin;
     if (fFitSignalPeakPosInvMassPtBin)                          delete[] fFitSignalPeakPosInvMassPtBin;
+    if (fFitBGSubtractedSignalPeakPosInvMassPtBin)              delete[] fFitBGSubtractedSignalPeakPosInvMassPtBin;
     if (fFitSignalPeakPosInvMassPtBinStd)                       delete[] fFitSignalPeakPosInvMassPtBinStd;
     if (fFitBckInvMassPtBin)                                    delete[] fFitBckInvMassPtBin;
     if (fFitBckInvMassPtBinStd)                                 delete[] fFitBckInvMassPtBinStd;

@@ -2209,39 +2209,15 @@ Bool_t LoadSecondaryPionsFromCocktailFile(TString cutSelection, TString optionEn
         for (Int_t j = 0; j < 3; j++){
             cout << "trying to find " << Form("Pi0_From_%s_Pt_OrBin", nameSecondariesCocktail[j].Data()) << endl;
 
-            // fHistoYieldExternSecInput[j]           = (TH1D*)fFileCocktailInput->Get(Form("Pi0_From_%s_Pt_OrBin", nameSecondariesCocktail[j].Data()));
-            // if (fHistoYieldExternSecInput[j]){
-            //     fHistoYieldExternSecInput[j]->Sumw2();
-            //     fHistoYieldExternSecInput[j]->SetName(Form("histoSecPi0YieldFrom%s_FromCocktail_orgBinning",nameSecondaries[j].Data())); // Proper bins in Pt
-
-            //     fHistoYieldExternSecInputReb[j]     = (TH1D*)fHistoYieldExternSecInput[j]->Rebin(fNBinsPt,Form("histoSecPi0YieldFrom%s_FromCocktail",nameSecondaries[j].Data()),fBinsPt); // Proper bins in Pt
-            //     if (fHistoYieldExternSecInputReb[j]){
-            //         fHistoYieldExternSecInputReb[j]->Divide(fDeltaPt);
-            //         fHistoYieldExternSecInput[j]->Scale(1./fHistoYieldExternSecInput[j]->GetBinWidth(1));
-            //     }
-
-            TH1D *nCocktailEvents = (TH1D*)fFileCocktailInput->Get("NEvents");
-
-            // fHistoYieldExternSecInput[j]           = (TH1D*)fFileCocktailInput->Get(Form("Pi0_From_%s_Pt_Y_OrBin", nameSecondariesCocktail[j].Data()));
-            TH2F *h2temp = 0x0;
-
-            h2temp           = (TH2F*)fFileCocktailInput->Get(Form("Pi0_From_%s_Pt_Y_OrBin", nameSecondariesCocktail[j].Data()));
-            if (h2temp){
-                h2temp->Sumw2();
-                h2temp->Scale(1/(h2temp->GetXaxis()->GetBinWidth(1)));
-                fHistoYieldExternSecInput[j] = (TH1D*)h2temp->ProjectionX(Form("Pi0_from_%s_cocktail", nameSecondaries[j].Data()));
+            fHistoYieldExternSecInput[j]           = (TH1D*)fFileCocktailInput->Get(Form("Pi0_From_%s_Pt_OrBin", nameSecondariesCocktail[j].Data()));
+            if (fHistoYieldExternSecInput[j]){
+                fHistoYieldExternSecInput[j]->Sumw2();
                 fHistoYieldExternSecInput[j]->SetName(Form("histoSecPi0YieldFrom%s_FromCocktail_orgBinning",nameSecondaries[j].Data())); // Proper bins in Pt
 
                 fHistoYieldExternSecInputReb[j]     = (TH1D*)fHistoYieldExternSecInput[j]->Rebin(fNBinsPt,Form("histoSecPi0YieldFrom%s_FromCocktail",nameSecondaries[j].Data()),fBinsPt); // Proper bins in Pt
                 if (fHistoYieldExternSecInputReb[j]){
                     fHistoYieldExternSecInputReb[j]->Divide(fDeltaPt);
-                    fHistoYieldExternSecInputReb[j]->Scale(1./nCocktailEvents->GetBinContent(1));
-                    fHistoYieldExternSecInputReb[j]->SetDirectory(0);
                     fHistoYieldExternSecInput[j]->Scale(1./fHistoYieldExternSecInput[j]->GetBinWidth(1));
-
-                printf("secondary histogram found for pi0 feed-down from %s\n", nameSecondaries[j].Data());
-                }else{
-                    printf("secondary histogram NOT FOUND for pi0 feed-down from %s\n", nameSecondaries[j].Data());
                 }
 
             } else {

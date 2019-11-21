@@ -254,6 +254,7 @@
     void FitTrueInvMassInPtBins(TH1D * ,Double_t *, Int_t, Bool_t);                                             // Fits the true invariant mass histos with a gaussian plus exponential plus lin BG
     void FitTrueInvMassPureGaussianInPtBins(TH1D * , Int_t);                                                    // Fits the true invariant mass histos with a gaussian plus lin BG
     void FitCBSubtractedInvMassInPtBins(TH1D* ,Double_t * , Int_t ,Bool_t,TString, Bool_t );                    // Fits the invariant mass histos with a CB function
+    void MakeBGFitSubtractedInvMassInPtBins(TH1D* ,Double_t * , Int_t ,Bool_t,TString, Bool_t );                 // Fits the invariant mass histos with a gaussian plus exponential plus lin BG
     void ProduceBckProperWeighting(TList*, TList*, TList*, TList* ,Bool_t);                                     // Create BG with proper weighting
     void ProduceBckWithoutWeighting(TH2D *);                                                                    // Create BG without proper weighting
     void IntegrateHistoInvMassStream(TH1D * , Double_t *);                                                      // Integrate invariant mass histogram with output to ifstream
@@ -498,6 +499,7 @@
     TF1**       fFitTrueSignalInvMassPtUnweightedBin                        = nullptr;
     TF1**       fFitPHOSAllOtherSigToBckFits[1]                             = { nullptr };
     TF1**       fFitPHOSPol2PtBin                                           = nullptr;
+    TF1**       fFitBGSubtractedSignalInvMassPtBin                          = nullptr;
     Double_t*   fMesonMass                                                  = nullptr;
     Double_t*   fMesonMassError                                             = nullptr;
     Double_t*   fMesonTrueMass                                              = nullptr;
@@ -582,6 +584,7 @@
     //****************************************************************************
     TF1**       fFitSignalPeakPosInvMassLeftPtBin                           = nullptr;
     TF1**       fFitSignalPeakPosInvMassPtBin                               = nullptr;
+    TF1**       fFitBGSubtractedSignalPeakPosInvMassPtBin                   = nullptr;
 
     //****************************************************************************
     //**************** Decomposition of signal for calo clusters *****************
@@ -827,7 +830,10 @@
             fMidPt[1]                   = 2.5;
 
             // set remaining background standard function
-            if(mode == 0 && fEnergyFlag.CompareTo("PbPb_5.02TeV") == 0){
+            if(mode == 0 && (fEnergyFlag.CompareTo("PbPb_5.02TeV") == 0 || fEnergyFlag.Contains("8TeV"))){
+              optionOtherResBckAsStd      = 0;                           // use pol2 fit for remaining BG for Pi0
+             }
+            if(mode == 2 && (fEnergyFlag.Contains("8TeV"))){
               optionOtherResBckAsStd      = 0;                           // use pol2 fit for remaining BG for Pi0
              }
 
@@ -1196,14 +1202,18 @@
                             fMesonFitRange[1] = 0.27;
                         }
                     } else if ( trigger.CompareTo("81") == 0 || triggerSet == 2){
-                    fMesonFitRange[0] = 0.08;
-                    fMesonFitRange[1] = 0.29;
+                        fMesonFitRange[0] = 0.08;
+                        fMesonFitRange[1] = 0.29;
                     } else if( trigger.CompareTo("52") == 0 ){
-                    fMesonFitRange[0] = 0.04;
-                    fMesonFitRange[1] = 0.26;
+                        fMesonFitRange[0] = 0.04;
+                        fMesonFitRange[1] = 0.26;
                     } else {
-                    fMesonFitRange[0] = 0.08;
-                    fMesonFitRange[1] = 0.25;
+                        fMesonFitRange[0] = 0.08;
+                        fMesonFitRange[1] = 0.25;
+                    if( fEnergyFlag.BeginsWith("8TeVRef") ){
+                        fMesonFitRange[0] = 0.045;
+                        fMesonFitRange[1] = 0.28;
+                    }
                     }
                 } else if( fEnergyFlag.Contains("pPb_8TeV") ){
                     if (setPi0.CompareTo("Pi0EtaBinning") == 0){
@@ -1223,7 +1233,7 @@
                         fMesonFitRange[0] = 0.065;
                         fMesonFitRange[1] = 0.30;
                     } else {
-                        fMesonFitRange[0] = 0.055;
+                        fMesonFitRange[0] = 0.045;
                         fMesonFitRange[1] = 0.28;
                     }
                 } else if( fEnergyFlag.CompareTo("PbPb_2.76TeV") == 0 ){
@@ -1672,28 +1682,48 @@
                         fMesonFitRange[1] = 0.73;
                     }
                 }
+                if( fEnergyFlag.BeginsWith("pPb_8TeV") ){
+                    fMesonFitRange[1] = 0.72;
+                    if(  trigger.CompareTo("8e") == 0){
+                        fMesonFitRange[0] = 0.38;
+                    }else if(  trigger.CompareTo("8d") == 0){
+                        fMesonFitRange[0] = 0.38;
+                        fMesonFitRange[1] = 0.73;
+                    }
+                }
             } else if (mode == 4 || mode == 12 ) {
                 if( fEnergyFlag.CompareTo("7TeV") == 0 ){
                     fMesonFitRange[0]           = 0.37;
                     fMesonFitRange[1]           = 0.72;
                     if( trigger.CompareTo("52") == 0  || triggerSet == 1){
-                    fMesonFitRange[0]         = 0.4;
-                    fMesonFitRange[1]         = 0.7;
+                        fMesonFitRange[0]         = 0.4;
+                        fMesonFitRange[1]         = 0.7;
                     }
                 } else if( fEnergyFlag.BeginsWith("8TeV") ){
                     fMesonFitRange[0]           = 0.34;
                     fMesonFitRange[1]           = 0.7;
                     if( trigger.CompareTo("52") == 0 || triggerSet == 1 ){
-                    fMesonFitRange[0]         = 0.4;
-                    fMesonFitRange[1]         = 0.74;
+                        fMesonFitRange[0]         = 0.4;
+                        fMesonFitRange[1]         = 0.74;
                     }else if( trigger.CompareTo("81") == 0  || triggerSet == 2){
-                    fMesonFitRange[0]         = 0.4;
-                    fMesonFitRange[1]         = 0.7;
+                        fMesonFitRange[0]         = 0.4;
+                        fMesonFitRange[1]         = 0.7;
+                    }
+                } else if( fEnergyFlag.BeginsWith("pPb_8TeV") ){
+                    fMesonFitRange[0]           = 0.34;
+                    fMesonFitRange[1]           = 0.7;
+                    if( trigger.CompareTo("8e") == 0 || triggerSet == 1 ){
+                        fMesonFitRange[0]         = 0.36;
+                        fMesonFitRange[1]         = 0.74;
+                    }else if( trigger.CompareTo("8d") == 0  || triggerSet == 2){
+                        fMesonFitRange[0]         = 0.36;
+                        fMesonFitRange[1]         = 0.74;
                     }
                 } else {
                     fMesonFitRange[0]           = 0.38;
                     fMesonFitRange[1]           = 0.73;
                 }
+            } else if (mode == 0) {
                 if( fEnergyFlag.Contains("13TeV")  ){
                     fMesonFitRange[0]                = 0.44;
                     fMesonFitRange[1]                = 0.7;

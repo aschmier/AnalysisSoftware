@@ -6026,11 +6026,11 @@
         }else  if (energy.Contains("pPb_8TeV") ){
         cout << "Trigger used: " << trigger << endl;
             if (!strTrigger.CompareTo("8e")){  // EG2
-                triggerRejec    = 386;
-                if(mode == 2) triggerRejec    = 422;
+                triggerRejec    = 280;
+                if(mode == 2) triggerRejec    = 289;
             } else if (!strTrigger.CompareTo("8d")){  // EG1
-                triggerRejec    = 1464;
-                if(mode == 2) triggerRejec    = 1683;
+                triggerRejec    = 950;
+                if(mode == 2) triggerRejec    = 1003;
             } else if (!strTrigger.CompareTo("9c")){  // EJ2
                 triggerRejec    = 1;
             } else if (!strTrigger.CompareTo("9b")){  // EJ1
@@ -6065,7 +6065,7 @@
 
         Int_t       selTrig             = 0;    // 0 = V0OR, 1 = V0AND, 2 = T0OR, 3 = INEL
         TString     trigger             = eventCutString(GetEventSelectSpecialTriggerCutPosition(),2);
-        if (trigger.Atoi() == 10 || trigger.Atoi() == 52 || trigger.Atoi() == 83  || trigger.Atoi() == 85 || trigger.Atoi() == 81 ) {
+        if (trigger.Atoi() == 10 || trigger.Atoi() == 52 || trigger.Atoi() == 83  || trigger.Atoi() == 85 || trigger.Atoi() == 81 || trigger.Contains("8e") || trigger.Contains("8d")) {
             selTrig                     = 1;
         }
 

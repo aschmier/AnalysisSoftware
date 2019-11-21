@@ -193,13 +193,23 @@ void ExtractMCInputSpectraFromFile( TString file                    = "",
                                            30.0, 35.0, 40.0, 45.0, 50.0,55.,60.,65.,70.,75.,80.,90.,100.,110.,120.,130.,140.,150.,160.,170.,180.,200};
     Int_t nBinsX                        = 81;
 
-
+    Bool_t jetSpectra = kFALSE;
+    if(optionPeriod.Contains("Jets")) jetSpectra = kTRUE;
 
     // ------------------------------- Read MC information ---------------------------------------------------
     TList *MCContainer                  = (TList*)HistosGammaConversion->FindObject(Form("%s MC histograms",fCutSelection.Data()));
+    TList *MCContainerJets = NULL;
+    if(jetSpectra){
+        MCContainerJets                  = (TList*)HistosGammaConversion->FindObject(Form("%s True Jet histograms",fCutSelection.Data()));
+        if(!MCContainerJets){
+            cout << "no jet container found!!" << endl;
+            return;
+        }
+    }
     // ----------- read pi0 -----------------------------------
     cout << "reading pi0" << endl;
     TH1D* fHistoMCPi0GGPt               = (TH1D*)MCContainer->FindObject("MC_Pi0_Pt");
+    if(jetSpectra) fHistoMCPi0GGPt               = (TH1D*)MCContainerJets->FindObject("MC_Pi0_inJet_Generated");
     TH1D* fHistoMCPi0DalitzPt           = (TH1D*)MCContainer->FindObject("MC_Pi0Dalitz_Pt");
     TH1D* fHistoMCPi0Pt                 = (TH1D*)fHistoMCPi0GGPt->Clone("MC_Pi0_All_Pt");
     fHistoMCPi0Pt->Sumw2();
@@ -220,7 +230,8 @@ void ExtractMCInputSpectraFromFile( TString file                    = "",
 
     // ----------- read eta -----------------------------------
     cout << "reading eta" << endl;
-    TH1D* fHistoMCEtaGGPt               = (TH1D*)MCContainer->FindObject("MC_Eta_Pt");
+    TH1D* fHistoMCEtaGGPt               = (TH1D*)MCContainer->FindObject("MC_Eta_Pt" );
+    if(jetSpectra) fHistoMCEtaGGPt               = (TH1D*)MCContainerJets->FindObject("MC_Eta_inJet_Generated");
     TH1D* fHistoMCEtaDalitzPt           = (TH1D*)MCContainer->FindObject("MC_EtaDalitz_Pt");
     TH1D* fHistoMCEtaPt                 = (TH1D*)fHistoMCEtaGGPt->Clone("MC_Eta_All_Pt");
     fHistoMCEtaPt->Sumw2();
@@ -497,6 +508,7 @@ void ExtractMCInputSpectraFromFile( TString file                    = "",
     DrawGammaCanvasSettings( canvasRatio, 0.11, 0.02, 0.02, 0.08);
     canvasRatio->cd();
     canvasRatio->SetLogy(0);
+    canvasRatio->SetLogx(1);
     TLatex *labelEnergyRatio        = new TLatex(0.15,0.16,Form("%s",fCollisionSystem.Data()));
     SetStyleTLatex( labelEnergyRatio, 0.04,4);
     TLatex *labelGeneratorRatio     = new TLatex(0.15,0.12,Form("%s",fGeneratorName.Data()));

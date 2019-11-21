@@ -379,7 +379,7 @@
                     return 4;
                 else
                     return 14;
-            } else if (energy.BeginsWith("8TeV")) {
+            } else if (!energy.CompareTo("8TeV")) {
                 if (mode == 0){             // PCM- PCM
                     switch (trigger){
                         case 0:
@@ -699,7 +699,7 @@
                 } else {
                     return 7;
                 }
-            } else if( energy.Contains("pPb_8TeV") ) {
+            } else if( energy.Contains("pPb_8TeV") || !energy.CompareTo("8TeVRef")) {
                 if (mode == 0){
                     if (triggerSet == 2){
                         return 30;
@@ -972,7 +972,7 @@
                     return 1;
                 } else
                     return 1;
-            } else if (energy.BeginsWith("8TeV")) {
+            } else if (energy.CompareTo("8TeV")==0) {
                 if (mode == 0){             // PCM- PCM
                     switch (trigger){
                         case 0:
@@ -1172,7 +1172,7 @@
                 } else {
                     return 6;
                 }
-            } else if( energy.Contains("pPb_8TeV")  ) {
+            } else if( energy.Contains("pPb_8TeV")  || !energy.CompareTo("8TeVRef") ) {
                 if (mode == 0){
                     // scaleFac    = 2;
                     return 6;
@@ -1189,11 +1189,13 @@
                             break;
                         case 51:
                         case 52:
+                            return 16;
+                            break;
                         case 53:
                             return 12;      // EMC triggers
                             break;
                         case 85:
-                            return 17;
+                            return 16;
                             break;
                         case 81:
                         case 82:
@@ -1503,7 +1505,7 @@
                 } else {
                     startPtBin     = 1;
                 }
-            } else if (energy.BeginsWith("8TeV")){
+            } else if (energy.CompareTo("8TeV")==0){
                 if ( mode == 0 ){
                     if (specialTrigg == 1) startPtBin = 21;
                     else if (specialTrigg == 2) startPtBin = 27;
@@ -1703,28 +1705,30 @@
                 } else {
                     startPtBin     = 1;
                 }
-            } else if (energy.Contains("pPb_8TeV") ){
-                if ( mode == 0 ){
-                    if (specialTrigg == 2 ){ //eg2
+            } else if (energy.Contains("pPb_8TeV") || energy.CompareTo("8TeVRef")==0 ){
+               Bool_t referenceBin = energy.CompareTo("8TeVRef")==0 ? kTRUE : kFALSE;
+               if ( mode == 0 ){
+                    if (referenceBin ? specialTrigg == 1 :  specialTrigg == 2 ){ //eg2
                         startPtBin     = 21;
-                    }else if (specialTrigg == 3 ){ //eg1
+                    }else if (referenceBin ? specialTrigg == 2 :  specialTrigg == 3 ){ //eg1
                         startPtBin     = 27;
                     } else {
                         startPtBin     = 1;
                     }
                 } else if (mode == 2 || mode == 14){
-                    if (specialTrigg == 2 ){
+                    if (referenceBin ? specialTrigg == 1 :  specialTrigg == 2 ){
                         startPtBin     = 21;
-                    }else if (specialTrigg == 3 ){
+                    }else if (referenceBin ? specialTrigg == 2 :  specialTrigg == 3 ){
                         startPtBin     = 28;
+                        // startPtBin     = 28;
                     }else{
                         startPtBin     = 2;
                     }
                 } else if (mode == 4 || mode == 15){
-                    if (specialTrigg == 2 ){
+                    if (referenceBin ? specialTrigg == 1 :  specialTrigg == 2 ){
                         startPtBin     = 22;
-                    }else if (specialTrigg == 3 ){
-                        startPtBin     = 33;
+                    }else if (referenceBin ? specialTrigg == 2 :  specialTrigg == 3 ){
+                        startPtBin     = 31;
                     }else{
                         startPtBin     = 7;
                     }
@@ -1735,8 +1739,8 @@
                         startPtBin     = 2;
                     }
                 } else if (mode == 5){
-                    if (specialTrigg == 2 ){
-                        startPtBin     = 8;
+                    if (specialTrigg == 4 ){
+                        startPtBin     = 21;
                     }else{
                         startPtBin     = 4;
                     }
@@ -2239,13 +2243,14 @@
                     startPtBin     = 6;
                 } else if ( mode == 3 ){
                     if (specialTrigg == 4 ) startPtBin     = 11;
-                    else startPtBin     = 5;
+                    else startPtBin     = 3;
                 } else if ( mode == 4 || mode == 12  || mode == 15){
                     if (referenceBin ? specialTrigg == 1 : specialTrigg == 2 ) startPtBin     = 8;
                     else if (referenceBin ? specialTrigg == 2 : specialTrigg == 3 ) startPtBin     = 12;
                     else startPtBin     = 3;
                 } else if ( mode == 5){
-                    startPtBin     = 10;
+                    if(specialTrigg == 4 )startPtBin     = 10;
+                    else startPtBin     = 7;
                 } else if (mode == 20){
                     startPtBin     = 3;
                 }
@@ -3113,7 +3118,7 @@
             } else if (energy.Contains("pPb_8TeV") || energy.CompareTo("8TeVRef") == 0){
                 Bool_t referenceBin = (energy.CompareTo("8TeVRef")==0) ? kTRUE : kFALSE;
                 if (mode == 0 ){ // PCM
-                    maxNBins = 33; binningMax  = 33;
+                    maxNBins = 25; binningMax  = 25;
                     if (DCAcase){
                         maxNBins  = 23; binningMax  = 23;
                     }
@@ -3130,48 +3135,53 @@
                     }
                 } else if ( mode == 2 || mode == 13  || mode == 14) {
                     if(referenceBin ? SpecialTrigger == 1 : SpecialTrigger == 2){
-                        maxNBins = 44; binningMax = 44;
+                        maxNBins = 38; binningMax = 38;
                         for(Int_t i = 0; i < maxNBins; i++){
                             binning[i] = fBinsPi0pPb8TeVPCMEMCalTrigger1Pt[i];
                         }
                     } else if(referenceBin ? SpecialTrigger == 2 : SpecialTrigger == 3){
-                        maxNBins = 43; binningMax = 43;
+                        maxNBins = 38; binningMax = 38;
                         for(Int_t i = 0; i < maxNBins; i++){
                             binning[i] = fBinsPi0pPb8TeVPCMEMCalTrigger2Pt[i];
                         }
                     } else if(SpecialTrigger == -1){
-                        maxNBins = 58; binningMax = 58;
+                        maxNBins = 48; binningMax = 48;
                         for(Int_t i = 0; i < maxNBins; i++){
                             binning[i] = fBinsPi0CombpPb8TeVPt[i];
                         }
                     } else {
-                        maxNBins = 31; binningMax  = 30;
+                        maxNBins = 30; binningMax  = 30;
                         for(Int_t i = 0; i < maxNBins; i++){
                             binning[i] = fBinsPi0pPb8TeVPtPCMEMC[i];
                         }
                     }
                 } else if ( mode == 4 || mode == 12  || mode == 15 ) {
                     if(referenceBin ? SpecialTrigger == 1 :  SpecialTrigger == 2 ){ // gamma low EG2
-                        maxNBins = 43; binningMax  = 43;
+                        maxNBins = 38; binningMax  = 38;
                         for(Int_t i = 0; i < maxNBins+1; i++)
                             binning[i] = fBinsPi0pPb8TeVEMCalTrigger1Pt[i];
                     } else if(referenceBin ? SpecialTrigger == 2 :  SpecialTrigger == 3){ // gamma high EG1
-                        maxNBins = 42; binningMax  = 42;
+                        maxNBins = 38; binningMax  = 38;
                         for(Int_t i = 0; i < maxNBins+1; i++)
                             binning[i] = fBinsPi0pPb8TeVEMCalTrigger2Pt[i];
                     } else if( SpecialTrigger == -1){ // combination binning
-                        maxNBins = 58; binningMax  = 58;
-                        for(Int_t i = 0; i < maxNBins+1; i++)
+                        maxNBins = 48; binningMax  = 48;
+                        for(Int_t i = 0; i < maxNBins; i++)
                             binning[i] = fBinsPi0CombpPb8TeVPt[i];
                     } else {
-                        maxNBins = 32; binningMax  = 32;
+                        maxNBins = 38; binningMax  = 38;
                         for(Int_t i = 0; i < maxNBins+1; i++)
                             binning[i] = fBinsPi0pPb8TeVPtEMC[i];
                     }
-                } else if ( mode == 3 || mode == 5 ) {
+                } else if ( mode == 5) {
                     maxNBins = 38; binningMax  = 38;
                     for(Int_t i = 0; i < maxNBins+1; i++){
                         binning[i] = fBinsPi0pPb8TeVPHOSPt[i];
+                    }
+                } else if ( mode == 3 ) {
+                    maxNBins = 40; binningMax  = 40;
+                    for(Int_t i = 0; i < maxNBins+1; i++){
+                        binning[i] = fBinsPi0pPb8TeVPCMPHOSPt[i];
                     }
                 } else if (mode == 20){ //combined
                     maxNBins = 29; binningMax  = 29;
@@ -3179,7 +3189,7 @@
                         binning[i] = fBinsPi0pPb8TeVPtEMC[i];
                     }
                   } else if (mode == 10){ //combined
-                    maxNBins = 58; binningMax  = 58;
+                    maxNBins = 52; binningMax  = 52;
                     for(Int_t i = 0; i < maxNBins+1; i++){
                         binning[i] = fBinsPi0pPb8TeVPtmEMC[i];
                     }
@@ -3988,72 +3998,72 @@
                             binning[i] = fBinsEtapPb8TeVPtDCA[i];
                         }
                     } else if(SpecialTrigger == -1){
-                        maxNBins = 18; binningMax = 18;
+                        maxNBins = 16; binningMax = 16;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtapPb8TeVPt[i];
                         }
                     } else {
-                        maxNBins = 18; binningMax  = 18;
+                        maxNBins = 16; binningMax  = 16;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtapPb8TeVPt[i];
                         }
                     }
                 } else if (mode == 2  || mode == 14){
                     if( referenceBin ? SpecialTrigger == 1 :  SpecialTrigger == 2 ){
-                        maxNBins = 22; binningMax = 22;
+                        maxNBins = 20; binningMax = 20;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtapPb8TeVTrigger1Pt[i];
                         }
                     }else if(referenceBin ? SpecialTrigger == 2 :  SpecialTrigger == 3){
-                        maxNBins = 23; binningMax = 23;
+                        maxNBins = 20; binningMax = 20;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtapPb8TeVTrigger2Pt[i];
                         }
                     }else if(SpecialTrigger == -1){
-                        maxNBins = 25; binningMax = 25;
+                        maxNBins = 18; binningMax = 18;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtaCombpPb8TeVPt[i];
                         }
                     } else {
-                        maxNBins = 20; binningMax  = 20;
+                        maxNBins = 14; binningMax  = 14;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtapPb8TeVPCMEMCPt[i];
                         }
                     }
                 } else if (mode == 3 ){
-                    maxNBins = 20; binningMax  = 20;
+                    maxNBins = 17; binningMax  = 17;
                     for(Int_t i = 0; i < maxNBins+1; i++){
                         binning[i] = fBinsEtapPb8TeVPCMPHOSPt[i];
                     }
                 } else if (mode == 5 ){
-                    maxNBins = 23; binningMax  = 23;
+                    maxNBins = 22; binningMax  = 22;
                     for(Int_t i = 0; i < maxNBins+1; i++){
                         binning[i] = fBinsEtapPb8TeVPHOSPt[i];
                     }
                 } else if (mode == 4  || mode == 15){
                      if(referenceBin ? SpecialTrigger == 1 :  SpecialTrigger == 2){
-                        maxNBins = 23; binningMax = 23;
+                        maxNBins = 20; binningMax = 20;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtapPb8TeVEMCTrigger1Pt[i];
                         }
                     } else if(referenceBin ? SpecialTrigger == 2 :  SpecialTrigger == 3){
-                        maxNBins = 23; binningMax = 23;
+                        maxNBins = 20; binningMax = 20;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtapPb8TeVTrigger2Pt[i];
                         }
                     } else if(SpecialTrigger == -1){
-                        maxNBins = 25; binningMax = 25;
+                        maxNBins = 18; binningMax = 18;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtaCombpPb8TeVPt[i];
                         }
                     } else {
-                        maxNBins = 19; binningMax  = 19;
+                        maxNBins = 14; binningMax  = 14;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsEtapPb8TeVEMCPt[i];
                         }
                     }
                 } else if (mode == 20 ){
-                    maxNBins = 16; binningMax  = 16;
+                    maxNBins = 14; binningMax  = 14;
                     for(Int_t i = 0; i < maxNBins+1; i++){
                         binning[i] = fBinsEtapPb8TeVEMCPt[i];
                     }
@@ -5099,7 +5109,7 @@
             //*********************************************************************************************
             //********************************** Pi0 for pp 8TeV*******************************************
             //*********************************************************************************************
-            } else if (energy.BeginsWith("8TeV")) {
+            } else if (energy.BeginsWith("8TeV") && !energy.Contains("Ref")) {
                 if (directPhoton.CompareTo("directPhoton") == 0){
                     fStartPtBin     = 1;
                     if( modi == 2){
@@ -5691,7 +5701,7 @@
             //*********************************************************************************************
             //********************************** Pi0 for pPb 8TeV**************************************
             //*********************************************************************************************
-           } else if( energy.Contains("pPb_8TeV") ) {
+           } else if( energy.Contains("pPb_8TeV") || energy.CompareTo("8TeVRef")==0) {
                 if (directPhoton.Contains("directPhoton") ){
                     fStartPtBin     = 1;
                     if (modi == 2 && directPhoton.CompareTo("directPhoton") == 0){
@@ -5735,6 +5745,7 @@
                     nIterBGFit                  = 13;
                     fMaxYFracBGOverIntHist      = 20;
                 } else {
+                    Bool_t referenceBin = (energy.CompareTo("8TeVRef")==0) ? kTRUE : kFALSE;
                     fStartPtBin                 = GetStartBin("Pi0", energy, modi, specialTrigg);
                     Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Pi0", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis );
                     if (fNBinsPt > maxPtBinAvail) {
@@ -5750,8 +5761,8 @@
                         if (i < fNBinsPt+1){
                             if (modi == 1 ) fNRebin[i]         = fBinsPi0pPb8TeVDalitzPtRebin[i];
                             else if (modi == 2 || modi == 13  || modi == 14){
-                                if( specialTrigg == 2 )         fNRebin[i] = fBinsPi0pPb8TeVPCMEMCTrigger1PtRebin[i];
-                                else if( specialTrigg == 3 )    fNRebin[i] = fBinsPi0pPb8TeVPCMEMCTrigger2PtRebin[i];
+                                if( referenceBin ? specialTrigg == 1 : specialTrigg == 2 )         fNRebin[i] = fBinsPi0pPb8TeVPCMEMCTrigger1PtRebin[i];
+                                else if( referenceBin ? specialTrigg == 2 : specialTrigg == 3 )    fNRebin[i] = fBinsPi0pPb8TeVPCMEMCTrigger2PtRebin[i];
                                 else                            fNRebin[i] = fBinsPi0pPb8TeVPCMEMCPtRebin[i];
                             }
                             else if (modi == 3 ) fNRebin[i]         = fBinsPi0pPb8TeVPCMPHOSPtRebin[i];
@@ -6321,7 +6332,7 @@
             //*********************************************************************************************
             //********************************** Eta for pp 8TeV*******************************************
             //*********************************************************************************************
-            } else if (energy.BeginsWith("8TeV")) {
+            } else if (energy.CompareTo("8TeV")==0) {
 
                 fStartPtBin                 = GetStartBin("Eta", energy, modi, specialTrigg, centrality);
                 Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Eta", energy, modi, specialTrigg, isDCA, centrality );
@@ -6864,7 +6875,7 @@
             //*********************************************************************************************
             //********************************** Eta for pPb 8TeV**************************************
             //*********************************************************************************************
-            } else if( energy.Contains("pPb_8TeV") ) {
+            } else if( energy.Contains("pPb_8TeV") || energy.CompareTo("8TeVRef")==0  ) {
                 fStartPtBin                 = GetStartBin("Eta", energy, modi, specialTrigg);
                 Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Eta", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis );
                 if (fNBinsPt > maxPtBinAvail) {
@@ -6898,7 +6909,10 @@
                             } else if(specialTrigg == 3){
                                 fNRebin[i] = fBinsEtapPb8TeVEMCTrigger2PtRebin[i];
                             } else {
-                                fNRebin[i] = fBinsEtapPb8TeVEMCPtRebin[i];
+                                if(!setPi0.CompareTo("Pi0EtaBinning"))
+                                    fNRebin[i] = fBinsPi0EtaBinningpPb8TeVEMCPtRebin[i];
+                                else
+                                    fNRebin[i] = fBinsEtapPb8TeVEMCPtRebin[i];
                             }
                         } else if ( modi == 3 ) {
                             fNRebin[i] = fBinsEtapPb8TeVPCMPHOSPtRebin[i];

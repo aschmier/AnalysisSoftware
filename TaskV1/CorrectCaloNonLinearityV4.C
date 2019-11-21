@@ -42,7 +42,9 @@
 #include "../CommonHeaders/ConversionFunctions.h"
 
 TF1* FitRecursiveGaussian (TH1* histo, Double_t precision, Double_t correctRange, Double_t fitRangeMin, Double_t fitRangeMax);
-TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter);
+TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter, Int_t iDataMC);
+TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter, Int_t iDataMC);
+TF1* FitDExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter, Int_t iDataMC);
 TF1* FitBckg(TH1* fHisto, Double_t minFit, Double_t maxFit);
 TF1* FitDataMC(TH1* fHisto, Double_t minFit, Double_t maxFit, TString selection, Double_t constPar = -1, Int_t mode = 2);
 Float_t    FunctionNL_kSDM(Float_t e, Float_t p0, Float_t p1, Float_t p2);
@@ -82,6 +84,8 @@ void CorrectCaloNonLinearityV4(
     TString optionEnergy        = "";
     Int_t mode                  = -1;
     TString FittingFunction    ="";
+    TString cfSetting    ="";
+    TString cfSettingMC    ="";
 
     // variables for data set indentifiers and maximum number of sets
     Int_t nSets                 = 0;
@@ -171,6 +175,13 @@ void CorrectCaloNonLinearityV4(
         // reading energy setup
         } else if (tempValue.BeginsWith("energy",TString::kIgnoreCase)){
             optionEnergy    = (TString)((TObjString*)tempArr->At(1))->GetString();
+        // reading energy setup
+        } else if (tempValue.BeginsWith("cfSettingMC",TString::kIgnoreCase)){
+            cfSettingMC    = (TString)((TObjString*)tempArr->At(1))->GetString();
+            if (enableAddCouts) cout << "setting cfSettingMC to " << cfSetting.Data() << endl;
+        } else if (tempValue.BeginsWith("cfSetting",TString::kIgnoreCase)){
+            cfSetting    = (TString)((TObjString*)tempArr->At(1))->GetString();
+            if (enableAddCouts) cout << "setting cfSetting to " << cfSetting.Data() << endl;
         // reading mode
         } else if (tempValue.BeginsWith("mode",TString::kIgnoreCase)){
             mode            = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
@@ -315,6 +326,8 @@ void CorrectCaloNonLinearityV4(
     cout << "energyFlag:\t"<< optionEnergy.Data() << endl;
     cout << "mode:\t"<< mode << endl;
     if (isNotFirstIte) cout << "This is not the first iteration" << endl;
+    cout << "(if used) loading for CF output data: " << cfSetting.Data() << endl;
+    cout << "(if used) loading for CF output MC: " << cfSettingMC.Data() << endl;
     cout << "fNBinsPt:\t" << fNBinsPt << endl;
     cout << "ptBinning:" << endl;
     for (Int_t i = 0; i < fNBinsPt+1; i++){
@@ -450,7 +463,7 @@ void CorrectCaloNonLinearityV4(
 
     TFile* dataFile             = new TFile(strDataFile[0].Data(),"READ");
     if(dataFile->IsZombie()) {cout << "Info: ROOT file '" << strDataFile[0].Data() << "' could not be openend, return!" << endl; return;}
-    TString mainDirNameData     =  AutoDetectMainTList(mode , dataFile);
+    TString mainDirNameData     =  AutoDetectMainTList(mode , dataFile, "", cfSetting);
     TList* dataTopDir           = (TList*) dataFile->Get(mainDirNameData.Data());
     if(dataTopDir == NULL) {cout << "ERROR: dataTopDir not Found"<<endl; return;}
     TList* dataTopContainer     = (TList*) dataTopDir->FindObject(Form("Cut Number %s",dataCut[0].Data()));
@@ -460,7 +473,7 @@ void CorrectCaloNonLinearityV4(
 
     TFile* mcFile               = new TFile(strMCFile[0].Data(),"READ");
     if(mcFile->IsZombie()) {cout << "Info: ROOT file '" << strMCFile[0].Data() << "' could not be openend, return!" << endl; return;}
-    TString mainDirNameMC       =  AutoDetectMainTList(mode , mcFile);
+    TString mainDirNameMC       =  AutoDetectMainTList(mode , mcFile, "", cfSettingMC);
     TList* mcTopDir             = (TList*) mcFile->Get(mainDirNameMC.Data());
     if(mcTopDir == NULL) {cout << "ERROR: mcTopDir not Found"<<endl; return;}
     TList* mcTopContainer       = (TList*) mcTopDir->FindObject(Form("Cut Number %s",mcCut[0].Data()));
@@ -518,7 +531,7 @@ void CorrectCaloNonLinearityV4(
                 dataESDContainer->Clear(); dataTopContainer->Clear(); dataTopDir->Clear(); dataFile->Delete();
                 dataFile            = new TFile(strDataFile[triggerSel+1].Data(),"READ");
                 if(dataFile->IsZombie()) {cout << "Info: ROOT file '" << strDataFile[triggerSel+1].Data() << "' could not be openend, return!" << endl; return;}
-                mainDirNameData     =  AutoDetectMainTList(mode , dataFile);
+                mainDirNameData     =  AutoDetectMainTList(mode , dataFile, "", cfSetting);
                 dataTopDir          = (TList*) dataFile->Get(mainDirNameData.Data());
                 if(dataTopDir == NULL) {cout << "ERROR: dataTopDir not Found"<<endl; return;}
                 dataTopContainer    = (TList*) dataTopDir->FindObject(Form("Cut Number %s",dataCut[triggerSel+1].Data()));
@@ -530,7 +543,7 @@ void CorrectCaloNonLinearityV4(
                 mcESDContainer->Clear(); mcTopContainer->Clear(); mcTopDir->Clear(); mcFile->Delete();
                 mcFile              = new TFile(strMCFile[triggerSel+1].Data(),"READ");
                 if(mcFile->IsZombie()) {cout << "Info: ROOT file '" << strMCFile[triggerSel+1].Data() << "' could not be openend, return!" << endl; return;}
-                mainDirNameMC       =  AutoDetectMainTList(mode , mcFile);
+                mainDirNameMC       =  AutoDetectMainTList(mode , mcFile, "", cfSettingMC);
                 mcTopDir            = (TList*) mcFile->Get(mainDirNameMC.Data());
                 if(mcTopDir == NULL) {cout << "ERROR: mcTopDir not Found"<<endl; return;}
                 mcTopContainer      = (TList*) mcTopDir->FindObject(Form("Cut Number %s",mcCut[triggerSel+1].Data()));
@@ -603,12 +616,12 @@ void CorrectCaloNonLinearityV4(
             }
             TH1D* sliceHist         = (TH1D*) Hist2D->ProjectionX(Form("slice%sAlpha_%f-%f",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]),projectMin,projectMax);
             sliceHist->SetDirectory(0);
-            sliceHist->SetTitle(Form("%s - %.02f < #it{E}_{Cluster} < %.02f (GeV)",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
+            sliceHist->SetTitle(Form("Signal %s - %.02f < #it{E}_{Cluster} < %.02f (GeV)",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             sliceHist->GetYaxis()->SetTitle("#frac{d#it{M}_{inv}}{dN}");
             sliceHist->Sumw2();
             TH1D* sliceBGHist       = (TH1D*) HistBG2D->ProjectionX(Form("sliceBG%sAlpha_%f-%f",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]),projectMin,projectMax);
             sliceBGHist->SetDirectory(0);
-            sliceBGHist->SetTitle(Form("%s - %.02f < #it{E}_{Cluster} < %.02f (GeV)",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
+            sliceBGHist->SetTitle(Form("BG %s - %.02f < #it{E}_{Cluster} < %.02f (GeV)",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             sliceBGHist->GetYaxis()->SetTitle("#frac{d#it{M}_{inv}}{dN}");
             sliceBGHist->Sumw2();
 
@@ -629,12 +642,15 @@ void CorrectCaloNonLinearityV4(
             Double_t minMGGBG           = 0.17;
             if (optionEnergy.Contains("PbPb") || optionEnergy.Contains("XeXe"))
                 minMGGBG                = 0.22;
-            Double_t integralSigAndBG   = sliceHist->Integral(sliceHist->FindBin(minMGGBG), sliceHist->FindBin(0.3));
-            Double_t integralBG         = sliceBGHist->Integral(sliceBGHist->FindBin(minMGGBG), sliceBGHist->FindBin(0.3));
-            cout << integralSigAndBG << "\t" << integralBG << "\t" << integralSigAndBG/ integralBG << endl;
+            if (optionEnergy.Contains("LHC17TB") )
+                minMGGBG                = 0.25;
+            Double_t integralSigAndBG   = sliceHist->Integral(sliceHist->FindBin(minMGGBG), sliceHist->FindBin(0.28));
+            Double_t integralBG         = sliceBGHist->Integral(sliceBGHist->FindBin(minMGGBG), sliceBGHist->FindBin(0.28));
+            cout << "BG scaling: " << integralSigAndBG << "\t" << integralBG << "\t" << integralSigAndBG/ integralBG << endl;
 
             if (integralBG != 0){
                 sliceBGHist->Scale( integralSigAndBG/ integralBG );
+                cout << "scaled BG" << endl;
             }
             for (Int_t i = 1; i< sliceHist->GetNbinsX()+1; i++){
                 if (sliceHist->GetBinContent(i) == 0)
@@ -642,8 +658,8 @@ void CorrectCaloNonLinearityV4(
             }
 
             TH1D* sliceHistCopy         = (TH1D*)sliceHist->Clone("SliceCopy");
-            if (integralBG != 0 && fBinsPt[iClusterPt]<16.0){
-                sliceHist->Add( sliceBGHist, -1);
+            if (integralBG != 0 && (fBinsPt[iClusterPt]<20.0)){
+                    sliceHist->Add( sliceBGHist, -1);
             }
 
             sliceHistCopy->GetXaxis()->SetRangeUser(0.0,0.3);
@@ -687,6 +703,8 @@ void CorrectCaloNonLinearityV4(
                         minMax[1]       = 0.20;
                     else if (fBinsPt[iClusterPt] < 3)
                         minMax[1]       = 0.25;
+                } else if (optionEnergy.Contains("8TeV") ){
+                        minMax[1]       = 0.29;
                 } else {
                     if (fBinsPt[iClusterPt] < 1)
                         minMax[1]       = 0.2;
@@ -751,7 +769,11 @@ void CorrectCaloNonLinearityV4(
             //*******************************************************************************
             // Fit
             //*******************************************************************************
-            fFitReco = FitExpPlusGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2);
+            if(optionEnergy.Contains("8TeV"))
+                fFitReco = FitGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
+                // fFitReco = FitDExpPlusGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC); // possibility to use double exponential fit
+            else
+                fFitReco = FitExpPlusGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
 
             if(iDataMC==0) {
                 histDataResults->SetBinContent(iClusterPt+1,fFitReco->GetParameter(1));
@@ -779,7 +801,7 @@ void CorrectCaloNonLinearityV4(
 
             sliceHist->GetListOfFunctions()->Add(fFitReco);
             sliceHist->GetXaxis()->SetRangeUser(0.0,0.3);
-
+            cout << "mean: " << sliceHist->GetMean() << "\tmaximum: " << sliceHist->GetMaximum() << endl;
             sliceHist->DrawCopy();
             DrawGammaLines(0., 0.3, 0, 0, 1, kGray+1, 7);
             canvas->SetLogx(0); canvas->SetLogy(0); canvas->SetLogz(0); canvas->Update();
@@ -1248,6 +1270,7 @@ void CorrectCaloNonLinearityV4(
     if (select.Contains("LHC15o") || select.Contains("LHC18qr"))           maxPlotY = 1.2;
     if (select.Contains("LHC11cd") && mode==2)           maxPlotY = 1.03;
     if (select.Contains("LHC12TB") && mode==2)           minPlotY = 0.88;
+    if (select.Contains("final")){ minPlotY = 0.95;     maxPlotY = 1.05;}
     if (mode==3 || mode==5)   {   minPlotY = 0.9;     maxPlotY = 1.2; }
 
     TH2F * histoDummyDataMCRatio;
@@ -1443,7 +1466,81 @@ TF1* FitDataMC(TH1* fHisto, Double_t minFit, Double_t maxFit, TString selection,
 //*******************************************************************************
 //************** Definition of fitting with pure Gaussian ***********************
 //*******************************************************************************
-TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter ){
+TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter , Int_t iDataMC){
+
+    Double_t mesonAmplitude = 0;
+    for(Int_t i = histo->FindBin(0.07); i < histo->FindBin(0.2) ; i++ ){
+      if(histo->GetBinContent(i) > mesonAmplitude) mesonAmplitude = histo->GetBinContent(i);
+    }
+    cout << "mesonAmplitude = " << mesonAmplitude << endl;
+    Double_t mesonAmplitudeMin;
+    Double_t mesonAmplitudeMax;
+
+    // special setting for PCM-EMC
+    if(iDataMC==0) mesonAmplitudeMin = mesonAmplitude*90./100.;
+    if(iDataMC>0)  mesonAmplitudeMin = mesonAmplitude*80./100.;
+
+    mesonAmplitudeMax = mesonAmplitude*110./100.;
+
+    cout << "mesonAmplitudeMin = " << mesonAmplitudeMin << endl;
+    cout << "mesonAmplitudeMax = " << mesonAmplitudeMax << endl;
+
+    Double_t rmsScaling = 0.4;
+    if(ptcenter > 3.0) rmsScaling = 0.7;
+    if(ptcenter > 5.0) rmsScaling = 1.0;
+    Double_t rmsHisto = histo->GetRMS();
+    if(rmsHisto<0.01) rmsHisto = 0.01;
+    
+    // necessary to exclude low mass peak
+    histo->GetXaxis()->SetRangeUser(0.07,0.2);
+
+    fitRangeMin = histo->GetBinCenter(histo->GetMaximumBin())-rmsScaling*rmsHisto;
+    fitRangeMax = histo->GetBinCenter(histo->GetMaximumBin())+rmsScaling*rmsHisto;
+    histo->GetXaxis()->SetRangeUser(0.00,0.3);
+
+    // TF1* fFitReco    = new TF1("fGaussExp","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)+[4]+[5]*x)",
+    TF1* fFitReco    = new TF1("fGauss","[0]*TMath::Exp(-0.5*((x-[1])/[2])^2)+[3]", fitRangeMin, fitRangeMax);
+    Double_t fMesonMassExpect = TDatabasePDG::Instance()->GetParticle(111)->Mass();
+
+    fFitReco->SetParameter(0, mesonAmplitude);
+    fFitReco->SetParameter(1, fMesonMassExpect);
+    fFitReco->SetParameter(2, 0.01);
+    fFitReco->SetParameter(3, 0);
+
+    fFitReco->SetParLimits(0, mesonAmplitudeMin, mesonAmplitudeMax);
+    if (mode == 4 || mode == 12 || mode == 15){
+        fFitReco->SetParLimits(1, fMesonMassExpect*0.65, fMesonMassExpect*1.6);
+    } else {
+        fFitReco->SetParLimits(1, fMesonMassExpect*0.9, fMesonMassExpect*1.1);
+    }
+    fFitReco->SetParLimits(2, 0.001, 0.1);
+
+
+    histo->Fit(fFitReco,"QRME0");
+    Double_t rmsScalingRefit = 1.1;
+    if(ptcenter > 3.0) rmsScalingRefit = 1.3;
+    if(ptcenter > 5.0) rmsScalingRefit = 1.6;
+    fFitReco->SetRange(fFitReco->GetParameter(1)-rmsScalingRefit*fFitReco->GetParameter(2),fFitReco->GetParameter(1)+rmsScalingRefit*fFitReco->GetParameter(2));
+    histo->Fit(fFitReco,"QRME0","",fFitReco->GetParameter(1)-rmsScalingRefit*fFitReco->GetParameter(2),fFitReco->GetParameter(1)+rmsScalingRefit*fFitReco->GetParameter(2));
+
+    fFitReco->SetLineColor(kRed+1);
+    fFitReco->SetLineWidth(1);
+    fFitReco->SetLineStyle(1);
+
+    if(TString(gMinuit->fCstatu.Data()).Contains("CONVERGED") == 1 || TString(gMinuit->fCstatu.Data()).Contains("SUCCESSFUL") == 1 || TString(gMinuit->fCstatu.Data()).Contains("PROBLEMS") == 1){
+        cout << "Parameter for exponential+Gaussian "<< endl;
+        cout << gMinuit->fCstatu.Data() << endl;
+        cout << "Gausexp: \t" << fFitReco->GetParameter(0) <<"+-" << fFitReco->GetParError(0) << "\t " << fFitReco->GetParameter(1)<<"+-" << fFitReco->GetParError(1) << "\t "<< fFitReco->GetParameter(2) <<"+-" << fFitReco->GetParError(2)<<endl;
+        cout << "chi2/ndf:" << fFitReco->GetChisquare()/fFitReco->GetNDF() << endl;
+    } else {
+        cout << "Exp+Gaussian fitting failed in with status " << gMinuit->fCstatu.Data() <<endl << endl;
+    }
+    return fFitReco;
+}
+//*******************************************************************************
+//************** Definition of fitting with pure Gaussian ***********************
+//*******************************************************************************
+TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter , Int_t iDataMC){
 
     Double_t mesonAmplitude = 0;
     for(Int_t i = histo->FindBin(0.07); i < histo->FindBin(0.2) ; i++ ){
@@ -1455,10 +1552,15 @@ TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax,
 
     // special setting for PCM-EMC
     if (mode == 2 || mode == 14){
-        if (ptcenter > 1.5)
-            mesonAmplitudeMin = mesonAmplitude*95./100.;
-        else
-            mesonAmplitudeMin = mesonAmplitude*90./100.;
+        if(iDataMC==0) mesonAmplitudeMin = mesonAmplitude*90./100.;
+        if(iDataMC>0) mesonAmplitudeMin = mesonAmplitude*80./100.;
+        // if(iDataMC>0&& ptcenter > 14.5) mesonAmplitudeMin = mesonAmplitude*65./100.;
+        // if (ptcenter > 4.5)
+        //     mesonAmplitudeMin = mesonAmplitude*55./100.;
+        // else
+        //     mesonAmplitudeMin = mesonAmplitude*80./100.;
+        // if(iDataMC>0) mesonAmplitudeMin = mesonAmplitude*95./100.;
+        // if(iDataMC>0&& ptcenter > 14.5) mesonAmplitudeMin = mesonAmplitude*65./100.;
     // special setting for PCM-PHOS
     } else if (mode == 3){
         if (ptcenter > 1.)
@@ -1507,6 +1609,99 @@ TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax,
     }
     fFitReco->SetParLimits(2, 0.001, 0.1);
     fFitReco->SetParLimits(3, 0.001, 0.09);
+    if (mode == 5){
+      fFitReco->SetParLimits(1, fMesonMassExpect*0.8, fMesonMassExpect*1.8);
+      fFitReco->SetParLimits(2, 0.001, 0.01);
+    }
+
+    histo->Fit(fFitReco,"QRME0");
+    histo->Fit(fFitReco,"QRME0");
+
+    fFitReco->SetLineColor(kRed+1);
+    fFitReco->SetLineWidth(1);
+    fFitReco->SetLineStyle(1);
+
+    if(TString(gMinuit->fCstatu.Data()).Contains("CONVERGED") == 1 || TString(gMinuit->fCstatu.Data()).Contains("SUCCESSFUL") == 1 || TString(gMinuit->fCstatu.Data()).Contains("PROBLEMS") == 1){
+        cout << "Parameter for exponential+Gaussian "<< endl;
+        cout << gMinuit->fCstatu.Data() << endl;
+        cout << "Gausexp: \t" << fFitReco->GetParameter(0) <<"+-" << fFitReco->GetParError(0) << "\t " << fFitReco->GetParameter(1)<<"+-" << fFitReco->GetParError(1) << "\t "<< fFitReco->GetParameter(2) <<"+-" << fFitReco->GetParError(2)<<endl;
+        cout << "chi2/ndf:" << fFitReco->GetChisquare()/fFitReco->GetNDF() << endl;
+    } else {
+        cout << "Exp+Gaussian fitting failed in with status " << gMinuit->fCstatu.Data() <<endl << endl;
+    }
+    return fFitReco;
+}
+
+//*******************************************************************************
+//*********** Definition of fitting with double exp Gaussian ********************
+//*******************************************************************************
+TF1* FitDExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter, Int_t iDataMC ){
+
+    Double_t mesonAmplitude = 0;
+    for(Int_t i = histo->FindBin(0.07); i < histo->FindBin(0.2) ; i++ ){
+      if(histo->GetBinContent(i) > mesonAmplitude) mesonAmplitude = histo->GetBinContent(i);
+    }
+    cout << "mesonAmplitude = " << mesonAmplitude << endl;
+    Double_t mesonAmplitudeMin;
+    Double_t mesonAmplitudeMax;
+
+    // special setting for PCM-EMC
+    if (mode == 2 || mode == 14){
+        if (ptcenter > 1.5)
+            mesonAmplitudeMin = mesonAmplitude*95./100.;
+        else
+            mesonAmplitudeMin = mesonAmplitude*90./100.;
+    // special setting for PCM-PHOS
+    } else if (mode == 3){
+        if (ptcenter > 1.)
+            mesonAmplitudeMin = mesonAmplitude*20./100.;
+        else
+            mesonAmplitudeMin = mesonAmplitude*10./100.;
+
+          fitRangeMin = 0.09;
+          fitRangeMax = 0.19;
+    // special setting for EMC
+    } else if (mode == 4 || mode == 12 || mode == 15){
+        mesonAmplitudeMin = mesonAmplitude*20./100.;
+        fitRangeMin = 0.08;
+    // special setting for PHOS
+    } else if (mode == 5){
+      fitRangeMin = 0.09;
+      fitRangeMax = 0.25;
+        if (ptcenter > 1.)
+            mesonAmplitudeMin = mesonAmplitude*80./100.;
+        else
+            mesonAmplitudeMin = mesonAmplitude*1./100.;
+
+        if(ptcenter < 0.35) fitRangeMax = 0.2;
+    } else {
+        mesonAmplitudeMin = mesonAmplitude*50./100.;
+    }
+    mesonAmplitudeMax = mesonAmplitude*110./100.;
+
+    cout << "mesonAmplitudeMin = " << mesonAmplitudeMin << endl;
+    cout << "mesonAmplitudeMax = " << mesonAmplitudeMax << endl;
+
+    TF1* fFitReco = new TF1("GaussExpLinear","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp(-(x-[1])/[6])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)",fitRangeMin, fitRangeMax);
+    Double_t fMesonMassExpect = TDatabasePDG::Instance()->GetParticle(111)->Mass();
+
+    fFitReco->SetParameter(0, mesonAmplitude);
+    fFitReco->SetParameter(1, fMesonMassExpect);
+    fFitReco->SetParameter(2, 0.01);
+    fFitReco->SetParameter(3, 0.012);
+
+    fFitReco->SetParameter(6,0.015);
+    if(iDataMC)
+        fFitReco->SetParLimits(6,0.010,0.030);
+
+    fFitReco->SetParLimits(0, mesonAmplitudeMin, mesonAmplitudeMax);
+    if (mode == 4 || mode == 12 || mode == 15){
+        fFitReco->SetParLimits(1, fMesonMassExpect*0.65, fMesonMassExpect*1.6);
+    } else {
+        fFitReco->SetParLimits(1, fMesonMassExpect*0.9, fMesonMassExpect*1.1);
+    }
+    fFitReco->SetParLimits(2, 0.001, 0.1);
+    fFitReco->SetParLimits(3, 0.001, 0.18);
     if (mode == 5){
       fFitReco->SetParLimits(1, fMesonMassExpect*0.8, fMesonMassExpect*1.8);
       fFitReco->SetParLimits(2, 0.001, 0.01);

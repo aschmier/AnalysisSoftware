@@ -507,11 +507,14 @@ void FinaliseSystematicErrorsMergedCalo_v2(
                     }
                     else if(!energy.CompareTo("pPb_8TeV")){
                         if (additionalNameOutput.Contains("INT7") && meson.CompareTo("Pi0")==0){
-                            error   = 7+0.02*(ptBins[k]-20);
+                            // error   = 7+0.02*(ptBins[k]-20);
+                            error   = 7+0.015*(ptBins[k]-20);
                         }else if (additionalNameOutput.Contains("EG2") && meson.CompareTo("Pi0")==0){
-                            error   = 7+0.02*(ptBins[k]-20);
+                            // error   = 7+0.02*(ptBins[k]-20);
+                            error   = 7+0.015*(ptBins[k]-20);
                         }else if (additionalNameOutput.Contains("EG1") && meson.CompareTo("Pi0")==0){
-                            error   = 7+0.02*(ptBins[k]-20);
+                            // error   = 7+0.02*(ptBins[k]-20);
+                            error   = 7+0.015*(ptBins[k]-20);
                         }
                         if (additionalNameOutput.Contains("INT7") && meson.CompareTo("Pi0Ratio")==0){
                             error   = 0.6;

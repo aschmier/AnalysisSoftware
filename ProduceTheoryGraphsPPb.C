@@ -1305,7 +1305,7 @@ void ProduceTheoryGraphsPPb(){
     //********************** EPOS+JJ MC spectra and ratio ***********************************************
     //**************************************************************************************************
     // file generated with TaskV1/ExtractMCInputSpectraFromFile.C++ based on PCM-EMC inputs
-    TFile* fileEPOSJJpPb8TeV               = new TFile("ExternalInputpPb/Theory/MCInputCompilationLHC18b9bc_pPb8TeV_10.root");
+    TFile* fileEPOSJJpPb8TeV               = new TFile("ExtractMCInputSpectraFromFile/MCInputCompilationLHC18b9bc_pPb8TeV_10.root");
     TH1D* histoPi0EPOSJJpPb8TeV            = (TH1D*)fileEPOSJJpPb8TeV->Get("pPb_8TeV/MC_Pi0_Pt");
     TH1D* histoPi0EPOSJJpPb8TeVReb         = (TH1D*)fileEPOSJJpPb8TeV->Get("pPb_8TeV/MC_Pi0_Pt_Rebinned");
     TH1D* histoPiChEPOSJJpPb8TeV           = (TH1D*)fileEPOSJJpPb8TeV->Get("pPb_8TeV/MC_PiCh_All_Pt");

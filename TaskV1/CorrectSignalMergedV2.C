@@ -288,7 +288,7 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
         if (optionEnergy.BeginsWith("8TeV")){
             isV0AND             = 1;
         }    
-        if (trigger.Atoi() == 10 || trigger.Atoi() == 52 || trigger.Atoi() == 83  || trigger.Atoi() == 85 || trigger.Atoi() == 81 ){
+        if (trigger.Atoi() == 10 || trigger.Atoi() == 52 || trigger.Atoi() == 83  || trigger.Atoi() == 85 || trigger.Atoi() == 81  || !trigger.CompareTo("8e") || !trigger.CompareTo("8d") ){
             isV0AND             = 1;
         }    
         
@@ -360,7 +360,7 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
             histoExternalInputSecPi0[j]                     = (TH1D*)fileUncorrected.Get(Form("histoSecPi0YieldFrom%s_FromCocktail",nameSecMeson[j].Data()));
             if (histoExternalInputSecPi0[j]){
                 foundCocktailInput                          = kTRUE;
-                histoExternalInputSecPi0[j]->Scale(scaleFactorMeasXSecForToy);
+                // histoExternalInputSecPi0[j]->Scale(scaleFactorMeasXSecForToy);
                 cout << "Using the cocktail input for secondary correction of " << nameSecMeson[j] << endl;
                 if (j==0) strExternalInputName              = "Cocktail";
             }
@@ -825,22 +825,38 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
                 fitConst->SetLineColor(colorSec[j]);
                 histoRatioSecEffDivTrueEff[j]->Fit(fitConst);
                 cout << fitConst->GetParameter(0) << "\t +-" << fitConst->GetParError(0) << endl;
-                if (j == 0){
-                    for (Int_t iPt = histoSecEffiPt[j]->FindBin(minPtMeson); iPt< histoSecEffiPt[j]->GetNbinsX()+1; iPt++ ){
-                        if (histoSecEffiPt[j]->GetBinContent(iPt) == 0){
-                            Double_t ratioPrevBin           = 2;
-                            if (iPt-1 > histoSecEffiPt[j]->FindBin(minPtMeson) && histoSecEffiPt[j]->GetBinContent(iPt-1) > 0){
-                                ratioPrevBin                = histoSecEffiPt[j]->GetBinContent(iPt-1)/histoTrueEffiPrimMesonPt->GetBinContent(iPt-1);
+                if (j == 0){ //K0s
+                    if(optionEnergy.Contains("pPb_8TeV")){
+                        // fitSecFracExtInput[j] = new TF1(Form("fitSecFracExtInput%s",nameSecMeson[j].Data()),"pol3");
+                        fitSecFracExtInput[j] = new TF1(Form("fitSecFracExtInput%s",nameSecMeson[j].Data()),"pol0");
+                        fitSecFracExtInput[j]->SetRange(minPtMesonSec,maxPtMeson);
+                        if(!trigger.CompareTo("8e"))
+                            histoRatioSecEffDivTrueEff[j]->Fit(fitSecFracExtInput[j],"QNRME+","",minPtMesonSec,80);
+                        else if(!trigger.CompareTo("8d"))
+                            histoRatioSecEffDivTrueEff[j]->Fit(fitSecFracExtInput[j],"QNRME+","",minPtMesonSec,20);
+                        else
+                            histoRatioSecEffDivTrueEff[j]->Fit(fitSecFracExtInput[j],"QNRME+","",minPtMesonSec,40);
+
+                        histoSecEffiPt[j]              = (TH1D*)histoTrueEffiPrimMesonPt->Clone(Form("TrueSecFrom%sEffiPt",nameSecMeson[j].Data()));
+                        histoSecEffiPt[j] ->Multiply(fitSecFracExtInput[j]);
+                        modifiedSecEff[j]               = kTRUE;
+                    } else {
+                        for (Int_t iPt = histoSecEffiPt[j]->FindBin(minPtMeson); iPt< histoSecEffiPt[j]->GetNbinsX()+1; iPt++ ){
+                            if (histoSecEffiPt[j]->GetBinContent(iPt) == 0){
+                                Double_t ratioPrevBin           = 2;
+                                if (iPt-1 > histoSecEffiPt[j]->FindBin(minPtMeson) && histoSecEffiPt[j]->GetBinContent(iPt-1) > 0){
+                                    ratioPrevBin                = histoSecEffiPt[j]->GetBinContent(iPt-1)/histoTrueEffiPrimMesonPt->GetBinContent(iPt-1);
+                                }
+                                histoSecEffiPt[j]->SetBinContent(iPt, ratioPrevBin*histoTrueEffiPrimMesonPt->GetBinContent(iPt));
+                                histoSecEffiPt[j]->SetBinError(iPt, ratioPrevBin*histoTrueEffiPrimMesonPt->GetBinError(iPt));
+                                modifiedSecEff[j]               = kTRUE;
                             }
-                            histoSecEffiPt[j]->SetBinContent(iPt, ratioPrevBin*histoTrueEffiPrimMesonPt->GetBinContent(iPt));
-                            histoSecEffiPt[j]->SetBinError(iPt, ratioPrevBin*histoTrueEffiPrimMesonPt->GetBinError(iPt));
-                            modifiedSecEff[j]               = kTRUE;
                         }
                     }
-                } else if (j == 1){
+                } else if (j == 1){ //Lambda
                         histoSecEffiPt[j]               = (TH1D*)histoSecEffiPt[0]->Clone(Form("TrueMesonEffiSecFrom%sPt",nameSecMeson[j].Data()));
                         modifiedSecEff[j]               = kTRUE;
-                } else if ( j == 2 ){
+                } else if ( j == 2 ){ //K0L
                     if(optionEnergy.Contains("pPb_8TeV")){
                         fitSecFracExtInput[j] = new TF1(Form("fitSecFracExtInput%s",nameSecMeson[j].Data()),"[0]");
                         fitSecFracExtInput[j]->SetRange(minPtMesonSec,maxPtMeson);
@@ -1055,8 +1071,10 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
 
             TLegend* legendEffLinYSec = GetAndSetLegend2(0.13,0.65,0.35,0.8, 28);
             legendEffLinYSec->SetMargin(0.15);
-            
-            histoTrueEffiPrimMesonPt->GetYaxis()->SetRangeUser(0,50.);
+            if(!trigger.CompareTo("8e") && optionEnergy.Contains("pPb_8TeV"))
+                histoTrueEffiPrimMesonPt->GetYaxis()->SetRangeUser(0,15.);
+            else
+                histoTrueEffiPrimMesonPt->GetYaxis()->SetRangeUser(0,50.);
             histoTrueEffiPrimMesonPt->GetYaxis()->SetTitleOffset(0.8);        
             DrawGammaSetMarker(histoTrueEffiPrimMesonPt, 20, 1., kBlack, kBlack);
             histoTrueEffiPrimMesonPt->DrawCopy("e1");

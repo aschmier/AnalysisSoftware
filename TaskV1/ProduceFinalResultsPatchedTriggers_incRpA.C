@@ -80,6 +80,7 @@ TGraphAsymmErrors * DivideTGraphAsymErrorByTGraphAsymError(TGraphAsymmErrors* gr
 	TGraphAsymmErrors* dummyGraph = (TGraphAsymmErrors*)graph1->Clone(Form("%s_R1",graph1->GetName()));
 	Int_t nPoints              = dummyGraph->GetN();
 	Double_t * xValue1         = dummyGraph->GetX();
+	Double_t * yValueTemp      = dummyGraph->GetY();
 	Double_t * yValue1         = dummyGraph->GetY();
 	Double_t* xErrorLow1       = dummyGraph->GetEXlow();
 	Double_t* xErrorHigh1      = dummyGraph->GetEXhigh();
@@ -92,14 +93,14 @@ TGraphAsymmErrors * DivideTGraphAsymErrorByTGraphAsymError(TGraphAsymmErrors* gr
 
 	for (Int_t i = 0; i < nPoints; i++){
         if(yValue2[i]!=0)
-            yValue1[i]               = yValue1[i]/yValue2[i];
+            yValueTemp[i]               = yValue1[i]/yValue2[i];
         else
-            yValue1[i]               = 0;
-		yErrorLow1[i]            = yValue1[i]*TMath::Sqrt( TMath::Power(yErrorLow1[i]/yValue1[i],2) + TMath::Power(yErrorLow2[i]/yValue2[i],2));
-		yErrorHigh1[i]           = yValue1[i]*TMath::Sqrt( TMath::Power(yErrorHigh1[i]/yValue1[i],2) + TMath::Power(yErrorHigh2[i]/yValue2[i],2));
+            yValueTemp[i]               = 0;
+		yErrorLow1[i]            = yValueTemp[i]*TMath::Sqrt( TMath::Power(yErrorLow1[i]/yValue1[i],2) + TMath::Power(yErrorLow2[i]/yValue2[i],2));
+		yErrorHigh1[i]           = yValueTemp[i]*TMath::Sqrt( TMath::Power(yErrorHigh1[i]/yValue1[i],2) + TMath::Power(yErrorHigh2[i]/yValue2[i],2));
 	}
 
-	TGraphAsymmErrors* returnGraph =  new TGraphAsymmErrors(nPoints,xValue1,yValue1,xErrorLow1,xErrorHigh1,yErrorLow1,yErrorHigh1);
+	TGraphAsymmErrors* returnGraph =  new TGraphAsymmErrors(nPoints,xValue1,yValueTemp,xErrorLow1,xErrorHigh1,yErrorLow1,yErrorHigh1);
     returnGraph->SetName(nameGraph.Data());
 	return returnGraph;
 }
@@ -170,7 +171,9 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     Float_t maxPtGlobalEta      = 14.,
     Bool_t  averagedEta         = kFALSE,
     TString fileInputCorrFactors= "",
-    Bool_t  isNSD               = kTRUE
+    Bool_t  isNSD               = kTRUE,
+    TString fileInputBinShift   = "",
+    TString fileInputBinShiftRef   = ""
 ){
 
     //***************************************************************************************************************
@@ -279,8 +282,22 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     cout << "global minimum pT for pi0: " << minPtGlobalPi0 << endl;
     cout << "global minimum pT for eta: " << minPtGlobalEta << endl;
 
-    Double_t xsectionReference = xSection8TeVV0AND;//ReturnCorrectXSection("8TeV",1);
-    Double_t nuclOverlap = tpPb8160GeV;
+    Double_t xsection =0;
+    Double_t xsectionReference =0;
+    Double_t nuclOverlap = 0;
+    if(optionEnergy.Contains("pPb_8TeV")){
+        xsection = 2.095;
+        xsectionReference = ReturnCorrectXSection("8TeV",1);
+        nuclOverlap = GetTAAFromName("","pPb_8TeV");
+    }
+    if(xsectionReference==0){
+        cout << "Cross section for reference or spectrum not set... returning! Please adjust loading of reference xsection in line " << __LINE__ << endl;
+        return;
+    }
+    if(nuclOverlap==0){
+        cout << "TAA for reference not set... returning! Please adjust loading of nucl. overlap in line " << __LINE__ << endl;
+        return;
+    }
     Double_t scalingToNSD                       = 0.97;
     if (!isNSD)
         scalingToNSD                            = 1;
@@ -383,12 +400,16 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     TGraphAsymmErrors*   graphCorrectedYieldPi0Scaled[MaxNumberOfFiles] = {NULL};
     TGraphAsymmErrors*   graphCorrectedYieldPi0Ref[MaxNumberOfFiles] = {NULL};
     TGraphAsymmErrors*   graphCorrectedYieldPi0RefScaled[MaxNumberOfFiles] = {NULL};
+    TGraphAsymmErrors*   graphInvCrossSectionPi0Ref[MaxNumberOfFiles] = {NULL};
+    TGraphAsymmErrors*   graphInvCrossSectionPi0RefScaled[MaxNumberOfFiles] = {NULL};
 
     TH1D*   histoRawYieldsEta[MaxNumberOfFiles] = {NULL};
     TGraphAsymmErrors*   graphCorrectedYieldEta[MaxNumberOfFiles] = {NULL};
     TGraphAsymmErrors*   graphCorrectedYieldEtaScaled[MaxNumberOfFiles] = {NULL};
     TGraphAsymmErrors*   graphCorrectedYieldEtaRef[MaxNumberOfFiles] = {NULL};
     TGraphAsymmErrors*   graphCorrectedYieldEtaRefScaled[MaxNumberOfFiles] = {NULL};
+    TGraphAsymmErrors*   graphInvCrossSectionEtaRef[MaxNumberOfFiles] = {NULL};
+    TGraphAsymmErrors*   graphInvCrossSectionEtaRefScaled[MaxNumberOfFiles] = {NULL};
 
     for (Int_t i=0; i< nrOfTrigToBeComb; i++){
         fileInput[i]                                 = new TFile(inputFileName[i]);
@@ -401,6 +422,9 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             cout << "pp file " << inputFileNameRef[i].Data() << " not found!...returning!" << endl;
             return;
         }
+        gSystem->Exec(Form("cp %s %s/InputFile%d.root", inputFileName[i].Data(), outputDir.Data(), i));
+        gSystem->Exec(Form("cp %s %s/InputFileRef%d.root", inputFileNameRef[i].Data(), outputDir.Data(), i));
+
 
         histoRawYieldsPi0[i] = (TH1D*)fileInput[i]->Get(Form("Pi0%s/RAWYieldPerEventsPi0_%s",inputFolderName[i].Data(),triggerName[i].Data()));
         graphCorrectedYieldPi0[i] = (TGraphAsymmErrors*)fileInput[i]->Get(Form("Pi0%s/CorrectedYieldPi0_%s",inputFolderName[i].Data(),triggerName[i].Data()));
@@ -418,9 +442,6 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             return;
         } else {
             cout << "successfully loaded pp input " << Form("Pi0%s/CorrectedYieldPi0_%s",inputFolderNameRef[i].Data(),triggerNameRef[i].Data()) << endl;
-            if(mode==10 && !optionEnergy.CompareTo("pPb_8TeV")){
-                graphCorrectedYieldPi0Ref[i]->RemovePoint(0);
-            }
         }
         graphCorrectedYieldPi0Ref[i]->SetName(Form("CorrectedYieldRef_%s",triggerNameRef[i].Data()));
 
@@ -446,7 +467,40 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
         }
     }
 
-    
+    TFile*  fileBinShift = NULL;
+    TFile*  fileBinShiftRef = NULL;
+    TF1*   funcTCMFitShiftPi0 = NULL;
+    TF1*   funcTCMFitShiftPi0Ref = NULL;
+    TF1*   funcTCMFitShiftEta = NULL;
+    TF1*   funcTCMFitShiftEtaRef = NULL;
+    Bool_t doBinShift = kFALSE;
+    if(fileInputBinShift.CompareTo("") && fileInputBinShiftRef.CompareTo("")){
+        fileBinShift                                 = new TFile(fileInputBinShift);
+        if (fileBinShift->IsZombie()){
+            cout << "pPb or PbPb file for bin shift " << fileInputBinShift.Data() << " not found!...returning!" << endl;
+            return;
+        } else {
+            if(optionEnergy.CompareTo("pPb_8TeV")==0){
+                funcTCMFitShiftPi0 = (TF1*)fileBinShift->Get("Pi0pPb8TeV/TwoComponentModelFitPi0");
+                funcTCMFitShiftEta = (TF1*)fileBinShift->Get("EtapPb8TeV/TwoComponentModelFitEta");
+            }
+            if(!funcTCMFitShiftPi0){cout << "pPb shift fit not found" << endl; return;}
+            if(!funcTCMFitShiftEta && mode!=10){cout << "pPb shift fit for Eta not found" << endl; return;}
+        }
+        fileBinShiftRef                                 = new TFile(fileInputBinShiftRef);
+        if (fileBinShiftRef->IsZombie()){
+            cout << "pp file for bin shift " << fileInputBinShiftRef.Data() << " not found!...returning!" << endl;
+            return;
+        } else {
+            if(optionEnergy.CompareTo("pPb_8TeV")==0){
+                funcTCMFitShiftPi0Ref = (TF1*)fileBinShiftRef->Get("Pi08TeV/TwoComponentModelFitPi0");
+                funcTCMFitShiftEtaRef = (TF1*)fileBinShiftRef->Get("Eta8TeV/TwoComponentModelFitEta");
+            }
+            if(!funcTCMFitShiftPi0Ref){cout << "pp shift fit not found" << endl; return;}
+            if(!funcTCMFitShiftEtaRef && mode!=10){cout << "pp shift fit for Eta not found" << endl; return;}
+        }
+        doBinShift = kTRUE;
+    }
     //***************************************************************************************************************
     //************************************Plotting invariant yield Pi0 *************************************
     //***************************************************************************************************************
@@ -456,10 +510,15 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
 
     Double_t minCorrYieldSpectra   = 2e-10;
     Double_t maxCorrYieldSpectra   = 1e2;
+    if(mode==10){
+        minCorrYieldSpectra   = 2e-15;
+        maxCorrYieldSpectra   = 1e-5;
+    }
 
-    TH2F * histo2DInvYieldSpectra = new TH2F("histo2DInvYieldSpectra","histo2DInvYieldSpectra",1000,0., maxPtGlobalPi0,10000,minCorrYieldSpectra,maxCorrYieldSpectra);
+    TH2F * histo2DInvYieldSpectra = new TH2F("histo2DInvYieldSpectra","histo2DInvYieldSpectra",1000,0., maxPtGlobalPi0,10000,5e-15,5e15);
     SetStyleHistoTH2ForGraphs(histo2DInvYieldSpectra, "#it{p}_{T} (GeV/#it{c})","#frac{1}{2#pi #it{N}_{ev}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)^{2}",
                             0.85*textSizeSpectra,0.04, 0.85*textSizeSpectra,textSizeSpectra, 0.8,1.55);
+    histo2DInvYieldSpectra->GetYaxis()->SetRangeUser(minCorrYieldSpectra,maxCorrYieldSpectra);
     histo2DInvYieldSpectra->DrawCopy();
     Double_t minXLegendRaw = 0.62;
     Int_t nColumnsRaw      = 1;
@@ -476,6 +535,11 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     }
     legendSpectra->Draw();
 
+    if(doBinShift){
+        DrawGammaSetMarkerTF1(funcTCMFitShiftPi0Ref, 7, 2, kBlue+2);
+        funcTCMFitShiftPi0Ref->SetRange(0.3,250);
+        funcTCMFitShiftPi0Ref->Draw("same");
+    }
 
     TLatex *labelEnergySpectra = new TLatex(0.2, 0.12+(2*textSizeSpectra*0.85*0.75),collisionSystem.Data());
     SetStyleTLatex( labelEnergySpectra, 0.85*textSizeSpectra,4);
@@ -528,7 +592,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
         if(mode == 2){
             offSetsPi0[1] = 3; //INT7
             offSetsPi0[4] = 0; //EG2
-            offSetsPi0[5] = 3; //EG1
+            offSetsPi0[5] = 2; //EG1
         }else if(mode == 4){
             offSetsPi0[1] = 0; //INT7
             offSetsPi0[4] = 0; //EG2
@@ -605,25 +669,49 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
 
         // calculate RpA by dividing spectra and using nuclear overlap function
         // scale pA or AA measurement to NSD (if needed)
+        if(doBinShift){
+            for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
+                if(graphCorrectedYieldPi0[i])graphCorrectedYieldPi0[i]     = ApplyYshiftIndividualSpectra( graphCorrectedYieldPi0[i], funcTCMFitShiftPi0);
+            }
+        }
         graphCorrectedYieldPi0Scaled[i] = (TGraphAsymmErrors*) graphCorrectedYieldPi0[i]->Clone(Form("graphCorrectedYieldPi0Scaled%d",i));
-        graphCorrectedYieldPi0Scaled[i] = ScaleGraphAsym(graphCorrectedYieldPi0Scaled[i], scalingToNSD);
+        if(optionEnergy.Contains("pPb_8TeV")){ // calculate RpA via cross section
+            graphCorrectedYieldPi0Scaled[i] = ScaleGraphAsym(graphCorrectedYieldPi0Scaled[i], xsection*recalcBarn);
+        } else { // calculate RpA via nuclear overlap function
+            graphCorrectedYieldPi0Scaled[i] = ScaleGraphAsym(graphCorrectedYieldPi0Scaled[i], scalingToNSD); // std
+        }
         cout << "pPb spectrum for trigger " << triggerName[i].Data() << endl;
         graphCorrectedYieldPi0Scaled[i]->Print();
 
         graphCorrectedYieldPi0RefScaled[i] = (TGraphAsymmErrors*) graphCorrectedYieldPi0Ref[i]->Clone(Form("graphCorrectedYieldPi0RefScaled%d",i));
-        graphCorrectedYieldPi0RefScaled[i] = ScaleGraphAsym(graphCorrectedYieldPi0RefScaled[i], xsectionReference*recalcBarn*nuclOverlap);
+        graphCorrectedYieldPi0RefScaled[i] = ScaleGraphAsym(graphCorrectedYieldPi0RefScaled[i], xsectionReference*recalcBarn);
+        if(doBinShift){
+            for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
+                if(graphCorrectedYieldPi0RefScaled[i])graphCorrectedYieldPi0RefScaled[i]     = ApplyYshiftIndividualSpectra( graphCorrectedYieldPi0RefScaled[i], funcTCMFitShiftPi0Ref);
+            }
+        }
+        if(optionEnergy.Contains("pPb_8TeV")){ // calculate RpA via cross section
+            graphCorrectedYieldPi0RefScaled[i] = ScaleGraphAsym(graphCorrectedYieldPi0RefScaled[i], 208);
+        } else { // calculate RpA via nuclear overlap function
+            graphCorrectedYieldPi0RefScaled[i] = ScaleGraphAsym(graphCorrectedYieldPi0RefScaled[i], nuclOverlap); // std
+        }
+        if(optionEnergy.Contains("pPb_8TeV")){
+            TF1* centerOfMassScalingFunc8000to8160GeV = new TF1("centerOfMassScalingFunc8000to8160GeV","1 / (1.026252 + 0.001554 * x)",0,200);
+            graphCorrectedYieldPi0RefScaled[i]   = CalculateGraphErrRatioToFit(graphCorrectedYieldPi0RefScaled[i], centerOfMassScalingFunc8000to8160GeV);
+        }
         cout << "pp reference spectrum for trigger " << triggerName[i].Data() << endl;
         graphCorrectedYieldPi0RefScaled[i]->Print();
 
-        graphsNuclearModFactorPi0[i] = DivideTGraphAsymErrorByTGraphAsymError(graphCorrectedYieldPi0Scaled[i],graphCorrectedYieldPi0RefScaled[i],Form("graphsNuclearModFactorPi0%s",triggerName[i].Data()));
+        graphsNuclearModFactorPi0[i] = CalculateAsymGraphRatioToGraph(graphCorrectedYieldPi0Scaled[i],graphCorrectedYieldPi0RefScaled[i]);
         cout << "nuclear modification factor for trigger " << triggerName[i].Data() << endl;
         graphsNuclearModFactorPi0[i]->Print();
-
         graphsNuclearModFactorSysPi0[i] = (TGraphAsymmErrors*) graphsNuclearModFactorPi0[i]->Clone(Form("graphsNuclearModFactorSysPi0%s",triggerName[i].Data()));
-        if ( maskedFullyPi0[i] ){
-            graphsNuclearModFactorPi0[i] = NULL;
-            graphsNuclearModFactorSysPi0[i] = NULL;
-        }
+        // if ( maskedFullyPi0[i] ){
+        //     graphsNuclearModFactorPi0[i] = NULL;
+        //     graphsNuclearModFactorSysPi0[i] = NULL;
+        // }
+
+
         // put systematics on graphs
         if (graphsNuclearModFactorSysPi0[i]){
             // if (sysAvailSinglePi0[i]){
@@ -678,23 +766,23 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
 
         cout << "step 3" << endl;
         cout << "range to be accepted: " << ptFromSpecPi0[i][0] << "\t-\t" << ptFromSpecPi0[i][1] << endl;
+        if(!maskedFullyPi0[i]){
+            graphsNuclearModFactorPi0Shrunk[i] = (TGraphAsymmErrors*)graphsNuclearModFactorPi0[i]->Clone(Form("graphsNuclearModFactorPi0Shrunk%s",triggerName[i].Data()));
+            graphsNuclearModFactorSysPi0Shrunk[i] = (TGraphAsymmErrors*)graphsNuclearModFactorSysPi0[i]->Clone(Form("graphsNuclearModFactorSysPi0Shrunk%s",triggerName[i].Data()));
 
-        graphsNuclearModFactorPi0Shrunk[i] = (TGraphAsymmErrors*)graphsNuclearModFactorPi0[i]->Clone(Form("graphsNuclearModFactorPi0Shrunk%s",triggerName[i].Data()));
-        graphsNuclearModFactorSysPi0Shrunk[i] = (TGraphAsymmErrors*)graphsNuclearModFactorSysPi0[i]->Clone(Form("graphsNuclearModFactorSysPi0Shrunk%s",triggerName[i].Data()));
+            // remove points at beginning according to ranges set for individual triggers
+            while(graphsNuclearModFactorPi0Shrunk[i]->GetX()[0] < ptFromSpecPi0[i][0])
+                graphsNuclearModFactorPi0Shrunk[i]->RemovePoint(0);
+            while(graphsNuclearModFactorSysPi0Shrunk[i]->GetX()[0] < ptFromSpecPi0[i][0])
+                graphsNuclearModFactorSysPi0Shrunk[i]->RemovePoint(0);
+            // remove points at the end according to ranges set for individual triggers
+            while (graphsNuclearModFactorPi0Shrunk[i]->GetX()[graphsNuclearModFactorPi0Shrunk[i]->GetN()-1] > ptFromSpecPi0[i][1])
+                graphsNuclearModFactorPi0Shrunk[i]->RemovePoint(graphsNuclearModFactorPi0Shrunk[i]->GetN()-1);
+            while (graphsNuclearModFactorSysPi0Shrunk[i]->GetX()[graphsNuclearModFactorSysPi0Shrunk[i]->GetN()-1] > ptFromSpecPi0[i][1])
+                graphsNuclearModFactorSysPi0Shrunk[i]->RemovePoint(graphsNuclearModFactorSysPi0Shrunk[i]->GetN()-1);
+        }
 
-        // remove points at beginning according to ranges set for individual triggers
-        while(graphsNuclearModFactorPi0Shrunk[i]->GetX()[0] < ptFromSpecPi0[i][0])
-            graphsNuclearModFactorPi0Shrunk[i]->RemovePoint(0);
-        while(graphsNuclearModFactorSysPi0Shrunk[i]->GetX()[0] < ptFromSpecPi0[i][0])
-            graphsNuclearModFactorSysPi0Shrunk[i]->RemovePoint(0);
-        // remove points at the end according to ranges set for individual triggers
-        while (graphsNuclearModFactorPi0Shrunk[i]->GetX()[graphsNuclearModFactorPi0Shrunk[i]->GetN()-1] > ptFromSpecPi0[i][1])
-            graphsNuclearModFactorPi0Shrunk[i]->RemovePoint(graphsNuclearModFactorPi0Shrunk[i]->GetN()-1);
-        while (graphsNuclearModFactorSysPi0Shrunk[i]->GetX()[graphsNuclearModFactorSysPi0Shrunk[i]->GetN()-1] > ptFromSpecPi0[i][1])
-            graphsNuclearModFactorSysPi0Shrunk[i]->RemovePoint(graphsNuclearModFactorSysPi0Shrunk[i]->GetN()-1);
-
-
-
+        // }
         histoNuclearModFactorPi0[i] = (TH1D*)histoRawYieldsPi0[i]->Clone(Form("histoNuclearModFactorPi0%s",triggerName[i].Data()));
         histoNuclearModFactorPi0Shrunk[i] = (TH1D*)histoRawYieldsPi0[i]->Clone(Form("histoNuclearModFactorPi0Shrunk%s",triggerName[i].Data()));
         for (Int_t j = 0; j< histoNuclearModFactorPi0[i]->GetNbinsX()+1; j++){
@@ -708,14 +796,16 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             histoNuclearModFactorPi0[i]->SetBinContent(bin,graphsNuclearModFactorPi0[i]->GetY()[j]);
             histoNuclearModFactorPi0[i]->SetBinError(bin,graphsNuclearModFactorPi0[i]->GetEYlow()[j]);
         }
-        for (Int_t j = 0; j < graphsNuclearModFactorPi0Shrunk[i]->GetN(); j++){
-            Int_t bin = histoNuclearModFactorPi0Shrunk[i]->GetXaxis()->FindBin(graphsNuclearModFactorPi0Shrunk[i]->GetX()[j]);
-            histoNuclearModFactorPi0Shrunk[i]->SetBinContent(bin,graphsNuclearModFactorPi0Shrunk[i]->GetY()[j]);
-            histoNuclearModFactorPi0Shrunk[i]->SetBinError(bin,graphsNuclearModFactorPi0Shrunk[i]->GetEYlow()[j]);
+        if(!maskedFullyPi0[i]){
+            for (Int_t j = 0; j < graphsNuclearModFactorPi0Shrunk[i]->GetN(); j++){
+                Int_t bin = histoNuclearModFactorPi0Shrunk[i]->GetXaxis()->FindBin(graphsNuclearModFactorPi0Shrunk[i]->GetX()[j]);
+                histoNuclearModFactorPi0Shrunk[i]->SetBinContent(bin,graphsNuclearModFactorPi0Shrunk[i]->GetY()[j]);
+                histoNuclearModFactorPi0Shrunk[i]->SetBinError(bin,graphsNuclearModFactorPi0Shrunk[i]->GetEYlow()[j]);
+            }
+            cout << "histo NuclModFac shrunk for trigg " << triggerName[i].Data() << endl;
+            histoNuclearModFactorPi0Shrunk[i]->Print("all");
         }
-        cout << "histo NuclModFac shrunk for trigg " << triggerName[i].Data() << endl;
-        histoNuclearModFactorPi0Shrunk[i]->Print("all");
-
+        // return;
         // Set correct trigger order for combination function
         Int_t nCorrOrder    = GetOrderedTrigger(triggerName[i]);
         if (nCorrOrder == -1){
@@ -723,16 +813,44 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             return;
         }
 
-        if ( graphsNuclearModFactorSysPi0Shrunk[i]){
+        if ( graphsNuclearModFactorSysPi0Shrunk[i] && !maskedFullyPi0[i]){
             histoStatPi0[nCorrOrder]    = histoNuclearModFactorPi0Shrunk[i];
             graphSystPi0[nCorrOrder]    = graphsNuclearModFactorSysPi0Shrunk[i];
             offSetsPi0Sys[nCorrOrder]   = histoStatPi0[nCorrOrder]->GetXaxis()->FindBin(graphSystPi0[nCorrOrder]->GetX()[0])-1;
         }
+        if (triggerName[i].Contains("INT7") && optionEnergy.Contains("pPb_8TeV") && mode == 2 )
+            offSetsPi0Sys[1]+=3;
         if (triggerName[i].Contains("EG1") && optionEnergy.Contains("pPb_8TeV") && mode == 2 )
-            offSetsPi0Sys[5]+=3;
+            offSetsPi0Sys[5]+=2;
         if (triggerName[i].Contains("EG1") && optionEnergy.Contains("pPb_8TeV") && mode==4)
             offSetsPi0Sys[5]+=4;
     }
+
+
+    TH2F * histo2DInvXSecSpectra = new TH2F("histo2DInvXSecSpectra","histo2DInvXSecSpectra",1000,0., maxPtGlobalPi0,10000,1,5e14);
+    SetStyleHistoTH2ForGraphs(histo2DInvXSecSpectra, "#it{p}_{T} (GeV/#it{c})","#frac{1}{2#pi #it{N}_{ev}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)^{2}",
+                            0.85*textSizeSpectra,0.04, 0.85*textSizeSpectra,textSizeSpectra, 0.8,1.55);
+    // histo2DInvXSecSpectra->GetYaxis()->SetRangeUser(minCorrYieldSpectra,maxCorrYieldSpectra);
+    histo2DInvXSecSpectra->DrawCopy();
+        histo2DInvXSecSpectra->DrawCopy();
+        legendSpectra = GetAndSetLegend2(minXLegendRaw, minYLegendRaw, 0.95, maxYLegendRaw,0.85*textSizePixelSpectra);
+        legendSpectra->SetNColumns(nColumnsRaw);
+        for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
+            DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0Scaled[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
+            graphCorrectedYieldPi0Scaled[i]->Draw("e1,p,same");
+            DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0RefScaled[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
+            graphCorrectedYieldPi0RefScaled[i]->Draw("e1,p,same");
+            legendSpectra->AddEntry(graphCorrectedYieldPi0Scaled[i],triggerNameLabel[i].Data(),"p");
+        }
+        legendSpectra->Draw();
+
+        labelEnergySpectra->Draw();
+        labelPi0Spectra->Draw();
+        labelDetProcSpectra->Draw();
+
+        canvasCorrSpectra->Update();
+        canvasCorrSpectra->SaveAs(Form("%s/Pi0_%s_CorrectedYieldScaledTrigg.%s",outputDir.Data(),isMC.Data(),suffix.Data()));
+
     // create weighted graphs for spectra and supporting graphs
     TString nameWeightsLogFilePi0 =     Form("%s/weightsPi0_%s.dat",outputDir.Data(),isMC.Data());
     TGraphAsymmErrors* graphNuclModFactorWeightedAveragePi0Stat    = NULL;
@@ -754,6 +872,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
         );
     }
     graphNuclModFactorWeightedAveragePi0Tot->Print();
+    // return;
     while (graphNuclModFactorWeightedAveragePi0Tot->GetY()[0] <= 0) graphNuclModFactorWeightedAveragePi0Tot->RemovePoint(0);
     while (graphNuclModFactorWeightedAveragePi0Stat->GetY()[0] <= 0) graphNuclModFactorWeightedAveragePi0Stat->RemovePoint(0);
     while (graphNuclModFactorWeightedAveragePi0Sys->GetY()[0] <= 0) graphNuclModFactorWeightedAveragePi0Sys->RemovePoint(0);
@@ -795,9 +914,12 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             DrawGammaSetMarkerTGraphAsym(graphsNuclearModFactorSysPi0[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i], 1, kTRUE);
         if (graphsNuclearModFactorPi0[i])
             DrawGammaSetMarkerTGraphAsym(graphsNuclearModFactorPi0[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
-        if ( !maskedFullyPi0[i] )graphsNuclearModFactorPi0[i]->Draw("e1,same");
-        if ( !maskedFullyPi0[i] && graphsNuclearModFactorSysPi0[i])graphsNuclearModFactorSysPi0[i]->Draw("p,E2,same");
-        if ( !maskedFullyPi0[i] )legendNuclModFac->AddEntry(graphsNuclearModFactorPi0[i],triggerNameLabel[i].Data(),"p");
+        if (graphsNuclearModFactorPi0[i])graphsNuclearModFactorPi0[i]->Draw("e1,same");
+        if (graphsNuclearModFactorSysPi0[i])graphsNuclearModFactorSysPi0[i]->Draw("p,E2,same");
+        legendNuclModFac->AddEntry(graphsNuclearModFactorPi0[i],triggerNameLabel[i].Data(),"p");
+        // if ( !maskedFullyPi0[i] )graphsNuclearModFactorPi0[i]->Draw("e1,same");
+        // if ( !maskedFullyPi0[i] && graphsNuclearModFactorSysPi0[i])graphsNuclearModFactorSysPi0[i]->Draw("p,E2,same");
+        // if ( !maskedFullyPi0[i] )legendNuclModFac->AddEntry(graphsNuclearModFactorPi0[i],triggerNameLabel[i].Data(),"p");
     }
     legendNuclModFac->Draw();
 
@@ -908,6 +1030,8 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
 
 
 
+
+
     //****************************************************************************************************************
     //************* Processing of each individual trigger, reducing ranges & adding systematics **********************
     //****************************************************************************************************************
@@ -942,12 +1066,13 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     if(optionEnergy.CompareTo("pPb_8TeV")==0){
         if(mode == 2){
             offSetsEta[1] = -1; //INT7
-            offSetsEta[4] = -1; //EG2
-            offSetsEta[5] = 2; //EG1
+            offSetsEta[4] = -2; //EG2
+            offSetsEta[5] = -2; //EG1
+            // offSetsEta[5] = 2; //EG1
         }else if(mode == 4){
             offSetsEta[1] = -1; //INT7
-            offSetsEta[4] = -1; //EG2
-            offSetsEta[5] = 2; //EG1
+            offSetsEta[4] = -2; //EG2
+            offSetsEta[5] = -2; //EG1
         }
     }
     if(enableEta){
@@ -1020,17 +1145,40 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
 
             // calculate RpA by dividing spectra and using nuclear overlap function
             // scale pA or AA measurement to NSD (if needed)
+            if(doBinShift){
+                for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
+                    if(graphCorrectedYieldEta[i])graphCorrectedYieldEta[i]     = ApplyYshiftIndividualSpectra( graphCorrectedYieldEta[i], funcTCMFitShiftEta);
+                }
+            }
             graphCorrectedYieldEtaScaled[i] = (TGraphAsymmErrors*) graphCorrectedYieldEta[i]->Clone(Form("graphCorrectedYieldEtaScaled%d",i));
-            graphCorrectedYieldEtaScaled[i] = ScaleGraphAsym(graphCorrectedYieldEtaScaled[i], scalingToNSD);
+            if(optionEnergy.Contains("pPb_8TeV")){
+                graphCorrectedYieldEtaScaled[i] = ScaleGraphAsym(graphCorrectedYieldEtaScaled[i], xsection*recalcBarn);
+            } else {
+                graphCorrectedYieldEtaScaled[i] = ScaleGraphAsym(graphCorrectedYieldEtaScaled[i], scalingToNSD); //std
+            }
             cout << "pPb spectrum for trigger " << triggerName[i].Data() << endl;
             graphCorrectedYieldEtaScaled[i]->Print();
 
             graphCorrectedYieldEtaRefScaled[i] = (TGraphAsymmErrors*) graphCorrectedYieldEtaRef[i]->Clone(Form("graphCorrectedYieldEtaRefScaled%d",i));
-            graphCorrectedYieldEtaRefScaled[i] = ScaleGraphAsym(graphCorrectedYieldEtaRefScaled[i], xsectionReference*recalcBarn*nuclOverlap);
+            graphCorrectedYieldEtaRefScaled[i] = ScaleGraphAsym(graphCorrectedYieldEtaRefScaled[i], xsectionReference*recalcBarn);
+            if(doBinShift){
+                for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
+                    if(graphCorrectedYieldEtaRefScaled[i])graphCorrectedYieldEtaRefScaled[i]     = ApplyYshiftIndividualSpectra( graphCorrectedYieldEtaRefScaled[i], funcTCMFitShiftEtaRef);
+                }
+            }
+            if(optionEnergy.Contains("pPb_8TeV")){
+                graphCorrectedYieldEtaRefScaled[i] = ScaleGraphAsym(graphCorrectedYieldEtaRefScaled[i], 208);
+            } else {
+                graphCorrectedYieldEtaRefScaled[i] = ScaleGraphAsym(graphCorrectedYieldEtaRefScaled[i], nuclOverlap); //std
+            }
             cout << "pp reference spectrum for trigger " << triggerName[i].Data() << endl;
             graphCorrectedYieldEtaRefScaled[i]->Print();
+            if(optionEnergy.Contains("pPb_8TeV")){
+                TF1* centerOfMassScalingFunc8000to8160GeVEta = new TF1("centerOfMassScalingFunc8000to8160GeVEta","1 / (1.044597 + 0.001417 * x)",0,200);
+                graphCorrectedYieldEtaRefScaled[i]   = CalculateGraphErrRatioToFit(graphCorrectedYieldEtaRefScaled[i], centerOfMassScalingFunc8000to8160GeVEta);
+            }
+            graphsNuclearModFactorEta[i] = CalculateAsymGraphRatioToGraph(graphCorrectedYieldEtaScaled[i],graphCorrectedYieldEtaRefScaled[i]);
 
-            graphsNuclearModFactorEta[i] = DivideTGraphAsymErrorByTGraphAsymError(graphCorrectedYieldEtaScaled[i],graphCorrectedYieldEtaRefScaled[i],Form("graphsNuclearModFactorEta%s",triggerName[i].Data()));
             cout << "nuclear modification factor for trigger " << triggerName[i].Data() << endl;
             graphsNuclearModFactorEta[i]->Print();
 
@@ -1145,8 +1293,8 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             }
             if (triggerName[i].Contains("EG1") && optionEnergy.CompareTo("pPb_8TeV")==0 && (mode == 2||mode==4)){
                 offSetsEtaSys[1]+=-1; //EG1
-                offSetsEtaSys[4]+=-1; //EG1
-                offSetsEtaSys[5]+=2; //EG1
+                offSetsEtaSys[4]+=-2; //EG1
+                offSetsEtaSys[5]+=-2; //EG1
             }
         }
     }

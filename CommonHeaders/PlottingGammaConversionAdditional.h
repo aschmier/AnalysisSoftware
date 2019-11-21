@@ -3187,10 +3187,20 @@
                     return kViolet+1;
                 } else if (!generator.CompareTo("DPMJET")){
                     return kViolet+6;
+                } else if (generator.Contains("LHC18f3")){
+                    return kViolet+1;
+                } else if (generator.Contains("LHC18b9")){
+                    return kViolet+6;
+                } else if (generator.Contains("LHC17g8")){
+                    return kViolet-8;
                 } else if (!generator.CompareTo("LHC16r")){
-                    return 633;
+                    return kBlack;
                 } else if (!generator.CompareTo("LHC16s")){
-                    return 807;
+                    return kBlack;
+                } else if (!generator.CompareTo("LHC16r_mcp2") || !generator.CompareTo("LHC16r_{mcp}")){
+                    return kGray+2;
+                } else if (!generator.CompareTo("LHC16s_mcp2") || !generator.CompareTo("LHC16s_{mcp}")){
+                    return kGray+2;
                 } else if (generator.Contains("LHC17f3a") || generator.Contains("LHC18f3b")){
                     return 418;
                 } else if (generator.Contains("LHC17f4a") || generator.Contains("LHC18f3c")){
@@ -3624,16 +3634,20 @@
         if (energy.Contains("pPb_8TeV") ){
             if (!generator.CompareTo("")){
                 return 33;
+            } else if (!generator.CompareTo("LHC16r")){
+                return 20;
+            } else if (!generator.CompareTo("LHC16s")){
+                return 20;
             } else if (generator.Contains("LHC16r")){
                 return 24;
             } else if (generator.Contains("LHC16s")){
-                return 27;
-            } else if (generator.Contains("LHC17f3") || generator.Contains("LHC18f3b")){
+                return 24;
+            } else if (generator.Contains("LHC17f3") || generator.Contains("LHC18f3")){
                 return 30;
             } else if (generator.Contains("LHC17f4") || generator.Contains("LHC18f3c")){
                 return 26;
-            } else if (generator.Contains("LHC17g8b")){
-                return 24;
+            } else if (generator.Contains("LHC17g8") || generator.Contains("LHC18b9")){
+                return 27;
             } else if (generator.Contains("LHC17g8c")){
                 return 25;
             } else {

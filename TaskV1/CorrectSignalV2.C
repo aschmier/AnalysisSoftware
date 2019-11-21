@@ -444,7 +444,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     }
     // calculate number of events
     Float_t nEvt    = 0;
-    if (kCollisionSystem > 0){
+    if (kCollisionSystem == 1){
         nEvt        = histoEventQuality->GetBinContent(1);
     } else {
         nEvt        = GetNEvents(histoEventQuality);
@@ -990,7 +990,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     TH1D* histoMCrecWidthGaussMeson                 = (TH1D*)fileCorrections->Get("histoWidthGaussianMeson");
 
     Float_t nEvtMC = 0;
-    if (kCollisionSystem > 0){
+    if (kCollisionSystem == 1){
         nEvtMC = histoEventQualityMC->GetBinContent(1);
     } else {
         nEvtMC = GetNEvents(histoEventQualityMC);
@@ -998,7 +998,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     }
     Float_t nEvtMCAddSig = 0;
     if (histoEventQualityMCAddedSig){
-        if (kCollisionSystem > 0){
+        if (kCollisionSystem == 1){
             nEvtMCAddSig = histoEventQualityMCAddedSig->GetBinContent(1);
         } else {
             nEvtMCAddSig = GetNEvents(histoEventQualityMCAddedSig);
@@ -1007,7 +1007,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     }
     Float_t nEvtMCJetJet = 0;
     if (histoEventQualityMCJetJet){
-        if (kCollisionSystem > 0){
+        if (kCollisionSystem == 1){
             nEvtMCJetJet = histoEventQualityMCJetJet->GetBinContent(1);
         } else {
             nEvtMCJetJet = GetNEvents(histoEventQualityMCJetJet);
@@ -2451,7 +2451,8 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             optionEnergy.CompareTo("5TeVSpecial") == 0    ||
             optionEnergy.CompareTo("13TeV") == 0       ||
             optionEnergy.CompareTo("13TeVRBins") == 0 ||
-            ((mode == 2 || mode == 3 || mode == 4) && optionEnergy.Contains("pPb_5.023TeV"))
+            ((mode == 2 || mode == 3 || mode == 4) && optionEnergy.Contains("pPb_5.023TeV")) ||
+            ((mode == 2 || mode == 3 || mode == 4) && optionEnergy.Contains("pPb_8TeV"))
         )
         scaleTrueEffiWithFit        = kFALSE;
 
@@ -2481,6 +2482,16 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
                 histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol0[k],"NRME+","",2.2,12.0);
             }else if(mode == 0 && optionEnergy.Contains("pPb_8TeV") ){
                 histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol0[k],"NRME+","",2.0,maxPtMeson);
+            }else if(mode == 3 && optionEnergy.Contains("pPb_8TeV") ){
+                if(trigger.CompareTo("62")==0)
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol0[k],"NRME+","",5.0,maxPtMeson    );
+                else
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol0[k],"NRME+","",1.0,maxPtMeson    );
+            }else if(mode == 5 && optionEnergy.Contains("pPb_8TeV") ){
+                if(trigger.CompareTo("62")==0)
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol0[k],"NRME+","",5.0,maxPtMeson    );
+                else
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol0[k],"NRME+","",1.0,maxPtMeson    );
             }else{
                 histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol0[k],"NRME+","",3.5,maxPtMeson);
                 cout << "Fit result: " << k << " " <<  fitEffiBiasWOWeightsPol0[k]->GetParameter(0) << endl;
@@ -2501,46 +2512,61 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
 
             // fitting with 2nd functional form
             fitEffiBiasWOWeightsPol1[k]->SetParLimits(2,0.5,1.5);
-            if(mode == 0 && optionEnergy.Contains("5TeV2017") ){
-                histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,maxPtMeson    );
-            }else if(mode == 0 && optionEnergy.Contains("13TeVLowB") ){
-                histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.7,maxPtMeson    );
-            }else if(mode == 0 && (optionEnergy.Contains("13TeV")  || optionEnergy.Contains("13TeVRBins")) ){
-                histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,maxPtMeson    );
-            }else if(mode == 0 && optionEnergy.Contains("pPb_5.023TeV") && ( centralityString.Contains("0-20%") || centralityString.Contains("20-40%") || centralityString.Contains("40-60%") || centralityString.Contains("60-100%"))) {
-                histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.5,maxPtMeson    );
-            }else if(mode == 0 && optionEnergy.Contains("pPb_5.023TeVCent") ) {
-                fitEffiBiasWOWeightsPol1[k]->SetParLimits(2,0.5,1.5);
-                histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.4,maxPtMeson    );
-            }else if(mode == 0 && optionEnergy.Contains("pPb_5.023TeVRun2") && ( centralityString.Contains("0-5%"))) {
-                if(k==1)
-                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.5,maxPtMeson    );
-                else
+            if(mode == 0){
+                if(optionEnergy.Contains("5TeV2017") ){
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,maxPtMeson    );
+                }else if(optionEnergy.Contains("13TeVLowB") ){
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.7,maxPtMeson    );
+                }else if((optionEnergy.Contains("13TeV")  || optionEnergy.Contains("13TeVRBins")) ){
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,maxPtMeson    );
+                }else if(optionEnergy.Contains("pPb_5.023TeV") && ( centralityString.Contains("0-20%") || centralityString.Contains("20-40%") || centralityString.Contains("40-60%") || centralityString.Contains("60-100%"))) {
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.5,maxPtMeson    );
+                }else if(optionEnergy.Contains("pPb_5.023TeVCent") ) {
+                    fitEffiBiasWOWeightsPol1[k]->SetParLimits(2,0.5,1.5);
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.4,maxPtMeson    );
+                }else if(optionEnergy.Contains("pPb_5.023TeVRun2") && ( centralityString.Contains("0-5%"))) {
+                    if(k==1)
+                        histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.5,maxPtMeson    );
+                    else
+                        histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.0,maxPtMeson    );
+                }else if(optionEnergy.Contains("pPb_5.023TeVRun2") && (  centralityString.Contains("0-1%") || centralityString.Contains("0-2%"))) {
+                    if( k==1 )
+                        histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.5,maxPtMeson    );
+                    else if( k==2)
+                        histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,8    );
+                    else
+                        histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.0,maxPtMeson    );
+                }else if(optionEnergy.Contains("pPb_8TeV")){
+                        histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.7,maxPtMeson    );
+                }
+
+            }else if(mode == 2){
+                if(optionEnergy.Contains("pPb_8TeV")){
+                    if(trigger.CompareTo("8d")==0)
+                        histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",10.0,20    );
+                    else if(trigger.CompareTo("8e")==0)
+                        histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",4.5,15    );
+                    else
+                        histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.4,maxPtMeson-2    );
+                }else if(optionEnergy.Contains("5TeV2017")){
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,maxPtMeson    );
+                }else if(optionEnergy.Contains("8TeV")){
                     histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.0,maxPtMeson    );
-            }else if(mode == 0 && optionEnergy.Contains("pPb_5.023TeVRun2") && (  centralityString.Contains("0-1%") || centralityString.Contains("0-2%"))) {
-                if( k==1 )
-                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.5,maxPtMeson    );
-                else if( k==2)
-                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,8    );
-                else
-                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.0,maxPtMeson    );
-            }else if(mode == 0 && optionEnergy.Contains("pPb_8TeV")){
-                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.4,maxPtMeson-2    );
-            }else if(mode == 2 && optionEnergy.Contains("pPb_8TeV")){
-                if(trigger.CompareTo("8d")==0)
-                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",10.0,20    );
-                else if(trigger.CompareTo("8e")==0)
-                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",4.5,15    );
-                else
-                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.4,maxPtMeson-2    );
-            }else if(mode == 2 && optionEnergy.Contains("5TeV2017")){
-                histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,maxPtMeson    );
-            }else if(mode == 2 && optionEnergy.Contains("8TeV")){
-                histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.0,maxPtMeson    );
-            }else if(mode == 2 && optionEnergy.Contains("7TeV")){
-                histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,maxPtMeson    );
+                }else if(optionEnergy.Contains("7TeV")){
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",0.8,maxPtMeson    );
+                }
             }else if(mode == 4 && optionEnergy.Contains("pPb_5.023TeV") ){
                 histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",2.2,12.0    );
+            }else if(mode == 3 && optionEnergy.Contains("pPb_8TeV")){
+                if(trigger.CompareTo("62")==0)
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",5.0,maxPtMeson    );
+                else
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.0,maxPtMeson    );
+            }else if(mode == 5 && optionEnergy.Contains("pPb_8TeV")){
+                if(trigger.CompareTo("62")==0)
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",5.0,maxPtMeson    );
+                else
+                    histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",1.0,maxPtMeson    );
             }else{
                 histoRatioEffWOWeightingEff[k]->Fit(fitEffiBiasWOWeightsPol1[k],"NRME+","",3.5,maxPtMeson    );
             }
@@ -2608,7 +2634,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             histoTrueEffiPt[k]->Sumw2();
             // histoRatioEffWOWeightingEffCFPol1[k]->Sumw2();
             if (scaleTrueEffiWithFit){
-                if(!optionEnergy.CompareTo("900GeV") || !optionEnergy.CompareTo("XeXe_5.44TeV")|| !optionEnergy.CompareTo("pPb_5.023TeVRun2") || (!optionEnergy.CompareTo("pPb_5.023TeVCent") && mode == 0) || (optionEnergy.BeginsWith("8TeV") && mode == 0) || (!optionEnergy.CompareTo("pPb_8TeV") && mode == 0))
+                if(!optionEnergy.CompareTo("900GeV") || !optionEnergy.CompareTo("XeXe_5.44TeV")|| !optionEnergy.CompareTo("pPb_5.023TeVRun2") || (!optionEnergy.CompareTo("pPb_5.023TeVCent") && mode == 0) || (optionEnergy.BeginsWith("8TeV") && mode == 0) || (!optionEnergy.CompareTo("pPb_8TeV") && mode == 0)|| (!optionEnergy.CompareTo("pPb_8TeV") && mode == 5))
                     histoTrueEffiPt[k]->Multiply(histoTrueEffiPt[k],histoRatioEffWOWeightingEffCFPol0[k]);
                 else
                     histoTrueEffiPt[k]->Multiply(histoTrueEffiPt[k],histoRatioEffWOWeightingEffCFPol1[k]);

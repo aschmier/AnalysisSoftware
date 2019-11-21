@@ -1180,12 +1180,18 @@ void ProduceTheoryGraphsPP(){
 
     //For neutral mesons in jets
     // file generated with TaskV1/ExtractMCInputSpectraFromFile.C++ based on PCM only inputs
-    TFile* file5TeVJets                        = new TFile("ExternalInput/Theory/MCInputCompilationLHC17pq_pp5020GeV_0.root");
-    TH1D* histoPi05TeVJets                      = (TH1D*)file5TeVJets->Get("MC_Pi0_Pt");
-    TH1D* histoPi05TeVJetsReb                   = (TH1D*)file5TeVJets->Get("MC_Pi0_Pt_Rebinned");
-    TH1D* histoEta5TeVJets                      = (TH1D*)file5TeVJets->Get("MC_Eta_Pt");
-    TH1D* histoEta5TeVJetsReb                   = (TH1D*)file5TeVJets->Get("MC_Eta_Pt_Rebinned");
-    TH1D* histoEtaToPi05TeVJets                 = (TH1D*)file5TeVJets->Get("MCEtaToPi0");
+    TFile* file5TeVJets                        = new TFile("ExternalInput/Theory/MCInputCompilation5TeV2017_Jets_pp5020GeV_4.root");
+    TH1D* histoPi05TeVJets                      = (TH1D*)file5TeVJets->Get("5TeV2017/MC_Pi0_Pt");
+    TH1D* histoPi05TeVJetsReb                   = (TH1D*)file5TeVJets->Get("5TeV2017/MC_Pi0_Pt_Rebinned");
+    TH1D* histoEta5TeVJets                      = (TH1D*)file5TeVJets->Get("5TeV2017/MC_Eta_Pt");
+    TH1D* histoEta5TeVJetsReb                   = (TH1D*)file5TeVJets->Get("5TeV2017/MC_Eta_Pt_Rebinned");
+    TH1D* histoEtaToPi05TeVJets                 = (TH1D*)file5TeVJets->Get("5TeV2017/MCEtaToPi0");
+    TFile* file5TeVJetsJJMC                        = new TFile("ExternalInput/Theory/MCInputCompilation5TeV2017_JetsJJMC_pp5020GeV_4.root");
+    TH1D* histoPi05TeVJetsJJMC                      = (TH1D*)file5TeVJetsJJMC->Get("5TeV2017/MC_Pi0_Pt");
+    TH1D* histoPi05TeVJetsRebJJMC                   = (TH1D*)file5TeVJetsJJMC->Get("5TeV2017/MC_Pi0_Pt_Rebinned");
+    TH1D* histoEta5TeVJetsJJMC                      = (TH1D*)file5TeVJetsJJMC->Get("5TeV2017/MC_Eta_Pt");
+    TH1D* histoEta5TeVJetsRebJJMC                   = (TH1D*)file5TeVJetsJJMC->Get("5TeV2017/MC_Eta_Pt_Rebinned");
+    TH1D* histoEtaToPi05TeVJetsJJMC                 = (TH1D*)file5TeVJetsJJMC->Get("5TeV2017/MCEtaToPi0");
 
     // file generated with TaskV1/ExtractMCInputSpectraFromFile.C++ based on PCM only inputs
     TString fileName5TeVSphericity[6] = {"SP0000","SP0010","SP0005","SP0510","SP0003","SP0710"};
@@ -1710,11 +1716,17 @@ void ProduceTheoryGraphsPP(){
         histoChPionPythia8MonashInvSec5TeVLego->Write("histoInvSecPythia8Monash2013LegoChPion5TeV", TObject::kOverwrite);
         histoPi0ToChPionRatioPythia8Monash5TeVLego->Write("histoPi0ToChPionRatioPythia8Monash5TeVLego", TObject::kOverwrite);
 
+
         histoPi05TeVJets->Write("histoPi0insideJet_5TeV", TObject::kOverwrite);
         histoEta5TeVJets->Write("histoEtainsideJet_5TeV", TObject::kOverwrite);
         histoPi05TeVJetsReb->Write("histoPi0insideJet_5TeV_Reb", TObject::kOverwrite);
         histoEta5TeVJetsReb->Write("histoEtainsideJet_5TeV_Reb", TObject::kOverwrite);
         histoEtaToPi05TeVJets->Write("histoEtaToPi0insideJet_5TeV", TObject::kOverwrite);
+        histoPi05TeVJetsJJMC->Write("histoPi0insideJet_JJMC_5TeV", TObject::kOverwrite);
+        histoEta5TeVJetsJJMC->Write("histoEtainsideJet_JJMC_5TeV", TObject::kOverwrite);
+        histoPi05TeVJetsRebJJMC->Write("histoPi0insideJet_JJMC_5TeV_Reb", TObject::kOverwrite);
+        histoEta5TeVJetsRebJJMC->Write("histoEtainsideJet_JJMC_5TeV_Reb", TObject::kOverwrite);
+        histoEtaToPi05TeVJetsJJMC->Write("histoEtaToPi0insideJet_JJMC_5TeV", TObject::kOverwrite);
 
         for(Int_t i=0;i<6;i++){
             histoPi05TeVSphericity[i]->Write(Form("histoPi0Sphericity_%s_5TeV",fileName5TeVSphericity[i].Data()), TObject::kOverwrite);

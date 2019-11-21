@@ -596,7 +596,8 @@ void CorrectCaloNonLinearityV4_Compare( TString configFileName  = "config.txt",
         if(select.Contains("LHC10-")) histoMeanMassRatio[i]->GetYaxis()->SetRangeUser(0.9,1.05);
         // if(select.Contains("PCMEMC_TB")){
             histoMeanMassRatio[i]->GetXaxis()->SetRangeUser(0.7,30);
-            histoMeanMassRatio[i]->GetYaxis()->SetRangeUser(0.8,1.05);
+            histoMeanMassRatio[i]->GetYaxis()->SetRangeUser(0.95,1.05);
+            if(select.Contains("noNL")) histoMeanMassRatio[i]->GetYaxis()->SetRangeUser(0.9,1.01);
             DrawGammaLines(0.7,30,1.0,1.0,2,kGray+1,2);
         // }
 //         histoMeanMassRatio[i]->GetYaxis()->SetTitleOffset(1.1);

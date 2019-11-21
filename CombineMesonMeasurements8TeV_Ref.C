@@ -148,7 +148,7 @@ void CombineMesonMeasurements8TeV_Ref(      TString fileNamePCM         = "",
     Double_t mesonMassExpectPi0                 = TDatabasePDG::Instance()->GetParticle(111)->Mass();
     Double_t mesonMassExpectEta                 = TDatabasePDG::Instance()->GetParticle(221)->Mass();
 
-    Width_t  widthLinesBoxes                    = 1.4;
+    Width_t  widthLinesBoxes                    = 2;
     Width_t  widthCommonFit                     = 2;
 
     // Definition of colors, styles and markers sizes
@@ -1318,14 +1318,14 @@ cout << __LINE__ << endl;
     Int_t maxNBinsPi0               = 0;
     Int_t maxNBinsPi0Abs            = 0;
     maxNBinsPi0                     = GetBinning( xPtLimitsPi0, maxNBinsPi0Abs, "Pi0", "8TeVRef", 2 );
-    // maxNBinsPi0--;
+    maxNBinsPi0--;
     Double_t xPtLimitsPi0WOMerged[70];
     Int_t maxNBinsPi0W0Merged       = GetBinning( xPtLimitsPi0WOMerged, maxNBinsPi0Abs, "Pi0", "8TeVRef", 2 );
 
     // Definition of offsets for stat & sys see output of function in shell, make sure pt bins match for Pi0
     // {"PCM", "PHOS", "EMCal", "PCM-PHOS", "PCM-EMCal", "PCM-Dalitz", "PHOS-Dalitz", "EMCal-Dalitz", "spare", "EMCAL merged","PCMOtherDataset"};
-    Int_t offSetsPi0[11]            = { 0,  6,  0,  0,  0,      0,  0,  0,  0,  0,                   0};
-    Int_t offSetsPi0Sys[11]         = { 1,  6,  7,  0,  5,      0,  0,  0,  0,  38,                  0};
+    Int_t offSetsPi0[11]            = { 0,  6,  0,  0,  0,      0,  0,  0,  0,  -5,                   0};
+    Int_t offSetsPi0Sys[11]         = { 2,  6,  8,  0,  5,      0,  0,  0,  0,  33,                  0};
     Int_t offSetPi0Shifting[11]     = { 0,  0,  0,  0,  0,
                                         0,  0,  0,  0,  0,
                                         0 };
@@ -1706,13 +1706,13 @@ cout << __LINE__ << endl;
 //    graphCombPi0InvXSectionTotA->Fit(fitTCMDecomposedH,"QNRMEX0+","",4,35);
 //    Double_t paramTCMPi0New[5]  = { fitTCMDecomposedL->GetParameter(0),fitTCMDecomposedL->GetParameter(1),
 //                                    fitTCMDecomposedH->GetParameter(0),fitTCMDecomposedH->GetParameter(1),fitTCMDecomposedH->GetParameter(2)};
-    Double_t paramTCMPi0New[5]  = { graphCombPi0InvXSectionTotA->GetY()[1],0.1,
+    Double_t paramTCMPi0New[5]  = { graphCombPi0InvXSectionTotA->GetY()[2],0.1,
                                     graphCombPi0InvXSectionTotA->GetY()[4],0.6,3.0};
-    TF1* fitTCMInvXSectionPi0   = FitObject("tcm","fitTCMInvCrossSectionPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.3,35. ,paramTCMPi0New,"QNRMEX0+","", kFALSE);
+    TF1* fitTCMInvXSectionPi0   = FitObject("tcm","fitTCMInvCrossSectionPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.4,200. ,paramTCMPi0New,"QNRMEX0+","", kFALSE);
 
     // Tsallis fit
     Double_t paramGraphPi0[3]                              = {5e11, 6., 0.13};
-    TF1* fitInvXSectionPi0                       = FitObject("l","fitInvCrossSectionPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.3,35.,paramGraphPi0,"QNRMEX0+");
+    TF1* fitInvXSectionPi0                       = FitObject("l","fitInvCrossSectionPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.4,200.,paramGraphPi0,"QNRMEX0+");
 
     // *************************************************************************************************************
     // Shift graphs in X direction if desired
@@ -1907,12 +1907,12 @@ cout << __LINE__ << endl;
     // *************************************************************************************************************
     // Tsallis function
     graphCombPi0InvXSectionTotA->Fit(fitInvXSectionPi0,"QNRMEX0+","",0.3,150.);
-    fitInvXSectionPi0           = FitObject("l","fitInvCrossSectionPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.3,150.,paramGraphPi0,"QNRMEX0+");
+    fitInvXSectionPi0           = FitObject("l","fitInvCrossSectionPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.4,150.,paramGraphPi0,"QNRMEX0+");
     //fitInvXSectionPi0           = FitObject("l","fitInvCrossSectionPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.3,35.,paramGraphPi0,"QNRMEX0+");
     cout << WriteParameterToFile(fitInvXSectionPi0)<< endl;
 
     //Two component model from Bylinkin
-    fitTCMInvXSectionPi0        = FitObject("tcm","fitTCMInvCrossSectionPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.3,150. ,paramTCMPi0New,"QNRMEX0+","", kFALSE);
+    fitTCMInvXSectionPi0        = FitObject("tcm","fitTCMInvCrossSectionPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.4,150. ,paramTCMPi0New,"QNRMEX0+","", kFALSE);
     cout << WriteParameterToFile(fitTCMInvXSectionPi0)<< endl;
 
     TF1* fitTCMInvXSectionPi0Plot = new TF1("twoCompModel_plotting",Form("[0]*exp(-(TMath::Sqrt(x*x+%.10f*%.10f)-%.10f)/[1]) + [2]/(TMath::Power(1+x*x/([3]*[3]*[4]),[4]) )",mesonMassExpectPi0,mesonMassExpectPi0,mesonMassExpectPi0));
@@ -1930,10 +1930,10 @@ cout << __LINE__ << endl;
     cout << WriteParameterToFile(fitPowInvXSectionPi0Stat)<< endl;
 
     Double_t paramPi0HageDorn[5] = {1E11,0.3,-0.1,0.5,5.95};
-    TF1* fitOHagInvYieldPi0Tot   = FitObject("oHag","fitOHagInvYieldPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.3,150. ,paramPi0HageDorn,"QNRMEX0+","", kFALSE);
+    TF1* fitOHagInvYieldPi0Tot   = FitObject("oHag","fitOHagInvYieldPi08TeV","Pi0",graphCombPi0InvXSectionTotA,0.4,150. ,paramPi0HageDorn,"QNRMEX0+","", kFALSE);
     cout << WriteParameterToFile(fitOHagInvYieldPi0Tot)<< endl;
 
-    TF1* fitPCMTCMInvXSectionPi0    = FitObject("tcm","fitPCMTCMInvCrossSectionPi08TeV","Pi0",graphPCMPi0InvXSectionStat,0.3,8. ,paramTCMPi0New,"QNRMEX0+","", kFALSE);
+    TF1* fitPCMTCMInvXSectionPi0    = FitObject("tcm","fitPCMTCMInvCrossSectionPi08TeV","Pi0",graphPCMPi0InvXSectionStat,0.4,8. ,paramTCMPi0New,"QNRMEX0+","", kFALSE);
     //cout << WriteParameterToFile(fitPCMTCMInvXSectionPi0)<< endl;
 
     TF1* fitPHOSTCMInvXSectionPi0    = FitObject("tcm","fitPHOSTCMInvCrossSectionPi08TeV","Pi0",graphPHOSPi0InvXSectionStat,1.0,35. ,paramTCMPi0New,"QNRMEX0+","", kFALSE);
@@ -2725,7 +2725,7 @@ cout << __LINE__ << endl;
     Int_t offSetsEta[11]            = { -1,  0,  0,  0,  0,
                                         0,  0,  0,  0,  0,
                                         0};
-    Int_t offSetsEtaSys[11]         = { 0,  0,  3,  0,  1,
+    Int_t offSetsEtaSys[11]         = { 0,  0,  3,  0,  2,
                                         0,  0,  0,  0,  0,
                                         0};
     Int_t offSetEtaShifting[11]     = { 0,  0,  0,  0,  0,
@@ -3878,7 +3878,7 @@ cout << __LINE__ << endl;
     Int_t offSetsEtaToPi0[11]           = { -1,  0,  0,  0,  0,
                                             0,  0,  0,  0,  0,
                                             0};
-    Int_t offSetsEtaToPi0Sys[11]        = { 0,  0,  3,  0,  1,
+    Int_t offSetsEtaToPi0Sys[11]        = { 0,  0,  3,  0,  2,
                                             0,  0,  0,  0,  0,
                                             0};
     Int_t offSetEtaToPi0Shifting[11]    = { 0,  0,  0,  0,  0,
