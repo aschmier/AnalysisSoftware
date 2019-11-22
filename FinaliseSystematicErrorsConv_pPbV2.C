@@ -113,12 +113,19 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
     // ***************************************************************************************************
     Bool_t bsmooth[16]                      = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
                                                 0, 0, 0, 0, 0,  0 };
-    Bool_t bsmoothMBPi05TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
-                                                1, 1, 0, 1, 0,  0 };
-    Bool_t bsmoothMBEta5TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
-                                                1, 1, 0, 1, 0,  0 };
-    Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
-                                                1, 1, 0, 1, 0,  0 };
+    // run 1 only
+//     Bool_t bsmoothMBPi05TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+//                                                 1, 1, 0, 1, 0,  0 };
+//     Bool_t bsmoothMBEta5TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+//                                                 1, 1, 0, 1, 0,  0 };
+//     Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+//                                                 1, 1, 0, 1, 0,  0 };
+    Bool_t bsmoothMBPi05TeV[16]             = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
+                                                0, 1, 0, 1, 0,  0 };
+    Bool_t bsmoothMBEta5TeV[16]             = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
+                                                0, 1, 0, 1, 0,  0 };
+    Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
+                                                0, 1, 0, 1, 0,  0 };
     Bool_t bsmoothCentPi05TeV[16]           = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
                                                 1, 1, 0, 1, 0,  0 };
     Bool_t bsmoothCentEta5TeV[16]           = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
@@ -128,11 +135,11 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
 
     for (Int_t i = 0; i < numberCutStudies; i++){
         if (energy.CompareTo("pPb_5.023TeV") == 0 || energy.CompareTo("pPb_5.023TeVCent") == 0 ){
-            if (additionalNameOutput.CompareTo("") == 0 && meson.CompareTo("Pi0")==0){
+            if ( (additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0)&& meson.CompareTo("Pi0")==0){
                 bsmooth[i]                      = bsmoothMBPi05TeV[i];
-            } else if (additionalNameOutput.CompareTo("") == 0 && meson.CompareTo("Eta")==0){
+            } else if ((additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0) && meson.CompareTo("Eta")==0){
                 bsmooth[i]                      = bsmoothMBEta5TeV[i];
-            } else if (additionalNameOutput.CompareTo("") == 0 && meson.CompareTo("EtaToPi0")==0){
+            } else if ((additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0) && meson.CompareTo("EtaToPi0")==0){
                 bsmooth[i]                      = bsmoothMBEtaToPi05TeV[i];
             // for multiplicity bins
             } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("Pi0")==0){

@@ -231,16 +231,19 @@ if [ $3 = "AODSKIMMB" ]; then
 
     TRAINDIR=20191104-FullStatAllMethods
     LHC13beData="";
-    LHC13bcData="685"
+#     LHC13bcData="685"
 #     LHC13bcData="689"
+    LHC13bcData="698"
     LHC13bData="child_1"
     LHC13cData="child_2"
-    LHC13deData="686" #skim MB
+#     LHC13deData="686" #skim MB
 #     LHC13deData="690" #skim MB
+    LHC13deData="699" #skim MB
     LHC13dData="child_1"
     LHC13eData="child_2"
-    LHC13fData="687" #skim MB
+#     LHC13fData="687" #skim MB
 #     LHC13fData="691" #skim MB
+    LHC13fData="700" #skim MB
 
 elif [ $3 = "AODSKIMEMC7" ]; then
     TRAINDIR=20190831-EMCNonLin2
@@ -366,29 +369,40 @@ else
 #     LHC16qData="child_3";
 #     LHC16tData="child_4";
     
-    TRAINDIR=20191104-FullStatAllMethods
+#     TRAINDIR=20191104-FullStatAllMethods
 #     LHC16qtData="688";
 #     LHC16qtData="692";
+#     LHC16qtData="695";
 #     LHC16qDataFast="child_1";
 #     LHC16tDataFast="child_2";
 #     LHC16qData="child_3";
 #     LHC16tData="child_4";
 
 #     LHC18j5MC="790"
-    LHC18j5MC="791"
-    LHC18j5_1MC="child_1"
-    LHC18j5_2MC="child_2"
-    LHC18j5_3MC="child_3"
+#     LHC18j5MC="791"
+#     LHC18j5MC="803"
+#     LHC18j5MC="810"
+#     LHC18j5_1MC="child_1"
+#     LHC18j5_2MC="child_2"
+#     LHC18j5_3MC="child_3"
 #     LHC18f3MCMoth="789";
-    LHC18f3MCMoth="792";
-    LHC18f3MC1="child_2";
-    LHC18f3MC2="child_4";
-    LHC18f3MCFast1="child_1";
-    LHC18f3MCFast2="child_3";
+#     LHC18f3MCMoth="792";
+#     LHC18f3MCMoth="802";
+#     LHC18f3MCMoth="794";
+#     LHC18f3MC1="child_2";
+#     LHC18f3MC2="child_4";
+#     LHC18f3MCFast1="child_1";
+#     LHC18f3MCFast2="child_3";
 #     LHC19a4MCMother="793";
+#     LHC19a4MCMother="798";
 #     LHC19a4MC1="child_1";
-#     LHC19a4MC2="child_2";
+# #     LHC19a4MC2="child_2";
 
+    TRAINDIR=20191120-FullStatAllMethods
+    LHC19a4MCMother="808";
+    LHC19a4MC1="child_1";
+    LHC19a4MC2="child_2";
+    
 fi
 
 
