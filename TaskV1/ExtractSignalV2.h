@@ -917,12 +917,15 @@
                 if ( fEnergyFlag.CompareTo("13TeV") == 0 ){
                     if( trigger.CompareTo("52") == 0 || triggerSet == 1 ){
                         fBGFitRange[0] = 0.25;
-                    } else if ( trigger.CompareTo("85")==0 || triggerSet == 3 ){
-                        fBGFitRange[0] = 0.26;
-                        fBGFitRange[1] = 0.31;
-                    } else if ( trigger.CompareTo("83")==0 || triggerSet == 2 ){
-                        fBGFitRange[0] = 0.28;
-                        fBGFitRange[1] = 0.34;
+                    } else if ( trigger.CompareTo("85")==0 || trigger.CompareTo("8e")==0 || triggerSet == 3 ){
+                        fBGFitRange[0] = 0.25;
+                        fBGFitRange[1] = 0.29;
+                    } else if ( trigger.CompareTo("83")==0 || trigger.CompareTo("8d")==0 || triggerSet == 2 ){
+                        fBGFitRange[0] = 0.24;
+                        fBGFitRange[1] = 0.30;
+                    } else {
+                      fBGFitRange[0] = 0.20;
+                      fBGFitRange[1] = 0.27;
                     }
                 }
                 if ( fEnergyFlag.CompareTo("5TeV2017") == 0 ){
