@@ -146,6 +146,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TString collisionSystem         = ReturnFullCollisionsSystem(optionEnergy);
     TString detectionProcess        = ReturnFullTextReconstructionProcess(mode);
     TString detectionProcessClus    = ReturnFullTextReconstructionProcess(mode,2);
+    Bool_t doLinesTriggerMimicking  = kFALSE;
 
     if (isMC.CompareTo("MC") == 0) collisionSystem = "MC, "+collisionSystem;
 
@@ -179,6 +180,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxPtGlobalCluster          = 100;
         } else if (mode == 10){
             maxPtGlobalCluster          = 200;
+        } else if (mode == 5){
+            doLinesTriggerMimicking  = kTRUE;
+            maxPtGlobalCluster          = 6.5;
         }
     } else if (optionEnergy.Contains("pPb_8TeV") || optionEnergy.Contains("pPb_5.023TeV")){
       if(mode==2 || mode==4 || mode==3 || mode==5){
@@ -1039,7 +1043,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxTriggReject = 9000;
             minTriggReject = 1.0;
         }else if (optionEnergy.CompareTo("13TeV") == 0){
-            maxTriggReject = 4200;
+            if (mode ==5){
+                maxTriggReject = 6000;
+            } else {
+                maxTriggReject = 4200;
+            }
         } else if (optionEnergy.CompareTo("7TeV") == 0){
             minTriggReject = 0.01;
             maxTriggReject = 110000;
@@ -1245,8 +1253,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             if (mode == 2 || mode == 4 || mode == 10 )
                 maxTriggRejectLin = 310;
         } else if( optionEnergy.CompareTo("13TeV")==0 ){
-            if (mode == 2 || mode == 4 || mode == 10 )
+            if (mode == 2 || mode == 4 || mode == 10 ){
                 maxTriggRejectLin = 1005;
+            } else if (mode == 5){
+                maxTriggRejectLin = 10000;
+            }
         } else if( optionEnergy.Contains("pPb_8TeV") ){
             if (mode == 2 || mode == 4 || mode == 10 )
                 maxTriggRejectLin = 499;
@@ -1257,11 +1268,24 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 maxTriggRejectLin = 2500;
         }
         TH2F * histo2DTriggRejectLinear;
+        Double_t FitParameter0Pol0;
+        Double_t FitParameter0Pol0Div3;
+        Double_t FitParameter0Pol0Div3XValue;
+        Double_t FitParameter0Pol0Div3YValue;
+        Double_t CurrentBinContent;
+        Double_t CurrentBinCenter;
+        Double_t CurrentDifferenceY;
+        Double_t XValueYDifference=1000000;
         histo2DTriggRejectLinear = new TH2F("histo2DTriggRejectLinear","histo2DTriggRejectLinear",1000,0., maxPtGlobalCluster,15000,minTriggRejectLin, maxTriggRejectLin);
         SetStyleHistoTH2ForGraphs(histo2DTriggRejectLinear, "#it{p}_{T} (GeV/#it{c})","#it{RF}", //"#frac{N_{clus,trig A}/N_{Evt, trig A}}{N_{clus,trig B}/N_{Evt,trig B}}",
                                 0.85*textSizeSpectra2,textSizeSpectra2, 0.85*textSizeSpectra2,textSizeSpectra2, 0.85,0.85);
         histo2DTriggRejectLinear->DrawCopy();
-
+        TLine **lineFitParameter0Pol0Div3XValue  =  new TLine*[nrOfTrigToBeComb];
+        TLine **lineFitParameter0Pol0Div3        =  new TLine*[nrOfTrigToBeComb];
+        for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
+            lineFitParameter0Pol0Div3XValue[i]  =   NULL;
+            lineFitParameter0Pol0Div3[i]        =   NULL;
+        }
         for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
             if (i != trigSteps[i][0] ){
                 DrawGammaSetMarker(histoRatioRawClusterPt[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
@@ -1269,6 +1293,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 TF1* pol0 = new TF1("pol0","[0]",minPt[i],maxPt[i]); //
 
                 histoRatioRawClusterPt[i]->Fit(pol0,"NRME+","",minPt[i],maxPt[i]);
+                FitParameter0Pol0=pol0->GetParameter(0);
+                FitParameter0Pol0Div3=FitParameter0Pol0/3.;
                 TH1D* triggRejecCLPol0 = (TH1D*)histoRatioRawClusterPt[i]->Clone(Form("CL_%i",i));
                 triggRejecCLPol0->SetStats(kFALSE);
                 triggRejecCLPol0->SetFillColor(colorTriggShade[i]);
@@ -1279,6 +1305,30 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 }
                 triggRejecCLPol0->Draw("e3,same");
 
+                for (Int_t RatioRawClusterPtStart=1; RatioRawClusterPtStart<histoRatioRawClusterPt[i]->GetNbinsX(); RatioRawClusterPtStart++){
+                    CurrentBinCenter=histoRatioRawClusterPt[i]->GetBinCenter(RatioRawClusterPtStart);
+                    if (CurrentBinCenter>6.){
+                        continue;
+                    }
+                    CurrentBinContent=histoRatioRawClusterPt[i]->GetBinContent(RatioRawClusterPtStart);
+                    CurrentDifferenceY=TMath::Abs(CurrentBinContent-FitParameter0Pol0Div3);
+                    if (CurrentDifferenceY<XValueYDifference){
+                        XValueYDifference=CurrentDifferenceY;
+                        FitParameter0Pol0Div3XValue=CurrentBinCenter;
+                        FitParameter0Pol0Div3YValue=CurrentBinContent;
+                    }
+                }
+                cout<<"TriggerMimic Approximation: "<<"FitParameter0Pol0: "<<FitParameter0Pol0<<"; FitParameter0Pol0Div3: "<<FitParameter0Pol0Div3<<"; FitParameter0Pol0Div3XValue: "<<FitParameter0Pol0Div3XValue<<"; FitParameter0Pol0Div3YValue: "<<FitParameter0Pol0Div3YValue<<"; XValueYDifference: "<<XValueYDifference<<endl;
+                lineFitParameter0Pol0Div3[i] = new TLine(0.,FitParameter0Pol0Div3,maxPtGlobalCluster,FitParameter0Pol0Div3);
+                lineFitParameter0Pol0Div3[i]->SetLineColor(kRed);
+                if (doLinesTriggerMimicking == kTRUE){
+                    lineFitParameter0Pol0Div3[i]->Draw("same");
+                }
+                lineFitParameter0Pol0Div3XValue[i] = new TLine(FitParameter0Pol0Div3XValue,0.,FitParameter0Pol0Div3XValue,maxTriggRejectLin);
+                lineFitParameter0Pol0Div3XValue[i]->SetLineColor(kOrange);
+                if (doLinesTriggerMimicking == kTRUE){
+                    lineFitParameter0Pol0Div3XValue[i]->Draw("same");
+                }
                 pol0->SetParameter(0,triggRejecFac[i][trigSteps[i][0]]);
                 pol0->SetParError(0,triggRejecFacErr[i][trigSteps[i][0]]);
                 pol0->SetLineColor(colorTrigg[i]-1);
@@ -1296,6 +1346,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
         canvasTriggerRejectLinear->Update();
         canvasTriggerRejectLinear->SaveAs(Form("%s/%s_TriggerRejectionFactorsLinY.%s",outputDir.Data(),isMC.Data(),suffix.Data()));
+        for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
+            if (lineFitParameter0Pol0Div3XValue[i]!=NULL)   {delete lineFitParameter0Pol0Div3XValue[i];}
+            if (lineFitParameter0Pol0Div3[i]!=NULL)         {delete lineFitParameter0Pol0Div3[i];}
+        }
 
         //***************************************************************************************************************
         //********************Plotting trigger rejection factors = fits, linear scale 1 trigger at a time ***************
@@ -1633,7 +1687,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         labelClusterUnscaled->Draw();
 
         TLatex *labelDetProcClus = NULL;
-        if (mode == 4 || mode == 2){
+        if (mode == 4 || mode == 2 || mode == 3 || mode == 5){
             labelDetProcClus = new TLatex(0.2, 0.12,detectionProcessClus.Data());
         } else if (mode == 10) {
             labelDetProcClus = new TLatex(0.2, 0.12,"rec. with EMCal");
