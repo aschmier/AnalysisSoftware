@@ -720,6 +720,7 @@ void CorrectCaloNonLinearityV4(
 
             // special setting for PCM-PHOS
             } else if( mode == 3 ){
+                minMax[0]       = 0.03;
                 if (optionEnergy.Contains("pPb_5.023TeVRun2") ){
                     if (fBinsPt[iClusterPt] < 1.5)
                         minMax[1]       = 0.18;
@@ -727,13 +728,16 @@ void CorrectCaloNonLinearityV4(
                         minMax[1]       = 0.20;
                     else if (fBinsPt[iClusterPt] < 3)
                         minMax[1]       = 0.25;
+                } else if (optionEnergy.Contains("13TeV") ){
+                        minMax[0]       = 0.08;
+                        minMax[1]       = 0.18;
                 } else {
                     if (fBinsPt[iClusterPt] < 1)
                         minMax[1]       = 0.20;
                     else
                         minMax[1]       = 0.25;
                 }
-                minMax[0]       = 0.03;
+
 
             // special setting for EMC
           } else if( mode == 4 || mode == 12  || mode == 15){
@@ -759,8 +763,16 @@ void CorrectCaloNonLinearityV4(
             } else if( mode == 5){
                 minMax[0]       = 0.04;
                 minMax[1]       = 0.25;
-                if (fBinsPt[iClusterPt] < 0.7)
+                if (optionEnergy.Contains("13TeV") ){
+                    minMax[0]       = 0.07;
+                    minMax[1]       = 0.2;
+                }
+                if (fBinsPt[iClusterPt] < 0.7){
                     minMax[1]   = 0.2;
+                    if (optionEnergy.Contains("13TeV") ){
+                        minMax[1]       = 0.19;
+                    }
+                }
                 Double_t min    = 0.005*fBinsPt[iClusterPt] - 0.001;
                 if (min > minMax[0])
                     minMax[0]   = min;
@@ -879,7 +891,7 @@ void CorrectCaloNonLinearityV4(
     TLegend *legend = GetAndSetLegend2(0.15, 0.95, 0.95, 0.99, 0.043, 2, "", 42);
 
     // create scaled mass vs pt histos
-    TH1D* histDataResultsVsPDG =  (TH1D*)histDataResults->Clone("Mean mass data / mass PDG Pi0");
+    TH1D* histDataResultsVsPDG =  (TH1D*)histDataResults->Clone("Mean mass data div mass PDG Pi0");
     histDataResultsVsPDG->Scale(1/massPi0);
     SetStyleHistoTH1ForGraphs(histDataResultsVsPDG, "#it{E}_{Cluster} (GeV)","#LT M_{#pi^{0} (data)} #GT / M_{#pi^{0} (PDG)}",0.035,0.043, 0.035,0.043, 1.,1.);
     if(mode == 2 || mode == 3 || mode == 14) {
@@ -889,7 +901,7 @@ void CorrectCaloNonLinearityV4(
     }
     DrawGammaSetMarker(histDataResultsVsPDG, markerStyle[0], 1, color[0], color[0]);
 
-    TH1D* histMCResultsVsPDG =  (TH1D*)histMCResults->Clone("Mean mass MC / mass PDG Pi0");
+    TH1D* histMCResultsVsPDG =  (TH1D*)histMCResults->Clone("Mean mass MC div mass PDG Pi0");
     histMCResultsVsPDG->Scale(1/massPi0);
     SetStyleHistoTH1ForGraphs(histMCResultsVsPDG, "#it{E}_{Cluster} (GeV)","#LT M_{#pi^{0} (MC)} #GT / M_{#pi^{0} (PDG)}",0.035,0.043, 0.035,0.043, 1.,1.);
     if(mode == 2 || mode == 3 || mode == 14) {
@@ -1429,7 +1441,6 @@ TF1* FitDataMC(TH1* fHisto, Double_t minFit, Double_t maxFit, TString selection,
 
     cout << "running standard fit from " <<  minFit << "\t"<<  maxFit << endl;
     TF1* fFitReco = new TF1("DataMC", "[0]+[3]*TMath::Exp([1]+([2]*x))" ,minFit,maxFit);
-
     fFitReco->SetParameter(0,1.);
 
     if (mode == 3 || mode == 5){
@@ -1637,6 +1648,7 @@ TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax,
 //*******************************************************************************
 TF1* FitDExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter, Int_t iDataMC ){
 
+
     Double_t mesonAmplitude = 0;
     for(Int_t i = histo->FindBin(0.07); i < histo->FindBin(0.2) ; i++ ){
       if(histo->GetBinContent(i) > mesonAmplitude) mesonAmplitude = histo->GetBinContent(i);
@@ -1658,16 +1670,16 @@ TF1* FitDExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax
         else
             mesonAmplitudeMin = mesonAmplitude*10./100.;
 
-          fitRangeMin = 0.09;
-          fitRangeMax = 0.19;
+          //fitRangeMin = 0.09; // The Framework is designed to Load this function with defined Ranges for each Setting; see around line 700; The needed Variable is minMax[0] and minMax[1]
+          //fitRangeMax = 0.19;
     // special setting for EMC
     } else if (mode == 4 || mode == 12 || mode == 15){
         mesonAmplitudeMin = mesonAmplitude*20./100.;
         fitRangeMin = 0.08;
     // special setting for PHOS
     } else if (mode == 5){
-      fitRangeMin = 0.09;
-      fitRangeMax = 0.25;
+      //fitRangeMin = 0.09;// The Framework is designed to Load this function with defined Ranges for each Setting; see around line 700; The needed Variable is minMax[0] and minMax[1]
+      //fitRangeMax = 0.25;
         if (ptcenter > 1.)
             mesonAmplitudeMin = mesonAmplitude*80./100.;
         else
