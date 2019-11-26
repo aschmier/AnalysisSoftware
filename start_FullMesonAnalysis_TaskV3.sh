@@ -85,7 +85,7 @@ source start_FullMesonAnalysis_helperPbPb.sh
 
 function ExtractSignal()
 {
-    root -x -q -l -b  TaskV1/ExtractSignalV2.C\+($1\,$MODE\,$USETHNSPARSE\,-1\,\"$CORRFSETTING\"\)
+    root -x -q -l -b  TaskV1/ExtractSignalV2.C\+\($1\,$MODE\,$USETHNSPARSE\,-1\,\"$CORRFSETTING\"\)
 }
 
 # Compile directly with G++ incl fsanitize (prototype)

@@ -230,7 +230,7 @@ void updateFile(const char *fileNameOADB,TString arrName, TString fileNameInput,
         hEMCalTriggerMimic_Old[j]=NULL;
         hEMCalTriggerMimic_Old[j]=(TH1S*)TriggerMimicObject_Old->FindObject(TriggNames[j]);
         if (hEMCalTriggerMimic_Old[j]==NULL){
-            hEMCalTriggerMimic_Old[j]= new TH1S(Form("%s_test",TriggNames[j].Data()),Form("%s",TriggNames[j].Data()),1,0,1);
+            hEMCalTriggerMimic_Old[j]= new TH1S(Form("%s_Old",TriggNames[j].Data()),Form("%s",TriggNames[j].Data()),1,0,1);
             hEMCalTriggerMimic_Old[j]->SetBinContent(1,0.*100);
             hEMCalTriggerMimic_Old[j]->SetBinError(1,0.*100);
         }
