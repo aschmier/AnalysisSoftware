@@ -1859,8 +1859,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             if(i>0){
                 fiteffi[i]->Draw("same");
                 if(mode==10 && optionEnergy.Contains("8TeV")){
-                    histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
-                    histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
+                    // histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
+                    // histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
                 } else if(mode==3){
                     if (optionEnergy.Contains("pPb_8TeV")){
                         histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
@@ -2156,14 +2156,14 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             DrawGammaSetMarker(histoAcceptancePi0[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
             histoAcceptancePi0[i]->DrawCopy("e1,same");
             legendAccPi0->AddEntry(histoAcceptancePi0[i],triggerNameLabel[i].Data(),"p");
-            if(mode==10 && optionEnergy.Contains("8TeV")){
-                TF1* fitConstAcceptance = new TF1(Form("accfit%d",i),"pol0",ptFromSpecPi0[i][0],ptFromSpecPi0[i][1]);
-                histoAcceptancePi0[i]->Fit(fitConstAcceptance,"QNRME+","",ptFromSpecPi0[i][0],ptFromSpecPi0[i][1]);
-                fitConstAcceptance->SetLineColor(colorTrigg[i]);
-                fitConstAcceptance->Draw("same");
-                histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoAcceptancePi0[i],1,1,"");
-                histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fitConstAcceptance);
-            }
+            // if(mode==10 && optionEnergy.Contains("8TeV")){
+            //     TF1* fitConstAcceptance = new TF1(Form("accfit%d",i),"pol0",ptFromSpecPi0[i][0],ptFromSpecPi0[i][1]);
+            //     histoAcceptancePi0[i]->Fit(fitConstAcceptance,"QNRME+","",ptFromSpecPi0[i][0],ptFromSpecPi0[i][1]);
+            //     fitConstAcceptance->SetLineColor(colorTrigg[i]);
+            //     fitConstAcceptance->Draw("same");
+            //     histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoAcceptancePi0[i],1,1,"");
+            //     histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fitConstAcceptance);
+            // }
         }
         legendAccPi0->Draw();
 
@@ -4686,7 +4686,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     Bool_t sysAvailSingleEtaToPi0                           [MaxNumberOfFiles];
     Bool_t sysAvailSingleEta                                [MaxNumberOfFiles];
 
-    if ( mode == 4 && ( optionEnergy.CompareTo("pPb_5.023TeV") == 0 ) ){//|| optionEnergy.CompareTo("pPb_8TeV") == 0 ) ){
+    if ( mode == 4 && ( optionEnergy.CompareTo("pPb_5.023TeV") == 0 || optionEnergy.CompareTo("pPb_8TeV") == 0 ) ){
         nameCorrectedYield                              = "CorrectedYieldTrueEff";
         nameEfficiency                                  = "TrueMesonEffiPt";
         nameMassMC                                      = "histoTrueMassMeson";

@@ -1685,7 +1685,10 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     if (!kIsMC && !optDalitz && kDCAFileDataExists){
         for (Int_t k = 0; k < 6; k++){
             cout << "subtracting yield from out of bunch collisions for int range: " << nameIntRange[k].Data() << endl;
-            histoUnCorrectedYield[k]->Multiply(histoBGEstimateCat[0]);
+            if(mode==2)
+                histoUnCorrectedYield[k]->Multiply(histoBGEstimateA);
+            else
+                histoUnCorrectedYield[k]->Multiply(histoBGEstimateCat[0]);
             // recalculate secondary yield in full MC approach with raw yield corrected for pileup
             if (doK0SecCorrection){
                 for (Int_t j = 0; j < 4; j++){

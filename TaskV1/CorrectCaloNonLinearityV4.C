@@ -781,7 +781,7 @@ void CorrectCaloNonLinearityV4(
             //*******************************************************************************
             // Fit
             //*******************************************************************************
-            if(optionEnergy.Contains("8TeV"))
+            if(optionEnergy.Contains("8TeV") || optionEnergy.Contains("7TeV"))
                 fFitReco = FitGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
                 // fFitReco = FitDExpPlusGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC); // possibility to use double exponential fit
             else

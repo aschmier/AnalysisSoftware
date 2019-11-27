@@ -102,6 +102,7 @@ TString fdate;
 TString  fCollisionSystem;
 TString  fTextMeasurement;
 TString fCutSelection;
+TString fCutSelection2;
 TString fBackgroundMultCutNumber;
 
 Double_t fMesonMassExpect = 0;

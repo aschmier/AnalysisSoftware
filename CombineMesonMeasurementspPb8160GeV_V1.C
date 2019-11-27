@@ -136,7 +136,7 @@ void CombineMesonMeasurementspPb8160GeV_V1(
   TString fileNameTheory                          = "ExternalInput/Theory/TheoryCompilationPP.root";
   TString fileNameTheoryPPb                          = "ExternalInputpPb/Theory/TheoryCompilationPPb.root";
   TString fileNameCHadrons                        = "/home/nschmidt/AnalysisSoftware/CombinationInput5TeV/20180409_ChargedParticle_pp_5.02TeV.root";
-  TString fileNameCParticles                      = "/home/nschmidt/AnalysisSoftware/CombinationInput5TeV/Spectra_ppLHC15n_Combined_Histograms.root";
+  TString fileNameCParticles                      = "/home/nschmidt/cocktail_input/pPb/8_TeV/Final_combined_spectra_pPb8TeV_20191031.root";
   TString fileNameEtaToPi0                        = "ExternalInput/WorldDataPi0Eta.root";
   // TString fileNamePP8TeV                         = "/media/nschmidt/local/ANALYSIS/pp_8TeV_mEMC/pdf/8TeV/2019_01_29/FinalResultsTriggersPatchedLM1EMC-merged/data_EMC-mergedResultsFullCorrection_PP.root";
   // TString fileNamePP8TeV                         = "/media/nschmidt/local/ANALYSIS/pp_8TeV_mEMC_pTweights/pdf/8TeV/2019_07_19/FinalResultsTriggersPatchedLM1EMC-merged/data_EMC-mergedResultsFullCorrection_PP.root";
@@ -575,29 +575,34 @@ void CombineMesonMeasurementspPb8160GeV_V1(
   // ************************** Loading charged spectra     ************************************************
   // *******************************************************************************************************
   TFile* fileCHadrons                             = new TFile(fileNameCHadrons.Data());
-  TFile* fileCParticles                           = new TFile(fileNameCParticles.Data());
   TGraphAsymmErrors* graphChargedHadronsStatpPb8TeV= (TGraphAsymmErrors*) fileCHadrons->Get("g1stat");
   graphChargedHadronsStatpPb8TeV                   = ScaleGraph(graphChargedHadronsStatpPb8TeV,67.6*1e-3*recalcBarn);
   TGraphAsymmErrors* graphChargedHadronsSyspPb8TeV = (TGraphAsymmErrors*) fileCHadrons->Get("g1syst");
   graphChargedHadronsSyspPb8TeV                    = ScaleGraph(graphChargedHadronsSyspPb8TeV,67.6*1e-3*recalcBarn);
 
   cout << __LINE__ << endl;
-  TList* listStatChargedPionpPb8TeVprelim            = (TList*)fileCParticles->Get("Summed_Pion");
-  TList* listSysChargedPionpPb8TeVprelim             = (TList*)fileCParticles->Get("Summed_Pion_Sys");
-  TList* listStatChargedKaonpPb8TeVprelim            = (TList*)fileCParticles->Get("Summed_Kaon");
-  TList* listSysChargedKaonpPb8TeVprelim             = (TList*)fileCParticles->Get("Summed_Kaon_Sys");
-  TGraphAsymmErrors* graphChargedPionStatpPb8TeV   = new TGraphAsymmErrors( (TH1D*)listStatChargedPionpPb8TeVprelim->FindObject("hSpectraSummedPion_pp_Combined_MB"));
+  TFile* fileCParticles                           = new TFile(fileNameCParticles.Data());
+  cout << "loading charged particles from " << fileNameCParticles.Data() << endl;
+  // TList* listStatChargedPionpPb8TeVprelim            = (TList*)fileCParticles->Get("hCombined_Pi_0to100_stat");
+  // TList* listSysChargedPionpPb8TeVprelim             = (TList*)fileCParticles->Get("hCombined_Pi_0to100_syst");
+  // TList* listStatChargedKaonpPb8TeVprelim            = (TList*)fileCParticles->Get("hCombined_Ka_0to100_stat");
+  // TList* listSysChargedKaonpPb8TeVprelim             = (TList*)fileCParticles->Get("hCombined_Ka_0to100_syst");
+  TGraphAsymmErrors* graphChargedPionStatpPb8TeV   = new TGraphAsymmErrors( (TH1F*)fileCParticles->Get("hCombined_Pi_0to100_stat"));
+  while(graphChargedPionStatpPb8TeV->GetX()[graphChargedPionStatpPb8TeV->GetN()-1] > 3) graphChargedPionStatpPb8TeV->RemovePoint(graphChargedPionStatpPb8TeV->GetN()-1);
   graphChargedPionStatpPb8TeV                      = ConvertYieldGraph(graphChargedPionStatpPb8TeV, kTRUE, kTRUE, kFALSE, kFALSE);
-  graphChargedPionStatpPb8TeV                      = ScaleGraph(graphChargedPionStatpPb8TeV,0.5*67.6*1e-3*recalcBarn);
-  TGraphAsymmErrors* graphChargedPionSyspPb8TeV    = new TGraphAsymmErrors( (TH1D*)listSysChargedPionpPb8TeVprelim->FindObject("hSpectraSummedPion_pp_Combined_MB"));
+  graphChargedPionStatpPb8TeV                      = ScaleGraph(graphChargedPionStatpPb8TeV,0.5);
+  TGraphAsymmErrors* graphChargedPionSyspPb8TeV    = new TGraphAsymmErrors( (TH1F*)fileCParticles->Get("hCombined_Pi_0to100_syst"));
+  while(graphChargedPionSyspPb8TeV->GetX()[graphChargedPionSyspPb8TeV->GetN()-1] > 3) graphChargedPionSyspPb8TeV->RemovePoint(graphChargedPionSyspPb8TeV->GetN()-1);
   graphChargedPionSyspPb8TeV                       = ConvertYieldGraph(graphChargedPionSyspPb8TeV, kTRUE, kTRUE, kFALSE, kFALSE);
-  graphChargedPionSyspPb8TeV                       = ScaleGraph(graphChargedPionSyspPb8TeV,0.5*67.6*1e-3*recalcBarn);
-  TGraphAsymmErrors* graphChargedKaonStatpPb8TeV   = new TGraphAsymmErrors( (TH1D*)listStatChargedKaonpPb8TeVprelim->FindObject("hSpectraSummedKaon_pp_Combined_MB"));
+  graphChargedPionSyspPb8TeV                       = ScaleGraph(graphChargedPionSyspPb8TeV,0.5);
+  TGraphAsymmErrors* graphChargedKaonStatpPb8TeV   = new TGraphAsymmErrors( (TH1F*)fileCParticles->Get("hCombined_Ka_0to100_stat"));
+  while(graphChargedKaonStatpPb8TeV->GetX()[graphChargedKaonStatpPb8TeV->GetN()-1] > 2.5) graphChargedKaonStatpPb8TeV->RemovePoint(graphChargedKaonStatpPb8TeV->GetN()-1);
   graphChargedKaonStatpPb8TeV                      = ConvertYieldGraph(graphChargedKaonStatpPb8TeV, kTRUE, kTRUE, kFALSE, kFALSE);
-  graphChargedKaonStatpPb8TeV                      = ScaleGraph(graphChargedKaonStatpPb8TeV,0.5*67.6*1e-3*recalcBarn);
-  TGraphAsymmErrors* graphChargedKaonSyspPb8TeV    = new TGraphAsymmErrors( (TH1D*)listSysChargedKaonpPb8TeVprelim->FindObject("hSpectraSummedKaon_pp_Combined_MB"));
+  graphChargedKaonStatpPb8TeV                      = ScaleGraph(graphChargedKaonStatpPb8TeV,0.5);
+  TGraphAsymmErrors* graphChargedKaonSyspPb8TeV    = new TGraphAsymmErrors( (TH1F*)fileCParticles->Get("hCombined_Ka_0to100_syst"));
+  while(graphChargedKaonSyspPb8TeV->GetX()[graphChargedKaonSyspPb8TeV->GetN()-1] > 2.5) graphChargedKaonSyspPb8TeV->RemovePoint(graphChargedKaonSyspPb8TeV->GetN()-1);
   graphChargedKaonSyspPb8TeV                       = ConvertYieldGraph(graphChargedKaonSyspPb8TeV, kTRUE, kTRUE, kFALSE, kFALSE);
-  graphChargedKaonSyspPb8TeV                       = ScaleGraph(graphChargedKaonSyspPb8TeV,0.5*67.6*1e-3*recalcBarn);
+  graphChargedKaonSyspPb8TeV                       = ScaleGraph(graphChargedKaonSyspPb8TeV,0.5);
 
 
   // *******************************************************************************************************
@@ -4863,6 +4868,67 @@ cout << __LINE__ << endl;
   canvasRatioPP->Update();
   canvasRatioPP->Print(Form("%s/Eta_RatioEtaToChargedKaon_PP_BinByBin.%s",outputDir.Data(),suffix.Data()));
 
+
+
+      ratio2DChargedPP->GetXaxis()->SetRangeUser(0.3,3.5);
+      ratio2DChargedPP->GetYaxis()->SetRangeUser(0.65,1.5);
+      ratio2DChargedPP->GetYaxis()->SetTitle("2#pi^{0}/(#pi^{+}+#pi^{-})");
+      ratio2DChargedPP->DrawCopy();
+      TGraphErrors* graphRatioInvMeasToCPionTot[13];
+      TGraphErrors* graphRatioInvMeasToCPionTot_WOXErr[13];
+      TGraphErrors* graphRatioInvMeasToCPionStat[13];
+      TGraphErrors* graphRatioInvMeasToCPionSys[13];
+      TLegend* legendCPionRatio                   = GetAndSetLegend2(0.62, 0.94-(0.035*(nMeasSetPi0-1)*1.35), 0.95, 0.94, 0.85* textSizeLabelsPixel);
+      for (Int_t i = 0; i < 13; i++){
+      // for (Int_t i = 0; i < 1; i++){
+        if(directoryPi0[i]){
+          if(i==9) continue;
+          TGraphErrors* graphRatioBinByBinCPionToPi0AStatDummy = NULL;
+          TGraphErrors* graphRatioBinByBinCPionToPi0ASysDummy  = NULL;
+          TGraphErrors* graphRatioBinByBinCPionToPi0BStatDummy = NULL;
+          TGraphErrors* graphRatioBinByBinCPionToPi0BSysDummy  = NULL;
+          Double_t minpTforCPionComp = 0.4;
+          if(i==0) minpTforCPionComp = 0.4;
+          if(i==2) minpTforCPionComp = 1.6;
+          if(i==4) minpTforCPionComp = 0.8;
+          TGraphAsymmErrors* graphPi0InvXSectionStatCloneTemp = (TGraphAsymmErrors*)graphPi0InvYieldStat[i]->Clone(Form("graphPi0InvXSectionStatCloneTemp%d",i));
+          while(graphPi0InvXSectionStatCloneTemp->GetX()[0] < minpTforCPionComp) graphPi0InvXSectionStatCloneTemp->RemovePoint(0);
+          TGraphAsymmErrors* graphPi0InvXSectionSysCloneTemp  = (TGraphAsymmErrors*)graphPi0InvYieldSys[i]->Clone(Form("graphPi0InvXSectionSysCloneTemp%d",i));
+          while(graphPi0InvXSectionSysCloneTemp->GetX()[0] <  minpTforCPionComp) graphPi0InvXSectionSysCloneTemp->RemovePoint(0);
+          TGraphAsymmErrors* graphCPionStatCloneTemp = (TGraphAsymmErrors*)graphChargedPionStatpPb8TeV->Clone(Form("graphCPionStatCloneTemp%d",i));
+          while(graphCPionStatCloneTemp->GetX()[0] < minpTforCPionComp) graphCPionStatCloneTemp->RemovePoint(0);
+          TGraphAsymmErrors* graphCPionSysCloneTemp  = (TGraphAsymmErrors*)graphChargedPionSyspPb8TeV->Clone(Form("graphCPionSysCloneTemp%d",i));
+          while(graphCPionSysCloneTemp->GetX()[0] <  minpTforCPionComp) graphCPionSysCloneTemp->RemovePoint(0);
+
+          graphRatioInvMeasToCPionTot[i] = CalculateRatioBetweenSpectraWithDifferentBinning(
+            graphPi0InvXSectionStatCloneTemp, graphPi0InvXSectionSysCloneTemp,
+            // graphPi0InvXSectionStat[i]->Clone(), graphPi0InvXSectionSys[i]->Clone(),
+            graphCPionStatCloneTemp, graphCPionSysCloneTemp,
+            // graphChargedPionStatPP5TeVCloneTemp, graphChargedPionSysPP5TeVCloneTemp,
+            kTRUE,  kTRUE,
+            &graphRatioBinByBinCPionToPi0AStatDummy, &graphRatioBinByBinCPionToPi0ASysDummy,
+            &graphRatioBinByBinCPionToPi0BStatDummy, &graphRatioBinByBinCPionToPi0BSysDummy,
+            kTRUE, &graphRatioInvMeasToCPionStat[i], &graphRatioInvMeasToCPionSys[i]
+          );
+          graphRatioInvMeasToCPionTot_WOXErr[i] = (TGraphErrors*) graphRatioInvMeasToCPionTot[i]->Clone(Form("graphRatioInvMeasToCPionTot_WOXErr_%d",i));
+          ProduceGraphErrWithoutXErrors(graphRatioInvMeasToCPionTot_WOXErr[i]);
+          DrawGammaSetMarkerTGraphErr(graphRatioInvMeasToCPionTot_WOXErr[i], markerStyleDet[i] ,markerSizeDet[i]*0.5, colorDet[i], colorDet[i]);
+
+          // graphRatioInvMeasToCPionTot_WOXErr[i]->Draw("p,same,z");
+          graphRatioInvMeasToCPionTot_WOXErr[i]->Draw("p,same");
+          legendCPionRatio->AddEntry(graphRatioInvMeasToCPionTot_WOXErr[i],nameMeasGlobalPlot[i],"p");
+        }
+      }
+
+      legendCPionRatio->Draw();
+      DrawGammaLines(minPtPi0, 25,1., 1.,1,kGray+2);
+      // labelRatioTheoryPP->Draw();
+      // labelRatioTheoryPP1P->Draw();
+      // labelRatioTheoryPP2P->Draw();
+
+      canvasRatioPP->Update();
+      canvasRatioPP->Print(Form("%s/Pi0_RatioChargedPionToData_PPB_BinByBin_IndivMeas.%s",outputDir.Data(),suffix.Data()));
+
   //*************************************************************************************************************
   //***************************** Paper plot X-section and ratios ***********************************************
   //*************************************************************************************************************
@@ -5970,6 +6036,8 @@ cout << __LINE__ << endl;
       graphCombPi0InvYieldStat_WOXErr->Draw("p,same,z");
       DrawGammaSetMarkerTGraphAsym(graphCombEtaInvYieldStat_WOXErrCopy, markerStyleComb+4, markerSizeComb, kBlack , kBlack);
       graphCombEtaInvYieldStat_WOXErrCopy->Draw("p,same,z");
+
+      graphChargedPionStatpPb8TeV->Draw("p,same,z");
 
       // labels lower left corner
       TLegend* legendXsectionPaperAll2    = GetAndSetLegend2(0.17, 0.20, 0.5, 0.19+0.04*2, textSizeLabelsPixel, 1, "", 43, 0.2);
