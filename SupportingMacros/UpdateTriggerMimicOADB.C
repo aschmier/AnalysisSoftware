@@ -27,7 +27,8 @@ void rebuildContainer(const char *fileNameOADB="");
 
     // create working copy of OADB file from EOS
     const char *fileNameOADB                ="EMCalTriggerMimic_temp.root";
-    gSystem->Exec(Form("cp %s %s",fileNameOADBAli,fileNameOADB));
+    TString fileNameOADBAliLocal="/home/jens/oadb/OADB/PWGGA/EMCalTriggerMimicOADB.root";
+    gSystem->Exec(Form("cp %s %s",fileNameOADBAliLocal.Data(),fileNameOADB));
 
     // update OADB file with dead, bad and warm cells
     // last parameter:
@@ -94,16 +95,16 @@ void rebuildContainer(const char *fileNameOADB="");
         //-------------------------------------------------------LHC-2016------------------------------------------------------------------------
 
         //updateFile(fileNameOADB,"16e-h_1",  "",   253478,   255467,   -2.20,   0.20,   -8.50,   0.00,   -3.75,   0.30,   3.45,   0.75);//Dont Use! They are included in 15o
-        updateFile(fileNameOADB,"15o_1",    "",   245141,   255538,   -1.00,   0.10,  -10.00,   1.00,   -2000,   0.10,   3.45,   0.75);
-        updateFile(fileNameOADB,"16i-k_1",  "",   255539,   258882,   -2.20,   0.20,   -8.50,   0.00,   -3.75,   0.30,   3.45,   0.75);
-        updateFile(fileNameOADB,"16l_1",    "",   258883,   260215,   -2.20,   0.20,   -5.50,   1.00,   -3.80,   0.30,   3.45,   0.75);
-        updateFile(fileNameOADB,"16m-p_1",  "",   260216,   265014,   -2.50,   0.10,   -8.50,   0.70,   -3.75,   0.30,   3.45,   0.75);
+        updateFile(fileNameOADB,"15o_1",    "",   245141,   255538,   -1.00,   0.10,  -10.00,   1.00,   -2000,   0.10,   3.7,   0.6);
+        updateFile(fileNameOADB,"16i-k_1",  "",   255539,   258882,   -2.20,   0.20,   -8.50,   0.00,   -3.75,   0.30,   3.7,   0.6);
+        updateFile(fileNameOADB,"16l_1",    "",   258883,   260215,   -2.20,   0.20,   -5.50,   1.00,   -3.80,   0.30,   3.7,   0.6);
+        updateFile(fileNameOADB,"16m-p_1",  "",   260216,   265014,   -2.50,   0.10,   -8.50,   0.70,   -3.75,   0.30,   3.7,   0.6);
         //-------------------------------------------------------LHC-2017------------------------------------------------------------------------
-        updateFile(fileNameOADB,"17c-o_1",  "",   270531,   282024,   -2.50,   0.10,   -8.50,   0.70,   -3.75,   0.30,   3.45,   0.75);
-        updateFile(fileNameOADB,"17pq_1",   "",   282025,   282503,   -2.50,   0.10,   -8.80,   1.00,   -3.90,   0.30,   3.45,   0.75);
-        updateFile(fileNameOADB,"17r_1",    "",   282504,   295231,   -2.50,   0.10,   -8.50,   0.70,   -3.75,   0.30,   3.45,   0.75);
+        updateFile(fileNameOADB,"17c-o_1",  "",   270531,   282024,   -2.50,   0.10,   -8.50,   0.70,   -3.75,   0.30,   3.7,   0.6);
+        updateFile(fileNameOADB,"17pq_1",   "",   282025,   282503,   -2.50,   0.10,   -8.80,   1.00,   -3.90,   0.30,   3.7,   0.6);
+        updateFile(fileNameOADB,"17r_1",    "",   282504,   295231,   -2.50,   0.10,   -8.50,   0.70,   -3.75,   0.30,   3.7,   0.6);
         //-------------------------------------------------------LHC-2018------------------------------------------------------------------------
-        updateFile(fileNameOADB,"18bp_1",   "",   295232,   295273,   -2.50,   0.10,   -8.50,   0.70,   -3.75,   0.30,   3.45,   0.75);
+        updateFile(fileNameOADB,"18bp_1",   "",   295232,   295273,   -2.50,   0.10,   -8.50,   0.70,   -3.75,   0.30,   3.7,   0.6);
     }
 
 
