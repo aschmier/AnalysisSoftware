@@ -44,6 +44,10 @@ Double_t fYields;
 Double_t fYieldsError;
 Double_t fFWHMFunc;
 Double_t fFWHMFuncError;
+Double_t fFWHMFunclambda;
+Double_t fFWHMFuncErrorlambda;
+Double_t fFWHMFuncsigma;
+Double_t fFWHMFuncErrorsigma;
 Double_t fYieldsFunc;
 Double_t fYieldsFuncError;
 Double_t fIntLinearBck;
@@ -55,7 +59,7 @@ const Double_t factorGGCont             = (98.826*10)/(1.174*90);
 const Double_t fPi0GGBRDPG              = 0.98823; //DPG
 const Double_t fPi0DalitzBRDPG          = 0.01174; //DPG 0.01174
 const Double_t fEtaGGBRDPG              = 0.3941;
-const Double_t fEtaDalitzBRDPG          = 0.000069;
+const Double_t fEtaDalitzBRDPG          = 0.0069;
 Double_t fMesonGGBRDPG                  = 0;
 Double_t fMesonDalitzBRDPG              = 0;
 
@@ -175,8 +179,12 @@ Double_t* fMesonTrueSB                      = NULL;
 Double_t* fMesonTrueSign                    = NULL;
 Double_t* fMesonSign                        = NULL;
 Double_t* fMesonFWHM                        = NULL;
+Double_t* fMesonFWHMlambda                  = NULL;
+Double_t* fMesonFWHMsigma                   = NULL;
 Double_t* fMesonTrueMass                    = NULL;
 Double_t* fMesonTrueFWHM                    = NULL;
+Double_t* fMesonTrueFWHMlambda              = NULL;
+Double_t* fMesonTrueFWHMsigma               = NULL;
 Double_t* fMesonFWHMAlpha01                 = NULL;
 Double_t*   fMesonYieldsResBckOtherFunc[3]      = { NULL, NULL, NULL};
 Double_t*   fMesonYieldsResBckOtherFuncError[3] = { NULL, NULL, NULL};
@@ -273,12 +281,16 @@ Double_t* fMesonMassError                   = NULL;
 Double_t* fMesonWidthError                  = NULL;
 Double_t* fMesonTrueMassError               = NULL;
 Double_t* fMesonTrueFWHMError               = NULL;
+Double_t* fMesonTrueFWHMErrorlambda         = NULL;
+Double_t* fMesonTrueFWHMErrorsigma          = NULL;
 
 Double_t* fMesonSBError                     = NULL;
 Double_t* fMesonSignError                   = NULL;
 Double_t* fMesonTrueSBError                 = NULL;
 Double_t* fMesonTrueSignError               = NULL;
 Double_t* fMesonFWHMError                   = NULL;
+Double_t* fMesonFWHMErrorlambda             = NULL;
+Double_t* fMesonFWHMErrorsigma              = NULL;
 
 Double_t* fGGYieldsLeftError                = NULL;
 Double_t* fBckYieldsLeftError               = NULL;
@@ -391,8 +403,12 @@ TH1D* fHistoMassPosition                        = NULL;
 TH1D* fHistoMassMeson                           = NULL;
 TH1D* fHistoWidthMeson                          = NULL;
 TH1D* fHistoFWHMMeson                           = NULL;
+TH1D* fHistoFWHMMesonlambda                     = NULL;
+TH1D* fHistoFWHMMesonsigma                      = NULL;
 TH1D* fHistoTrueMassMeson                       = NULL;
 TH1D* fHistoTrueFWHMMeson                       = NULL;
+TH1D* fHistoTrueFWHMMesonlambda                 = NULL;
+TH1D* fHistoTrueFWHMMesonsigma                  = NULL;
 TH1D* fHistoFWHMMesonAlpha01                    = NULL;
 
 TH1D* fDeltaPt                                  = NULL;

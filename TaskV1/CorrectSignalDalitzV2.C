@@ -1918,7 +1918,7 @@ void  CorrectSignalDalitzV2(TString fileNameUnCorrectedFile = "myOutput", TStrin
 	DrawGammaSetMarker(histoMesonSignalFullPtInvMass, 20, 0.4, kBlack, kBlack);                               
 	histoMesonSignalFullPtInvMass->DrawCopy("e1");  
 	histoMesonBckNormFullPtInvMass->SetLineColor(kBlue);
-	histoMesonBckNormFullPtInvMass->SetLineWidth(0.99);
+	histoMesonBckNormFullPtInvMass->SetLineWidth(1);
 	histoMesonBckNormFullPtInvMass->DrawCopy("same,hist");
 
 	TLatex* textPi0InvMass;
@@ -1979,7 +1979,7 @@ void  CorrectSignalDalitzV2(TString fileNameUnCorrectedFile = "myOutput", TStrin
 								kTRUE, 3., 4e-10, kTRUE,
 								kFALSE, 0., 0.7, 
 								kFALSE, 0., 10.);
-	histoUnCorrectedYieldDrawing->SetLineWidth(0.5);                
+	histoUnCorrectedYieldDrawing->SetLineWidth(1);                
 	DrawGammaSetMarker(histoUnCorrectedYieldDrawing, 20, 0.5, kBlack, kBlack);                             
 	histoUnCorrectedYieldDrawing->DrawCopy("e1");   
 
@@ -2434,7 +2434,7 @@ void  CorrectSignalDalitzV2(TString fileNameUnCorrectedFile = "myOutput", TStrin
                              kTRUE, 3., 4e-10, kTRUE,
                              kFALSE, 0., 0.30, 
                              kFALSE, 0., 10.);
-		histoYieldTrueGGFracMeson->SetLineWidth(0.5);	
+		histoYieldTrueGGFracMeson->SetLineWidth(1);	
 		histoYieldTrueGGFracMeson->GetYaxis()->SetRangeUser(0.0,0.35);
 		DrawGammaSetMarker(histoYieldTrueGGFracMeson, 20, 0.5, kBlack, kBlack);										 
 		histoYieldTrueGGFracMeson->DrawCopy("e1"); 	
@@ -2458,7 +2458,7 @@ void  CorrectSignalDalitzV2(TString fileNameUnCorrectedFile = "myOutput", TStrin
                              kTRUE, 3., 4e-10, kTRUE,
                              kFALSE, 0., 0.30, 
                              kFALSE, 0., 10.);
-		histoYieldTrueGGFracMesonForData->SetLineWidth(0.5);	
+		histoYieldTrueGGFracMesonForData->SetLineWidth(1);	
 		histoYieldTrueGGFracMesonForData->GetYaxis()->SetRangeUser(0.0,0.35);
 		DrawGammaSetMarker(histoYieldTrueGGFracMesonForData, 20, 0.5, kBlack, kBlack);										 
 		histoYieldTrueGGFracMesonForData->DrawCopy("e1"); 	
@@ -2487,7 +2487,7 @@ void  CorrectSignalDalitzV2(TString fileNameUnCorrectedFile = "myOutput", TStrin
                                    kTRUE, 5., 10e-10, kTRUE,
                                    kFALSE, 0.0, 0.030,
                                    kFALSE, 0., 10.);
-		histoSBMesonDrawing->SetLineWidth(0.8);					 
+		histoSBMesonDrawing->SetLineWidth(1);					 
 		DrawGammaSetMarker(histoSBMesonDrawing, 20, 0.5, kBlue, kBlue);										 
 		histoSBMesonDrawing->DrawCopy("e1"); 	
 
@@ -2511,7 +2511,7 @@ void  CorrectSignalDalitzV2(TString fileNameUnCorrectedFile = "myOutput", TStrin
                               kFALSE, 0.0, 0.030,
                               kFALSE, 0., 10.);
 				      
-		histoSignificanceMesonDrawing->SetLineWidth(0.8);					 
+		histoSignificanceMesonDrawing->SetLineWidth(1);					 
 		DrawGammaSetMarker(histoSignificanceMesonDrawing, 20, 0.5, kBlue, kBlue);										 
 		histoSignificanceMesonDrawing->DrawCopy("e1"); 	
 

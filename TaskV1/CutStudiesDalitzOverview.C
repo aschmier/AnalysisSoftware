@@ -310,53 +310,86 @@ void CutStudiesDalitzOverview(const char* CombineCutsName = "CombineCuts.dat", c
 	
       }
 
-      else if (cutVariationName.Contains("V0Reader")){
+      else if (cutVariationName.Contains("V0Reader")){//ALERT
          TString fV0Reader = fGammaCutSelection(0,1);
          cutStringsName[i] = AnalyseV0ReaderCut(CutNumberToInteger(fV0Reader));
-      } else if (cutVariationName.Contains("Eta")){
+      } else if (cutVariationName.Contains("EtaGamma")){//NOTE Systematic
 	 TString fEtaCut = fGammaCutSelection(1,1);
          cutStringsName[i] = AnalyseEtaCut(CutNumberToInteger(fEtaCut));
-      } else if (cutVariationName.Contains("RCut")){
+      } else if (cutVariationName.Contains("RCut")){//ALERT
          TString fRCut = fGammaCutSelection(2,1);
          cutStringsName[i] = AnalyseRCut(CutNumberToInteger(fRCut));
-      } else if (cutVariationName.Contains("SinglePt")){
-         TString fSinglePtCut = fGammaCutSelection(3,1);
+      } else if (cutVariationName.Contains("SinglePtGamma")){//NOTE Systematic
+         TString fSinglePtCut = fGammaCutSelection(6,1);
          cutStringsName[i] = AnalyseSinglePtCut(CutNumberToInteger(fSinglePtCut));
-      } else if (cutVariationName.Contains("Cluster")){
-         TString fClusterCut = fGammaCutSelection(4,1);
+      } else if (cutVariationName.Contains("ClusterGamma")){//NOTE
+         TString fClusterCut = fElectronCutSelection(9,1);
          cutStringsName[i] = AnalyseTPCClusterCut(CutNumberToInteger(fClusterCut));
          cout << i << "\t" << fClusterCut.Data() << "\t" << cutStringsName[i].Data()<< endl;
-      } else if (cutVariationName.Contains("dEdxE")){	 
-         TString fdEdxCut = fGammaCutSelection(5,1);
+      } else if (cutVariationName.Contains("TPCclusterDalitz")){//NOTE need implement
+         TString fClusterCut = fGammaCutSelection(7,1);
+        // cutStringsName[i] = AnalyseTPCClusterCut(CutNumberToInteger(fClusterCut));
+         cutStringsName[i] = cutNumberAdv[i].Data();
+      } else if (cutVariationName.Contains("dEdxEGamma")){//NOTE Systematic
+         TString fdEdxCut = fGammaCutSelection(8,1);
          cutStringsName[i] = AnalyseTPCdEdxCutElectronLine(CutNumberToInteger(fdEdxCut));
-      } else if (cutVariationName.Contains("TPCdEdxE")){
+      } else if (cutVariationName.Contains("CosPointGamma")){//NOTE Systematic
+         TString fCosPoint = fGammaCutSelection(20,1);
+         cutStringsName[i] = AnalyseCosPointCut(CutNumberToInteger(fCosPoint));
+      } else if (cutVariationName.Contains("TPCdEdxDalitz")){//NOTE
          TString fdEdxCutTPC = fElectronCutSelection(2,1);
          cutStringsName[i] = AnalyseTPCdEdxCutElectronLineTPC(CutNumberToInteger(fdEdxCutTPC));
-      } else if (cutVariationName.Contains("MassElectronPositron")){
+      } else if (cutVariationName.Contains("MassElectronPositronDalitz")){//NOTE
          TString fMassEPCut = fElectronCutSelection(17,1);
          cutStringsName[i] = AnalyseMassEPCut(CutNumberToInteger(fMassEPCut));
-      } else if (cutVariationName.Contains("dEdxPi")){    
-         TString fdEdxCut = fGammaCutSelection(6,3);
-         cutStringsName[i] = AnalyseTPCdEdxCutPionLine(fdEdxCut.Data());      
-      } else if (cutVariationName.Contains("Qt")){
-         TString fQtCut = fGammaCutSelection(11,1);
+      } else if (cutVariationName.Contains("DCAxyDalitz")){//NOTE
+         TString fDCAxyDalitz = fElectronCutSelection(16,1);
+         cutStringsName[i] = AnalyseDCAxyDalitz(CutNumberToInteger(fDCAxyDalitz));
+      } else if (cutVariationName.Contains("SinglePtDalitz")){//NOTE
+         TString fSinglePtDalitz = fElectronCutSelection(15,1);//ALERT error falta definir
+         cutStringsName[i] = cutNumberAdv[i].Data();
+         //cutStringsName[i] = AnalyseSinglePtDalitz(CutNumberToInteger(fSinglePtDalitz));
+      } else if (cutVariationName.Contains("dEdxEDalitz")){//NOTE
+         TString fdEdxDalitz = fElectronCutSelection(2,1);
+         cutStringsName[i] = AnalyseTPCdEdxCutElectronLineTPC(CutNumberToInteger(fdEdxDalitz));
+      } else if (cutVariationName.Contains("dEdxPiGamma")){//NOTE Systematic
+         TString fdEdxCut = fGammaCutSelection(9,0);
+         cutStringsName[i] = AnalyseTPCdEdxCutPionLine(fdEdxCut.Data());
+
+      } else if (cutVariationName.Contains("dEdxPiDalitz")){//NOTE Systematic
+         cutStringsName[i] = cutNumberAdv[i].Data();
+
+      } else if (cutVariationName.Contains("minpTPiDalitz")){//NOTE Systematic
+         cutStringsName[i] = cutNumberAdv[i].Data();
+
+      } else if (cutVariationName.Contains("maxpTPiDalitz")){//NOTE Systematic
+         cutStringsName[i] = cutNumberAdv[i].Data();
+
+      } else if (cutVariationName.Contains("minmaxpTPiGamma")){//NOTE Systematic
+         cutStringsName[i] = cutNumberAdv[i].Data();
+
+      } else if (cutVariationName.Contains("PsiPairGamma")){//NOTE Systematic
+         cutStringsName[i] = cutNumberAdv[i].Data();
+
+      } else if (cutVariationName.Contains("2DqtGamma")){//NOTE Systematic
+         TString fQtCut = fGammaCutSelection(16,1);
          cutStringsName[i] = AnalyseQtMaxCut(CutNumberToInteger(fQtCut));
-      } else if (cutVariationName.Contains("Chi2")){
-         TString fChi2Cut = fGammaCutSelection(12,1);
+      } else if (cutVariationName.Contains("2DChi2Gamma")){//NOTE Systematic
+         TString fChi2Cut = fGammaCutSelection(17,1);
          TString fPsiPairCut = fGammaCutSelection(GetPhotonPsiPairCutPosition(fGammaCutSelection),1);
          cutStringsName[i] = AnalyseChi2GammaCut(CutNumberToInteger(fChi2Cut),CutNumberToInteger(fPsiPairCut));
-      } else if (cutVariationName.Contains("Rapidity")){
+      } else if (cutVariationName.Contains("RapidityMeson")){//ALERT
          TString fRapidityCut = fMesonCutSelection(4,1);
          cutStringsName[i] = AnalyseRapidityMesonCut(CutNumberToInteger(fRapidityCut));
-      } else if (cutVariationName.Contains("Alpha")){
+      } else if (cutVariationName.Contains("AlphaMeson")){//NOTE Systematic
          TString fAlphaCut = fMesonCutSelection(6,1);
          cutStringsName[i] = AnalyseAlphaMesonCut(CutNumberToInteger(fAlphaCut));
-	 
-      } else if (cutVariationName.Contains("PsiPairDelthaPhi") ){
+      } else if (cutVariationName.Contains("PsiPairDelthaPhiDalitz") ){
         TString fPsiPairDelthaPhi = fElectronCutSelection(11,1);
-        cout<<"String: "<< fElectronCutSelection.Data() <<" Code: "<<fPsiPairDelthaPhi.Data()<<endl;
-//cutStringsName[i] = AnalysePsiPairDelthaPhiCut(CutNumberToInteger(fPsiPairDelthaPhi));
-//There is no function on Labelling
+        cutStringsName[i] = cutNumberAdv[i].Data();
+        //cout<<"String: "<< fElectronCutSelection.Data() <<" Code: "<<fPsiPairDelthaPhi.Data()<<endl;
+        //cutStringsName[i] = AnalysePsiPairDelthaPhiCut(CutNumberToInteger(fPsiPairDelthaPhi));
+        //There is no function on Labelling
       } else {
          cutStringsName[i] = cutNumberAdv[i].Data();
       }
@@ -1263,8 +1296,10 @@ void CutStudiesDalitzOverview(const char* CombineCutsName = "CombineCuts.dat", c
       for (Int_t i = 1; i < NBinsPt +1; i++){
          //Calculate differences
          DifferenceCut[j][i] = SysErrCut[j][i].value - SysErrCut[0][i].value;
+         //cout <<SysErrCut[0][i].value<<" SysErrCut "<<endl;
          DifferenceErrorCut[j][i] = TMath::Sqrt(TMath::Abs(TMath::Power(SysErrCut[j][i].error,2)-TMath::Power(SysErrCut[0][i].error,2)));
          if(SysErrCut[0][i].value != 0){
+             //cout <<SysErrCut[0][i].value<<" SysErrCut "<<endl;
             RelDifferenceCut[j][i] = DifferenceCut[j][i]/SysErrCut[0][i].value*100. ;
             RelDifferenceErrorCut[j][i] = DifferenceErrorCut[j][i]/SysErrCut[0][i].value*100. ;
          } else {
@@ -1276,20 +1311,27 @@ void CutStudiesDalitzOverview(const char* CombineCutsName = "CombineCuts.dat", c
 	} else {
 		RelDifferenceRawCut[j][i] = -10000.;
 	}
-			
+	//		cout <<DifferenceCut[j][i]<<" DifferenceCut "<<endl;
 	if(DifferenceCut[j][i] < 0){
 	  if (TMath::Abs(LargestDiffNeg[i]) < TMath::Abs(DifferenceCut[j][i]) && RelDifferenceRawCut[j][i] > -75.){
+            //  cout<<" Negative "<<endl;
 	      LargestDiffNeg[i] = DifferenceCut[j][i];
 	      LargestDiffErrorNeg[i] = DifferenceErrorCut[j][i];
 	  }
 	}else{
-	  if (TMath::Abs(LargestDiffPos[i]) < TMath::Abs(DifferenceCut[j][i]) && RelDifferenceRawCut[j][i] > -75.){
+	  if (TMath::Abs(LargestDiffPos[i]) < TMath::Abs(DifferenceCut[j][i]) && RelDifferenceRawCut[j][i] > -75.){//  cout<<" Positive "<<endl;
 	      LargestDiffPos[i] = DifferenceCut[j][i];
 	      LargestDiffErrorPos[i] = DifferenceErrorCut[j][i];
 	  }
 	}
       }
    }
+    for(Int_t j = 0; j < NumberOfCuts; j++){
+      for (Int_t i = 1; i < NBinsPt +1; i++){
+   cout <<DifferenceCut[j][i]<<" DifferenceCut "<<j<<" "<<i<<endl;
+   cout <<SysErrCut[j][i].value<<" SysErrCut "<<j<<" "<<i<<endl;
+      }
+    }
 
    cout << "done filling" << endl;
    const char *SysErrDatname = Form("%s/%s_%s_SystematicErrorCutStudies.dat",outputDir.Data(),meson.Data(),prefix2.Data());
@@ -1328,7 +1370,7 @@ void CutStudiesDalitzOverview(const char* CombineCutsName = "CombineCuts.dat", c
       SysErrDat << BinsXCenter[i]  << "\t" << LargestDiffNeg[i] << "\t" <<LargestDiffErrorNeg[i]<< "\t" << LargestDiffPos[i] << "\t" << LargestDiffErrorPos[i]<<endl;
    }
    SysErrDat << endl << endl <<"Bin" << "\t" << "Largest Dev Neg rel" << "\t" << "Largest Dev Pos rel"  << endl;
-   for(Int_t i = 0; i < (NBinsPt +1); i++){
+   for(Int_t i = 1; i < (NBinsPt +1); i++){
       if ( SysErrCut[0][i].value != 0.){
 	LargestDiffRelNeg[i] = - LargestDiffNeg[i]/SysErrCut[0][i].value*100.;
 	LargestDiffRelPos[i] = LargestDiffPos[i]/SysErrCut[0][i].value*100.;
@@ -1342,6 +1384,12 @@ void CutStudiesDalitzOverview(const char* CombineCutsName = "CombineCuts.dat", c
 	LargestDiffRelErrorPos[i] = 0.;
       }
    }
+    //  for (Int_t i = 0; i < NBinsPt +1; i++){
+   LargestDiffRelNeg[0]=0.0;
+   LargestDiffRelErrorNeg[0]=0.0;
+   LargestDiffRelPos[0]=0.0;
+   LargestDiffRelErrorPos[0]=0.0;
+    //  }
     TGraphAsymmErrors* SystErrGraphNeg = new TGraphAsymmErrors(NBinsPt+1, BinsXCenter, LargestDiffRelNeg, BinsXWidth, BinsXWidth, LargestDiffRelErrorNeg, LargestDiffRelErrorNeg);
     SystErrGraphNeg->SetName(Form("%s_SystErrorRelNeg_%s",meson.Data(),cutVariationName.Data()));
     TGraphAsymmErrors* SystErrGraphPos = new TGraphAsymmErrors(NBinsPt+1, BinsXCenter, LargestDiffRelPos, BinsXWidth, BinsXWidth, LargestDiffRelErrorPos, LargestDiffRelErrorPos);

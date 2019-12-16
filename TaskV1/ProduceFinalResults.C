@@ -97,13 +97,15 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
         minPtForFits=0.3;
         minPtForFitsEta=0.4;
         if (useSameBinningPi0Eta.CompareTo("")==0){
-            fileNameSysErrPi0 = "SystematicErrorsNew/SystematicErrorAveraged_Pi0_7TeV_24_Apr_2012.dat"; //SystematicError_Pi0_7TeV_12_Mar_2012.dat
+            fileNameSysErrPi0 = "SystematicErrorsNew/SystematicError_Pi0_5TeV2017__2019_11_28.dat";
+            //fileNameSysErrPi0 = "SystematicErrorsNew/SystematicErrorAveraged_Pi0_7TeV_24_Apr_2012.dat"; //SystematicError_Pi0_7TeV_12_Mar_2012.dat
         } else {
             fileNameSysErrPi0 = "SystematicErrorsNew/SystematicErrorAveraged_Pi0EtaBinning_7TeV_24_Apr_2012.dat"; // SystematicError_Pi0EtaBinning_7TeV_12_Mar_2012.dat
             minPtForFits=0.4;
         }
-        fileNameSysErrEta = "SystematicErrorsNew/SystematicErrorAveraged_Eta_7TeV_24_Apr_2012.dat";//SystematicError_Eta_7TeV_12_Mar_2012.dat
-        cout << "You have choosen 5TeV2017" << endl;
+        fileNameSysErrEta = "SystematicErrorsNew/SystematicError_Eta_5TeV2017__2019_11_28.dat";
+        //fileNameSysErrEta = "SystematicErrorsNew/SystematicErrorAveraged_Eta_7TeV_24_Apr_2012.dat";//SystematicError_Eta_7TeV_12_Mar_2012.dat
+        cout << "You have choosen 5TeV2017 Dalitz" << endl;
     } else if(optionEnergy.CompareTo("7TeV") == 0){
         minPtForFits=0.3;
         minPtForFitsEta=0.4;
@@ -127,7 +129,7 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
         }
         fileNameSysErrEta = "SystematicErrorsNew/SystematicErrorAveraged_Eta_8TeV_16_May_2015.dat";
         cout << "You have choosen 8TeV" << endl;
-        } else if ((optionEnergy.CompareTo("13TeV")==0)||(optionEnergy.CompareTo("13TeVRBins")== 0)){
+    } else if( optionEnergy.CompareTo("13TeV") == 0) {
         minPtForFits=0.4;
         minPtForFitsEta=0.4;
 
@@ -396,7 +398,7 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
 
         histoPi0ToChargedPhojet = (TH1D*)fileMCGenerated->Get(Form("Pi0ToCharged_generatedSpectrum_%s_Phojet","7TeV"));
         histoPi0ToChargedPythia = (TH1D*)fileMCGenerated->Get(Form("Pi0ToCharged_generatedSpectrum_%s_Pythia","7TeV"));
-    } else if ((optionEnergy.CompareTo("13TeV") == 0)  || (optionEnergy.CompareTo("13TeVRBins") == 0) ){
+    } else if(optionEnergy.CompareTo("13TeV")==0){
         cout << "Caution!!! use 7TeV MC generated EtaToPi0 and Pi0ToCharged spectra" << endl;
         histoEtaToPi0Phojet = (TH1D*)fileMCGenerated->Get(Form("EtaToPi0_generatedSpectrum_7TeV_Phojet"));
         histoEtaToPi0Pythia = (TH1D*)fileMCGenerated->Get(Form("EtaToPi0_generatedSpectrum_7TeV_Pythia"));
@@ -413,7 +415,7 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
     histoNumberOfEvents =  new TH1D("histoNumberOfEvents","histoNumberOfEvents",2,0.,2.);
     histoNumberOfEvents->SetBinContent(1,nEvt);
 
-    Int_t isV0AND           = 0;
+    Int_t isV0AND           = 1;
     if (histoEventQualtityPi0->GetNbinsX() > 7){
         if (histoEventQualtityPi0->GetBinContent(9) > 0){
             isV0AND         = 1;
@@ -432,35 +434,51 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
     TCanvas* canvasFWHM = new TCanvas("canvasFWHM","",200,10,1350,900);  // gives the page size
     DrawGammaCanvasSettings( canvasFWHM, 0.08, 0.02, 0.04, 0.09);
 
-    DrawAutoGammaMesonHistos( histoFWHMMesonPi0,
+    histoFWHMMesonEta->SetLineColor(0);
+    histoFWHMMesonEta->GetYaxis()->SetTitleOffset(0.8);
+    DrawAutoGammaMesonHistos( histoFWHMMesonEta,
                                  "", "p_{T} (GeV/c)", "FWHM/2.36 (GeV/c^{2})",
                                  kFALSE, 3.,0., kFALSE,
                                  kTRUE, -0.004, 0.020,
                                  kFALSE, 0., 10.);
-    histoFWHMMesonPi0->GetYaxis()->SetNdivisions(510);
+    histoFWHMMesonEta->GetYaxis()->SetTitleOffset(0.8);
+    histoFWHMMesonEta->GetYaxis()->SetNdivisions(510);
     DrawGammaSetMarker(histoFWHMMesonEta, 20, 0.8, kBlue, kBlue);
-    histoFWHMMesonEta->DrawCopy("same,e1,p");
+        histoFWHMMesonEta->SetMarkerColor(4);
+        histoFWHMMesonEta->SetLineColor(4);
+        histoFWHMMesonEta->SetFillColor(kBlue);
+        histoFWHMMesonEta->SetFillStyle(0);
+    histoFWHMMesonEta->DrawCopy("E1,p");
 
     DrawGammaSetMarker(histoTrueFWHMMesonEta, 24, 0.8, kRed+2, kRed+2);
-    histoTrueFWHMMesonEta->DrawCopy("same,e1,p");
+        histoTrueFWHMMesonEta->SetMarkerColor(2);
+        histoTrueFWHMMesonEta->SetLineColor(2);
+        histoTrueFWHMMesonEta->SetFillColor(kRed);
+        histoTrueFWHMMesonEta->SetFillStyle(0);
+    histoTrueFWHMMesonEta->DrawCopy("same,E1,p");
     DrawGammaSetMarker(histoFWHMMesonPi0, 22, 0.8, kBlack, kBlack);
-    histoFWHMMesonPi0->DrawCopy("same,e1,p");
+        histoFWHMMesonPi0->SetMarkerColor(1);
+        histoFWHMMesonPi0->SetLineColor(1);
+        histoFWHMMesonPi0->SetFillColor(kBlack);
+        histoFWHMMesonPi0->SetFillStyle(0);
+    histoFWHMMesonPi0->DrawCopy("same,E1,p");
 
     DrawGammaSetMarker(histoTrueFWHMMesonPi0, 26, 0.8, kRed+2, kRed+2);
-    histoTrueFWHMMesonPi0->DrawCopy("same,e1,p");
+        histoTrueFWHMMesonPi0->SetMarkerColor(2);
+        histoTrueFWHMMesonPi0->SetLineColor(2);
+        histoTrueFWHMMesonPi0->SetFillColor(kRed);
+        histoTrueFWHMMesonPi0->SetFillStyle(0);
+    histoTrueFWHMMesonPi0->DrawCopy("same,E1,p");
 
-    TLegend* legendFWHM = new TLegend(0.3,0.1,0.7,0.2);
-    legendFWHM->SetTextSize(0.02);
+    TLegend* legendFWHM = new TLegend(0.3,0.1,0.7,0.3);
+    legendFWHM->SetTextSize(0.04);
     legendFWHM->SetFillColor(0);
     legendFWHM->SetLineColor(0);
-    if(conference){
-        legendFWHM->AddEntry(histoFWHMMesonPi0,Form("#pi^{0}"));
-    }else{
-        legendFWHM->AddEntry(histoFWHMMesonPi0,Form("#pi^{0}  %s", cutSelection.Data()));
-    }
-    legendFWHM->AddEntry(histoFWHMMesonEta,"#eta");
-    legendFWHM->AddEntry(histoTrueFWHMMesonPi0,"True reconstructed #pi^{0}");
-    legendFWHM->AddEntry(histoTrueFWHMMesonEta,"True reconstructed #eta");
+    legendFWHM->SetFillStyle(0);
+    legendFWHM->AddEntry(histoFWHMMesonPi0,"#pi^{0}","lp");
+    legendFWHM->AddEntry(histoFWHMMesonEta,"#eta","lp");
+    legendFWHM->AddEntry(histoTrueFWHMMesonPi0,"True reconstructed #pi^{0}","lp");
+    legendFWHM->AddEntry(histoTrueFWHMMesonEta,"True reconstructed #eta","lp");
     legendFWHM->Draw();
 //     if(!thesis)DrawAliceLogoCombined(pictDrawingCoordinatesFWHM[0], pictDrawingCoordinatesFWHM[1], pictDrawingCoordinatesFWHM[2], pictDrawingCoordinatesFWHM[3], pictDrawingCoordinatesFWHM[4], pictDrawingCoordinatesFWHM[5], pictDrawingCoordinatesFWHM[6], pictDrawingCoordinatesFWHM[7], pictDrawingCoordinates[8],collisionSystem, pictDrawingOptions[1], pictDrawingOptions[2], pictDrawingOptions[3],1350,900,date,kDalitz);
 
@@ -484,17 +502,22 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
     histoMassMesonPi0->GetYaxis()->SetNdivisions(510);
 
     DrawGammaSetMarker(histoMassMesonPi0, 22, 0.8, kBlack, kBlack);
-    histoMassMesonPi0->DrawCopy("e1,p");
+    histoMassMesonPi0->SetMarkerSize(1.5);
+    histoMassMesonPi0->SetFillStyle(0);
+    histoMassMesonPi0->DrawCopy("E1,p");
 
     DrawGammaSetMarker(histoTrueMassMesonPi0, 26, 0.8, kRed+2, kRed+2);
-    histoTrueMassMesonPi0->DrawCopy("same,e1,p");
+    histoTrueMassMesonPi0->SetMarkerSize(1.5);
+    histoTrueMassMesonPi0->SetFillStyle(0);
+    histoTrueMassMesonPi0->DrawCopy("same,E1,p");
 
-
-    TLegend* legendMassPi0 = new TLegend(0.15,0.1,0.5,0.2);
-    legendMassPi0->SetTextSize(0.02);
+    TLegend* legendMassPi0 = new TLegend(0.15,0.1,0.5,0.3);
+    legendMassPi0->SetTextSize(0.04);
     legendMassPi0->SetFillColor(0);
-    legendMassPi0->AddEntry(histoMassMesonPi0,"Data");
-    legendMassPi0->AddEntry(histoTrueMassMesonPi0,"MonteCarlo");
+    legendMassPi0->SetLineColor(0);
+    legendMassPi0->SetFillStyle(0);
+    legendMassPi0->AddEntry(histoMassMesonPi0,"Data","lp");
+    legendMassPi0->AddEntry(histoTrueMassMesonPi0,"MonteCarlo","lp");
     legendMassPi0->Draw();
 //     if(!thesis)DrawAliceLogoPi0Performance(pictDrawingCoordinatesMass[0], pictDrawingCoordinatesMass[1], pictDrawingCoordinatesMass[2], pictDrawingCoordinatesMass[3], pictDrawingCoordinatesMass[4], pictDrawingCoordinatesMass[5], pictDrawingCoordinatesMass[6], pictDrawingCoordinatesMass[7], pictDrawingCoordinates[8],collisionSystem, pictDrawingOptions[1], pictDrawingOptions[2], kTRUE,1350,900,date, "MinBias",kDalitz);
 
@@ -511,22 +534,27 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
     DrawAutoGammaMesonHistos( histoMassMesonEta,
                             "", "p_{T} (GeV/c)", "Mass (GeV/c^{2})",
                             kFALSE, 3.,0., kFALSE,
-                            kTRUE, 0.545,0.560,
+                            kTRUE, 0.540,0.565,
                             kFALSE, 0., 10.);
     histoMassMesonEta->GetYaxis()->SetNdivisions(510);
 
     DrawGammaSetMarker(histoMassMesonEta, 22, 0.8, kBlack, kBlack);
-    histoMassMesonEta->DrawCopy("e1,p");
+    histoMassMesonEta->SetMarkerSize(1.5);
+    histoMassMesonEta->SetFillStyle(0);
+    histoMassMesonEta->DrawCopy("E1,p");
 
     DrawGammaSetMarker(histoTrueMassMesonEta, 26, 0.8, kRed+2, kRed+2);
-    histoTrueMassMesonEta->DrawCopy("same,e1,p");
+    histoTrueMassMesonEta->SetMarkerSize(1.5);
+    histoTrueMassMesonEta->SetFillStyle(0);
+    histoTrueMassMesonEta->DrawCopy("same,E1,p");
 
-    TLegend* legendMassEta = new TLegend(0.15,0.1,0.5,0.2);
-    legendMassEta->SetTextSize(0.02);
+    TLegend* legendMassEta = new TLegend(0.15,0.1,0.5,0.3);
+    legendMassEta->SetTextSize(0.04);
     legendMassEta->SetFillColor(0);
     legendMassEta->SetLineColor(0);
-        legendMassEta->AddEntry(histoMassMesonEta,"Data");
-        legendMassEta->AddEntry(histoTrueMassMesonEta,"MonteCarlo");
+    legendMassEta->SetFillStyle(0);
+        legendMassEta->AddEntry(histoMassMesonEta,"Data","lp");
+        legendMassEta->AddEntry(histoTrueMassMesonEta,"MonteCarlo","lp");
     legendMassEta->Draw();
 //     if(!thesis)DrawAliceLogoPi0Performance(pictDrawingCoordinatesMass[0], pictDrawingCoordinatesMass[1], pictDrawingCoordinatesMass[2], pictDrawingCoordinatesMass[3], pictDrawingCoordinatesMass[4], pictDrawingCoordinatesMass[5], pictDrawingCoordinatesMass[6], pictDrawingCoordinatesMass[7], pictDrawingCoordinates[8],collisionSystem, pictDrawingOptions[1], pictDrawingOptions[2], kFALSE,1350,900,date, "MinBias",kDalitz);
 
@@ -563,6 +591,7 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
         legendAcc->SetTextSize(0.04);
         legendAcc->SetFillColor(0);
         legendAcc->SetLineColor(0);
+        legendAcc->SetHeader(Form(" pp #sqrt{s} = %s", optionEnergy.Data()));
         legendAcc->SetNColumns(2);
         legendAcc->AddEntry(histoAccPi0,"#pi^{0}");
         legendAcc->AddEntry(histoAccEta,"#eta");
@@ -597,7 +626,7 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
                                kTRUE, 1., 3e-7, kFALSE,
                                kFALSE, 0., 0.7,
                                kFALSE, 0., 10.);
-      histoTrueEffPtPi0->GetYaxis()->SetRangeUser(3e-7,1.1e-2);
+      histoTrueEffPtPi0->GetYaxis()->SetRangeUser(8e-6,4e-2);
     }
 
     DrawGammaSetMarker(histoTrueEffPtPi0, 22, 1.2, kBlack, kBlack);
@@ -610,6 +639,7 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
         legendEffi->SetTextSize(0.04);
         legendEffi->SetFillColor(0);
         legendEffi->SetLineColor(0);
+        legendEffi->SetHeader(Form(" pp #sqrt{s} = %s", optionEnergy.Data()));
         legendEffi->SetNColumns(2);
         legendEffi->AddEntry(histoTrueEffPtPi0,Form("#pi^{0}"));
         legendEffi->AddEntry(histoTrueEffPtEta,"#eta");
@@ -628,27 +658,41 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
     TCanvas* canvasRawYield = new TCanvas("canvasRawYield","",200,10,1350,900);  // gives the page size
     DrawGammaCanvasSettings( canvasRawYield, 0.08, 0.02, 0.02, 0.09);
     canvasRawYield->SetLogy(1);
-
+    //canvasRawYield->SetPadLeftMargin(0.1);
     histoUncorrectedYieldPi0->Scale(1./nEvt);
     DrawAutoGammaMesonHistos( histoUncorrectedYieldPi0,
-                             "", "p_{T} (GeV/c)", "RAW Yield/ N_{Evt}",
+                             "", "p_{T} (GeV/c)", "#frac{dN_{#pi^{0}#eta,raw}}{N_{evt}dp_{T}}",
                          kTRUE, 4., 4e-10, kTRUE,
+                        //  kFALSE, 3e-8,10,
                              kFALSE, 0., 0.7,
                              kFALSE, 0., 10.);
 
     DrawGammaSetMarker(histoUncorrectedYieldPi0, 20, 0.4, kBlack, kBlack);
+    histoUncorrectedYieldPi0->SetMarkerStyle(21);
+    histoUncorrectedYieldPi0->SetMarkerSize(1.5);
+    histoUncorrectedYieldPi0->SetTitleOffset(0.6,"y");
+    //histoUncorrectedYieldPi0->GetYaxis()->SetLabelSize(0.08);
+    //histoUncorrectedYieldPi0->GetYaxis()->SetTitleSize(0.1);
+    //histoUncorrectedYieldPi0->SetTitleOffset(0.45);
+    //histoUncorrectedYieldPi0->SetTitleSize(0.11);
+    //histoUncorrectedYieldPi0->SetLabelSize(0.08);
     histoUncorrectedYieldPi0->DrawCopy("e1");
 
 
     histoUnCorrectedYieldEta->Scale(1./nEvt);
     DrawGammaSetMarker(histoUnCorrectedYieldEta, 22, 1., kBlue, kBlue);
+    histoUnCorrectedYieldEta->SetMarkerStyle(8);
+    histoUnCorrectedYieldEta->SetMarkerSize(1.5);
     histoUnCorrectedYieldEta->DrawCopy("e1,same");
 
     TLegend* legendRawYield = new TLegend(0.25,0.11,0.4,0.2);
-    legendRawYield->SetTextSize(0.02);
+    legendRawYield->SetTextSize(0.04);
     legendRawYield->SetFillColor(0);
+    legendRawYield->SetLineColor(0);
+    legendRawYield->SetHeader(Form(" pp #sqrt{s} = %s", optionEnergy.Data()));
+    legendRawYield->SetNColumns(2);
     legendRawYield->AddEntry(histoUncorrectedYieldPi0,Form("#pi^{0}"));
-     legendRawYield->AddEntry(histoUnCorrectedYieldEta,"#eta");
+    legendRawYield->AddEntry(histoUnCorrectedYieldEta,"#eta");
     legendRawYield->Draw();
 
 //     if(!thesis)DrawAliceLogoCombined(pictDrawingCoordinatesInv[0], pictDrawingCoordinatesInv[1], pictDrawingCoordinatesInv[2], pictDrawingCoordinatesInv[3], pictDrawingCoordinatesInv[4], pictDrawingCoordinatesInv[5], pictDrawingCoordinatesInv[6], pictDrawingCoordinatesInv[7], pictDrawingCoordinates[8],collisionSystem, pictDrawingOptions[1], pictDrawingOptions[2], pictDrawingOptions[3],1350,900,date,kDalitz);
@@ -763,8 +807,8 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
 
             // the bin shift correction factor
             ratio[ib] =  shiftedValue / trueValue;
-            ratioErrUp[ib] = TMath::Sqrt( TMath::Power(shiftedValueErr/trueValue,2)  + TMath::Power( trueValueErrUp*shiftedValue/TMath::Power(trueValue,2),2) );
-            ratioErrDown[ib] = TMath::Sqrt( TMath::Power(shiftedValueErr/trueValue,2)  + TMath::Power( trueValueErrDown*shiftedValue/TMath::Power(trueValue,2),2) );
+            ratioErrUp[ib] = TMath::Sqrt( pow(shiftedValueErr/trueValue,2)  + pow( trueValueErrUp*shiftedValue/pow(trueValue,2),2) );
+            ratioErrDown[ib] = TMath::Sqrt( pow(shiftedValueErr/trueValue,2)  + pow( trueValueErrDown*shiftedValue/pow(trueValue,2),2) );
 
             float pt = histoRecBinShiftPi0->GetBinCenter(ib);
 
@@ -1933,16 +1977,29 @@ void  ProduceFinalResults( const char *fileNamePi0 = "myOutput",
                             kTRUE, 3., 4e-10, kTRUE,
                             kFALSE, 3e-8,10,
                             kFALSE, 0., 10.);
+     //   histoCorrectedYieldPi0->GetXaxis()->SetLabelSize(0.03);
+     //   histoCorrectedYieldPi0->GetYaxis()->SetLabelSize(0.03);
+
+        histoCorrectedYieldPi0->SetMarkerStyle(21);
+        histoCorrectedYieldPi0->SetMarkerSize(1.5);
+
 
         DrawGammaSetMarker(histoCorrectedYieldPi0, 22, 1., kBlack, kBlack);
         histoCorrectedYieldPi0->DrawCopy("e1,x0");
 
         DrawGammaSetMarker(histoCorrectedYieldEta, 26, 1., kAzure, kAzure);
+
+        histoCorrectedYieldEta->SetMarkerStyle(8);
+        histoCorrectedYieldEta->SetMarkerSize(1.5);
         histoCorrectedYieldEta->DrawCopy("e1,x0,same");
 
         TLegend* legendYield = new TLegend(0.15,0.13,0.5,0.22);
-        legendYield->SetTextSize(0.02);
+
+        legendYield->SetTextSize(0.04);
         legendYield->SetFillColor(0);
+        legendYield->SetLineColor(0);
+        legendYield->SetHeader(Form(" pp #sqrt{s} = %s", optionEnergy.Data()));
+        legendYield->SetNColumns(2);
         legendYield->AddEntry(histoCorrectedYieldPi0,Form("#pi^{0}"));
         legendYield->AddEntry(histoCorrectedYieldEta,"#eta");
         legendYield->Draw();

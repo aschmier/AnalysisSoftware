@@ -65,8 +65,8 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 
 	
 	
-        TString nameCutVariation[18];
-        TString nameCutVariationSC[18];
+        TString nameCutVariation[21];
+        TString nameCutVariationSC[21];
       
         
 
@@ -81,21 +81,27 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 	
         TString nameCutVariation2760GeV[18]    = {"YieldExtraction","dEdx e-line sec","dEdx #pi-line sec","dEdx e-line prim","Single e^{#pm} p_{t} sec","TPCcls sec","DCAxy","Single e^{#pm} p_{t} prim","TPCcls prim","Chi2","Qt","MassCut","Eta","Alpha","PsiPair + ITS","Background","dEdx #pi-line prim","V0-finder"};
         TString nameCutVariationSC2760GeV[18]  = {"YieldExtraction","dEdxEG","dEdxPiG","dEdxEE","SinglePtG","TPCclsG","DCAxy","SinglePtE","TPCclsE","Chi2","Qt","MassCut","Eta","Alpha","PsiPairITS","Background","dEdxPiE","V0-finder"};
-	                                        // {"YieldExtraction","dEdxEG-1","dEdxPiG-2","dEdxEE-3","SinglePtG-4","TPCclsG-5","DCAxy-6","SinglePtE-7","TPCclsE-8","Chi2-9","Qt-10","MassCut-11","Eta-12","Alpha-13","PsiPairITS-14","Background-15","dEdxPiE-16","V0-finder-17"};
-						
-						
-        TString nameCutVariation7TeV[18]           = {"YieldExtraction","dEdx e-line sec","dEdx #pi-line sec","dEdx e-line prim","Single e^{#pm} p_{t} sec","TPCcls sec","DCAxy","Single e^{#pm} p_{t} prim","TPCcls prim","Chi2","Qt","MassCut","Eta","Alpha","PsiPair + ITS","Background","dEdx #pi-line prim","V0-finder"};
-        TString nameCutForOutputVariation7TeV[18]  = {"YieldExtraction","dEdxEG","dEdxPiG","dEdxEE","SinglePtG","TPCclsG","DCAxy","SinglePtE","TPCclsE","Chi2","Qt","MassCut","Eta","Alpha","PsiPairITS","Background","dEdxPiE","V0-finder"};
+        //{"YieldExtraction","dEdxEG-1","dEdxPiG-2","dEdxEE-3","SinglePtG-4","TPCclsG-5","DCAxy-6","SinglePtE-7","TPCclsE-8","Chi2-9","Qt-10","MassCut-11","Eta-12","Alpha-13","PsiPairITS-14","Background-15","dEdxPiE-16","V0-finder-17"};
 
-	
+        //TString nameCutVariation5TeV2017[13] = {"YieldExtraction","#alpha Meson","#Chi^{2} 2D max #gamma","2D q_{t} #gamma","CosPoint #gamma","TPC cls #gamma","dE/dx #pi-line #gamma","dE/dx e^{#pm}-line #gamma","p_{T}#gamma","#eta #gamma","p_{T} #gamma*","DCA_{xy} #gamma*","#psi_{pair} #gamma*"};
+
+        //    "dEdx e-line sec","dEdx #pi-line sec","Single e^{#pm} p_{t} sec","TPCcls sec","dEdx e-line prim","DCAxy","Single e^{#pm} p_{t} prim","TPCcls prim","Chi2","Qt","MassCut","Eta","Alpha","PsiPair + ITS","Background","dEdx #pi-line prim","V0-finder"};
+
+        //TString nameCutForOutputVariation5TeV2017[13] = {"YieldExtraction_pp","AlphaMeson","2DChi2Gamma","2DqtGamma","CosPointGamma","ClusterGamma","dEdxPiGamma","dEdxEGamma","SinglePtGamma","EtaGamma","SinglePtDalitz","DCAxyDalitz","PsiPairDelthaPhiDalitz"};
+        //enum{kYieldExtraction=0,kAlpha,kChi2,kQt,kCosPoint,kTPCClsG,kdEdxPiG,kdEdxEG,kSinglePtG,kEtaG,kSinglePt,kDCAxy,kPsiPairITS,kBackground,kdEdxPiE,kMassCut,kdEdxEE,kSinglePtE,kTPCClsE,kEta,kV0finder};
+        TString nameCutVariation5TeV2017[21] = {"YieldExtraction","#alpha Meson","CosPoint #gamma","TPC cls #gamma","dE/dx #pi-line #gamma","dE/dx e^{#pm}-line #gamma","p_{T}#gamma","#eta #gamma","p_{T} #gamma*","DCA_{xy} #gamma*","#psi_{pair} #gamma*", "psi_{pair} #gamma", "p_{T(min,max)} #pi #gamma","p_{T(min)} #pi #gamma*","p_{T(max)} #pi #gamma*", "TPC cls #gamma*","dE/dx #pi-line #gamma*","#Chi^{2} 2D max #gamma","2D q_{t} #gamma","dE/dx e^{#pm}-line #gamma","M_{e^{+}e^{-}} #gamma*"};
+        TString nameCutForOutputVariation5TeV2017[21] = {"YieldExtraction_pp","AlphaMeson","CosPointGamma","ClusterGamma","dEdxPiGamma","dEdxEGamma","SinglePtGamma","EtaGamma","SinglePtDalitz","DCAxyDalitz","PsiPairDelthaPhiDalitz","PsiPairGamma","minmaxpTPiGamma","minpTPiDalitz","maxpTPiDalitz","TPCclusterDalitz","dEdxPiDalitz","2DChi2Gamma","2DqtGamma","dEdxEDalitz","MassElectronPositronDalitz"};
+          // SinglePtdEdxEDalitz "dEdxEG","dEdxPiG","dEdxEE","SinglePtG","TPCclsG","DCAxy","SinglePtE","TPCclsE","Chi2","Qt","MassCut","Eta","Alpha","PsiPairITS","Background","dEdxPiE","V0-finder"};
+        TString nameCutVariation7TeV[18] = {"YieldExtraction","dEdx e-line sec","dEdx #pi-line sec","dEdx e-line prim","Single e^{#pm} p_{t} sec","TPCcls sec","DCAxy","Single e^{#pm} p_{t} prim","TPCcls prim","Chi2","Qt","MassCut","Eta","Alpha","PsiPair + ITS","Background","dEdx #pi-line prim","V0-finder"};
+        TString nameCutForOutputVariation7TeV[18]  = {"YieldExtraction","dEdxEG","dEdxPiG","dEdxEE","SinglePtG","TPCclsG","DCAxy","SinglePtE","TPCclsE","Chi2","Qt","MassCut","Eta","Alpha","PsiPairITS","Background","dEdxPiE","V0-finder"};
 	//TString nameCutVariationpPb_5023GeV[18]    = {"YieldExtraction","dEdx e-line sec","dEdx #pi-line sec","dEdx e-line prim","Single e^{#pm} p_{t} sec","TPCcls sec","DCAxy","Single e^{#pm} p_{t} prim","TPCcls prim","Chi2","Qt","MassCut","Eta","Alpha","PsiPair + ITS","Background","dEdx #pi-line prim","V0-finder"};
         //TString nameCutVariationSCpPb_5023GeV[18]  = {"YieldExtraction","dEdxEG","dEdxPiG","dEdxEE","SinglePtG","TPCClsG","DCAxy","SinglePtE","TPCClsE","Chi2","Qt","MassCut","Eta","Alpha","PsiPairITS","Background","dEdxPiE","V0-finder"};
 	
-        TString nameCutVariationpPb_5023GeV[18]    = {"YieldExtraction","dEdx e-line sec","dEdx #pi-line sec","dEdx e-line prim","Single e^{#pm} p_{t} sec","TPCcls sec","DCAxy","Single e^{#pm} p_{t} prim","TPCcls prim","Chi2","Qt","MassCut","Alpha","PsiPair + ITS","Background","dEdx #pi-line prim","Eta","V0-finder"};
-        TString nameCutVariationSCpPb_5023GeV[18]  = {"YieldExtraction","dEdxEG","dEdxPiG","dEdxEE","SinglePtG","TPCClsG","DCAxy","SinglePtE","TPCClsE","Chi2","Qt","MassCut","Alpha","PsiPairITS","Background","dEdxPiE","Eta","V0-finder"};
-	enum{kYieldExtraction=0,kdEdxEG,kdEdxPiG,kdEdxEE,kSinglePtG,kTPCClsG,kDCAxy,kSinglePtE,kTPCClsE,kChi2,kQt,kMassCut,kAlpha,kPsiPairITS,kBackground,kdEdxPiE,kEta,kV0finder};                 
-
-                          
+        TString nameCutVariationpPb_5023GeV[21]    = {"YieldExtraction","dEdx e-line sec","dEdx #pi-line sec","dEdx e-line prim","Single e^{#pm} p_{t} sec","TPCcls sec","DCAxy","Single e^{#pm} p_{t} prim","TPCcls prim","Chi2","Qt","MassCut","Alpha","PsiPair + ITS","Background","dEdx #pi-line prim","Eta","V0-finder"};
+        TString nameCutVariationSCpPb_5023GeV[21]  = {"YieldExtraction","dEdxEG","dEdxPiG","dEdxEE","SinglePtG","TPCClsG","DCAxy","SinglePtE","TPCClsE","Chi2","Qt","MassCut","Alpha","PsiPairITS","Background","dEdxPiE","Eta","V0-finder"};
+	//enum{kYieldExtraction=0,kdEdxEG,kdEdxPiG,kdEdxEE,kSinglePtG,kTPCClsG,kDCAxy,kSinglePtE,kTPCClsE,kChi2,kQt,kMassCut,kAlpha,kPsiPairITS,kBackground,kdEdxPiE,kEta,kV0finder};
+        enum{kYieldExtraction=0,kAlpha,kChi2,kQt,kCosPoint,kTPCClsG,kdEdxPiG,kdEdxEG,kSinglePtG,kEtaG,kSinglePt,kDCAxy,kPsiPairITS,kBackground,kdEdxPiE,kMassCut,kdEdxEE,kSinglePtE,kTPCClsE,kEta,kV0finder};
+      //  {"YieldExtraction_pp","AlphaMeson","2DChi2Gamma","2DqtGamma","CosPointGamma","ClusterGamma","dEdxPiGamma","dEdxEGamma","SinglePtGamma","EtaGamma","SinglePtDalitz","DCAxyDalitz"};
 	
 	
 	if (energy.CompareTo("2.76TeV") == 0) {
@@ -107,6 +113,12 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 		for (Int_t i = 0; i < numberCutStudies; i++){
 			nameCutVariation[i]   = nameCutVariationPbPb_2760GeV[i];
 			nameCutVariationSC[i] = nameCutVariationSCPbPb_2760GeV[i];
+		}
+	}
+        else if (energy.CompareTo("5TeV2017") == 0) {
+                for (Int_t i = 0; i < numberCutStudies; i++){
+			nameCutVariation[i]   = nameCutVariation5TeV2017[i];
+			nameCutVariationSC[i] = nameCutForOutputVariation5TeV2017[i];
 		}
 	}
 	else if (energy.CompareTo("7TeV") == 0) {
@@ -193,8 +205,8 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 				nameGraphPos = Form("%s_SystErrorRelPos_%s_%s",meson.Data(),nameCutVariationSC[i].Data(),additionalName.Data()	);
 				nameGraphNeg = Form("%s_SystErrorRelNeg_%s_%s",meson.Data(),nameCutVariationSC[i].Data(),additionalName.Data()	);
 			} else {	
-				nameGraphPos = Form("%s_SystErrorRelPos_%s_pp",meson.Data(),nameCutVariationSC[i].Data());
-				nameGraphNeg = Form("%s_SystErrorRelNeg_%s_pp",meson.Data(),nameCutVariationSC[i].Data());
+				nameGraphPos = Form("%s_SystErrorRelPos_%s",meson.Data(),nameCutVariationSC[i].Data());
+				nameGraphNeg = Form("%s_SystErrorRelNeg_%s",meson.Data(),nameCutVariationSC[i].Data());
 			}
 			cout << "Cutstudies " << i<< "\t" <<nameGraphPos.Data() << "\t" << nameGraphNeg.Data()<<  endl;
 			
@@ -206,7 +218,8 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 			if (energy.CompareTo("PbPb_2.76TeV") == 0) {
 				nameGraphPos = Form("%s_SystErrorRelPos_%s%s",meson.Data(),nameCutVariationSC[i].Data(),additionalNameOutput.Data()	);
 				nameGraphNeg = Form("%s_SystErrorRelNeg_%s%s",meson.Data(),nameCutVariationSC[i].Data(),additionalNameOutput.Data()	);
-			} else {	
+			} else {
+                            cout<<"pp on the way"<<endl;
 				nameGraphPos = Form("%s_SystErrorRelPos_%s",meson.Data(),nameCutVariationSC[i].Data());
 				nameGraphNeg = Form("%s_SystErrorRelNeg_%s",meson.Data(),nameCutVariationSC[i].Data());
 			}
@@ -321,12 +334,16 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 	}
 	
 	Double_t errorsMat[nPtBins];
+        Double_t errorsBRDal[nPtBins];
 	for (Int_t l = 0; l < nPtBins; l++){
 		errorsMat[l] = errorMaterial;
+                errorsBRDal[l] = errorBRDalitz;
 		
 	}
 	TGraphErrors* graphMaterialError = new TGraphErrors(nPtBins,ptBins ,errorsMat ,ptBinsErr ,errorsMeanErrSummed );
-	
+
+        TGraphErrors* graphBRError = new TGraphErrors(nPtBins,ptBins ,errorsBRDal ,ptBinsErr ,errorsMeanErrSummed );
+
 	cout << "here" << endl;
 	negativeErrorsSummed = new TGraphErrors(nPtBins,ptBins ,errorsNegSummed ,ptBinsErr ,errorsNegErrSummed );
 	negativeErrorsCorrSummed = new TGraphErrors(nPtBins,ptBins ,errorsNegCorrSummed ,ptBinsErr ,errorsNegErrCorrSummed );
@@ -370,7 +387,7 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 	histo2DSysErrMean->SetTitle("");
 	histo2DSysErrMean->Draw();
 	
-	TLegend* legendMean = new TLegend(0.1,0.6,0.36,0.95);
+	TLegend* legendMean = new TLegend(0.1,0.6,0.56,0.95);
 	legendMean->SetTextSize(0.030);
 	legendMean->SetFillColor(0);
 	legendMean->SetBorderSize(0);
@@ -383,20 +400,40 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 		legendMean->AddEntry(meanErrors[i],nameCutVariation[i].Data(),"p");
                 cout<<nameCutVariation[i].Data()<<endl;
 	}
-
+        //////////////Adding Branching ratio line////////////////////////////
+        DrawGammaSetMarkerTGraphErr(graphBRError, 21, 1.,18,18);
+        graphBRError->Draw("p,csame");
+        legendMean->AddEntry(graphBRError,"BR Dalitz","p");
+	legendMean->Draw();
+        /////////////////////////////////////////////////////////////////////
 	DrawGammaSetMarkerTGraphErr(meanErrorsSummed, 20, 1.,1,1);
 	meanErrorsSummed->Draw("p,csame");
-	legendMean->AddEntry(meanErrorsSummed,"quad. sum. incl. BR dalitz","p");
+	legendMean->AddEntry(meanErrorsSummed,"quad. sum. incl. BR Dalitz","p");
 	legendMean->Draw();
+
 	canvasSysErrMean->Update();
 	canvasSysErrMean->SaveAs(Form("SystematicErrorsNew/SysMean_%s_%s_%s_%s.pdf",meson.Data(), energy.Data(),additionalNameOutput.Data(),dateForOutput.Data()));
 	
-	delete canvasSysErrMean;
+	//delete canvasSysErrMean;
+	if (energy.CompareTo("5TeV2017")==0 && meson.CompareTo("Pi0") == 0 ) {
+		TCanvas* canvasSysErrMeanSingle = new TCanvas("canvasSysErrMeanSingle","",200,10,1350,900);  // gives the page size
+		DrawGammaCanvasSettings( canvasSysErrMeanSingle, 0.08, 0.01, 0.015, 0.09);
 
+		for(Int_t i = 0; i< numberCutStudies ; i++){
+                               // cout<<" lalalal lalala lalala lalal lalala lalala"<<i<<endl;
+				histo2DSysErrMean->SetMaximum(20);
+				histo2DSysErrMean->Draw();
+                               // cout<<" lalalal lalala lalala lalal lalala lalala"<<endl;
+				meanErrors[i]->Draw("p,csame");
+				canvasSysErrMeanSingle->Update();
+				canvasSysErrMeanSingle->SaveAs(Form("SystematicErrorsNew/SysMean_%sCutVariation_%s_%s_%s_%s.pdf",nameCutForOutputVariation5TeV2017[i].Data(),meson.Data(), energy.Data(),additionalNameOutput.Data(),dateForOutput.Data()));
+			                                cout<<Form("SystematicErrorsNew/SysMean_%sCutVariation_%s_%s_%s_%s.pdf",nameCutForOutputVariation5TeV2017[i].Data(),meson.Data(), energy.Data(),additionalNameOutput.Data(),dateForOutput.Data())<<endl;
+		}
+		//delete canvasSysErrMean;
+	}
 	if (energy.CompareTo("7TeV")==0 && meson.CompareTo("Pi0") == 0 ) {
 		TCanvas* canvasSysErrMeanSingle = new TCanvas("canvasSysErrMeanSingle","",200,10,1350,900);  // gives the page size
 		DrawGammaCanvasSettings( canvasSysErrMeanSingle, 0.08, 0.01, 0.015, 0.09);
-		
 
 		for(Int_t i = 0; i< numberCutStudies ; i++){
 
@@ -409,11 +446,10 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 		}
 		delete canvasSysErrMean;
 	}
-	
+	//cout<<"Despues de 7TeV"<<endl;
 	TCanvas* canvasNewSysErrMean = new TCanvas("canvasNewSysErrMean","",200,10,1350,900);  // gives the page size
 	DrawGammaCanvasSettings( canvasNewSysErrMean, 0.08, 0.01, 0.015, 0.09);
 	TH2D *histo2DNewSysErrMean ;
-	
 	
 	if (energy.CompareTo("PbPb_2.76TeV")==0 && additionalName.CompareTo("0-20%")==0 ) {
 		histo2DNewSysErrMean = new TH2D("histo2DNewSysErrMean", "histo2DNewSysErrMean", 20,0.,ptBins[nPtBins-1]+1,1000.,-0.5,60.);
@@ -445,13 +481,12 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 	if (energy.CompareTo("PbPb_2.76TeV")==0 && additionalName.CompareTo("60-80%")==0 ){
 		legendMeanNew= new TLegend(0.13,0.6,0.55,0.95);
 	} else {
-		legendMeanNew= new TLegend(0.1,0.6,0.38,0.95);
+		legendMeanNew= new TLegend(0.1,0.6,0.55,0.95);
 	}
 
 	legendMeanNew->SetTextSize(0.025);
 	legendMeanNew->SetFillColor(0);
 	legendMeanNew->SetBorderSize(0);
-
 	if (numberCutStudies> 9) legendMeanNew->SetNColumns(2);
 
 	for(Int_t i = 0; i< numberCutStudies ; i++){
@@ -470,7 +505,6 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 	meanErrorsCorrSummedIncMat->Draw("p,csame");
 	legendMeanNew->AddEntry(meanErrorsCorrSummedIncMat,"quad. sum., inc. BR and mat.","p");
 	legendMeanNew->Draw();
-	
 	if (energy.CompareTo("PbPb_2.76TeV")==0){
 		TLatex *labelCentrality = new TLatex(0.65,0.93,Form("%s Pb-Pb #sqrt{s_{NN}} = 2.76 TeV"	,additionalName.Data()	));
 		SetStyleTLatex( labelCentrality, 0.038,4);
@@ -498,6 +532,21 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 	delete canvasNewSysErrMean;
 
 
+	if (energy.CompareTo("5TeV2017")==0 && meson.CompareTo("Pi0") == 0 ) {
+
+		TCanvas* canvasSysErrMeanSingle = new TCanvas("canvasSysErrMeanSingle","",200,10,1350,900);  // gives the page size
+		DrawGammaCanvasSettings( canvasSysErrMeanSingle, 0.08, 0.01, 0.015, 0.09);
+
+		for(Int_t i = 0; i< numberCutStudies ; i++){
+				histo2DSysErrMean->Draw();
+				meanErrorsCorr[i]->Draw("p,csame");
+				canvasSysErrMeanSingle->Update();
+				canvasSysErrMeanSingle->SaveAs(Form("SystematicErrorsNew/SysMeanSmoothed_%sCutVariation_%s_%s_%s_%s.pdf", nameCutForOutputVariation5TeV2017[i].Data(), meson.Data(), energy.Data(),additionalNameOutput.Data(),dateForOutput.Data()));
+		}
+		cout<<"Segundo 5TeV2017"<<endl;
+		delete canvasSysErrMean;
+
+	}
 	if (energy.CompareTo("7TeV")==0 && meson.CompareTo("Pi0") == 0 ) {
 
 		TCanvas* canvasSysErrMeanSingle = new TCanvas("canvasSysErrMeanSingle","",200,10,1350,900);  // gives the page size
@@ -558,11 +607,10 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
                 Double_t errorsMeanCorrTypeC[nPtBins];
 		Double_t errorsMeanCorrTypeCNoMat[nPtBins];
                
-               
+
 	
 		
 		for (Int_t l=0; l< nPtBins; l++){
-		  
 			if (energy.CompareTo("PbPb_2.76TeV")==0){
 // 				"YieldExtraction-0","BG-1","dEdxE-2","dEdxPi-3", "Cluster-4", "TOF-5", "SinglePt-6", "Chi2-7", "Qt-8", "Alpha-9", "V0Offline-10", "R-11", "PsiPair-12", "Eta-13"
 				if (numberCutStudies>9){
@@ -580,18 +628,27 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 
 			} else {
                                 // {"YieldExtraction","dEdxEG-1","dEdxPiG-2","dEdxEE-3","dEdxPiE-4","SinglePtG-5","TPCclsG-6","DCAxy-7","SinglePtE-8","TPCclsE-9","Chi2-10","Qt-11","MassCut-12","Eta-13","Alpha-14","PsiPairITS-15","Background-16","dEdxPiE-17"};
+
+                                //"YieldExtraction_pp-0","AlphaMeson-1","CosPointGamma-2","ClusterGamma-3","dEdxPiGamma-4","dEdxEGamma-5","SinglePtGamma-6","EtaGamma-7","SinglePtDalitz-8","DCAxyDalitz-9","PsiPairDelthaPhiDalitz-10","PsiPairGamma-11","minmaxpTPiGamma-12","minpTPiDalitz-13","maxpTPiDalitz-14","TPCclusterDalitz-15","dEdxPiDalitz-16","2DChi2Gamma-17","2DqtGamma-18","dEdxEDalitz-19","MassElectronPositronDalitz-20"
+
+                                 //enum{kYieldExtraction=0,kAlpha-1,kChi2-2,kQt-3,kCosPoint-4,kTPCClsG-5,kdEdxPiG-6,kdEdxEG-7,kSinglePtG-8,kEtaG-9,kSinglePt-10,kDCAxy-11,kBackground,kdEdxPiE,kMassCut,kdEdxEE,kSinglePtE,kTPCClsE,kPsiPairITS,kEta,kV0finder};
                                  errorsMeanCorrSignalExtraction[l]  = TMath::Sqrt(  errorsMeanCorr[0][l]  * errorsMeanCorr[0][l] );
-                                if ( numberCutStudies > 15 ) {
+                                if ( (numberCutStudies > 15) && (numberCutStudies < 17) ) {
                                      errorsMeanCorrElectronSelection[l] = TMath::Sqrt(  errorsMeanCorr[1][l]  * errorsMeanCorr[1][l]  + errorsMeanCorr[2][l] * errorsMeanCorr[2][l]  + errorsMeanCorr[3][l] * errorsMeanCorr[3][l] +  errorsMeanCorr[15][l] * errorsMeanCorr[15][l] );
                                 } else{
-                                     errorsMeanCorrElectronSelection[l] = TMath::Sqrt(  errorsMeanCorr[1][l]  * errorsMeanCorr[1][l]  + errorsMeanCorr[2][l] * errorsMeanCorr[2][l]  + errorsMeanCorr[3][l] * errorsMeanCorr[3][l] );
+                                    //Electron Selection category
+                                     errorsMeanCorrElectronSelection[l] = TMath::Sqrt(  errorsMeanCorr[4][l]  * errorsMeanCorr[4][l]+errorsMeanCorr[5][l] * errorsMeanCorr[5][l]+ errorsMeanCorr[16][l]*errorsMeanCorr[16][l]+errorsMeanCorr[19][l]*errorsMeanCorr[19][l]+errorsMeanCorr[12][l] * errorsMeanCorr[12][l]+ errorsMeanCorr[13][l]*errorsMeanCorr[13][l]+errorsMeanCorr[14][l]*errorsMeanCorr[14][l]);
                                 }
-                                                            
-                                errorsMeanCorrTrackReco[l]         = TMath::Sqrt(  errorsMeanCorr[4][l]  * errorsMeanCorr[4][l]  + errorsMeanCorr[5][l] * errorsMeanCorr[5][l]  + errorsMeanCorr[6][l] * errorsMeanCorr[6][l] + errorsMeanCorr[7][l]*errorsMeanCorr[7][l] + errorsMeanCorr[8][l]*errorsMeanCorr[8][l] );
-                                errorsMeanCorrPhotonSelection[l]   = TMath::Sqrt(  errorsMeanCorr[9][l]  * errorsMeanCorr[9][l]  + errorsMeanCorr[10][l]* errorsMeanCorr[10][l] + errorsMeanCorr[11][l]* errorsMeanCorr[11][l] );
-                                errorsMeanCorrRecEfficiency[l]     = TMath::Sqrt(  errorsMeanCorr[12][l] * errorsMeanCorr[12][l] + errorsMeanCorr[16][l] * errorsMeanCorr[16][l] );
-                                errorsMeanCorrRejPi0GGChannel[l]   = TMath::Sqrt(  errorsMeanCorr[13][l] * errorsMeanCorr[13][l] );
-				errorsMeanCorrBackground[l]        = TMath::Sqrt(  errorsMeanCorr[14][l] * errorsMeanCorr[14][l] );
+                                    //Track Reconstruction category
+                                errorsMeanCorrTrackReco[l]         = TMath::Sqrt(errorsMeanCorr[3][l]*errorsMeanCorr[3][l]+errorsMeanCorr[6][l]*errorsMeanCorr[6][l]+errorsMeanCorr[9][l]*errorsMeanCorr[9][l]+errorsMeanCorr[8][l]*errorsMeanCorr[8][l]+errorsMeanCorr[15][l]*errorsMeanCorr[15][l]+);
+                                    //Photon Selection Systematic category
+                                errorsMeanCorrPhotonSelection[l]   = TMath::Sqrt(  errorsMeanCorr[2][l]  * errorsMeanCorr[2][l]  + errorsMeanCorr[17][l]* errorsMeanCorr[17][l]+errorsMeanCorr[18][l]* errorsMeanCorr[18][l]+errorsMeanCorr[20][l]* errorsMeanCorr[20][l]+errorsMeanCorr[11][l]* errorsMeanCorr[11][l]);
+                                    //Reconstrucction Efficiency Category
+                                errorsMeanCorrRecEfficiency[l]     = TMath::Sqrt(  errorsMeanCorr[7][l] * errorsMeanCorr[7][l]+errorsMeanCorr[1][l] * errorsMeanCorr[1][l]);
+                                    //Rejection on Gamma Gamma decay chanel (PsiPair)
+                                errorsMeanCorrRejPi0GGChannel[l]   = TMath::Sqrt(  errorsMeanCorr[10][l] * errorsMeanCorr[10][l] );
+                                    //Background Category
+				errorsMeanCorrBackground[l]        = TMath::Sqrt(  errorsMeanCorr[13][l] * errorsMeanCorr[13][l] );
 				Double_t sumTemp = pow( errorsMeanCorrSignalExtraction[l],2) + pow( errorsMeanCorrElectronSelection[l],2) + pow( errorsMeanCorrTrackReco[l],2) + pow( errorsMeanCorrPhotonSelection[l],2) + pow( errorsMeanCorrRecEfficiency[l],2) + pow( errorsMeanCorrRejPi0GGChannel[l],2 ) + pow( errorsMeanCorrBackground[l],2);
 				Double_t sumTempMatBR = pow( ( sumTemp + errorMaterial*errorMaterial + errorBRDalitz*errorBRDalitz ),0.5);
 				//cout<<l<<"  sumTemp: "<<sumTemp<< " sqrt "<<pow(sumTemp,0.5)<<" BRMat "<<sumTempMatBR<<endl;
@@ -684,8 +741,8 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
         DrawGammaSetMarkerTGraphErr(meanErrorsRejPi0GGChannel, 25, 1.,color[5],color[5]);
         meanErrorsRejPi0GGChannel->Draw("p,csame");
 	
-	DrawGammaSetMarkerTGraphErr(meanErrorsBackground, 26, 1.,color[6],color[6]);
-        meanErrorsBackground->Draw("p,csame");
+	//DrawGammaSetMarkerTGraphErr(meanErrorsBackground, 26, 1.,color[6],color[6]);
+        //meanErrorsBackground->Draw("p,csame");
 	
 	//meanErrorsBackground
 
@@ -699,7 +756,7 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 	legendSummedMeanNew->AddEntry(meanErrorsPhotonSelection,"Photon Selection","p");
 	legendSummedMeanNew->AddEntry(meanErorsRecEfficiency,"Reconstruction efficiency","p");
         legendSummedMeanNew->AddEntry(meanErrorsRejPi0GGChannel,"#pi^{0} #rightarrow #gamma#gamma rejection","p");
-	legendSummedMeanNew->AddEntry(meanErrorsBackground,"Background","p");
+	//legendSummedMeanNew->AddEntry(meanErrorsBackground,"Background","p");
         legendSummedMeanNew->AddEntry(graphMaterialError,"Material","p");
 	
 	
@@ -810,8 +867,9 @@ void FinalyseSystematicErrorsDalitz(const char* nameDataFileErrors ="", TString 
 	DrawGammaSetMarkerTGraphErr(meanErrorsTypeC, 22, 1.,color[2],color[2]);
 	meanErrorsTypeC->Draw("p,csame");
 	
-	DrawGammaSetMarkerTGraphErr(meanErrorsCorrSummedIncMat, 20, 1.5,kBlack,kBlack,1.4,kTRUE);
-	meanErrorsCorrSummedIncMat->Draw("p,csame");
+	DrawGammaSetMarkerTGraphErr(meanErrorsCorrSummedIncMat, 20, 1.5,kBlack,kBlack,1,kTRUE);
+        //DrawGammaSetMarkerTGraphErr(meanErrorsCorrSummedIncMat, 20, 1.5,kBlack,kBlack,1.4,kTRUE);
+        meanErrorsCorrSummedIncMat->Draw("p,csame");
 	
 	//DrawGammaSetMarkerTGraphErr(meanErrorsTypeCNoMat, 23, 1.,color[3],color[3]);
 	//meanErrorsTypeCNoMat->Draw("p,csame");
