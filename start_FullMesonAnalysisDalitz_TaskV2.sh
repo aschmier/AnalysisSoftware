@@ -52,7 +52,7 @@ function GiveBinningDalitz13TeVRBins()
         elif [ $answer = 22 ]; then
 		    echo "21 Bins --> Max p_T = 10 GeV, New binning";
 		    correctEta=1
-		    BinsPtEta=10
+		    BinsPtEta=9
 		else
 		    echo "Eta Binning was not set correctly. Please try again.";
 		    correctEta=0
@@ -156,7 +156,7 @@ function GiveBinningDalitz7TeV()
 
 function GiveBinningDalitz5TeV2017()
 {
-	echo "How many p_T bins do you want to use for the Pi0? 16(RBins) 19(4GeV), 21(5GeV), 24(8GeV), 25(?), 26(15GeV)";
+	echo "How many p_T bins do you want to use for the Pi0? 19(4GeV), 21(5GeV), 24(8GeV), 25(?), 26(15GeV)";
 	read answer
 		if [ $answer = 19 ]; then
 		    echo "19 Bins --> Max p_T = 4 GeV ...";
