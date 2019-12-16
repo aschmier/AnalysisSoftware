@@ -39,20 +39,16 @@ function GiveBinningDalitz13TeVRBins()
 		    echo "Pi0 Binning was not set correctly. Please try again.";
 		    correctPi0=0
 		fi
-        echo "How many p_t bins do you want to use for the dummy eta meson? 7 (4.4GeV), 9 (10 GeV), 21 (10GeV)"
+        echo "How many p_t bins do you want to use for the dummy eta meson? 7 (4.4GeV), 9 (10 GeV)"
         read answer
 		if [ $answer = 7 ]; then
 		    echo "7 Bins --> Max p_T = 4.4 GeV ...";
 		    correctEta=1
 		    BinsPtEta=7
-		elif [ $answer = 21 ]; then
+		elif [ $answer = 9 ]; then
 		    echo "9 Bins --> Max p_T = 10 GeV ...";
 		    correctEta=1
 		    BinsPtEta=9
-        elif [ $answer = 22 ]; then
-		    echo "21 Bins --> Max p_T = 10 GeV, New binning";
-		    correctEta=1
-		    BinsPtEta=10
 		else
 		    echo "Eta Binning was not set correctly. Please try again.";
 		    correctEta=0
@@ -603,6 +599,8 @@ echo "///////////////////////////////////////////////////////////"
 echo "///////////////////////////////////////////////////////////"
 echo "///////////////////////////////////////////////////////////"
 echo "///////////////////////////////////////////////////////////"
+
+
 	root -x -l -b -q TaskV1/ProduceFinalResults.C\+\+\($1\,\"Dalitz\"\,\"kTRUE\"\,$AddPileUpCorr\,$mode\)
 }
 
