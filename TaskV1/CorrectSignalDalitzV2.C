@@ -1979,7 +1979,6 @@ void  CorrectSignalDalitzV2(TString fileNameUnCorrectedFile = "myOutput", TStrin
 								kTRUE, 3., 4e-10, kTRUE,
 								kFALSE, 0., 0.7, 
 								kFALSE, 0., 10.);
-
     histoUnCorrectedYieldDrawing->SetLineWidth(1);
 	DrawGammaSetMarker(histoUnCorrectedYieldDrawing, 20, 0.5, kBlack, kBlack);                             
 	histoUnCorrectedYieldDrawing->DrawCopy("e1");   
