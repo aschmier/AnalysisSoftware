@@ -9,7 +9,7 @@
 #Input 1: Root file to analyze Default: AnalyisResults
 #Input 2: Input directory  Default:$PWD 
 #Input 3: Output directory Default: $PWD/Results  (directory will be created if it does not exist)
-#Options D:
+#Options
 #rm TaskV1/**.d
 #rm TaskV1/**.pcm
 #rm TaskV1/**_C.so
