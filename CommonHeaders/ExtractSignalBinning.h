@@ -2142,9 +2142,9 @@
                 }else if( mode==3  ) { //PCM-PHOS
                     cout<<"Getting PCM-PHOS("<<mode<<") Start Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<specialTrigg<<endl;
                     if (specialTrigg == 6 ){
-                        startPtBin = 9;
+                        startPtBin = 25;
                     } else {
-                        startPtBin = 1;
+                        startPtBin = 3;
                     }
                 }
                 else if( mode==4 || mode==12 || mode == 15) startPtBin = 1;
@@ -2153,7 +2153,7 @@
                     if (specialTrigg == 6 ){
                         startPtBin = 28;
                     } else {
-                        startPtBin = 17;
+                        startPtBin = 19;
                     }
                 }
                 else if( mode==14) startPtBin = 13;
