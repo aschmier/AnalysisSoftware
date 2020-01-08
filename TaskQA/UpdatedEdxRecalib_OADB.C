@@ -53,6 +53,142 @@ void rebuildContainer(const char *fileNameOADB="");
     updateFile(fileNameOADB,"TPCRecalib_LHC18c","TaskQA/OADB_inputs/LHC18c/DeDxMaps_00010113_00200089227300000000000000_0053b1f1202.root", 285466, 285958);
     updateFile(fileNameOADB,"TPCRecalib_LHC18q","TaskQA/OADB_inputs/LHC18q/DeDxMaps_16810013_00200009247600008250404000_000481b1202.root", 295581, 296624);
     updateFile(fileNameOADB,"TPCRecalib_LHC18r","TaskQA/OADB_inputs/LHC18r/DeDxMaps_16810013_00200009247600008250404000_000481b1202.root", 296690, 297625);
+    
+    
+    /*******************************************************************
+    *                       pp 13TeV, Normal B                         *
+    *                       LHC16  - Jens Luehder                      *
+    *******************************************************************/
+    //------------------------------------
+    //LHC16d 252235-252375 | whole range: 252235-252480 => ![252235-252480]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16d","TaskQA/OADB_inputs/LHC16d/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 252235, 252480);
+    //------------------------------------
+    //LHC16e Part1 252858-252867, 253517-253591 | whole range: 252603-253603 => ![252603-252867]!, ![253517-253603]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16e_1","TaskQA/OADB_inputs/LHC16e/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part1.root", 252603, 252867);
+    //-
+    updateFile(fileNameOADB,"TPCRecalib_LHC16e_1","TaskQA/OADB_inputs/LHC16e/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part1.root", 253517, 253603);
+    //------------------------------------
+    //LHC16e Part2 253437-253488 | whole range: 252603-253603 => ![252868-253516]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16e_2","TaskQA/OADB_inputs/LHC16e/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part2.root", 252868, 253516);
+    //------------------------------------
+    //LHC16f 253951-253978 | whole range: 253614-253979 => ![253614,253979]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16f","TaskQA/OADB_inputs/LHC16f/DeDxMaps_00010113_00200009327000000000000000_000481b1202_fullB.root", 253614, 253979);
+    //------------------------------------
+    //LHC16g 254128-254332 | whole range: 254124-254332 => ![254124,254332]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16g","TaskQA/OADB_inputs/LHC16g/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 254124, 254332);
+    //------------------------------------
+    //LHC16h 254418-255469 | whole range: 254378-255469 => ![254378,255469]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16h","TaskQA/OADB_inputs/LHC16h/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 254378, 255469);
+    //------------------------------------
+    //LHC16i 255539-255618 | whole range: 255515-255650 => ![255515,255650]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16i","TaskQA/OADB_inputs/LHC16i/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 255515, 255650);
+    //------------------------------------
+    //LHC16j 256204-256420 | whole range: 256146-256420 => ![256146,256420]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16j","TaskQA/OADB_inputs/LHC16j/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 256146, 256420);
+    //------------------------------------
+    //LHC16k Part1 256504-257492 | whole range: 256504-258574 => ![256504,257492]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16k_1","TaskQA/OADB_inputs/LHC16k/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part1.root", 256504, 257492);
+    //------------------------------------
+    //LHC16k Part2 257530-258008 | whole range: 256504-258574 => ![257493,258008]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16k_2","TaskQA/OADB_inputs/LHC16k/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part2.root", 257493, 258008);
+    //------------------------------------
+    //LHC16k Part3 258012-258537 | whole range: 256504-258574 => ![258009,258574]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16k_3","TaskQA/OADB_inputs/LHC16k/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part3.root", 258009, 258574);
+    //------------------------------------
+    //LHC16l Part1 258962-259477, 259748-259888 | whole range: 258883-260187 => ![258883,259477]!, ![259748,260187]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16l_1","TaskQA/OADB_inputs/LHC16l/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part1.root", 258883, 259477);
+    //-
+    updateFile(fileNameOADB,"TPCRecalib_LHC16l_1","TaskQA/OADB_inputs/LHC16l/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part1.root", 259748, 260187);
+    //------------------------------------
+    //LHC16l Part2 259649-259747 | whole range: 258883-260187 => ![259478,259747]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16l_2","TaskQA/OADB_inputs/LHC16l/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part2.root", 259478, 259747);
+    //------------------------------------
+    //LHC16o 262450-264035 | whole range: 262395-264035 => ![262395,264035]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16o","TaskQA/OADB_inputs/LHC16o/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 262395, 264035);
+    //------------------------------------
+    //LHC16p 264078-264347 | whole range: 264076-264347 => ![264076,264347]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC16p","TaskQA/OADB_inputs/LHC16p/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 264076, 264347);
+    /*******************************************************************
+     *                       LHC17  - Jens Luehder                     *
+     ********************************************************************/
+    //LHC17cef 270581-270865 | whole range: c:270531-f:270865 => ![270531,270865]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17cef","TaskQA/OADB_inputs/LHC17cef/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 270531, 270865);
+    //------------------------------------
+    //LHC17h Part1 271870-272834 | whole range: 271839-273103 => ![271839,272834]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17h_1","TaskQA/OADB_inputs/LHC17h/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part1.root", 271839, 272834);
+    //------------------------------------
+    //LHC17h Part2 272836-273103 | whole range: 271839-273103 => ![272835,273103]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17h_2","TaskQA/OADB_inputs/LHC17h/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part2.root", 272835, 273103);
+    //------------------------------------
+    //LHC17i 273591-274442 | whole range: 273486-274442 => ![273486,274442]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17i","TaskQA/OADB_inputs/LHC17i/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 273486, 274442);
+    //------------------------------------
+    //LHC17j 274593-274671 | whole range: 274591-274671 => ![274591,274671]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17j","TaskQA/OADB_inputs/LHC17j/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 274591, 274671);
+    //------------------------------------
+    //LHC17k 274690-276508 | whole range: 274690-276508=> ![274690,276508]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17k","TaskQA/OADB_inputs/LHC17k/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 274690, 276508);
+    //------------------------------------
+    //LHC17l 276551-278216 | whole range: 276551-278729 => ![276551,278729]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17l","TaskQA/OADB_inputs/LHC17l/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 276551, 278729);
+    //------------------------------------
+    //LHC17m Part1 278914-279559 | whole range: 278818-280140 => ![278818,279559]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17m_1","TaskQA/OADB_inputs/LHC17m/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part1.root", 278818, 279559);
+    //------------------------------------
+    //LHC17m Part2 279630-280140 | whole range: 278818-280140 => ![279560,280140]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17m_2","TaskQA/OADB_inputs/LHC17m/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part2.root", 279560, 280140);
+    //------------------------------------
+    //LHC17o Part1 280282-280634 | whole range: 280282-281961 => ![280282,280634]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17o_1","TaskQA/OADB_inputs/LHC17o/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part1.root", 280282, 280634);
+    //------------------------------------
+    //LHC17o Part2 280636-281633 | whole range: 280282-281961 => ![280635,281633]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17o_2","TaskQA/OADB_inputs/LHC17o/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part2.root", 280635, 281633);
+    //------------------------------------
+    //LHC17o Part3 281892-281961 | whole range: 280282-281961 => ![281634,281961]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17o_3","TaskQA/OADB_inputs/LHC17o/DeDxMaps_00010113_00200009327000000000000000_000481b1202_part3.root", 281634, 281961);
+    //------------------------------------
+    //LHC17r 282528-282704 | whole range: 282504-282704 => ![282504,282704]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC17r","TaskQA/OADB_inputs/LHC17r/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 282504, 282704);
+    /*******************************************************************
+     *                       LHC18  - Jens Luehder                     *
+     ********************************************************************/
+    //LHC18b 285009-285396 | whole range: 284706-285447 => ![284706,285447]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18b","TaskQA/OADB_inputs/LHC18b/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 284706, 285447);
+    //------------------------------------
+    //LHC18d 285978-286350 | whole range: 285978-286350 => ![285978,286350]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18d","TaskQA/OADB_inputs/LHC18d/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 285978, 286350);
+    //------------------------------------
+    //LHC18e 286380-286937 | whole range: 286380-286958 => ![286380,286958]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18e","TaskQA/OADB_inputs/LHC18e/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 286380, 286958);
+    //------------------------------------
+    //LHC18f 287000-287658 | whole range: 286982-287977 => ![286982,287977]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18f","TaskQA/OADB_inputs/LHC18f/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 286982, 287977);
+    //------------------------------------
+    //LHC18g 288619-288750 | whole range: 288619-288750 => ![288619,288750]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18g","TaskQA/OADB_inputs/LHC18g/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 288619, 288750);
+    //------------------------------------
+    //LHC18hij 288804-288806, 288861-288909, 288943 | whole range: h:288804-j:288943 => ![288804,288943]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18hij","TaskQA/OADB_inputs/LHC18hij/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 288804, 288943);
+    //------------------------------------
+    //LHC18k 289165-289201 | whole range: 289165-289201 => ![289165,289201]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18k","TaskQA/OADB_inputs/LHC18k/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 289165, 289201);
+    //------------------------------------
+    //LHC18l Part1 289240-289494 | whole range: 289240-289971 => ![289240,289494]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18l_1","TaskQA/OADB_inputs/LHC18l/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 289240, 289494);
+    //------------------------------------
+    //LHC18l Part2 289521-289971 | whole range: 289240-289971 => ![289495,289971]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18l_2","TaskQA/OADB_inputs/LHC18l/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 289495, 289971);
+    //------------------------------------
+    //LHC18mn 290323-292839, 293357-293359 | whole range: m:290167-n:293362 => ![290167,293362]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18m","TaskQA/OADB_inputs/LHC18m/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 290323, 293359);
+    //------------------------------------
+    //LHC18o 293475-293898 | whole range: 293368-293898 => ![293368,293898]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18o","TaskQA/OADB_inputs/LHC18o/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 293368, 293898);
+    //------------------------------------
+    //LHC18p 294009-294925 | whole range: 294009-295232 => ![294009,295232]!
+    updateFile(fileNameOADB,"TPCRecalib_LHC18p","TaskQA/OADB_inputs/LHC18p/DeDxMaps_00010113_00200009327000000000000000_000481b1202.root", 294009, 295232);
+
+    
     // the final output will be sorted by runnumber
     sortOutput(fileNameOADB);
     // the OADB container is additionally checked for ownership

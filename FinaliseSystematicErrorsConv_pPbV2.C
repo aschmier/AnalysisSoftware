@@ -120,13 +120,13 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
 //                                                 1, 1, 0, 1, 0,  0 };
 //     Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
 //                                                 1, 1, 0, 1, 0,  0 };
-    Bool_t bsmoothMBPi05TeV[16]             = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
-                                                0, 1, 0, 1, 0,  0 };
+    Bool_t bsmoothMBPi05TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 0,
+                                                1, 1, 0, 1, 0,  0 };
     Bool_t bsmoothMBEta5TeV[16]             = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
                                                 0, 1, 0, 1, 0,  0 };
     Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
                                                 0, 1, 0, 1, 0,  0 };
-    Bool_t bsmoothCentPi05TeV[16]           = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+    Bool_t bsmoothCentPi05TeV[16]           = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 0,
                                                 1, 1, 0, 1, 0,  0 };
     Bool_t bsmoothCentEta5TeV[16]           = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
                                                 1, 1, 0, 1, 0,  0 };
@@ -353,8 +353,8 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             if (nameCutVariationSC[i].CompareTo("dEdxE")==0 ){
                 if (meson.CompareTo("Pi0")==0){
                     for (Int_t k = 1; k < nPtBins; k++){
-                        errorReset              = errorsMean[i][k];
-                        errorReset              = 0.5 + 6.51640e+00/pow(6.76502e+00,ptBins[k]);
+                        errorReset              = 0.25 + 0.05*ptBins[k];
+//                         errorReset              = 0.5 + 6.51640e+00/pow(6.76502e+00,ptBins[k]);
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
                         errorsMeanCorr[i][k]    = errorReset;
@@ -375,7 +375,8 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             if (nameCutVariationSC[i].CompareTo("dEdxPi")==0 ){
                 if (meson.CompareTo("Pi0")==0){
                     for (Int_t k = 0; k < nPtBins; k++){
-                        errorReset              = 1.05+pow(ptBins[k],4)*0.0002;
+//                         errorReset              = 1.05+pow(ptBins[k],4)*0.0002;
+                        errorReset              = 0.25+pow(ptBins[k],2)*0.01+0.005*ptBins[k];
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
                         errorsMeanCorr[i][k]    = errorReset;
@@ -396,7 +397,8 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             if (nameCutVariationSC[i].CompareTo("TPCCluster")==0 ){
                 minPt           = 0;
                 if (meson.CompareTo("Pi0")==0 ){
-                    errorReset      = 0.05;
+                    errorReset      = 0.02;
+//                     errorReset      = 0.05;
                 } else {
                     errorReset      = 0.02;
                 }
@@ -406,7 +408,8 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             if (nameCutVariationSC[i].CompareTo("SinglePt")==0 ){
                 if (meson.CompareTo("Pi0")==0 ){
                     for (Int_t k = 0; k < nPtBins; k++){
-                        errorReset              = 20*pow(0.01,ptBins[k])+0.3+pow(ptBins[k],2)*0.003;
+                        errorReset              = 0.3+pow(ptBins[k],2)*0.003;
+//                         errorReset              = 20*pow(0.01,ptBins[k])+0.3+pow(ptBins[k],2)*0.003;
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
                         errorsMeanCorr[i][k]    = errorReset;
@@ -434,8 +437,10 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             // Qt - cutstudies nr 6
             if (nameCutVariationSC[i].CompareTo("Qt")==0){
                 if (meson.CompareTo("Pi0")==0 ){
-                    for (Int_t k = 3; k < nPtBins; k++){
-                        errorReset              = 0.15+pow(ptBins[k],2)*0.024+ptBins[k]*0.02;
+                    for (Int_t k = 0; k < nPtBins; k++){
+//                         errorReset              = 0.024+ptBins[k]*0.02;
+//                         errorReset              = 0.15+pow(ptBins[k],2)*0.024+ptBins[k]*0.02;
+                        errorReset              = 0.05+pow(ptBins[k],2)*0.01+ptBins[k]*0.02;
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
                         errorsMeanCorr[i][k]    = errorReset;
@@ -464,8 +469,8 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             // Chi2/PsiPair - cutstudies nr 8
             if (nameCutVariationSC[i].CompareTo("Chi2PsiPair")==0 ){
                 if ( meson.CompareTo("Pi0")==0){
-                    for (Int_t k = 2; k < nPtBins; k++){
-                        errorReset              = 0.45+pow(ptBins[k],2)*0.01+ptBins[k]*0.01;
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = 0.5 + 6.51640e+00/pow(6.76502e+00,ptBins[k])+0.45+pow(ptBins[k],2)*0.01+ptBins[k]*0.01;
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
                         errorsMeanCorr[i][k]    = errorReset;

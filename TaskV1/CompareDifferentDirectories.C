@@ -671,7 +671,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
         for(Int_t i = 0; i< NumberOfCuts; i++){
             if(i == 0){
                 Double_t minY = 0.0001;
-                Double_t maxY = 0.04;
+                Double_t maxY = 1;
                 if (isEDC && mode == 4) maxY = 0.6;
                 DrawGammaSetMarker(histoAcceptanceCut[i], 20, 1., color[0], color[0]);
                 DrawAutoGammaMesonHistos( histoAcceptanceCut[i],

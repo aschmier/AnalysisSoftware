@@ -1033,8 +1033,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         Double_t maxTriggReject = 4200;
         if (optionEnergy.CompareTo("2.76TeV") == 0){
             maxTriggReject = 8200;
-        } else if (mode == 4 && optionEnergy.CompareTo("pPb_5.023TeV") == 0){
-            maxTriggReject = 5000;
+        } else if (optionEnergy.CompareTo("pPb_5.023TeV") == 0){
+            maxTriggReject = 12000;
         } else if (mode == 10 && optionEnergy.BeginsWith("8TeV")){
             maxTriggReject = 49000;
         } else if (mode == 10 && optionEnergy.Contains("pPb_8TeV")){
@@ -1237,8 +1237,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         Double_t minTriggRejectLin = 0;
         Double_t maxTriggRejectLin = 2000;
         if (isMC.CompareTo("MC")== 0) maxTriggRejectLin = 2500;
-        if (mode == 4 && optionEnergy.CompareTo("pPb_5.023TeV") == 0)
-            maxTriggRejectLin = 100;
         if (mode == 4 && optionEnergy.CompareTo("2.76TeV") == 0)
             maxTriggRejectLin = 2000;
         if (mode == 10)
@@ -1266,6 +1264,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         } else if( optionEnergy.Contains("pPb_5.023TeV") ){
             if (mode == 2 || mode == 4 || mode == 10 )
                 maxTriggRejectLin = 2500;
+            if (fCentOutput.CompareTo("V0A_60_80"))
+              maxTriggRejectLin = 3100;
+            else if (fCentOutput.CompareTo("V0A_80_100"))
+              maxTriggRejectLin = 12000;
+            
         }
         TH2F * histo2DTriggRejectLinear;
         Double_t FitParameter0Pol0;
@@ -1388,6 +1391,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 } else if ( optionEnergy.CompareTo("pPb_5.023TeV")==0){
                     if (triggerName[i].Contains("EG2"))
                         histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,2500);
+                        if (fCentOutput.CompareTo("V0A_60_80"))
+                          histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,3100);
+                        else if (fCentOutput.CompareTo("V0A_80_100"))
+                          histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,11000);
                     else if (triggerName[i].Contains("EG1"))
                         histo2DTriggRejectLinear->GetYaxis()->SetRangeUser(0,5);
                 }
@@ -2531,6 +2538,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
       }else if(mode == 4){
         minCorrYieldUnscaled        = 2e-8;
         maxCorrYieldUnscaled        = 0.2;
+      } else {
+        minCorrYieldUnscaled        = 2e-10;
+        maxCorrYieldUnscaled        = 10;        
       }
     }
 
@@ -4315,7 +4325,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     }
 
     if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
-      if(mode == 2){
+      if(mode == 0){
+        minCorrYield       = 1e-8;
+        maxCorrYield       = 10;
+      } else if(mode == 2){
         minCorrYield       = 1e-10;
         maxCorrYield       = 1;
       }else if(mode == 4){
@@ -5456,7 +5469,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             }else if(mode == 4){
                 minCorrYieldUnscaledEta         = 9e-9;
                 maxCorrYieldUnscaledEta         = 5e-2;
+            } else{
+                minCorrYieldUnscaledEta         = 1e-10;
+                maxCorrYieldUnscaledEta         = 1e-0;              
             }
+              
         }
 
         TH2F * histo2DInvYieldUnscaledEta;
@@ -6705,7 +6722,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             }
         }
         if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
-            if(mode == 2){
+            if(mode == 0){
+                minCorrYieldEta     = 1e-9;
+                maxCorrYieldEta     = 1e-0;
+            } else if(mode == 2){
                 minCorrYieldEta     = 1e-10;
                 maxCorrYieldEta     = 1e-1;
             }else if(mode == 4){

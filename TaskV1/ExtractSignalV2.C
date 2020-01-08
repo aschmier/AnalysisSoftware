@@ -181,7 +181,7 @@ void ExtractSignalV2(
     TString fMesonCutSelectionRead  = fMesonCutSelection.Data();
     TString fClusterCutSelectionRead= fClusterCutSelection.Data();
     TString addSigString = "";
-    if (addSig) {
+    if (addSig || file.Contains("LHC17g6a2") || file.Contains("LHC17g6a3") ) {
         addSigString = "AddSig";
         if(directphotonPlots.CompareTo("directPhoton")==0){
             cout << "running added Signal for photons, be careful" << endl;

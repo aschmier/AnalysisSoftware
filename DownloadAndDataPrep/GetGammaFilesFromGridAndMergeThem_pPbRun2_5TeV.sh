@@ -9,13 +9,13 @@ listsToMerge=`cat runlistsToMerge.txt`
 DOWNLOADON=1
 MERGEON=1
 MERGEONData=1
-MERGEONMC=1
+MERGEONMC=0
 MERGEONFASTAndWOSDD=1
 SINGLERUN=1
 SEPARATEON=0
 MERGEONSINGLEData=1
 MERGEONSINGLEMC=1
-MERGEONSINGLEMCJJ=1
+MERGEONSINGLEMCJJ=0
 CLEANUP=1
 CLEANUPMAYOR=$2
 number=""
@@ -79,6 +79,13 @@ LHC17g8aMCFast=""
 LHC19a4MCMother=""
 LHC19a4MC1=""
 LHC19a4MC2=""
+LHC16c3aMC1=""
+LHC16c3aMC2=""
+LHC16c3bMC1=""
+LHC16c3bMC2=""
+LHC17g6a2MC=""
+LHC17g6a3MC=""
+
 passNr="1";
 
 if [ $1 = "fbock" ]; then
@@ -229,21 +236,31 @@ if [ $3 = "AODSKIMMB" ]; then
 #     LHC13fData="667" #skim MB
 #     LHC13fData="675" #skim MB
 
-    TRAINDIR=20191104-FullStatAllMethods
-    LHC13beData="";
+#     TRAINDIR=20191104-FullStatAllMethods
+#     LHC13beData="";
 #     LHC13bcData="685"
 #     LHC13bcData="689"
-    LHC13bcData="698"
-    LHC13bData="child_1"
-    LHC13cData="child_2"
+#     LHC13bcData="698"
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
 #     LHC13deData="686" #skim MB
 #     LHC13deData="690" #skim MB
-    LHC13deData="699" #skim MB
-    LHC13dData="child_1"
-    LHC13eData="child_2"
+#     LHC13deData="699" #skim MB
+#     LHC13dData="child_1"
+#     LHC13eData="child_2"
 #     LHC13fData="687" #skim MB
 #     LHC13fData="691" #skim MB
-    LHC13fData="700" #skim MB
+#     LHC13fData="700" #skim MB
+
+    TRAINDIR=20191122-PCMCentDepAddPCM
+    LHC13beData="";
+    LHC13bcData="713"
+    LHC13bData="child_1"
+    LHC13cData="child_2"
+    LHC13deData="714" #skim MB
+    LHC13dData="child_1"
+    LHC13eData="child_2"
+    LHC13fData="715" #skim MB
 
 elif [ $3 = "AODSKIMEMC7" ]; then
     TRAINDIR=20190831-EMCNonLin2
@@ -398,10 +415,68 @@ else
 #     LHC19a4MC1="child_1";
 # #     LHC19a4MC2="child_2";
 
-    TRAINDIR=20191120-FullStatAllMethods
-    LHC19a4MCMother="808";
-    LHC19a4MC1="child_1";
-    LHC19a4MC2="child_2";
+#     TRAINDIR=20191120-FullStatAllMethods
+#     LHC19a4MCMother="808";
+#     LHC19a4MC1="child_1";
+#     LHC19a4MC2="child_2";
+#     TRAINDIR=20191123-OutlierRemovalJetFinder
+#     LHC19a4MCMother="820";
+#     LHC19a4MC1="child_1";
+#     LHC19a4MC2="child_2";
+
+#     TRAINDIR=20191121-PHOSTestAndPCMEMCSys
+#     LHC19a4MCMother="816";
+#     LHC19a4MC1="child_1";
+#     LHC19a4MC2="child_2";
+    
+#     TRAINDIR=20191122-PCMCentDepAddPCM
+#     LHC16qtData="716";
+#     LHC16qDataFast="child_1";
+#     LHC16tDataFast="child_2";
+#     LHC16qData="child_3";
+#     LHC16tData="child_4";
+    
+#     TRAINDIR=20191205-TestEMCJJTriggered
+#     LHC16c3aMC1="840";
+#     LHC16c3aMC2="839";
+#     LHC16c3bMC1="841";
+#     LHC16c3bMC2="842";
+#     LHC17g6a2MC="835";
+#     LHC17g6a3MC="828";
+#     LHC19a4MCMother="834";
+#     LHC19a4MC1="child_1";
+#     LHC19a4MC2="child_2";
+
+#     TRAINDIR=20191212-TestEMCJJTriggered
+#     LHC16c3aMC1="863";
+#     LHC16c3aMC2="862";
+#     LHC16c3bMC1="864";
+#     LHC16c3bMC2="865";
+#     LHC17g6a2MC="877";
+#     LHC17g6a3MC="878";
+
+    TRAINDIR=20200106-EMCSysJJGT
+#     LHC16qtData="688";
+#     LHC16qDataFast="child_1";
+#     LHC16tDataFast="child_2";
+#     LHC16qData="child_3";
+#     LHC16tData="child_4";
+#     LHC16c3aMC1="892";
+#     LHC16c3aMC2="891";
+#     LHC16c3bMC1="894";
+#     LHC16c3bMC2="893";
+#     LHC17g6a2MC="895";
+#     LHC17g6a3MC="896";
+#     LHC16c3aMC1="898";
+#     LHC16c3aMC2="897";
+#     LHC16c3bMC1="900";
+#     LHC16c3bMC2="899";
+#     LHC17g6a2MC="901";
+#     LHC17g6a3MC="902";
+    LHC18j5MC="952"
+    LHC18j5_1MC="child_1"
+#     LHC18j5_2MC="child_2"
+#     LHC18j5_3MC="child_3"
     
 fi
 
@@ -515,6 +590,39 @@ LHC19a4MC2=$tempDir
 OUTPUTDIR_LHC19a42=$tempPath
 echo "19a4_2 JJ anchored to 13bf: $HAVELHC19a42 $LHC19a4MC2 $OUTPUTDIR_LHC19a42"
 
+FindCorrectTrainDirectory $LHC16c3aMC1 $OUTPUTDIRMC $ALIENDIRMC 
+HAVELHC16c3a1=$tempBool
+LHC16c3aMC1=$tempDir
+OUTPUTDIR_LHC16c3a1=$tempPath
+echo "16c3a JJ trigg EMC low anchored to 13cd: $HAVELHC16c3a1 $LHC16c3aMC1 $OUTPUTDIR_LHC16c3a1"
+FindCorrectTrainDirectory $LHC16c3aMC2 $OUTPUTDIRMC $ALIENDIRMC 
+HAVELHC16c3a2=$tempBool
+LHC16c3aMC2=$tempDir
+OUTPUTDIR_LHC16c3a2=$tempPath
+echo "16c3a2 JJ trigg EMC low anchored to 13f: $HAVELHC16c3a2 $LHC16c3aMC2 $OUTPUTDIR_LHC16c3a2"
+FindCorrectTrainDirectory $LHC16c3bMC1 $OUTPUTDIRMC $ALIENDIRMC 
+HAVELHC16c3b1=$tempBool
+LHC16c3bMC1=$tempDir
+OUTPUTDIR_LHC16c3b1=$tempPath
+echo "16c3b JJ trigg EMC high anchored to 13cd: $HAVELHC16c3b1 $LHC16c3bMC1 $OUTPUTDIR_LHC16c3b1"
+FindCorrectTrainDirectory $LHC16c3bMC2 $OUTPUTDIRMC $ALIENDIRMC 
+HAVELHC16c3b2=$tempBool
+LHC16c3bMC2=$tempDir
+OUTPUTDIR_LHC16c3b2=$tempPath
+echo "16c3b2 JJ trigg EMC high anchored to 13f: $HAVELHC16c3b2 $LHC16c3bMC2 $OUTPUTDIR_LHC16c3b2"
+
+FindCorrectTrainDirectory $LHC17g6a2MC $OUTPUTDIRMC $ALIENDIRMC 
+HAVELHC17g6a2=$tempBool
+LHC17g6a2MC=$tempDir
+OUTPUTDIR_LHC17g6a2=$tempPath
+echo "17g6a2 JJ trigg EMC low anchored to 13def: $HAVELHC17g6a2 $LHC17g6a2MC $OUTPUTDIR_LHC17g6a2"
+FindCorrectTrainDirectory $LHC17g6a3MC $OUTPUTDIRMC $ALIENDIRMC 
+HAVELHC17g6a3=$tempBool
+LHC17g6a3MC=$tempDir
+OUTPUTDIR_LHC17g6a3=$tempPath
+echo "17g6a3 JJ trigg EMC high anchored to 13def: $HAVELHC17g6a3 $LHC17g6a3MC $OUTPUTDIR_LHC17g6a3"
+
+
 # finding run2 MC path
 FindCorrectTrainDirectory $LHC18f3MC1 $OUTPUTDIRMC $ALIENDIRMC $LHC18f3MCMoth
 HAVELHC18f31=$tempBool
@@ -581,6 +689,21 @@ if [ $CLEANUPMAYOR == 0 ]; then
     CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC19a4_1" $HAVELHC19a41 $OUTPUTDIR_LHC19a41 $LHC19a4MC1 $pathMCR1 $baseLegoMC "/alice/sim/2019" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC19a4_1.txt
     cd $currentDir
     CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC19a4_2" $HAVELHC19a42 $OUTPUTDIR_LHC19a42 $LHC19a4MC2 $pathMCR1 $baseLegoMC "/alice/sim/2019" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC19a4_2.txt
+
+    cd $currentDir
+    CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC16c3a" $HAVELHC16c3a1 $OUTPUTDIR_LHC16c3a1 $LHC16c3aMC1 $pathMCR1 $baseLegoMC "/alice/sim/2016" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC16c3a.txt
+    cd $currentDir
+    CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC16c3a2" $HAVELHC16c3a2 $OUTPUTDIR_LHC16c3a2 $LHC16c3aMC2 $pathMCR1 $baseLegoMC "/alice/sim/2016" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC16c3a2.txt
+    cd $currentDir
+    CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC16c3b" $HAVELHC16c3b1 $OUTPUTDIR_LHC16c3b1 $LHC16c3bMC1 $pathMCR1 $baseLegoMC "/alice/sim/2016" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC16c3b.txt
+    cd $currentDir
+    CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC16c3b2" $HAVELHC16c3b2 $OUTPUTDIR_LHC16c3b2 $LHC16c3bMC2 $pathMCR1 $baseLegoMC "/alice/sim/2016" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC16c3b2.txt
+    cd $currentDir
+    CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC17g6a2" $HAVELHC17g6a2 $OUTPUTDIR_LHC17g6a2 $LHC17g6a2MC $pathMCR1 $baseLegoMC "/alice/sim/2017" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC17g6a2.txt
+    cd $currentDir
+    CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC17g6a3" $HAVELHC17g6a3 $OUTPUTDIR_LHC17g6a3 $LHC17g6a3MC $pathMCR1 $baseLegoMC "/alice/sim/2017" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC17g6a3.txt
+
+    
     
     cd $currentDir
     echo "LHC16q" $HAVELHC16q $OUTPUTDIR_LHC16q $LHC16qData $pathDataR2WOSDD $baseLegoData "/alice/data/2016" $NSlashes3 runlistsToMerge.txt "pass1$WOSDD" $FILENAMEBASE
@@ -766,6 +889,38 @@ if [ $CLEANUPMAYOR == 0 ]; then
             for fileName in $fileNumbers; do
                 echo $fileName
                 ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC19a42 $NSlashes "MC_LHC19a4_2-$runListName" "-$runListName"
+            done;
+        fi
+        if [ $HAVELHC16c3a1 == 1 ]; then
+            ls $OUTPUTDIR_LHC16c3a1/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3a1.txt
+            fileNumbers=`cat fileLHC16c3a1.txt`
+            for fileName in $fileNumbers; do
+                echo $fileName
+                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3a1 $NSlashes "MC_LHC16c3a_1-$runListName" "-$runListName"
+            done;
+        fi
+        if [ $HAVELHC16c3a2 == 1 ]; then
+            ls $OUTPUTDIR_LHC16c3a2/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3a2.txt
+            fileNumbers=`cat fileLHC16c3a2.txt`
+            for fileName in $fileNumbers; do
+                echo $fileName
+                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3a2 $NSlashes "MC_LHC16c3a_2-$runListName" "-$runListName"
+            done;
+        fi
+        if [ $HAVELHC16c3b1 == 1 ]; then
+            ls $OUTPUTDIR_LHC16c3b1/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3b1.txt
+            fileNumbers=`cat fileLHC16c3b1.txt`
+            for fileName in $fileNumbers; do
+                echo $fileName
+                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3b1 $NSlashes "MC_LHC16c3b_1-$runListName" "-$runListName"
+            done;
+        fi
+        if [ $HAVELHC16c3b2 == 1 ]; then
+            ls $OUTPUTDIR_LHC16c3b2/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3b2.txt
+            fileNumbers=`cat fileLHC16c3b2.txt`
+            for fileName in $fileNumbers; do
+                echo $fileName
+                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3b2 $NSlashes "MC_LHC16c3b_2-$runListName" "-$runListName"
             done;
         fi
         if [ $HAVELHC17g8a == 1 ]; then
@@ -1176,6 +1331,86 @@ if [ $CLEANUPMAYOR == 0 ]; then
                 done
             done
 
+            ls $OUTPUTDIR/$FILENAMEBASE\_MC_LHC16c3a_1-DPGTrackIncAccAndEMC\_*.root > filesForMerging.txt
+            filesForMerging=`cat filesForMerging.txt`
+            periodList=`echo -e "_1\n_2"`
+            for fileName in $filesForMerging; do
+                echo $fileName
+                GetFileNumberMerging $fileName $((NSlashes-1)) 5
+                echo $number
+                for runListName in $listsToMerge; do
+                    rm listCurrMerge.txt
+                    nameOut=""
+                    for periodID in $periodList; do
+                        echo $periodID
+                        currFile=$OUTPUTDIR/$FILENAMEBASE\_MC_LHC16c3a$periodID-$runListName\_$number.root
+                        if [ -f $currFile ]; then
+                            outAdd=`echo $periodID  | cut -d "-" -f 1 `
+                            nameOut+=$outAdd
+                            echo -e "$currFile\n" >> listCurrMerge.txt
+                        else
+                            echo $currFile " does not exist"
+                        fi
+                    done
+                    if [ $nameOut = "_1_2" ]; then
+                        nameOut="x";
+                    fi
+                    MergeAccordingToList listCurrMerge.txt $OUTPUTDIR/$FILENAMEBASE\_MC_LHC16c3a$nameOut-$runListName\_$number.root
+                    for periodID in $periodList; do
+                        mv $OUTPUTDIR/$FILENAMEBASE\_MC_LHC16c3a$periodID-$runListName\_$number.root $OUTPUTDIR/SinglePeriods/
+                    done  
+    #                 for binNumber in $binNumbersJJ; do
+    #                     echo $binNumber
+    #                     rm listCurrMerge.txt
+    #                     fileF="$OUTPUTDIR/JJMCSingleBins/$FILENAMEBASE\_MC_LHC17g8a-$binNumber""_fast-$runListName""_$number.root"
+    #                     fileW="$OUTPUTDIR/JJMCSingleBins/$FILENAMEBASE\_MC_LHC17g8a-$binNumber""_woSDD-$runListName""_$number.root"
+    #                     echo -e "$fileF\n$fileW" > listCurrMerge.txt
+    #                     MergeAccordingToList listCurrMerge.txt $OUTPUTDIR/JJMCSingleBins/$FILENAMEBASE\_MC_LHC17g8a-$binNumber\_fast-woSDD-$runListName\_$number.root
+    #                 done
+
+                done
+            done
+
+            ls $OUTPUTDIR/$FILENAMEBASE\_MC_LHC16c3b_1-DPGTrackIncAccAndEMC\_*.root > filesForMerging.txt
+            filesForMerging=`cat filesForMerging.txt`
+            periodList=`echo -e "_1\n_2"`
+            for fileName in $filesForMerging; do
+                echo $fileName
+                GetFileNumberMerging $fileName $((NSlashes-1)) 5
+                echo $number
+                for runListName in $listsToMerge; do
+                    rm listCurrMerge.txt
+                    nameOut=""
+                    for periodID in $periodList; do
+                        echo $periodID
+                        currFile=$OUTPUTDIR/$FILENAMEBASE\_MC_LHC16c3b$periodID-$runListName\_$number.root
+                        if [ -f $currFile ]; then
+                            outAdd=`echo $periodID  | cut -d "-" -f 1 `
+                            nameOut+=$outAdd
+                            echo -e "$currFile\n" >> listCurrMerge.txt
+                        else
+                            echo $currFile " does not exist"
+                        fi
+                    done
+                    if [ $nameOut = "_1_2" ]; then
+                        nameOut="x";
+                    fi
+                    MergeAccordingToList listCurrMerge.txt $OUTPUTDIR/$FILENAMEBASE\_MC_LHC16c3b$nameOut-$runListName\_$number.root
+                    for periodID in $periodList; do
+                        mv $OUTPUTDIR/$FILENAMEBASE\_MC_LHC16c3b$periodID-$runListName\_$number.root $OUTPUTDIR/SinglePeriods/
+                    done  
+    #                 for binNumber in $binNumbersJJ; do
+    #                     echo $binNumber
+    #                     rm listCurrMerge.txt
+    #                     fileF="$OUTPUTDIR/JJMCSingleBins/$FILENAMEBASE\_MC_LHC17g8a-$binNumber""_fast-$runListName""_$number.root"
+    #                     fileW="$OUTPUTDIR/JJMCSingleBins/$FILENAMEBASE\_MC_LHC17g8a-$binNumber""_woSDD-$runListName""_$number.root"
+    #                     echo -e "$fileF\n$fileW" > listCurrMerge.txt
+    #                     MergeAccordingToList listCurrMerge.txt $OUTPUTDIR/JJMCSingleBins/$FILENAMEBASE\_MC_LHC17g8a-$binNumber\_fast-woSDD-$runListName\_$number.root
+    #                 done
+
+                done
+            done
+            
         fi
     fi
 

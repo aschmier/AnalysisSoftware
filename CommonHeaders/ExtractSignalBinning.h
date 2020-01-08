@@ -1600,7 +1600,10 @@
             } else if (energy.CompareTo("pPb_5.023TeV") == 0 ){
                 switch(mode){
                     case 0:
-                        startPtBin     = 1;
+                        if ((centrality.CompareTo("0-100%") == 0 ) )
+                          startPtBin     = 1;
+                        else 
+                          startPtBin     = 1;
                         break;
                     case 1:
                         startPtBin     = 1;
@@ -1619,13 +1622,13 @@
                                 break;
                             case 2: // EG2 trigger
                                 if ((centrality.CompareTo("0-100%") == 0 ) )
-                                    startPtBin     = 4;
-                                else
+                                    startPtBin     = 9;
+                                else 
                                     startPtBin     = 2;
                                 break;
                             case 3: // EG1 trigeer
                                 if ((centrality.CompareTo("0-100%") == 0 ) )
-                                    startPtBin     = 5;
+                                    startPtBin     = 11;
                                 else
                                     startPtBin     = 2;
                                 break;
@@ -2120,7 +2123,10 @@
             } else if (energy.CompareTo("pPb_5.023TeV") == 0 ){
                 switch(mode){
                     case 0:
-                        startPtBin      = 1;
+                        if (centrality.CompareTo("0-100%") == 0)
+                            startPtBin      = 1;
+                        else 
+                            startPtBin      = 3;
                         break;
                     case 1:
                         startPtBin      = 3;
@@ -2139,14 +2145,14 @@
                                 break;
                             case 2: // EG2 trigger
                                 if (centrality.CompareTo("0-100%") == 0)
-                                    startPtBin     = 5;
-                                else
+                                    startPtBin     = 8;
+                                else 
                                     startPtBin     = 3;
                                 break;
                             case 3: // EG1 trigger
                                 if (centrality.CompareTo("0-100%") == 0)
-                                    startPtBin     = 3;
-                                else
+                                    startPtBin     = 7;
+                                else 
                                     startPtBin     = 2;
                                 break;
                             default:
@@ -2929,8 +2935,7 @@
                         if (DCAcase)
                             maxNBins = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMDCAPt,binning, 16);
                         else
-                            maxNBins = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMCentPt,binning, 25);
-                        maxNBins    = 25;
+                            maxNBins = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMCentPt,binning, 38);
                         break;
                     case 2:
                     case 13:
@@ -2968,9 +2973,8 @@
                                 maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMDCAPt,binning, 16);
                             else
                                 maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMDCACentPt,binning, 16);
-                        } else if ( !(centrality.Contains("0-100%") && !centrality.Contains("60-100%"))){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMCentPt,binning, 25);
-                            maxNBins    = 25;
+                        } else if ( centrality.CompareTo("0-100%") != 0 ){
+                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMCentPt,binning, 38);
                         } else {
                             maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMPt,binning, 55);
                         }
@@ -3837,7 +3841,7 @@
                         } else if (centrality.CompareTo("0-100%") == 0){
                             maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMPt,binning, 31);
                         } else {
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMPt,binning, 31);
+                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMCentPt,binning, 18);
                         }
                         break;
                     case 1:     // PCM-Dalitz
@@ -5546,7 +5550,7 @@
                             if (!energy.CompareTo("pPb_5.023TeVCent")){
                                 CopyVectorToArray(fBinsPi0pPb5TeVPCMCentPtRebin,fNRebin);
                             } else if (!energy.CompareTo("pPb_5.023TeV")){
-                                if((centrality.Contains("0-100%") && !centrality.Contains("60-100%")))                                                       // MB pi0 for PCM run 1
+                                if( centrality.CompareTo("0-100%") == 0 )                                                       // MB pi0 for PCM run 1
                                     CopyVectorToArray(fBinsPi0pPb5TeVPCMPtRebin,fNRebin);
                                 else
                                     CopyVectorToArray(fBinsPi0pPb5TeVPCMCentPtRebin,fNRebin);
@@ -6734,7 +6738,7 @@
                     switch (modi){
                         case 0:
                             if (energy.CompareTo("pPb_5.023TeV") == 0){
-                                if (centrality.Contains("0-100%") && !centrality.Contains("60-100%"))
+                                if ( centrality.CompareTo("0-100%") == 0 )
                                     CopyVectorToArray(fBinsPi0EtapPb5TeVPCMPtRebin,fNRebin);
                                 else
                                     CopyVectorToArray(fBinsPi0EtapPb5TeVPCMCentPtRebin,fNRebin);

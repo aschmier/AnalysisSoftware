@@ -246,10 +246,8 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     Double_t maxPt      = 35;
     if (mode == 4 && period.Contains("LHC17g8")){
         maxPt           = 60;
-    } else if (mode == 2 && period.Contains("LHC13b4")){
-        maxPt           = 50;
-    } else if (mode == 2){
-        maxPt           = 30;
+    } else if ( (mode == 2 || mode == 4) && (period.Contains("LHC19a4") || period.Contains("LHC16c3") || period.Contains("LHC17g6") )){
+        maxPt           = 60;
     } else if (mode == 2){
         maxPt           = 30;
     } else if (mode == 10 && period.Contains("LHC18b9")){
@@ -308,9 +306,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     TString anchoredTo                  = "LHC11a";
     if (period.Contains("LHC13b4_fix"))
         anchoredTo                      = "LHC13[b-c]";
-    else if (period.Contains("LHC13b4_plus"))
-        anchoredTo                      = "LHC13[d-f]";
-    else if (period.Contains("LHC13b4"))
+    else if (period.Contains("LHC19a4") || period.Contains("LHC16c3") || period.Contains("LHC17g6"))
         anchoredTo                      = "LHC13[b-f]";
     else if (period.Contains("LHC15a3"))
         anchoredTo                      = "LHC13g";
@@ -473,7 +469,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         }
         cout << ">>>>>>>> pT hard bin #: " << i << endl;
         cout << "ntrials: " <<  nTrials[i] << "\t xSection: " << xSection[i] << "\t number of generated events: " << nGeneratedEvents[i] << "\t weight: "
-            << weight[i] << "\t weight applied: "<< weightApplied[i]<< endl;
+            << Form("%2.8e",weight[i]) << "\t weight applied: "<< Form("%2.5e",weightApplied[i])<< endl;
         delete TopDir;
 
         fileInput[i]->Close();

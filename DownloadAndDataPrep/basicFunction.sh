@@ -220,10 +220,15 @@ function CopyRunwiseAndMergeAccordingToRunlistMC()
         echo "downloading $1"
         if [ $SINGLERUN == 1 ]; then
             runNumbers=`cat runlists/runNumbers$1${11}.txt`
+            nRunNumber=`wc -l runlists/runNumbers$1${11}.txt`
             echo $runNumbers
+            nCurrRunCount=0
             for runNumber in $runNumbers; do
+                nCurrRunCount=$((nCurrRunCount+1))
+                echo -e "\n****************************************\n run $runNumber is $nCurrRunCount/$nRunNumber \n****************************************\n"
+
 #                 CopyFileIfNonExisitent $3/$runNumber "$7/$1/$runNumber/$5/$4" $8 "$7/$1/$runNumber/$5/$4/Stage_1/" kTRUE
-                CopyFileIfNonExisitent $3/$runNumber "$7/$1/$runNumber/$5/$4" $8 "$7/$1/$runNumber/$5/$4/" kTRUE
+                CopyFileIfNonExisitent $3/$runNumber "$7/$1/$runNumber/$5/$4" $8 "$7/$1/$runNumber/$5/$4/" kTRUE bla.log
             done;
             if [ $MERGEONSINGLEMC == 1 ] && [ ! -f $3/mergedAllCalo.txt ]; then
                 cd $currentDir
@@ -239,7 +244,7 @@ function CopyRunwiseAndMergeAccordingToRunlistMC()
                 done
             fi
         else
-            CopyFileIfNonExisitent $3 "/alice/cern.ch/user/a/alitrain/PWGGA/$6/$4/merge" $NSlashes "" kTRUE
+            CopyFileIfNonExisitent $3 "/alice/cern.ch/user/a/alitrain/PWGGA/$6/$4/merge" $NSlashes "" kTRUE bla.log
         fi
     fi
 }
@@ -250,13 +255,20 @@ function CopyRunwiseAndMergeAccordingToRunlistJJMC()
         echo "downloading $1"
         if [ $SINGLERUN == 1 ]; then
             runNumbers=`cat runlists/runNumbers$1.txt`
+            nRunNumber=`wc -l runlists/runNumbers$1.txt`
             echo $runNumbers
+            nCurrRunCount=0;
             for runNumber in $runNumbers; do
-                for pThard in {1..20}; do
-                    CopyFileIfNonExisitent $3/$pThard/$runNumber "$7/$1/$pThard/$runNumber/$5/$4" $8 "$7/$1/$runNumber/$5/$4/Stage_1/" kTRUE
+                nCurrRunCount=$((nCurrRunCount+1))
+                echo -e "\n****************************************\n run $runNumber is $nCurrRunCount/$nRunNumber \n****************************************\n"
+                bins=`cat ${11}`
+                mkdir -p $3/$runNumber
+                rm $3/$runNumber/copyFile.log
+                for bin in $bins; do
+                    CopyFileIfNonExisitent $3/$bin/$runNumber "$7/$1/$bin/$runNumber/$5/$4" $8 "none" kTRUE $3/$runNumber/copyFile.log
                 done
-                if [ $MERGEONSINGLEMCJJ == 1 ] ; then 
-                    mkdir -p $3/$runNumber
+#                 if [ $MERGEONSINGLEMCJJ == 1 ]; then 
+                if [ $MERGEONSINGLEMCJJ == 1 ] || [ -f $3/$runNumber/copyFile.log ]; then 
                     ls $3/1/$runNumber/${10}\_*.root > filebins$1.txt
                     filesToMerge=`cat filebins$1.txt`
                     for fileToMerge in $filesToMerge; do
@@ -264,7 +276,16 @@ function CopyRunwiseAndMergeAccordingToRunlistJJMC()
                         echo "file name: " $fileToMerge " slashes: " $nSlashesCurr;
                         GetFileNumberMerging2 $fileToMerge $nSlashesCurr
                         echo "searching for file " ${10}\_$number".root";
-                        hadd -f $3/$runNumber/${10}\_$number.root $3/*/$runNumber/${10}\_$number.root
+                        #hadd -f $3/$runNumber/${10}\_$number.root $3/*/$runNumber/${10}\_$number.root
+                        bins=`cat ${11}`
+                        TOMERGE="";
+                        for bin in $bins; do
+                            nameCurrJJFile=`echo $3/$bin/$runNumber/${10}\_$number.root`
+                            if [ -f $nameCurrJJFile ]; then
+                                TOMERGE="$TOMERGE $nameCurrJJFile"
+                            fi
+                        done
+                        hadd -f $3/$runNumber/${10}\_$number.root $TOMERGE
                     done
                 fi
             done;
@@ -278,11 +299,11 @@ function CopyRunwiseAndMergeAccordingToRunlistJJMC()
 
                 listsToMerge=`cat $9`
                 for runListName in $listsToMerge; do
-                    MergeAccordingToSpecificRunlist file$1.txt $3 $8 ${10} $runListName runlists/runNumbers$1_$runListName.txt "no"
+                    MergeAccordingToSpecificRunlist file$1.txt $3 $8 ${10} $runListName runlists/runNumbers$1_$runListName.txt ${11}
                 done
             fi
         else
-            CopyFileIfNonExisitent $3 "/alice/cern.ch/user/a/alitrain/PWGGA/$6/$4/merge" $NSlashes "" kTRUE
+            CopyFileIfNonExisitent $3 "/alice/cern.ch/user/a/alitrain/PWGGA/$6/$4/merge" $NSlashes "" kTRUE bla.log
         fi
     fi
 }
@@ -294,9 +315,13 @@ function CopyRunwiseAndMergeAccordingToRunlistData()
         echo "downloading $1"
         if [ $SINGLERUN == 1 ]; then
             runNumbers=`cat runlists/runNumbers$1\_${10}.txt`
+            nRunNumber=`wc -l runlists/runNumbers$1.txt`
+            nCurrRunCount=0;
             echo $runNumbers
             for runNumber in $runNumbers; do
-                CopyFileIfNonExisitent $3/$runNumber "$7/$1/000$runNumber/$5/$4" $8 "$7/$1/000$runNumber/$5/$4" kTRUE
+                nCurrRunCount=$((nCurrRunCount+1))
+                echo -e "\n****************************************\n run $runNumber is $nCurrRunCount/$nRunNumber \n****************************************\n"
+                CopyFileIfNonExisitent $3/$runNumber "$7/$1/000$runNumber/$5/$4" $8 "$7/$1/000$runNumber/$5/$4" kTRUE bla.log
             done;
             if [ $MERGEONSINGLEData == 1 ] && [ ! -f $3/mergedAllCalo.txt ]; then
                 cd $currentDir
@@ -310,7 +335,7 @@ function CopyRunwiseAndMergeAccordingToRunlistData()
                 done
             fi
         else
-            CopyFileIfNonExisitent $3 "/alice/cern.ch/user/a/alitrain/PWGGA/$6/$4/merge_runlist_1" $NSlashes "" kTRUE
+            CopyFileIfNonExisitent $3 "/alice/cern.ch/user/a/alitrain/PWGGA/$6/$4/merge_runlist_1" $NSlashes "" kTRUE bla.log
         fi
     fi
 
@@ -324,12 +349,14 @@ function CopyFileIfNonExisitent()
     echo "  number of subdirectories: " $3
     echo "  detailed path subdirs: " $4
     echo "  separate also the tree: " $5
+    echo "  log file: " $6
     if [ $DOWNLOADON == 1 ]; then
         if [ -f $1/root_archive.zip ] && [ -s $1/root_archive.zip ]; then
             echo "$1/root_archive.zip exists";
         else
             mkdir -p $1
             alien_cp alien:$2/root_archive.zip file:$1/
+            echo $2/root_archive.zip > $6
             if [ -f $1/root_archive.zip ] && [ -s $1/root_archive.zip ]; then
                 echo "copied correctly"
             else
@@ -414,7 +441,8 @@ function CopyFileIfNonExisitentDiffList()
     echo "  number of subdirectories: \"$4\""
     echo "  detailed path subdirs:    \"$5\""
     echo "  separate also the tree:   \"$6\""
-
+    echo "  bookkeeping:              \"$7\""
+    
     # Download and copy with proper file name
     if [ $DOWNLOADON == 1 ]; then
         if [ -f $1/$3/root_archive.zip ] && [ -s $1/$3/root_archive.zip ]; then
@@ -429,6 +457,7 @@ function CopyFileIfNonExisitentDiffList()
                 alien_cp alien:$2/Gamma* file:$1/$3/
                 cd $1/$3
                 zip root_archive.zip *.root
+                ehco $2/root_archive.zip > $7
                 cd -
             else
                 alien_cp alien:$2/root_archive.zip file:$1/$3/

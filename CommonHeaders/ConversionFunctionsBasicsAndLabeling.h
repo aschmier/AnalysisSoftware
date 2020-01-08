@@ -6023,8 +6023,17 @@
             } else if (trigger == 81){  // EGA
                 triggerRejec    = 15075;
             }
-        }else  if (energy.Contains("pPb_8TeV") ){
-        cout << "Trigger used: " << trigger << endl;
+        } else  if (energy.Contains("pPb_5TeV") ){
+            cout << "Trigger used: " << trigger << endl;
+            if (!strTrigger.CompareTo("85")){  // EG2
+                triggerRejec    = 1971;
+                if(mode == 2) triggerRejec    = 1971;
+            } else if (!strTrigger.CompareTo("83")){  // EG1
+                triggerRejec    = 7884;
+                if(mode == 2) triggerRejec    = 7884;
+            }
+        } else  if (energy.Contains("pPb_8TeV") ){
+            cout << "Trigger used: " << trigger << endl;
             if (!strTrigger.CompareTo("8e")){  // EG2
                 triggerRejec    = 280;
                 if(mode == 2) triggerRejec    = 289;
@@ -6036,7 +6045,7 @@
             } else if (!strTrigger.CompareTo("9b")){  // EJ1
                 triggerRejec    = 1;
             }
-    }
+        }
         return triggerRejec;
     }
 
