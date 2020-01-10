@@ -2695,7 +2695,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             }
         } else if (mode == 2 || mode == 13 || mode == 4 || mode == 12){
             rangeAcc[0]         = 0.;
-            rangeAcc[1]         = 0.5;
+            rangeAcc[1]         = 0.6;
         } else if (mode == 3 || mode == 5){
             rangeAcc[0]         = 0.;
             rangeAcc[1]         = 0.06;

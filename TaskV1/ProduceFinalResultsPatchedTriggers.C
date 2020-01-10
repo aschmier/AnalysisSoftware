@@ -249,7 +249,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             nameCorrectedYield                          = "CorrectedYieldTrueEff";
             nameEfficiency                              = "TrueMesonEffiPt";
         }
-    } else if ( (mode == 2 || mode == 3) && !(optionEnergy.BeginsWith("8TeV") || optionEnergy.CompareTo("pPb_5.023TeV")==0)){
+    } else if (mode == 2 && optionEnergy.BeginsWith("13TeV") ){
+        cout << "using rec quantities for PCM-EMC/PCM-PHOS" << endl;
+        nameCorrectedYield                              = "CorrectedYieldNormEff";
+        nameEfficiency                                  = "MesonEffiPt";
+    } else if ( (mode == 2 || mode == 3) && !(optionEnergy.BeginsWith("8TeV") || optionEnergy.CompareTo("pPb_5.023TeV")==0|| optionEnergy.CompareTo("pPb_8TeV")==0)){
         cout << "using rec quantities for PCM-EMC/PCM-PHOS" << endl;
         nameMassMC                                      = "histoMassMesonRecMC";
         nameWidthMC                                     = "histoFWHMMesonRecMC";
@@ -1269,7 +1273,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
               maxTriggRejectLin = 3100;
             else if (fCentOutput.CompareTo("V0A_80_100"))
               maxTriggRejectLin = 12000;
-            
+
         }
         TH2F * histo2DTriggRejectLinear;
         Double_t FitParameter0Pol0;
@@ -2473,7 +2477,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         maxCorrYieldUnscaled        = 0.2;
       } else {
         minCorrYieldUnscaled        = 2e-10;
-        maxCorrYieldUnscaled        = 10;        
+        maxCorrYieldUnscaled        = 10;
       }
     }
 
@@ -5372,9 +5376,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 maxCorrYieldUnscaledEta         = 5e-2;
             } else{
                 minCorrYieldUnscaledEta         = 1e-10;
-                maxCorrYieldUnscaledEta         = 1e-0;              
+                maxCorrYieldUnscaledEta         = 1e-0;
             }
-              
+
         }
 
         TH2F * histo2DInvYieldUnscaledEta;
