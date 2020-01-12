@@ -3618,6 +3618,18 @@
         case 10:
             chi2CutString = "#chi_{#gamma}^{2} < 25";
             break;
+        case 11:
+            chi2CutString = "#chi_{#gamma}^{2} < 35";
+            break;
+        case 12:
+            chi2CutString = "#chi_{#gamma}^{2} < 40";
+            break;
+        case 13:
+            chi2CutString = "#chi_{#gamma}^{2} < 45";
+            break;
+        case 14:
+            chi2CutString = "#chi_{#gamma}^{2} < 55";
+            break;
         default:
             chi2CutString = "#chi_{#gamma}^{2} cut unknown";
             break;
@@ -4203,6 +4215,30 @@
                 return "p-dependent asymmetry cut ";
             default:
                 return "photon asymmetry cut not defined";
+        }
+    }
+
+    //************************************************************************************
+    //********* Analyzes the double counting cut, return correct cut label ***************
+    //************************************************************************************
+    TString AnalyseToCloseV0sCut(Int_t photonQualitCut ){
+        switch(photonQualitCut) {
+            case 0:
+                return "no cut";
+            case 1:
+                return "fDoToCloseV0sCut with fminV0Dist = 1";
+            case 2:
+                return "fDoToCloseV0sCut with fminV0Dist = 2";
+            case 3:
+                return "fDoToCloseV0sCut with fminV0Dist = 3";
+            case 4:
+                return "double counting cut with fOpenAngle=0.02;";
+            case 5:
+                return "double counting cut with fOpenAngle=0.03;";
+            case 6:
+                return "double counting cut with fOpenAngle=0.04;";
+            default:
+                return "double counting cut not defined";
         }
     }
 
@@ -5233,15 +5269,21 @@
     //************************************************************************************
     //** Analyzes the alpha meson cut, return correct cut label **************************
     //************************************************************************************
-    TString AnalyseAlphaMesonCut(Int_t alphaMesonCut){
+    TString AnalyseAlphaMesonCut(Int_t alphaMesonCut, Bool_t formula=kFALSE){
         switch(alphaMesonCut){
             case 0:	// 0- 0.7
                 return "|#alpha_{meson}| < 0.7";
-            case 1:	// 0-0.5
-                return "0.65*tanh(1.8*x)"; //"|#alpha_{meson}| < 0.5";
-            case 2:	// 0.5-1
-                return "0.5 < |#alpha_{meson}| < 1";
-            case 3:	// 0.0-1
+            case 1:
+                if(formula)
+                    return "0.65*tanh(1.8*x)";
+                else
+                    return "|#alpha_{meson}| < 0.65*tanh(1.8*x)";
+            case 2:
+                if(formula)
+                    return "0.8*tanh(1.2*x)";
+                else
+                    return "|#alpha_{meson}| < 0.8*tanh(1.2*x)";
+            case 3: // 0-1 (no cut)
                 return "|#alpha_{meson}| < 1";
             case 4:	// 0-0.65
                 return "|#alpha_{meson}| < 0.65";
@@ -5253,22 +5295,24 @@
                 return "|#alpha_{meson}| < 0.85";
             case 8:	// 0.0-0.6
                 return "|#alpha_{meson}| < 0.6";
-            case 9:	// 0.0-0.3
-                return "|#alpha_{meson}| < 0.3";
-
-    	    case 10:	// 0.0-0.2
+            case 9:
+                if(formula)
+                    return "0.65*tanh(1.2*x)";
+                else
+                    return "|#alpha_{meson}| < 0.65*tanh(1.2*x)";
+            case 10:	//a 0.0-0.2
                 return "|#alpha_{meson}| < 0.2";
-
-            case 13:	// 0.0-0.1
+            case 11:    //b 0.2-0.6
+                return "0.2 < |#alpha_{meson}| < 0.6";
+            case 12:    //c 0.6-1.0
+                return "0.6 < |#alpha_{meson}| < 1.0";
+            case 13:	//d 0.0-0.1
                 return "|#alpha_{meson}| < 0.1";
-
-            case 14:	// 0.0-0.3
+            case 14:	//e 0.0-0.3
                 return "|#alpha_{meson}| < 0.3";
-
-            case 15:	// 0.0-0.4
+            case 15:	//f 0.0-0.4
                 return "|#alpha_{meson}| < 0.4";
-
-	    case 16:	// 0.0-0.5
+	        case 16:	//g 0.0-0.5
                 return "|#alpha_{meson}| < 0.5";
             default:
                 return "no alpha cut defined";
