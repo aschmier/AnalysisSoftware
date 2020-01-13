@@ -1365,6 +1365,36 @@
                 } else if(mode == 44 || mode == 64){
                     if(trigger==52){
                         scaleFac        = 2.;
+                        return 9;
+                    } else{
+                        scaleFac        = 2.;
+                        return 7;
+                    }
+                } else if(mode == 45 || mode == 65){
+                    scaleFac        = 5.;
+                    return 5;
+                } else{
+                    scaleFac        = 2.;
+                    return 2;
+                }
+            } else if(energy.CompareTo("5TeV") == 0){
+                if(mode == 40 || mode == 60){
+                    scaleFac        = 1.;
+                    return 9;
+                } else if(mode == 41 || mode == 61){
+                    if(trigger == 52){
+                        scaleFac        = 2.;
+                        return 2;
+                    } else {                
+                        scaleFac        = 2.;
+                        return 7;
+                    }
+                } else if(mode == 42 || mode == 62){
+                    scaleFac        = 2.;
+                    return 9;
+                } else if(mode == 44 || mode == 64){
+                    if(trigger==52){
+                        scaleFac        = 2.;
                         return 10;
                     } else{
                         scaleFac        = 2.;
@@ -2316,6 +2346,29 @@
         //*************************************************************************************************
         } else if (meson.Contains("Omega")){
             if (energy.CompareTo("7TeV") == 0){
+                if (mode == 40 || mode == 60){
+                    startPtBin     = 5;
+                } else if (mode == 41 || mode == 61){
+                    if(specialTrigg == 0 || specialTrigg == 1){ // EMC7 in LHC11
+                        startPtBin     = 1;
+                    } else{
+                        startPtBin     = 6;
+                    }
+                } else if (mode == 42 || mode == 62){
+                    startPtBin     = 5;
+                } else if (mode == 44 || mode == 64){
+                    if(specialTrigg == 0 || specialTrigg == 1){ // EMC7 in LHC11
+                        startPtBin     = 3;
+                    
+                    } else if (specialTrigg == -1){
+                        startPtBin     = 5;
+                    } else{
+                        startPtBin     = 5;
+                    }
+                } else if (mode == 45 || mode == 65){
+                    startPtBin     = 3;
+                }
+            } else if (energy.CompareTo("5TeV") == 0){
                 if (mode == 40 || mode == 60){
                     startPtBin     = 4;
                 } else if (mode == 41 || mode == 61){
@@ -4194,8 +4247,8 @@
         } else if (meson.Contains("Omega")){
             if (energy.CompareTo("7TeV") == 0){
                 if(mode == 40 || mode == 60){
-                    maxNBins    = 13;
-                    binningMax  = 13;
+                    maxNBins    = 11;
+                    binningMax  = 11;
                     for(Int_t i = 0; i < binningMax+1; i++){
                         binning[i] = fBinsOmegaPiPlPiMiPiZero7TevPtPCM[i];
                     }
@@ -4221,21 +4274,27 @@
                     }
                 } else if(mode == 44 || mode == 64){
                     if(SpecialTrigger==0 || SpecialTrigger==1){
-                        maxNBins    = 13;
-                        binningMax  = 13;
+                        maxNBins    = 12;
+                        binningMax  = 12;
                         for(Int_t i = 0; i < binningMax+1; i++){
                             binning[i] = fBinsOmegaPiPlPiMiPiZero7TevLHC11PtEMC[i];
                         }
+                    } else if(SpecialTrigger==-1){
+                        maxNBins    = 18;
+                        binningMax  = 18;
+                        for(Int_t i = 0; i < binningMax+1; i++){
+                            binning[i] = fBinsOmegaPiPlPiMiPiZero7TevLHC11PtEMCCombined[i];
+                        }
                     } else{
-                        maxNBins    = 12;
-                        binningMax  = 12;
+                        maxNBins    = 11;
+                        binningMax  = 11;
                         for(Int_t i = 0; i < binningMax+1; i++){
                             binning[i] = fBinsOmegaPiPlPiMiPiZero7TevPtEMC[i];
                         }
                     }
                 } else if(mode == 45 || mode == 65){
-                    maxNBins    = 9;
-                    binningMax  = 9;
+                    maxNBins    = 10;
+                    binningMax  = 10;
                     for(Int_t i = 0; i < binningMax+1; i++){
                         binning[i] = fBinsOmegaPiPlPiMiPiZero7TevPtPHOS[i];
                     }
@@ -4281,13 +4340,40 @@
                 } else if(mode == 45 || mode == 65){ //PHOS-PHOS
                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPHOS"<<endl;
                     maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPHOS, binning, 23 );
+        } else if (energy.CompareTo("5TeV") == 0){
+                if(mode == 40 || mode == 60){
+                    maxNBins    = 13;
+                    binningMax  = 13;
+                    for(Int_t i = 0; i < binningMax+1; i++){
+                        binning[i] = fBinsOmegaPiPlPiMiPiZero5TevPtPCM[i];
+                    }
+                } else if(mode == 41 || mode == 61){
+                    maxNBins    = 11;
+                    binningMax  = 11;
+                    for(Int_t i = 0; i < binningMax+1; i++){
+                        binning[i] = fBinsOmegaPiPlPiMiPiZero5TevPtPCMEMC[i];
+                    }
+                } else if(mode == 42 || mode == 62){
+                    maxNBins    = 12;
+                    binningMax  = 12;
+                    for(Int_t i = 0; i < binningMax+1; i++){
+                        binning[i] = fBinsOmegaPiPlPiMiPiZero5TevPtPCMPHOS[i];
+                    }
+                } else if(mode == 44 || mode == 64){
+                    maxNBins    = 12;
+                    binningMax  = 12;
+                    for(Int_t i = 0; i < binningMax+1; i++){
+                        binning[i] = fBinsOmegaPiPlPiMiPiZero5TevPtEMC[i];
+                    }
+                } else if(mode == 45 || mode == 65){
+                    maxNBins    = 9;
+                    binningMax  = 9;
+                    for(Int_t i = 0; i < binningMax+1; i++){
+                        binning[i] = fBinsOmegaPiPlPiMiPiZero5TevPtPHOS[i];
+                    }
                 }
-                // Check max bins and array size
-                CheckBinSize(maxNBins,binningMax,kFALSE);
-                cout<<"Get Binning(), Omega 13TeV, binningMax: "<<binningMax<<"; maxNBins: "<<maxNBins<<endl;
-                for( Int_t i=0; i<binningMax+1; i++ ) cout << binning[i] << ", ";
-                cout << endl;
-            }
+
+            } 
         } else if (meson.CompareTo("Gamma") == 0){
             if (energy.CompareTo("2.76TeV") == 0){
                 if (mode == 0 || mode == 2){
@@ -7226,8 +7312,8 @@
         //*************************************************************************************************
         } else if (setPi0.CompareTo("Omega") == 0 || setPi0.CompareTo("Pi0OmegaBinning") == 0) {
             fNBinsPt        = numberOfBins;
-            fBinsPt         = new Double_t[20];
-            fNRebin         = new Int_t[19];
+            fBinsPt         = new Double_t[100];
+            fNRebin         = new Int_t[100];
             fStartPtBin     = 0;
 
             if (energy.CompareTo("7TeV") == 0) {
@@ -7254,6 +7340,18 @@
                                 fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevLHC11PtRebinPCMEMC[i];
                             } else{
                                 fNRebin[i] = fBinsPi0OmegaBinning7TevLHC11PtRebinPCMEMC[i];
+                            }
+                        } else{
+                                fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevLHC11PtRebinEMC[i];
+                        }
+                    }
+                } else if(specialTrigg == -1){
+                    for (Int_t i = 0; i < fNBinsPt; i++) {
+                        if(modi == 44 || modi == 64){
+                            if (setPi0.CompareTo("Omega") == 0){
+                                fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevLHC11PtRebinEMCCombined[i];
+                            } else{
+                                fNRebin[i] = fBinsPi0OmegaBinning7TevLHC11PtRebinEMC[i];
                             }
                         } else{
                                 fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevLHC11PtRebinEMC[i];
@@ -7288,9 +7386,9 @@
 
                         } else if(modi == 45 || modi == 65){
                             if (setPi0.CompareTo("Omega") == 0){
-                                fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevPtRebinEMC[i];
+                                fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevPtRebinPHOS[i];
                             } else{
-                                fNRebin[i] = fBinsPi0OmegaBinning7TevPtRebinEMC[i];
+                                fNRebin[i] = fBinsPi0OmegaBinning7TevPtRebinPHOS[i]; 
                             }
                         } else {
                             if (setPi0.CompareTo("Omega") == 0){
@@ -7301,6 +7399,12 @@
                         }
                     }
                 }
+
+                nIterBGFit                  = 9;
+                fMaxYFracBGOverIntHist      = 40;
+                optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
+                optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
             } else if (energy.CompareTo("7TeVSys") == 0) {
                 fStartPtBin                 = GetStartBin("Omega",energy,modi);
                 Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Omega", energy, modi);
@@ -7316,6 +7420,27 @@
                 for (Int_t i = 0; i < fNBinsPt; i++) {
                     if(modi == 40 || modi == 60)      fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevSysPtRebinPCM[i];
                     else                fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevPtRebinPCM[i];
+                }
+            } else if (energy.CompareTo("5TeV") == 0) {
+                fStartPtBin                 = GetStartBin("Omega","5TeV",modi,specialTrigg);
+                Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Omega", energy, modi,specialTrigg);
+                if (fNBinsPt > maxPtBinAvail) {
+                    cout << "**************************************************************************************************************************************" << endl;
+                    cout << "********************** ATTENTION, ATTENTION, ATTENTION, ATTENTION, ATTENTION, ATTENTION, ATTENTION, **********************************" << endl;
+                    cout << "You have chosen "<< fNBinsPt << " bins, which is more than the maximal " << maxPtBinAvail << " bins, this is not possible, it will be reduced to " << maxPtBinAvail << endl;
+                    cout << "**************************************************************************************************************************************" << endl;
+                    fNBinsPt    = maxPtBinAvail;
+                }
+                GetOptimumNColumnsAndRows(fNBinsPt, fStartPtBin, fColumn, fRow);                
+                for (Int_t i = 0; i < fNBinsPt; i++) {
+                    switch(modi){
+                      case 40: case 60: fNRebin[i] = fBinsOmegaPiPlPiMiPiZero5TevPtRebinPCM[i]; break;
+                      case 41: case 61: fNRebin[i] = fBinsOmegaPiPlPiMiPiZero5TevPtRebinPCMEMC[i]; break;
+                      case 42: case 62: fNRebin[i] = fBinsOmegaPiPlPiMiPiZero5TevPtRebinPCMPHOS[i]; break;
+                      case 44: case 64: fNRebin[i] = fBinsOmegaPiPlPiMiPiZero5TevPtRebinEMC[i]; break;
+                      case 45: case 65: fNRebin[i] = fBinsOmegaPiPlPiMiPiZero5TevPtRebinEMC[i]; break;
+                      default:          fNRebin[i] = fBinsOmegaPiPlPiMiPiZero5TevPtRebinPCM[i]; break;
+                    }
                 }
             } else if (energy.CompareTo("13TeV") == 0) {
                 fStartPtBin                 = GetStartBin("Omega","13TeV",modi,specialTrigg);

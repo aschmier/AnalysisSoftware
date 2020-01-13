@@ -650,7 +650,7 @@
                                                  TString& pionCutNumber,
                                                  TString& neutralPionCutNumber,
                                                  TString& mesonCutNumber,
-                                                 Bool_t runningNewTask = kFALSE){
+                                                 Bool_t runningNewTask = kTRUE){
 
         TObjArray *arr;
         arr = cutSel.Tokenize("_");
@@ -5677,6 +5677,18 @@
         return "p_{T} > 1.5 GeV/c";
         case 7:
         return "p_{T} > 0.5 GeV/c";
+        case 8:
+        return "p_{T} > 5.0 GeV/c";
+        case 9:
+        return "p_{T} > 3.0 GeV/c";
+        case 10:
+        return "p_{T} > 4.0 GeV/c";
+        case 11:
+        return "p_{T} > 6.0 GeV/c";
+        case 12:
+        return "p_{T} > 8.0 GeV/c";
+        case 13:
+        return "p_{T} > 10.0 GeV/c";
 
         default:
         return "cut unknown";

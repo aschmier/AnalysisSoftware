@@ -2780,6 +2780,30 @@
         label->Draw();
     }
 
+    void PutWorkInProgressLabel(Double_t    startTextX,
+                            Double_t    startTextY,
+                            Size_t      textHeight,
+                            Size_t      textHeightRel   = 0.03,
+                            Float_t     textHeightFac   = 1.25,
+                            Style_t     textFont        = 62,
+                            Color_t     textColor       = 1,
+                            Bool_t      alignLeft       = kTRUE) {
+
+        Double_t differenceText = textHeight*textHeightFac;
+        if (textFont == 63 || textFont == 43)
+            differenceText        = textHeightRel*textHeightFac;
+
+        TString labelString     = "ALICE work-in-progress";
+        TLatex *label           = new TLatex(startTextX, (startTextY-differenceText), labelString);
+
+        if(!alignLeft) label->SetTextAlign(31);
+        label->SetNDC();
+        label->SetTextColor(textColor);
+        label->SetTextFont(textFont);
+        label->SetTextSize(textHeight);
+        label->Draw();
+    }
+
     void PutALICESimulationLabel(Double_t   startTextX,
                                 Double_t   startTextY,
                                 Size_t     textHeight,
@@ -2945,10 +2969,10 @@
                     return 879;
                 } else if (!generator.CompareTo("LHC14j4f")){
                     return 806;
-                } else if (!generator.CompareTo("LHC10_pass4_EMC")){
+                } else if (!generator.CompareTo("LHC10_pass4_EMC") || !generator.CompareTo("LHC11c_ISONL")){
                     return kCyan+3;
-                } else if (!generator.CompareTo("LHC10b_pass4_EMC")){
-                    return kBlack;
+                } else if (!generator.CompareTo("LHC10b_pass4_EMC") || !generator.CompareTo("LHC11d_ISONL")){
+                    return kRed+2;
                 } else if (!generator.CompareTo("LHC10c_pass4_EMC")){
                     return 633;
                 } else if (!generator.CompareTo("LHC10d_pass4_EMC")){
@@ -3469,7 +3493,7 @@
                 return 20;
             } else if( ( generator.Contains("LHC10") && generator.Contains("_pass4") ) || generator.Contains("LHC11")){
                 return 29;
-            } else if(generator.Contains("LHC14j4") || !generator.CompareTo("LHC14b7")){
+            } else if(generator.Contains("LHC14j4") || !generator.CompareTo("LHC14b7") || generator.Contains("_ISONL") ){
                 return 30;
             } else {
                 return 24;
@@ -4378,6 +4402,8 @@
         else if (triggerName.Contains("EJ1") && isShade)   return kRed-6;
         else if (triggerName.Contains("PHI7") && !isShade) return kRed+2;
         else if (triggerName.Contains("PHI7") && isShade) return kRed-6;
+        else if ((triggerName.Contains("EMC7_8TeVJJ") ) && !isShade)  return kCyan+2;
+        else if ((triggerName.Contains("EMC7_8TeVJJ") ) && isShade)   return kCyan-6;
         else return kBlack;
 
         return kBlack;

@@ -49,15 +49,26 @@
 #include "../CommonHeaders/ConversionFunctionsBasicsAndLabeling.h"
 #include "../CommonHeaders/ExtractSignalPlotting.h"
 #include "THnSparse.h"
+#include "RooRealVar.h"
+#include "RooConstVar.h"
+#include "RooGaussian.h"
+#include "RooArgusBG.h"
+#include "RooAddPdf.h"
+#include "RooDataSet.h"
+#include "RooPlot.h"
+#include "RooDataHist.h"
+#include "RooChebychev.h"
+#include "RooExponential.h"
+#include "RooPolynomial.h"
+#include "RooFitResult.h"
 
 Double_t FunctionBGExclusion(Double_t *x, Double_t *par){
-    if (x[0] > fBGFitRangeLeft[1] && x[0] < fBGFitRange[0]) {
+    if (x[0] > fPeakRange[1] && x[0] < fPeakRange[0]) {
         TF1::RejectPoint();
         return 0;
     }
-    return par[0] + par[1]*x[0] + par[2]*x[0]*x[0] + par[3]*x[0]*x[0]*x[0] + par[4]*x[0]*x[0]*x[0]*x[0];
+    return par[0] + par[1]*x[0] + par[2]*x[0]*x[0];
 }
-
 
 // Main Function
 void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
@@ -115,6 +126,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     cout << "fMesonCutSelection  = " << fMesonCutSelection << endl;
     cout << "\t MODE = " << mode << endl;
 
+    TString trigger         = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
+    fTriggerInt = trigger.Atoi();
     StyleSettingsThesis();
     SetPlotStyle();
 
@@ -221,10 +234,18 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     }
 
     TList *HistosGammaConversion = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
+
+    // if(optionMC.CompareTo("kTRUE") == 0 && mode ==64 && (fCutSelectionRead.Contains("2_00052113_111113106f032230000_0103603c00000000_32c51070a_0153503000000000"))){
+    //     fCutSelectionRead = "2_00010113_111113106f032230000_0103603c00000000_32c51070a_0153503000000000";
+    //     HistosGammaConversion       = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
+    // }
+
+
     if(HistosGammaConversion == NULL){
         cout<<"ERROR: " << Form("Cut Number %s",fCutSelectionRead.Data()) << " not Found in File"<<endl;
         return;
     }
+
     TList *ESDContainer             = (TList*) HistosGammaConversion->FindObject(Form("%s ESD histograms",fCutSelectionRead.Data()));
     TList *BackgroundContainer      = (TList*) HistosGammaConversion->FindObject(Form("%s Back histograms",fCutSelectionRead.Data()));
     TList *MotherContainer          = (TList*) HistosGammaConversion->FindObject(Form("%s Mother histograms",fCutSelectionRead.Data()));
@@ -731,21 +752,24 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         }
     }
 
-    if (fIsMC){
-        TH1D* fHistoMappingTrueMesonInvMassPtMidPt= NULL;
-        fHistoMappingTrueMesonInvMassPtMidPt= new TH1D("TrueMassMidPt","TrueMassMidPt",fHistoTrueMesonInvMassVSPtReweighted->GetNbinsX(),0.,fHistoTrueMesonInvMassVSPtReweighted->GetXaxis()->GetBinUpEdge(fHistoTrueMesonInvMassVSPtReweighted->GetNbinsX()));
-        fHistoMappingTrueMesonInvMassPtMidPt->Sumw2();
-        Int_t startBin = fHistoTrueMesonInvMassVSPtReweighted->GetYaxis()->FindBin(fMidPt[0]+0.001);
-        Int_t endBin = fHistoTrueMesonInvMassVSPtReweighted->GetYaxis()->FindBin(fMidPt[1]-0.001);
+    // if (fIsMC){
+    //     TH1D* fHistoMappingTrueMesonInvMassPtMidPt= NULL;
+    //     fHistoMappingTrueMesonInvMassPtMidPt= new TH1D("TrueMassMidPt","TrueMassMidPt",fHistoTrueMesonInvMassVSPtReweighted->GetNbinsX(),0.,fHistoTrueMesonInvMassVSPtReweighted->GetXaxis()->GetBinUpEdge(fHistoTrueMesonInvMassVSPtReweighted->GetNbinsX()));
+    //     fHistoMappingTrueMesonInvMassPtMidPt->Sumw2();
+    //     Int_t startBin = fHistoTrueMesonInvMassVSPtReweighted->GetYaxis()->FindBin(fMidPt[0]+0.001);
+    //     Int_t endBin = fHistoTrueMesonInvMassVSPtReweighted->GetYaxis()->FindBin(fMidPt[1]-0.001);
 
-        fHistoTrueMesonInvMassVSPtReweighted->ProjectionX("TrueMassMidPt",startBin,endBin,"e");
+    //     fHistoTrueMesonInvMassVSPtReweighted->ProjectionX("TrueMassMidPt",startBin,endBin,"e");
 
-        fHistoMappingTrueMesonInvMassPtMidPt=(TH1D*)gDirectory->Get(fNameHistoTrue.Data());
-        fHistoMappingTrueMesonInvMassPtMidPt->Rebin(fNRebin[5]);
-        fHistoMappingTrueMesonInvMassPtMidPt->SetLineWidth(1);
-        fHistoMappingTrueMesonInvMassPtMidPt->SetLineColor(2);
-        FitTrueInvMassInPtBins(fHistoMappingTrueMesonInvMassPtMidPt, fMesonIntDeltaRange,50,kTRUE,0);
-    }
+    //     fHistoMappingTrueMesonInvMassPtMidPt=(TH1D*)gDirectory->Get(fNameHistoTrue.Data());
+    //     fHistoMappingTrueMesonInvMassPtMidPt->Rebin(fNRebin[5]);
+    //     fHistoMappingTrueMesonInvMassPtMidPt->SetLineWidth(1);
+    //     fHistoMappingTrueMesonInvMassPtMidPt->SetLineColor(2);
+    //      cout << "test" << endl;
+    //      cout << fHistoMappingTrueMesonInvMassPtMidPt << endl;
+    //     FitTrueInvMassInPtBins(fHistoMappingTrueMesonInvMassPtMidPt, fMesonIntDeltaRange,50,kTRUE,0);
+    //      cout << "test" << endl;
+    // }
 
     TString fDecayChannel = "#gamma#gamma";
     if (meson.CompareTo("Omega")==0) fDecayChannel = "#pi^{+} #pi^{-} #pi^{0}";
@@ -917,6 +941,9 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
               fFitBckInvMassPtBin[iPt]                        = fFitLinearBck;
               fMesonYieldsResidualBckFunc[0][iPt]             = fIntLinearBck;
               fMesonYieldsResidualBckFuncError[0][iPt]        = fIntLinearBckError;
+              cout << fHistSignalOnly << endl;
+              fHistoMappingSignalInvMassPtBinResSubtracted[iPt] = (TH1D*) fHistSignalOnly->Clone(Form("fHistoMappingSignalInvMassPtBinResSubtracted_%i",iPt));
+              cout << "fHistSignalOnly" << endl;
             } else{
               fMesonYieldsResidualBckFunc[0][iPt]             = 0.;
               fMesonYieldsResidualBckFuncError[0][iPt]        = 0.;
@@ -929,6 +956,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 fFitBckInvMassBackFitPtBin[iPt]                 = fFitLinearBck;
                 fMesonYieldsResidualBckFuncBackFit[iPt]         = fIntLinearBck;
                 fMesonYieldsResidualBckFuncBackFitError[iPt]    = fIntLinearBckError;
+                fMesonYieldsBackFitFromFit[iPt]                 = fIntGaussExp;
+                fMesonYieldsBackFitFromFitError[iPt]            = fIntGaussExpError;
             } else {
                 fMesonYieldsResidualBckFuncBackFit[iPt]         = 0.;
                 fMesonYieldsResidualBckFuncBackFitError[iPt]    = 0.;
@@ -941,9 +970,10 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
               fFitBckInvMassPtBin_SubPiZero[iPt]                        = fFitLinearBck;
               fMesonYieldsResidualBckFunc_SubPiZero[0][iPt]             = fIntLinearBck;
               fMesonYieldsResidualBckFuncError_SubPiZero[0][iPt]        = fIntLinearBckError;
+              fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero[iPt] = (TH1D*) fHistSignalOnly->Clone(Form("fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero_%i",iPt));
             } else{
-              fMesonYieldsResidualBckFunc_SubPiZero[0][iPt]             = 0.;
-              fMesonYieldsResidualBckFuncError_SubPiZero[0][iPt]        = 0.;
+              fMesonYieldsResidualBckFuncBackFit_SubPiZero[iPt]             = 0.;
+              fMesonYieldsResidualBckFuncBackFitError_SubPiZero[iPt]        = 0.;
             }
               fFileDataLog << "Subtracted polinomial fit" << endl;
             
@@ -953,6 +983,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 fFitBckInvMassBackFitPtBin_SubPiZero[iPt]                 = fFitLinearBck;
                 fMesonYieldsResidualBckFuncBackFit_SubPiZero[iPt]         = fIntLinearBck;
                 fMesonYieldsResidualBckFuncBackFitError_SubPiZero[iPt]    = fIntLinearBckError;
+                fMesonYieldsBackFitFromFit_SubPiZero[iPt]                 = fIntGaussExp;
+                fMesonYieldsBackFitFromFitError_SubPiZero[iPt]            = fIntGaussExpError;
             } else {
                 fMesonYieldsResidualBckFuncBackFit_SubPiZero[iPt]         = 0.;
                 fMesonYieldsResidualBckFuncBackFitError_SubPiZero[iPt]    = 0.;
@@ -966,6 +998,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
               fMesonYieldsResidualBckFunc_FixedPzPiZero[0][iPt]             = fIntLinearBck;
               fMesonYieldsResidualBckFuncError_FixedPzPiZero[0][iPt]        = fIntLinearBckError;
               fFileDataLog << "Subtracted polinomial fit" << endl;
+              fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero[iPt] = (TH1D*) fHistSignalOnly->Clone(Form("fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero_%i",iPt));
             } else{
               fMesonYieldsResidualBckFunc_FixedPzPiZero[0][iPt]             = 0.;
               fMesonYieldsResidualBckFuncError_FixedPzPiZero[0][iPt]        = 0.;
@@ -977,6 +1010,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                   fFitBckInvMassBackFitPtBin_FixedPzPiZero[iPt]                 = fFitLinearBck;
                   fMesonYieldsResidualBckFuncBackFit_FixedPzPiZero[iPt]         = fIntLinearBck;
                   fMesonYieldsResidualBckFuncBackFitError_FixedPzPiZero[iPt]    = fIntLinearBckError;
+                  fMesonYieldsBackFitFromFit_FixedPzPiZero[iPt]                 = fIntGaussExp;
+                  fMesonYieldsBackFitFromFitError_FixedPzPiZero[iPt]            = fIntGaussExpError;
              } else {
                   fMesonYieldsResidualBckFuncBackFit_FixedPzPiZero[iPt]         = 0.;
                   fMesonYieldsResidualBckFuncBackFitError_FixedPzPiZero[iPt]    = 0.;
@@ -1305,7 +1340,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
                 // Integrate the Backfit histo with InvMass pi0 subtracted
                 if(fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]){
-                    fFileDataLog<< endl <<"BackFit histo "<< nameIntRange[k].Data() << ":\t" << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << endl;
+                    cout << endl <<"BackFit histo "<< nameIntRange[k].Data() << ":\t" << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << endl;
                     IntegrateHistoInvMassStream( fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt], fMesonCurIntRangeBackFit_SubPiZero[k]);
                     fMesonYieldsBackFit_SubPiZero[k][iPt]      = fYields;
                     fMesonYieldsBackFitError_SubPiZero[k][iPt] = fYieldsError;
@@ -1313,6 +1348,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     fMesonYieldsBackFit_SubPiZero[k][iPt]      = 0.;
                     fMesonYieldsBackFitError_SubPiZero[k][iPt] = 0.;
                 }
+                // cout << fMesonYieldsBackFit_SubPiZero[k][iPt] << " +/- " << fMesonYieldsBackFitError_SubPiZero[k][iPt] << endl;
+
                 // Integrate the Backfit histo with Pz of pi0 fixed
                 if(fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[iPt]){
                     fFileDataLog<< endl <<"BackFit histo "<< nameIntRange[k].Data() << ":\t" << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << endl;
@@ -1324,6 +1361,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     fMesonYieldsBackFitError_FixedPzPiZero[k][iPt] = 0.;
                 }
             }
+
             // Integrate the signal histo
             if(fHistoMappingSignalInvMassPtBin[iPt]){
                 fFileDataLog<< endl <<"Signal histo "<< nameIntRange[k].Data() << ":\t" << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << endl;
@@ -1719,6 +1757,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 fMesonYieldsPerEventBackFit[k][iPt]                    = fMesonYieldsCorResidualBckFuncBackFit[k][iPt]/fNEvents;
                 fMesonYieldsPerEventBackFitError[k][iPt]               = fMesonYieldsCorResidualBckFuncBackFitError[k][iPt]/fNEvents;
 
+                fMesonYieldsBackFitFromFitPerEvent[iPt]                    = fMesonYieldsBackFitFromFit[iPt]/fNEvents;
+                fMesonYieldsBackFitFromFitPerEventError[iPt]               = fMesonYieldsBackFitFromFitError[iPt]/fNEvents;
                 // Calculation for InvMass pi0 subtracted
 
                 fMesonYieldsCorResidualBckFunc_SubPiZero[k][iPt]          = fMesonYields_SubPiZero[k][iPt]- fMesonYieldsResidualBckFunc_SubPiZero[k][iPt];
@@ -1727,14 +1767,15 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 fMesonYieldsPerEvent_SubPiZero[k][iPt]                    = fMesonYieldsCorResidualBckFunc_SubPiZero[k][iPt]/fNEvents;
                 fMesonYieldsPerEventError_SubPiZero[k][iPt]               = fMesonYieldsCorResidualBckFuncError_SubPiZero[k][iPt]/fNEvents;
 
-
-                fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt]          = fMesonYieldsBackFit_SubPiZero[k][iPt]- fMesonYieldsResidualBckFuncBackFit_SubPiZero[iPt];
+                fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt]          = fMesonYieldsBackFit_SubPiZero[k][iPt];
                 fMesonYieldsCorResidualBckFuncBackFitError_SubPiZero[k][iPt]     =
                         TMath::Power((fMesonYieldsBackFitError_SubPiZero[k][iPt]*fMesonYieldsBackFitError_SubPiZero[k][iPt]+
                              fMesonYieldsResidualBckFuncBackFitError_SubPiZero[iPt]*fMesonYieldsResidualBckFuncBackFitError_SubPiZero[iPt]),0.5);
-
                 fMesonYieldsPerEventBackFit_SubPiZero[k][iPt]                    = fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt]/fNEvents;
                 fMesonYieldsPerEventBackFitError_SubPiZero[k][iPt]               = fMesonYieldsCorResidualBckFuncBackFitError_SubPiZero[k][iPt]/fNEvents;
+
+                fMesonYieldsBackFitFromFitPerEvent_SubPiZero[iPt]                    = fMesonYieldsBackFitFromFit_SubPiZero[iPt]/fNEvents;
+                fMesonYieldsBackFitFromFitPerEventError_SubPiZero[iPt]               = fMesonYieldsBackFitFromFitError_SubPiZero[iPt]/fNEvents;
 
                 // Calculation for InvMass pz of pi0 fixes
                 fMesonYieldsCorResidualBckFunc_FixedPzPiZero[k][iPt]          = fMesonYields_FixedPzPiZero[k][iPt]- fMesonYieldsResidualBckFunc_FixedPzPiZero[k][iPt];
@@ -1750,6 +1791,9 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
                 fMesonYieldsPerEventBackFit_FixedPzPiZero[k][iPt]                    = fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt]/fNEvents;
                 fMesonYieldsPerEventBackFitError_FixedPzPiZero[k][iPt]               = fMesonYieldsCorResidualBckFuncBackFitError_FixedPzPiZero[k][iPt]/fNEvents;
+
+                fMesonYieldsBackFitFromFitPerEvent_SubPiZero[iPt]                    = fMesonYieldsBackFitFromFit_SubPiZero[iPt]/fNEvents;
+                fMesonYieldsBackFitFromFitPerEventError_SubPiZero[iPt]               = fMesonYieldsBackFitFromFitError_SubPiZero[iPt]/fNEvents;
 
                 //SB default
                 if (fTotalBckYields[k][iPt] != 0){
@@ -1841,6 +1885,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                         FitSubtractedInvMassInPtBins(fHistoMappingSignalInvMassPtBin[iPt], intRange, iPt, kFALSE,0);
                         fMesonYieldsResidualBckFunc[k][iPt]         = fIntLinearBck;
                         fMesonYieldsResidualBckFuncError[k][iPt]    = fIntLinearBckError;
+                        fHistoMappingSignalInvMassPtBinResSubtracted[iPt] = (TH1D*) fHistSignalOnly->Clone(Form("fHistoMappingSignalInvMassPtBinResSubtracted_%i",iPt));
+                        
                     }
 
                     // Fitting for InvMass pi0 subtracted
@@ -1848,13 +1894,15 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                         FitSubtractedInvMassInPtBins(fHistoMappingSignalInvMassPtBin_SubPiZero[iPt], intRange, iPt, kFALSE,1);
                         fMesonYieldsResidualBckFunc_SubPiZero[k][iPt]           = fIntLinearBck;
                         fMesonYieldsResidualBckFuncError_SubPiZero[k][iPt]    = fIntLinearBckError;
+                        fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero[iPt] = (TH1D*) fHistSignalOnly->Clone(Form("fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero_%i",iPt));
                     }
 
                     // Fitting for InvMass pz of pi0 fixed
-                    if(fHistoMappingSignalInvMassPtBin[iPt]){
+                    if(fHistoMappingSignalInvMassPtBin_FixedPzPiZero[iPt]){
                         FitSubtractedInvMassInPtBins(fHistoMappingSignalInvMassPtBin_FixedPzPiZero[iPt], intRange, iPt, kFALSE,2);
                         fMesonYieldsResidualBckFunc_FixedPzPiZero[k][iPt]           = fIntLinearBck;
                         fMesonYieldsResidualBckFuncError_FixedPzPiZero[k][iPt]    = fIntLinearBckError;
+                        fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero[iPt] = (TH1D*) fHistSignalOnly->Clone(Form("fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero_%i",iPt));
                     }
                 } else {
                     fMesonYieldsResidualBckFunc[k][iPt]         = 0;
@@ -2622,6 +2670,40 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             namePadSub          = "MesonPadSubtracted";
             if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitTrueSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_SubPiZero);
         }
+
+        // Histos with residual background subtracted. Errors not correct. QA plot only
+
+        // Meson Subtracted
+        nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
+        nameCanvasSub       = "MesonCanvasSubtracted";
+        namePadSub          = "MesonPadSubtracted";
+        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,NULL,fThesis);
+
+        // Meson Subtracted minus InvMass pi0
+        nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
+        nameCanvasSub       = "MesonCanvasSubtracted";
+        namePadSub          = "MesonPadSubtracted";
+        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_SubPiZero,fThesis);
+
+        // Meson Subtracted with pz of pi0 fixed
+        nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
+        nameCanvasSub       = "MesonCanvasSubtracted";
+        namePadSub          = "MesonPadSubtracted";
+        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_FixedPzPiZero,fThesis);
+
+        if(fIsMC){
+            // Meson Subtracted with pz of pi0 fixed that shows fit of true signal instead of signal fit
+            nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly_FixedPzPiZero_TrueFit_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
+            nameCanvasSub       = "MesonCanvasSubtracted";
+            namePadSub          = "MesonPadSubtracted";
+            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitTrueSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_FixedPzPiZero,fThesis);
+
+            // Meson Subtracted with pz of pi0 fixed that shows fit of true signal instead of signal fit
+            nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly_SubPiZero_TrueFit_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
+            nameCanvasSub       = "MesonCanvasSubtracted";
+            namePadSub          = "MesonPadSubtracted";
+            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitTrueSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_SubPiZero);
+        }
     }
 
     // Meson Subtracted backfit
@@ -2634,7 +2716,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     nameMesonSub                = Form("%s/%s_%s_MesonSubtractedBackFit_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasSubtractedBackFit";
     namePadSub                  = "MesonPadSubtractedBackFit";
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassBackFitPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit_SubPiZero,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassBackFitPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement,fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit_SubPiZero,fThesis);
 
     // Meson Subtracted backfit (pz of pi0 is fixed) (NOTE: isMC is always disabled because no true histos exist)
     nameMesonSub                = Form("%s/%s_%s_MesonSubtractedBackFit_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
@@ -2661,6 +2743,24 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     nameCanvasSub               = "MesonCanvasBackFit";
     namePadSub                  = "MesonPadBackFit";
     PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fBackgroundFitPol_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+
+    // Meson Back Fit
+    nameMesonSub                = Form("%s/%s_%s_MesonBackFitWithGauss%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
+    nameCanvasSub               = "MesonCanvasBackFit";
+    namePadSub                  = "MesonPadBackFit";
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fBackgroundFitGaussPol, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+
+   // Meson Back Fit (minus pi0 inv mass)
+    nameMesonSub                = Form("%s/%s_%s_MesonBackFitWithGauss_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
+    nameCanvasSub               = "MesonCanvasBackFit";
+    namePadSub                  = "MesonPadBackFit";
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fBackgroundFitGaussPol_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+
+    // Meson Back Fit (pz of pi0 fixed)
+    nameMesonSub                = Form("%s/%s_%s_MesonBackFitWithGauss_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
+    nameCanvasSub               = "MesonCanvasBackFit";
+    namePadSub                  = "MesonPadBackFit";
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fBackgroundFitGaussPol_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
 
     // Meson with back left
     nameMeson                   = Form("%s/%s_%s_MesonWithBckLeft%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
@@ -2718,42 +2818,42 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
     if(backAvailable) PlotExampleInvMassBinsV2(fHistoMappingGGInvMassPtBin[fExampleBin], fHistoMappingSignalInvMassPtBin[fExampleBin], fHistoMappingBackNormInvMassPtBin[0][fExampleBin],
                         fFitSignalInvMassPtBin[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig,kFALSE);
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig,kFALSE);
     // In example bin with pi0 inv mass subtracted
 
     if(backAvailable) PlotExampleInvMassBinsV2(fHistoMappingGGInvMassPtBin_SubPiZero[fExampleBin], fHistoMappingSignalInvMassPtBin_SubPiZero[fExampleBin], fHistoMappingBackNormInvMassPtBin_SubPiZero[0][fExampleBin],
                         fFitSignalInvMassPtBin_SubPiZero[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange_SubPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig,kFALSE,fBGFitRange_SubPiZero);
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig,kFALSE,fBGFitRange_SubPiZero);
     // In example bin with pz of pi0 fixed
 
     if(backAvailable) PlotExampleInvMassBinsV2(fHistoMappingGGInvMassPtBin_FixedPzPiZero[fExampleBin], fHistoMappingSignalInvMassPtBin_FixedPzPiZero[fExampleBin], fHistoMappingBackNormInvMassPtBin_FixedPzPiZero[0][fExampleBin],
                         fFitSignalInvMassPtBin_FixedPzPiZero[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMass_FixedPzPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig, kFALSE, fBGFitRange_FixedPzPiZero);
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig, kFALSE, fBGFitRange_FixedPzPiZero);
 
     PlotExampleInvMassBinsBckFit(fHistoMappingGGInvMassPtBin[fExampleBin], fHistoMappingGGInvMassBackFitPtBin[fExampleBin], fBackgroundFitPol[fExampleBin],fHistoBckFitConfidence[fExampleBin],
                          fFitSignalInvMassBackFitPtBin[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig );
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig );
     // In example bin with pi0 inv mass subtracted
     PlotExampleInvMassBinsBckFit(fHistoMappingGGInvMassPtBin_SubPiZero[fExampleBin], fHistoMappingGGInvMassBackFitPtBin_SubPiZero[fExampleBin], fBackgroundFitPol_SubPiZero[fExampleBin],fHistoBckFitConfidence_SubPiZero[fExampleBin],
                          fFitSignalInvMassBackFitPtBin_SubPiZero[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange_SubPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig );
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig );
 
     // In example bin with pz of pi0 fixed
     PlotExampleInvMassBinsBckFit(fHistoMappingGGInvMassPtBin_FixedPzPiZero[fExampleBin], fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[fExampleBin], fBackgroundFitPol_FixedPzPiZero[fExampleBin],fHistoBckFitConfidence_FixedPzPiZero[fExampleBin],
                          fFitSignalInvMassBackFitPtBin_FixedPzPiZero[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMass_FixedPzPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig );
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig );
     if(((TString)fMesonCutSelection(1,1)).CompareTo("a")!=0){ //Do these plots only if LikeSign method was used
         // Background groups individually scaled in example bin
         if(backAvailable) PlotExampleInvMassBinsBckGroups(fHistoMappingGGInvMassPtBin[fExampleBin], fHistoMappingBackNormInvMassPtBin,fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig ,"InvMassBinBckGroups");
+                                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig ,"InvMassBinBckGroups");
 
         // Background groups individually scaled in example bin (pi0 subtracted)
         if(backAvailable) PlotExampleInvMassBinsBckGroups(fHistoMappingGGInvMassPtBin_SubPiZero[fExampleBin], fHistoMappingBackNormInvMassPtBin_SubPiZero,fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange_SubPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig ,"InvMassBinBckGroups_SubPiZero");
+                                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig ,"InvMassBinBckGroups_SubPiZero");
 
         // Background groups individually scaled in example bin (pz of pi0 fixed)
         if(backAvailable) PlotExampleInvMassBinsBckGroups(fHistoMappingGGInvMassPtBin_FixedPzPiZero[fExampleBin], fHistoMappingBackNormInvMassPtBin_FixedPzPiZero,fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange_FixedPzPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig ,"InvMassBinBckGroups_FixedPzPiZero");
+                                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig ,"InvMassBinBckGroups_FixedPzPiZero");
     }
 
     if(fIsMC){
@@ -2800,6 +2900,17 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         TString nameCanvasTrue  = "TrueMesonCanvasFitted";
         TString namePadTrue     = "TrueMesonPadFitted";
         PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins, fHistoMappingTrueMesonInvMassPtBins, fFitTrueSignalInvMassPtBin, nameMesonTrue, nameCanvasTrue, namePadTrue, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");  
+    
+        nameMesonTrue   = Form("%s/%s_%s_TrueMesonFitted_SubPiZero%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
+        nameCanvasTrue  = "TrueMesonCanvasFitted";
+        namePadTrue     = "TrueMesonPadFitted";
+        PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitTrueSignalInvMassPtBin_SubPiZero, nameMesonTrue, nameCanvasTrue, namePadTrue, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");  
+
+        nameMesonTrue   = Form("%s/%s_%s_TrueMesonFitted_FixedPzPiZero%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
+        nameCanvasTrue  = "TrueMesonCanvasFitted";
+        namePadTrue     = "TrueMesonPadFitted";
+        PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitTrueSignalInvMassPtBin_FixedPzPiZero, nameMesonTrue, nameCanvasTrue, namePadTrue, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");  
+
     }
     //*************************************** CALCULATE ACCEPTANCE AND EFFICIENCIES **********************************************************
 
@@ -2839,6 +2950,16 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fNameHistoEffi=Form("MesonEffiBackFit%sPt_FixedPzPiZero",nameIntRange[k].Data());
             fHistoMonteMesonEffiBackFitPt_FixedPzPiZero[k]           = CalculateMesonEfficiency(fHistoYieldMesonBackFit_FixedPzPiZero[k], fHistoMCMesonWithinAccepPt, fNameHistoEffi );
         }
+        // efficiency calculation for fitted background + integration of gaussian
+        fNameHistoEffi="MesonEffiBackFitFromFitPt";
+        fHistoMonteMesonEffiBackFitFromFitPt                = CalculateMesonEfficiency(fHistoYieldMesonBackFitFromFit, fHistoMCMesonWithinAccepPt, fNameHistoEffi );
+
+        fNameHistoEffi="MesonEffiBackFitFromFitPt_SubPiZero";
+        fHistoMonteMesonEffiBackFitFromFitPt_SubPiZero      = CalculateMesonEfficiency(fHistoYieldMesonBackFitFromFit_SubPiZero, fHistoMCMesonWithinAccepPt, fNameHistoEffi );
+
+        fNameHistoEffi="MesonEffiBackFitFromFitPt_FixedPzPiZero";
+        fHistoMonteMesonEffiBackFitFromFitPt_FixedPzPiZero  = CalculateMesonEfficiency(fHistoYieldMesonBackFitFromFit_FixedPzPiZero, fHistoMCMesonWithinAccepPt, fNameHistoEffi );
+
         // True Meson (only once case, because no normalization
         for (Int_t k = 0; k < 3; k++){
             fNameHistoEffi                          = Form("TrueMeson%sEffiPt",nameIntRange[k].Data());
@@ -2879,59 +3000,272 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i] = (TH1D*)fGammaGamma->Clone(Form("GG_WithoutSigal_%i",i));
     fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Sumw2();
 
-    for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
-        if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx) == 0){
-            fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,1.);
-            fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,0.);
-        }
-        if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fPeakRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fPeakRangeDummy[1]){
-            fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,0.0);
-            fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,0.0);
-        }
+
+    // Test for RooFit, possible to use for future developmnets, not working fully yet
+    // --- Observable ---
+
+    TF1* RooFitBckGauss = NULL;
+    TF1* RooFitBckOnly = NULL;
+    if(fTotalBackFitMode == 4){
+        RooRealVar mes("mes","m_{ES} (GeV)",fFitRangeDummy[0],fFitRangeDummy[1]);
+
+
+        // --- Parameters ---
+        RooRealVar sigmean("sigmean","#omega mass",fMesonMassExpect,fMesonMassExpect*0.8,fMesonMassExpect*1.2);
+        RooRealVar sigwidth("sigwidth","#omega width",0.02,0.01,0.06);
+
+        // --- Build Gaussian PDF ---
+        RooGaussian signalModel("signal","signal PDF",mes,sigmean,sigwidth);
+
+        RooRealVar c0("c0","coefficient #0", 10.,-100.,100.) ;
+        RooRealVar c1("c1","coefficient #1", 10.,-100.,100.) ;
+        RooPolynomial bkgpoly("bkgpoly","background p.d.f.",mes,RooArgList(c0,c1)) ; 
+        
+        RooRealVar a("a","coefficient #0", 10.,-100.,100.) ;
+        RooRealVar b("b","coefficient #1", 10.,-100.,100.) ;
+        RooPolynomial bkgpolyOnly("bkgpolyOnly","background p.d.f.",mes,RooArgList(a,b)) ; 
+        
+        RooRealVar lambda("lambda", "slope", 0.1, 20., 0.);
+        RooExponential bkgexpo("bkg","background p.d.f.",mes,lambda) ; 
+
+        // --- Construct signal+background PDF ---
+        RooRealVar nsig("nsig","#signal events",200,0.,1E6);
+        RooRealVar nbkg("nbkg","#background events",800,0.,1E6);
+        RooAddPdf model("model","g+a",RooArgList(signalModel,bkgpoly),RooArgList(nsig,nbkg));
+ 
+        // Import data
+        RooDataHist data("data","data",mes,RooFit::Import(*fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i])) ;
+
+        // --- Perform extended ML fit of composite PDF to toy data ---
+        model.fitTo(data,RooFit::Extended());
+
+        // Get TF1, however it's from a PDF so normalized to 1
+        // this right now is the main problem since it can not be properly scaled back
+        RooFitBckGauss = (TF1*) model.asTF(RooArgList(mes),RooArgList(c0,c1,sigmean,sigwidth),RooArgList(mes));
+        RooFitBckOnly= (TF1*) bkgpoly.asTF(RooArgList(mes),RooArgList(c0,c1),RooArgList(mes));
     }
 
-    TF1 *FitBackFunc;//, *FitFuncCenter, *FitFuncHigh;
-    FitBackFunc = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
-    TFitResultPtr resultBckFit =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitBackFunc,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
-    Double_t FitParams[3];
+    // Loop over histo in fitrange to find min and max bin
+    Int_t startBin = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->FindBin(fPeakRangeDummy[0]);
+    Int_t endBin = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->FindBin(fPeakRangeDummy[1]);
+
+    Float_t minContent = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(startBin);
+    Float_t maxContent = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(startBin);
+    for (Int_t binx= startBin; binx < endBin+1; binx++){
+           Float_t currContent = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx);
+           if(currContent<minContent) minContent = currContent;
+           if(currContent>maxContent) maxContent = currContent;      
+    }
+
+    // Instead of fitting excluding peak region, fit pol2 with Gaussian
+    TF1* FitPol2Gauss = NULL;
+    TF1* FitPol2Only = NULL;
+    if(fTotalBackFitMode==1){ // pol2 with fPeakRange exluded
+        FitPol2Only = new TF1  ("Pol2Exclusion",FunctionBGExclusion,fFitRangeDummy[0],fFitRangeDummy[1],3);
+    }else if(fTotalBackFitMode==3){
+        FitPol2Gauss = new TF1  ("GaussPol2","[0]+[1]*x+[2]*x*x+[3]*TMath::Exp(-0.5*((x-[4])/[5])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        FitPol2Only = new TF1("Linear","[0]+[1]*x+[2]*x*x",fFitRangeDummy[0],fFitRangeDummy[1]);
+    } else if (fTotalBackFitMode==2){
+        FitPol2Gauss = new TF1  ("GaussPol2","[0]+[1]*x+[2]*TMath::Exp(-0.5*((x-[3])/[4])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        FitPol2Only = new TF1("Linear","[0]+[1]*x",fFitRangeDummy[0],fFitRangeDummy[1]);
+    } else if(fTotalBackFitMode==4){ // use RooFit
+        FitPol2Gauss = RooFitBckGauss;
+        FitPol2Only = RooFitBckOnly;
+    }
+
+
+    // Set Amplitude ranger
+    Float_t amplitude = maxContent-minContent; // rough estimate of amplitude max-min in peak range
+
+    if(fTotalBackFitMode==3){
+        FitPol2Gauss->SetParameter(3,amplitude);
+        FitPol2Gauss->SetParLimits(3,amplitude*0.7,amplitude*1.2);
+    } else  if(fTotalBackFitMode==2){
+        FitPol2Gauss->SetParameter(2,amplitude);
+        FitPol2Gauss->SetParLimits(2,amplitude*0.7,amplitude*1.2);
+    }
+    // set mass start value
+    if(fTotalBackFitMode==3) FitPol2Gauss->SetParameter(4,fMesonMassExpect);
+    else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(3,fMesonMassExpect);
+    
+    // set ranges for mass fitting
+    if(fPrefix.CompareTo("Eta") ==0){
+        if     (fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(4,fMesonMassExpect*0.95,fMesonMassExpect*1.05);
+        else if(fTotalBackFitMode==2)  FitPol2Gauss->SetParLimits(3,fMesonMassExpect*0.95,fMesonMassExpect*1.05);
+    } else{
+        if     (fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(4,fMesonMassExpect*0.90,fMesonMassExpect*1.1);
+        else if(fTotalBackFitMode==2)  FitPol2Gauss->SetParLimits(3,fMesonMassExpect*0.90,fMesonMassExpect*1.1);
+    }
+
+    // set start value for width
+    if(fTotalBackFitMode==3)      FitPol2Gauss->SetParameter(5,fMesonWidthExpect);
+    else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(4,fMesonWidthExpect);
+    if(fIsMC){
+        if(fTotalBackFitMode==3)  FitPol2Gauss->SetParameter(5,fMesonWidthExpectMC);
+        else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(4,fMesonWidthExpectMC);
+    }
+
+    // set ranges for width fitting
+    if(fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(5,fMesonWidthRange[0],fMesonWidthRange[1]);
+    else if(fTotalBackFitMode==2) FitPol2Gauss->SetParLimits(4,fMesonWidthRange[0],fMesonWidthRange[1]);
+    if(fIsMC){
+        if(fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(5,fMesonWidthRangeMC[0],fMesonWidthRangeMC[1]);
+        else if(fTotalBackFitMode==2) FitPol2Gauss->SetParLimits(4,fMesonWidthRangeMC[0],fMesonWidthRangeMC[1]);
+    }
+
+    TFitResultPtr resultBckFitTotal;
+    if(fTotalBackFitMode==3 || fTotalBackFitMode==2 ){
+        fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+        resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+    } else if(fTotalBackFitMode==1){
+        fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Only,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+        resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Only,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+    }
+
+    
+    // check if something weird is going on after fitting
+    if(fTotalBackFitMode==3) {
+        if( (FitPol2Gauss->GetParameter(4)<fMesonMassExpect*0.95) || (FitPol2Gauss->GetParameter(4)>fMesonMassExpect*1.05)){
+            cout <<  "parameter jumped out of ranges! Fix it and try fitting again" << endl;
+            FitPol2Gauss->SetParameter(4,fMesonMassExpect);
+            FitPol2Gauss->SetParError(4,0.);
+            FitPol2Gauss->FixParameter(4,fMesonMassExpect);
+        }
+
+        resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+    } else if(fTotalBackFitMode==2){
+        if( (FitPol2Gauss->GetParameter(3)<fMesonMassExpect*0.95) || (FitPol2Gauss->GetParameter(4)<fMesonMassExpect*0.95)){
+            // parameter jumped out of ranges! Fix it and try fitting again
+            FitPol2Gauss->SetParameter(3,fMesonMassExpect);
+            FitPol2Gauss->FixParameter(3,fMesonMassExpect);
+            FitPol2Gauss->SetParError(3,0.);
+        }
+
+         resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+    }
+
+    // get cov matrix of total fit ( all parameters)
+    TMatrixDSym covTot = resultBckFitTotal->GetCovarianceMatrix();    
+
+    // make sub matrix with first three elements
+    Int_t nrows = 2; 
+    if(fTotalBackFitMode==2) nrows =1 ;
+    
+    TMatrixDSym* covGG = NULL;
+    if(fTotalBackFitMode==2 || fTotalBackFitMode==3){ // get subcovariance matrix since total fit had more parameters
+        covGG = new TMatrixDSym(0,nrows, covTot.GetMatrixArray() );
+    } else if(fTotalBackFitMode==1){ // use normal matrix in case pol was fitted directly
+        covGG = &covTot;
+    }
+
+    // Set parameters for pol2 background function
+    if(fTotalBackFitMode==3 || fTotalBackFitMode==2  ) {
+        FitPol2Only->SetParameter(0,FitPol2Gauss->GetParameter(0));
+        FitPol2Only->SetParError(0,FitPol2Gauss->GetParError(0));
+        FitPol2Only->SetParameter(1,FitPol2Gauss->GetParameter(1));
+        FitPol2Only->SetParError(1,FitPol2Gauss->GetParError(1));
+        if(fTotalBackFitMode==3) {
+            FitPol2Only->SetParameter(2,FitPol2Gauss->GetParameter(2));
+            FitPol2Only->SetParError(2,FitPol2Gauss->GetParError(2));
+        }
+    }
+    
+    // TF1 *FitBackFunc;//, *FitFuncCenter, *FitFuncHigh;
+    // FitBackFunc = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);  
+    // TFitResultPtr resultBckFit =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitBackFunc,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+
+    double* FitParamsPol;
+    double* FitParamsGaussPol;
+    if(fTotalBackFitMode==3) {
+        FitParamsPol = new double [3];
+        FitParamsGaussPol = new double [6];
+    } else if(fTotalBackFitMode==2){
+        FitParamsPol = new double [2];
+        FitParamsGaussPol = new double [5];
+    } else if(fTotalBackFitMode==1){ // GuassPol not needed in this case
+        FitParamsPol = new double [2];
+    }
 
     if(InvMassType==0){
+
+      // For background subtraction
       fBackgroundFitPol[i] = NULL;
-      fBackgroundFitPol[i] = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
-
-      FitBackFunc->GetParameters(&FitParams[0]);
-      fBackgroundFitPol[i]->SetParameters(FitParams);
-
+      if(fTotalBackFitMode==3 || fTotalBackFitMode==1)  fBackgroundFitPol[i] = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
+      else if(fTotalBackFitMode==2) fBackgroundFitPol[i] = new TF1("BGfit","pol1",fFitRangeDummy[0],fFitRangeDummy[1]);
+      FitPol2Only->GetParameters(&FitParamsPol[0]);
+      fBackgroundFitPol[i]->SetParameters(FitParamsPol);
       fBackgroundFitPol[i]->SetRange(fMesonFitRange[0],fMesonFitRange[1]);
+
+      // for plotting
+      if(fTotalBackFitMode!=1 ){ // not needed if Gauss wasn't used
+         fBackgroundFitGaussPol[i] = NULL;
+        if(fTotalBackFitMode==3) fBackgroundFitGaussPol[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*x*x+[3]*TMath::Exp(-0.5*((x-[4])/[5])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        else if(fTotalBackFitMode==2) fBackgroundFitGaussPol[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*TMath::Exp(-0.5*((x-[3])/[4])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        FitPol2Gauss->GetParameters(&FitParamsGaussPol[0]);
+        fBackgroundFitGaussPol[i]->SetParameters(FitParamsGaussPol);
+        fBackgroundFitGaussPol[i]->SetRange(fMesonFitRange[0],fMesonFitRange[1]);
+      } else{ // copy to avoid crashes if accidently plottet
+        fBackgroundFitGaussPol[i] = fBackgroundFitPol[i];
+      }
 
       for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
           if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
-
               Double_t area = fBackgroundFitPol[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                              (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
               Double_t area_err = fBackgroundFitPol[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                                      (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx),
-                                                                      resultBckFit->GetParams(), resultBckFit->GetCovarianceMatrix().GetMatrixArray() );
+                                                                      fBackgroundFitPol[i]->GetParameters(), covGG->GetMatrixArray() );
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+              
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+              
+              // For testing
+              //fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,TMath::Sqrt(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx)));
 
           }
           // Clone histo for error band
           fHistoBckFitConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_%i",i));
+          fHistoBckFitWithGaussConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_%i",i));
       }
+   
+      TCanvas* c1 = new TCanvas();
 
       fHistoMappingGGInvMassBackFitPtBin[i] = (TH1D*) fGammaGamma->Clone(Form("fHistoMappingGGInvMassBackFit_in_Pt_Bin%i",i));
       fHistoMappingGGInvMassBackFitPtBin[i]->Sumw2();
+      
+      fHistoMappingGGInvMassBackFitPtBin[i]->DrawCopy("");
+      fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetLineColor(kRed+2);
+      fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->DrawCopy("same");
+      
       fHistoMappingGGInvMassBackFitPtBin[i]->Add(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i],-1);
+
+      fHistoMappingGGInvMassBackFitPtBin[i]->SetLineColor(kGreen+2);
+      fHistoMappingGGInvMassBackFitPtBin[i]->DrawCopy("same");
+
+    gSystem->mkdir("Debug");
+      c1->Print(Form("%s/%s_%s_PolSubtraction_%i.png","Debug",fPrefix.Data(),fPrefix2.Data(),i));
+
     }else if(InvMassType==1){
-      fBackgroundFitPol_SubPiZero[i] = NULL;
-      fBackgroundFitPol_SubPiZero[i] = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
-
-      FitBackFunc->GetParameters(&FitParams[0]);
-      fBackgroundFitPol_SubPiZero[i]->SetParameters(FitParams);
-
+      
+      // For background subtraction
+      fBackgroundFitGaussPol_SubPiZero[i] = NULL;
+      if(fTotalBackFitMode==3 || fTotalBackFitMode==1) fBackgroundFitPol_SubPiZero[i] = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
+      else if(fTotalBackFitMode==2) fBackgroundFitPol_SubPiZero[i] = new TF1("BGfit","pol1",fFitRangeDummy[0],fFitRangeDummy[1]);
+      FitPol2Only->GetParameters(&FitParamsPol[0]);
+      fBackgroundFitPol_SubPiZero[i]->SetParameters(FitParamsPol);
       fBackgroundFitPol_SubPiZero[i]->SetRange(fMesonFitRange_SubPiZero[0],fMesonFitRange_SubPiZero[1]);
 
+      // for plotting
+      if(fTotalBackFitMode!=1 ){ // not needed if Gauss wasn't used
+         fBackgroundFitGaussPol_SubPiZero[i] = NULL;
+        if(fTotalBackFitMode==3) fBackgroundFitGaussPol_SubPiZero[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*x*x+[3]*TMath::Exp(-0.5*((x-[4])/[5])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        else if(fTotalBackFitMode==2) fBackgroundFitGaussPol_SubPiZero[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*TMath::Exp(-0.5*((x-[3])/[4])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        FitPol2Gauss->GetParameters(&FitParamsGaussPol[0]);
+        fBackgroundFitGaussPol_SubPiZero[i]->SetParameters(FitParamsGaussPol);
+        fBackgroundFitGaussPol_SubPiZero[i]->SetRange(fMesonFitRange_SubPiZero[0],fMesonFitRange_SubPiZero[1]);
+      } else{ // copy to avoid crashes if accidently plottet
+        fBackgroundFitGaussPol_SubPiZero[i] = fBackgroundFitPol_SubPiZero[i];
+      }
       for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
           if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
 
@@ -2939,26 +3273,42 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
                                                              (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
               Double_t area_err = fBackgroundFitPol_SubPiZero[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                                      (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx),
-                                                                      resultBckFit->GetParams(), resultBckFit->GetCovarianceMatrix().GetMatrixArray() );
+                                                                      fBackgroundFitPol_SubPiZero[i]->GetParameters(), covGG->GetMatrixArray() );
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+              // For testing
+              //fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,TMath::Sqrt(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx)));
 
           }
           // Clone histo for error band
           fHistoBckFitConfidence_SubPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_SubPiZero_%i",i));
+          fHistoBckFitWithGaussConfidence_SubPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_SubPiZero_%i",i));
       }
-      fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i] = (TH1D*) fGammaGamma->Clone(Form("GG_SubtractedSignal_SubPiZero_%i",i));
+      fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i] = (TH1D*) fGammaGamma->Clone(Form("fHistoMappingGGInvMassBackFit_SubPiZero_in_Pt_Bin%i",i));
       fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i]->Sumw2();
       fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i]->Add(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i],-1);
+   
     }else if(InvMassType==2){
+      
+      // For background subtraction
       fBackgroundFitPol_FixedPzPiZero[i] = NULL;
-      fBackgroundFitPol_FixedPzPiZero[i] = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
-
-      FitBackFunc->GetParameters(&FitParams[0]);
-      fBackgroundFitPol_FixedPzPiZero[i]->SetParameters(FitParams);
-
+      if(fTotalBackFitMode==3 || fTotalBackFitMode==1) fBackgroundFitPol_FixedPzPiZero[i] = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
+      else if(fTotalBackFitMode==2)  fBackgroundFitPol_FixedPzPiZero[i] = new TF1("BGfit","pol1",fFitRangeDummy[0],fFitRangeDummy[1]);
+      FitPol2Only->GetParameters(&FitParamsPol[0]);
+      fBackgroundFitPol_FixedPzPiZero[i]->SetParameters(FitParamsPol);
       fBackgroundFitPol_FixedPzPiZero[i]->SetRange(fMesonFitRange_FixedPzPiZero[0],fMesonFitRange_FixedPzPiZero[1]);
 
+      // for plotting
+      if(fTotalBackFitMode!=1 ){ // not needed if Gauss wasn't used
+         fBackgroundFitGaussPol_FixedPzPiZero[i] = NULL;
+        if(fTotalBackFitMode==3) fBackgroundFitGaussPol_FixedPzPiZero[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*x*x+[3]*TMath::Exp(-0.5*((x-[4])/[5])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        else if(fTotalBackFitMode==2) fBackgroundFitGaussPol_FixedPzPiZero[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*TMath::Exp(-0.5*((x-[3])/[4])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        FitPol2Gauss->GetParameters(&FitParamsGaussPol[0]);
+        fBackgroundFitGaussPol_FixedPzPiZero[i]->SetParameters(FitParamsGaussPol);
+        fBackgroundFitGaussPol_FixedPzPiZero[i]->SetRange(fMesonFitRange_FixedPzPiZero[0],fMesonFitRange_FixedPzPiZero[1]);
+      } else{ // copy to avoid crashes if accidently plottet
+        fBackgroundFitGaussPol_FixedPzPiZero[i] = fBackgroundFitPol_FixedPzPiZero[i];
+      }
       for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
           if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
 
@@ -2966,15 +3316,19 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
                                                              (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
               Double_t area_err = fBackgroundFitPol_FixedPzPiZero[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                                      (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx),
-                                                                      resultBckFit->GetParams(), resultBckFit->GetCovarianceMatrix().GetMatrixArray() );
+                                                                      fBackgroundFitPol_FixedPzPiZero[i]->GetParameters(), covGG->GetMatrixArray() );
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+              
+              // For testing
+              //fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,TMath::Sqrt(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx)));
 
           }
           // Clone histo for error band
           fHistoBckFitConfidence_FixedPzPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_FixedPzPiZero_%i",i));
+          fHistoBckFitWithGaussConfidence_FixedPzPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_FixedPzPiZero_%i",i));
       }
-      fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i] = (TH1D*) fGammaGamma->Clone(Form("GG_SubtractedSignal_FixedPzPiZero_%i",i));
+      fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i] = (TH1D*) fGammaGamma->Clone(Form("fHistoMappingGGInvMassBackFit_FixedPzPiZero_in_Pt_Bin%i",i));
       fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i]->Sumw2();
       fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i]->Add(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i],-1);
     }
@@ -3819,6 +4173,14 @@ void CreatePtHistos(){
         fHistoYieldMesonPerEventBackFit_SubPiZero[k] =     new TH1D(Form("histoYield%sMesonPerEventBackFit_SubPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
         fHistoYieldMesonPerEventBackFit_FixedPzPiZero[k] = new TH1D(Form("histoYield%sMesonPerEventBackFit_FixedPzPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
 
+        if(k==0){
+            fHistoYieldMesonBackFitFromFit =           			new TH1D(Form("histoYield%sMesonBackFitFromFit",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+            fHistoYieldMesonBackFitFromFit_SubPiZero = 			new TH1D(Form("histoYield%sMesonBackFitFromFit_SubPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+            fHistoYieldMesonBackFitFromFit_FixedPzPiZero = 	    new TH1D(Form("histoYield%sMesonBackFitFromFit_FixedPzPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+            fHistoYieldMesonPerEventBackFitFromFit =               new TH1D(Form("histoYield%sMesonPerEventBackFitFromFit",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+            fHistoYieldMesonPerEventBackFitFromFit_SubPiZero =     new TH1D(Form("histoYield%sMesonPerEventBackFitFromFit_SubPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+            fHistoYieldMesonPerEventBackFitFromFit_FixedPzPiZero = new TH1D(Form("histoYield%sMesonPerEventBackFitFromFit_FixedPzPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+        }
         // validated yields
         fHistoYieldTrueMeson[k]                = new TH1D(Form("histoYieldTrueMeson%s",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
         fHistoYieldTrueMeson_SubPiZero[k]                = new TH1D(Form("histoYieldTrueMeson%s_SubPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
@@ -4050,6 +4412,23 @@ void FillPtHistos()
             fHistoYieldMesonPerEventBackFit_SubPiZero[k]->SetBinError(iPt,(1./fNEvents)*fMesonYieldsCorResidualBckFuncBackFitError_SubPiZero[k][iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
             fHistoYieldMesonPerEventBackFit_FixedPzPiZero[k]->SetBinError(iPt,(1./fNEvents)*fMesonYieldsCorResidualBckFuncBackFitError_FixedPzPiZero[k][iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
 
+
+            if(k==0){
+                fHistoYieldMesonBackFitFromFit->SetBinContent(iPt,fMesonYieldsBackFitFromFit[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonBackFitFromFit_SubPiZero->SetBinContent(iPt,fMesonYieldsBackFitFromFit_SubPiZero[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonBackFitFromFit_FixedPzPiZero->SetBinContent(iPt,fMesonYieldsBackFitFromFit_FixedPzPiZero[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonBackFitFromFit->SetBinError(iPt,fMesonYieldsBackFitFromFitError[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonBackFitFromFit_SubPiZero->SetBinError(iPt,fMesonYieldsBackFitFromFitError_SubPiZero[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonBackFitFromFit_FixedPzPiZero->SetBinError(iPt,fMesonYieldsBackFitFromFitError_FixedPzPiZero[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+
+                fHistoYieldMesonPerEventBackFitFromFit->SetBinContent(iPt,(1./fNEvents)*fMesonYieldsBackFitFromFit[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonPerEventBackFitFromFit_SubPiZero->SetBinContent(iPt,(1./fNEvents)*fMesonYieldsBackFitFromFit_SubPiZero[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonPerEventBackFitFromFit_FixedPzPiZero->SetBinContent(iPt,(1./fNEvents)*fMesonYieldsBackFitFromFit_FixedPzPiZero[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonPerEventBackFitFromFit->SetBinError(iPt,(1./fNEvents)*fMesonYieldsBackFitFromFitError[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonPerEventBackFitFromFit_SubPiZero->SetBinError(iPt,(1./fNEvents)*fMesonYieldsBackFitFromFitError_SubPiZero[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+                fHistoYieldMesonPerEventBackFitFromFit_FixedPzPiZero->SetBinError(iPt,(1./fNEvents)*fMesonYieldsBackFitFromFitError_FixedPzPiZero[iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
+            }
+
         }
 
         // Histos for integration at the left of the peak
@@ -4128,13 +4507,19 @@ void FitSubtractedInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, D
         cout << "Error! FitSubtractedInvMassInPtBins could not find input histo. Returning ..." << endl;
         return;
     }
+    TString histoName = fHistoMappingSignalInvMassPtBinSingle->GetName();
+    cout << fHistoMappingSignalInvMassPtBinSingle->GetName() << endl;
+    Bool_t noResidualBackFit = kFALSE;
+    if(histoName.Contains("BackFit")){
+       noResidualBackFit = kTRUE;
+    }
     // Check if to use pol2 fitting
     Bool_t usePol2BckFitting = kFALSE;
-    if((fMode==40) && (fPrefix.CompareTo("Eta") ==0)){
+    if((fMode==64) && (fPrefix.CompareTo("Omega") ==0)){
 
-        if(fBinsPt[ptBin]<2.5){
-            usePol2BckFitting = kTRUE;
-        }
+        //if(fBinsPt[ptBin]<2.5){
+            usePol2BckFitting = kFALSE;
+        //}
     }
 
     // Set Correct Meson Plot Range
@@ -4210,6 +4595,7 @@ void FitSubtractedInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, D
     fFitReco= NULL;
     fFitGausExp =NULL;
     fFitLinearBck = NULL;
+    fHistSignalOnly = NULL;
     fFitLinearBckCheck = NULL; // used as crosscheck in case fFitReco fitting fails
     if(usePol2BckFitting){ // use for bckground
         fFitReco = new TF1  ("GaussExpPol2","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x+[6]*x*x)+(x>=[1])*([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)+[4]+[5]*x+[6]*x*x)",FitRangeTmp[0],FitRangeTmp[1]);
@@ -4229,16 +4615,29 @@ void FitSubtractedInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, D
     } else{
         fFitLinearBckExcl = new TF1("LinearEx",LinearBGExclusion,FitRangeTmp[0],FitRangeTmp[1],2);
     }
-    fHistoMappingSignalInvMassPtBinSingle->Fit(fFitLinearBckExcl,"RME0");
+    
+    if(!noResidualBackFit) fHistoMappingSignalInvMassPtBinSingle->Fit(fFitLinearBckExcl,"RME0");
 
     // set Results as start parameters
     if(usePol2BckFitting){ // use for bckground
-        fFitReco->SetParameter(4,fFitLinearBckExcl->GetParameter(0));
-        fFitReco->SetParameter(5,fFitLinearBckExcl->GetParameter(1));
-        fFitReco->SetParameter(6,fFitLinearBckExcl->GetParameter(2));
+        if(noResidualBackFit){
+            fFitReco->FixParameter(4,0.);
+            fFitReco->FixParameter(5,0.);
+            fFitReco->FixParameter(6,0.);
+        } else{
+            fFitReco->SetParameter(4,fFitLinearBckExcl->GetParameter(0));
+            fFitReco->SetParameter(5,fFitLinearBckExcl->GetParameter(1));
+            fFitReco->SetParameter(6,fFitLinearBckExcl->GetParameter(2));
+        }
+
     } else{
-        fFitReco->SetParameter(4,fFitLinearBckExcl->GetParameter(0));
-        fFitReco->SetParameter(5,fFitLinearBckExcl->GetParameter(1));
+        if(noResidualBackFit){
+            fFitReco->FixParameter(4,0.);
+            fFitReco->FixParameter(5,0.);
+        } else{
+            fFitReco->SetParameter(4,fFitLinearBckExcl->GetParameter(0));
+            fFitReco->SetParameter(5,fFitLinearBckExcl->GetParameter(1));
+        }
     }
 
     // assign error from linear fit (TODO: Check if this is allowed, because not the same fitting range is used)
@@ -4314,18 +4713,49 @@ void FitSubtractedInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, D
     fFitGausExp->SetParError(3,fFitReco->GetParError(3));
 
     if(usePol2BckFitting){ // use for bckground
-        fFitLinearBck->SetParameter(0,fFitReco->GetParameter(4));
-        fFitLinearBck->SetParameter(1,fFitReco->GetParameter(5));
-        fFitLinearBck->SetParameter(2,fFitReco->GetParameter(6));
+        if(noResidualBackFit){
+            fFitLinearBck->SetParameter(0,0.);
+            fFitLinearBck->SetParameter(1,0.);
+            fFitLinearBck->SetParameter(2,0.);
 
-        fFitLinearBck->SetParError(0,fFitReco->GetParError(4));
-        fFitLinearBck->SetParError(1,fFitReco->GetParError(5));
-        fFitLinearBck->SetParError(2,fFitReco->GetParError(6));
+            fFitLinearBck->SetParError(0,0.);
+            fFitLinearBck->SetParError(1,0.);
+            fFitLinearBck->SetParError(2,0.);
+
+            fFitReco->SetParameter(4,0.);
+            fFitReco->SetParameter(5,0.);
+            fFitReco->SetParameter(6,0.);
+
+            fFitReco->SetParError(4,0.);
+            fFitReco->SetParError(5,0.);
+            fFitReco->SetParError(6,0.);
+        } else{
+            fFitLinearBck->SetParameter(0,fFitReco->GetParameter(4));
+            fFitLinearBck->SetParameter(1,fFitReco->GetParameter(5));
+            fFitLinearBck->SetParameter(2,fFitReco->GetParameter(6));
+
+            fFitLinearBck->SetParError(0,fFitReco->GetParError(4));
+            fFitLinearBck->SetParError(1,fFitReco->GetParError(5));
+            fFitLinearBck->SetParError(2,fFitReco->GetParError(6));
+        }
     } else{
-        fFitLinearBck->SetParameter(0,fFitReco->GetParameter(4));
-        fFitLinearBck->SetParameter(1,fFitReco->GetParameter(5));
-        fFitLinearBck->SetParError(0,fFitReco->GetParError(4));
-        fFitLinearBck->SetParError(1,fFitReco->GetParError(5));
+        if(noResidualBackFit){
+            fFitLinearBck->SetParameter(0,0.);
+            fFitLinearBck->SetParameter(1,0.);
+            fFitLinearBck->SetParError(0,0.);
+            fFitLinearBck->SetParError(1,0.);
+
+            fFitReco->SetParameter(4,0.);
+            fFitReco->SetParameter(5,0.);
+
+            fFitReco->SetParError(4,0.);
+            fFitReco->SetParError(5,0.);
+        } else{
+            fFitLinearBck->SetParameter(0,fFitReco->GetParameter(4));
+            fFitLinearBck->SetParameter(1,fFitReco->GetParameter(5));
+            fFitLinearBck->SetParError(0,fFitReco->GetParError(4));
+            fFitLinearBck->SetParError(1,fFitReco->GetParError(5));
+        }
     }
 
     Int_t binCenterStart;
@@ -4417,6 +4847,7 @@ void FitSubtractedInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, D
         Float_t intLinearBackCheck    = fFitLinearBckCheck->Integral(startBinEdge,endBinEdge);
         Float_t errorLinearBackCheck  = fFitLinearBckCheck->IntegralError(startBinEdge,endBinEdge);
 
+
         fFileErrLog << "WARNING: Will use integral of background regardlessly!"  << endl;
         fFileErrLog << "WARNING: Extracted integral used is (without rebinning) " << intLinearBack << endl;
         fFileErrLog << "WARNING: Using just exclusion fit would result in  " << intLinearBackCheck << endl;
@@ -4426,6 +4857,40 @@ void FitSubtractedInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, D
         fIntLinearBck = intLinearBack/fHistoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
         fIntLinearBckError = errorLinearBack/fHistoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
     }
+
+    
+    fHistSignalOnly = (TH1F*) fHistoMappingSignalInvMassPtBinSingle->Clone();
+    fHistSignalOnly->Sumw2();
+    TH1F* dummyBackHist = (TH1F*) fHistoMappingSignalInvMassPtBinSingle->Clone("dummyBackHist");
+    for (Int_t binx= 0; binx < dummyBackHist->GetNbinsX()+1; binx++){
+              Double_t binLow = dummyBackHist->GetBinLowEdge(binx);
+              Double_t binHigh = dummyBackHist->GetBinLowEdge(binx)+dummyBackHist->GetBinWidth(binx);
+              Double_t area = fFitLinearBck->Integral(binLow,binHigh);
+              //Double_t area_err = fFitLinearBck->IntegralError(binLow,binHigh);
+              dummyBackHist->SetBinContent(binx,area/(dummyBackHist->GetBinWidth(binx)));
+              //dummyBackHist->SetBinError(binx,TMath::Sqrt(area/(dummyBackHist->GetBinWidth(binx))));
+    }
+
+    fHistSignalOnly->Add(dummyBackHist,-1.);
+    
+
+    // Just to be safe:
+    if(noResidualBackFit){
+        fIntLinearBck      = 0.;
+        fIntLinearBckError = 0.;
+    }
+    
+    // Integrate fit ( as a cross check):
+
+    if(noResidualBackFit){
+        fIntGaussExp      = fFitReco->Integral(FitRangeTmp[0],FitRangeTmp[1]) / fHistoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+        fIntGaussExpError = fFitReco->IntegralError(FitRangeTmp[0],FitRangeTmp[1]) / fHistoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+    } else{
+        fIntGaussExp      = 0.;
+        fIntGaussExpError = 0.;
+    }
+
+
     fFitReco->DrawCopy("same");
 }
 
@@ -4458,8 +4923,12 @@ void FitTrueInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, Double_
     } else {
         mesonAmplitudeMin = mesonAmplitude*90./100.;
         mesonAmplitudeMax = mesonAmplitude*130./100.;
-        if (fMode == 2 || fMode == 3 || fMode == 4 || fMode == 5 ||  fMode == 41 || fMode == 42 || fMode == 44 || fMode == 45 ||  fMode == 61 || fMode == 62 || fMode == 64 || fMode == 65){
+        if (fMode == 2 || fMode == 3 || fMode == 4 || fMode == 5 ||  fMode == 41 || fMode == 42 || fMode == 44 || fMode == 45 ||  fMode == 61 || fMode == 62 || fMode == 65){
             mesonAmplitudeMin = mesonAmplitude*98./100.;
+            if(fMode == 64){
+               mesonAmplitudeMin = mesonAmplitude*80./100.;
+               mesonAmplitudeMax = mesonAmplitude*400./100.;
+            }
             if (fPrefix.CompareTo("Eta")==0){
                 mesonAmplitudeMax = mesonAmplitude*400./100.;
                 mesonAmplitudeMin = mesonAmplitude*90./100.;
@@ -4498,13 +4967,15 @@ void FitTrueInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, Double_
         fFitRecoPre->SetParLimits(1,fMesonMassExpect*0.8,fMesonMassExpect*1.05);
 
     } else{
-        fFitRecoPre->SetParLimits(1,fMesonMassExpect*0.95,fMesonMassExpect*1.05);
+        fFitRecoPre->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1.10);
     }
 
     fHistoMappingSignalInvMassPtBinSingle->Fit(fFitRecoPre,"QRME0");
 
+    Bool_t prefitWorked = kFALSE;
     if(TString(gMinuit->fCstatu.Data()).CompareTo("CONVERGED") == 0 || TString(gMinuit->fCstatu.Data()).CompareTo("SUCCESSFUL") == 0 ){
         fFileErrLog << "PreFit success" << endl;
+        prefitWorked = kTRUE;
     } else{
         fFileErrLog << "prefit failed" << endl;
     }
@@ -4515,7 +4986,11 @@ void FitTrueInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, Double_
     // set parameters from prefitting as start parameters for actual fit
     fFitReco->SetParameter(0,fFitRecoPre->GetParameter(0));
     fFitReco->SetParameter(1,fMesonMassExpect);
-    fFitReco->SetParameter(2,widthPrefit);
+    if(prefitWorked){
+        fFitReco->SetParameter(2,widthPrefit);
+    } else {
+        fFitReco->SetParameter(2,fMesonWidthExpect);
+    }
     fFitReco->SetParameter(3,fMesonLambdaTailTrue);
 
 
@@ -4529,7 +5004,7 @@ void FitTrueInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, Double_
         fFitReco->SetParLimits(3,fMesonLambdaTailRangeTrue[0],fMesonLambdaTailRangeTrue[1]);
     }
     fFitReco->SetParLimits(0,mesonAmplitudeMin,mesonAmplitudeMax);
-    fFitReco->SetParLimits(1,fMesonMassExpect-(widthPrefit/2.),fMesonMassExpect+(widthPrefit/2.));
+    fFitReco->SetParLimits(1,fMesonMassExpect-(widthPrefit/4.),fMesonMassExpect+(widthPrefit/4.));
     if(fPrefix.CompareTo("Eta")==0){
         if(fMode == 40 || fMode == 60){
             fFitReco->SetParLimits(1,fMesonMassExpect*0.99,fMesonMassExpect*1.01);
@@ -4889,29 +5364,43 @@ void SaveHistos(Int_t optionMC, TString fCutID, TString fPrefix3)
     fOutput1 = new TFile(nameOutput,"RECREATE");
 
     cout << "Begin writing Uncorrected File" << endl;
+    
+    // check if something is wrong with cluster binning
+    Bool_t processClusters = kTRUE;
+    Int_t clusterPtbins = -1;
+    if(fHistoClustersPt) clusterPtbins = fHistoClustersPt->GetXaxis()->GetNbins();
+    if(fNBinsClusterPt>clusterPtbins){
+       processClusters = kFALSE;
+       printf("WARNING: Number of bins requested for rebinning of fHistoClustersE is higher than available histogram!\n");
+       printf("WARNING: Cluster histograms will not be written to file! PLEASE CHECK fBinsClusterPt!\n");
+    }
+
     TH1D*   deltaPtCluster       = new TH1D("fDeltaPtCluster","",fNBinsClusterPt,fBinsClusterPt);
     for(Int_t iPt=1;iPt<fNBinsClusterPt+1;iPt++){
         deltaPtCluster->SetBinContent(iPt,fBinsClusterPt[iPt]-fBinsClusterPt[iPt-1]);
         deltaPtCluster->SetBinError(iPt,0);
     }
     // Write cluster energy and pT
-    if (fHistoClustersPt){
+    if (fHistoClustersPt && processClusters){
         cout << "writing ClusterPt" << endl;
         fHistoClustersPt->Write("ClusterPt");
         TGraphErrors* graphClusterPt        = new TGraphErrors(fHistoClustersPt);
         //         graphClusterPt->Print();
-        TH1D*   fHistoClustersPtPerEvent   = (TH1D*)fHistoClustersPt->Rebin(fNBinsClusterPt,"fHistoClustersPtPerEvent",fBinsClusterPt);
+        TH1D*   fHistoClustersPtPerEvent = NULL;
+        
+        fHistoClustersPtPerEvent   = (TH1D*)fHistoClustersPt->Rebin(fNBinsClusterPt,"fHistoClustersPtPerEvent",fBinsClusterPt);
         fHistoClustersPtPerEvent->Divide(deltaPtCluster);
         fHistoClustersPtPerEvent->Scale(1./fNEvents);
         fHistoClustersPtPerEvent->Write("ClusterPtPerEvent");
         TGraphErrors* graphClusterPtReb        = new TGraphErrors(fHistoClustersPtPerEvent);
 //         graphClusterPtReb->Print();
     }
-    if (fHistoClustersE){
+    if (fHistoClustersE && processClusters){
         cout << "writing ClusterE" << endl;
         fHistoClustersE->Write("ClusterE");
-
-        TH1D*   fHistoClustersEPerEvent   = (TH1D*)fHistoClustersE->Rebin(fNBinsClusterPt,"fHistoClustersEPerEvent",fBinsClusterPt);
+        TH1D*   fHistoClustersEPerEvent = NULL;
+        Int_t clusterEbins = fHistoClustersE->GetXaxis()->GetNbins();
+        fHistoClustersEPerEvent   = (TH1D*)fHistoClustersE->Rebin(fNBinsClusterPt,"fHistoClustersEPerEvent",fBinsClusterPt);
         fHistoClustersEPerEvent->Divide(deltaPtCluster);
         fHistoClustersEPerEvent->Scale(1./fNEvents);
         fHistoClustersEPerEvent->Write("ClusterEPerEvent");
@@ -4944,6 +5433,13 @@ void SaveHistos(Int_t optionMC, TString fCutID, TString fPrefix3)
         if (fHistoSBdefaultMeson_SubPiZero[k])        fHistoSBdefaultMeson_SubPiZero[k]->Write();
         if (fHistoSBdefaultMeson_FixedPzPiZero[k])    fHistoSBdefaultMeson_FixedPzPiZero[k]->Write();
     }
+
+    if (fHistoYieldMesonBackFitFromFit)               fHistoYieldMesonBackFitFromFit->Write();
+    if (fHistoYieldMesonBackFitFromFit_SubPiZero)     fHistoYieldMesonBackFitFromFit_SubPiZero->Write();
+    if (fHistoYieldMesonBackFitFromFit_FixedPzPiZero) fHistoYieldMesonBackFitFromFit_FixedPzPiZero->Write();
+    if (fHistoYieldMesonPerEventBackFitFromFit)              fHistoYieldMesonPerEventBackFitFromFit->Write();
+    if (fHistoYieldMesonPerEventBackFitFromFit_SubPiZero)    fHistoYieldMesonPerEventBackFitFromFit_SubPiZero->Write();
+    if (fHistoYieldMesonPerEventBackFitFromFit_FixedPzPiZero)fHistoYieldMesonPerEventBackFitFromFit_FixedPzPiZero->Write();
 
     fHistoMassMeson->Write();
     fHistoMassMeson_SubPiZero->Write();
@@ -5122,6 +5618,10 @@ void SaveCorrectionHistos(TString fCutID, TString fPrefix3)
         }
     }
 
+    if(fHistoMonteMesonEffiBackFitFromFitPt) fHistoMonteMesonEffiBackFitFromFitPt->Write();
+    if(fHistoMonteMesonEffiBackFitFromFitPt_SubPiZero) fHistoMonteMesonEffiBackFitFromFitPt_SubPiZero->Write();
+    if(fHistoMonteMesonEffiBackFitFromFitPt_FixedPzPiZero) fHistoMonteMesonEffiBackFitFromFitPt_FixedPzPiZero->Write();
+
     fHistoTrueMassMeson->Write();
     fHistoTrueMassMeson_SubPiZero->Write();
     fHistoTrueMassMeson_FixedPzPiZero->Write();
@@ -5169,7 +5669,7 @@ void SaveCorrectionHistos(TString fCutID, TString fPrefix3)
 }
 
 void Initialize(TString setPi0, Int_t numberOfBins){
-
+ 
     //cout << "MODE in INITIALIZE = " << fMode << endl;
     // New way to initialize
     InitializeBinning(setPi0, numberOfBins, fEnergyFlag, kFALSE, fMode, fEventCutSelection, fClusterCutSelection);
@@ -5286,6 +5786,24 @@ void Initialize(TString setPi0, Int_t numberOfBins){
         fMesonYieldsBackFit[k] =									new Double_t[fNBinsPt];
         fMesonYieldsBackFit_SubPiZero[k] =           				new Double_t[fNBinsPt];
         fMesonYieldsBackFit_FixedPzPiZero[k] =						new Double_t[fNBinsPt];
+
+        if(k==0){
+            fMesonYieldsBackFitFromFit =									new Double_t[fNBinsPt];
+            fMesonYieldsBackFitFromFit_SubPiZero =           				new Double_t[fNBinsPt];
+            fMesonYieldsBackFitFromFit_FixedPzPiZero =						new Double_t[fNBinsPt];
+
+            fMesonYieldsBackFitFromFitPerEvent =									new Double_t[fNBinsPt];
+            fMesonYieldsBackFitFromFitPerEvent_SubPiZero =           				new Double_t[fNBinsPt];
+            fMesonYieldsBackFitFromFitPerEvent_FixedPzPiZero =						new Double_t[fNBinsPt];
+
+            fMesonYieldsBackFitFromFitError =									new Double_t[fNBinsPt];
+            fMesonYieldsBackFitFromFitError_SubPiZero =           				new Double_t[fNBinsPt];
+            fMesonYieldsBackFitFromFitError_FixedPzPiZero =						new Double_t[fNBinsPt];
+
+            fMesonYieldsBackFitFromFitPerEventError =									new Double_t[fNBinsPt];
+            fMesonYieldsBackFitFromFitPerEventError_SubPiZero =           				new Double_t[fNBinsPt];
+            fMesonYieldsBackFitFromFitPerEventError_FixedPzPiZero =						new Double_t[fNBinsPt];
+        }
 
         fMesonYieldsCorResidualBckFuncBackFit[k] = 				    new Double_t[fNBinsPt];
         fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k] = 		new Double_t[fNBinsPt];
@@ -5467,6 +5985,9 @@ void Initialize(TString setPi0, Int_t numberOfBins){
     fHistoMappingSignalInvMassPtBin =				    new TH1D*[fNBinsPt];
     fHistoMappingSignalInvMassPtBin_SubPiZero =		    new TH1D*[fNBinsPt];
     fHistoMappingSignalInvMassPtBin_FixedPzPiZero =	    new TH1D*[fNBinsPt];
+    fHistoMappingSignalInvMassPtBinResSubtracted =				    new TH1D*[fNBinsPt];
+    fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero =		    new TH1D*[fNBinsPt];
+    fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero =	    new TH1D*[fNBinsPt];
 
     for(Int_t k = 0; k<7; k++){
       fHistoMappingTruePiPlPiMiSameMotherInvMassPtBin[k] =        new TH1D*[fNBinsPt];
@@ -5513,9 +6034,15 @@ void Initialize(TString setPi0, Int_t numberOfBins){
     fBackgroundFitPol = 									new TF1*[fNBinsPt];
     fBackgroundFitPol_SubPiZero = 							new TF1*[fNBinsPt];
     fBackgroundFitPol_FixedPzPiZero =						new TF1*[fNBinsPt];
+    fBackgroundFitGaussPol = 									new TF1*[fNBinsPt];
+    fBackgroundFitGaussPol_SubPiZero = 							new TF1*[fNBinsPt];
+    fBackgroundFitGaussPol_FixedPzPiZero =						new TF1*[fNBinsPt];
     fHistoBckFitConfidence =                                new TH1D*[fNBinsPt];
     fHistoBckFitConfidence_SubPiZero =                      new TH1D*[fNBinsPt];
     fHistoBckFitConfidence_FixedPzPiZero =                  new TH1D*[fNBinsPt];
+    fHistoBckFitWithGaussConfidence =                                new TH1D*[fNBinsPt];
+    fHistoBckFitWithGaussConfidence_SubPiZero =                      new TH1D*[fNBinsPt];
+    fHistoBckFitWithGaussConfidence_FixedPzPiZero =                  new TH1D*[fNBinsPt];
     fFitSignalInvMassPtBin = 								new TF1*[fNBinsPt];
     fFitSignalInvMassPtBin_SubPiZero =						new TF1*[fNBinsPt];
     fFitSignalInvMassPtBin_FixedPzPiZero =   				new TF1*[fNBinsPt];
@@ -5573,11 +6100,17 @@ void Initialize(TString setPi0, Int_t numberOfBins){
         fHistoMappingSignalInvMassPtBin[i] =                        NULL;
         fHistoMappingSignalInvMassPtBin_SubPiZero[i] =              NULL;
         fHistoMappingSignalInvMassPtBin_FixedPzPiZero[i] =          NULL;
+        fHistoMappingSignalInvMassPtBinResSubtracted[i] =                NULL;
+        fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero[i] =      NULL;
+        fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero[i] =  NULL;
         fHistoMappingTruePiPlPiMiPiZeroCombinatoricalPtBin[i] =		NULL;
         fHistoMappingTruePiPlPiMiPiZeroContaminationPtBin[i] = 		NULL;
         fBackgroundFitPol[i] = 										NULL;
         fBackgroundFitPol_SubPiZero[i] = 							NULL;
         fBackgroundFitPol_FixedPzPiZero[i] =                        NULL;
+        fBackgroundFitGaussPol[i] = 										NULL;
+        fBackgroundFitGaussPol_SubPiZero[i] = 							NULL;
+        fBackgroundFitGaussPol_FixedPzPiZero[i] =                        NULL;
 
         fFitSignalInvMassPtBin[i] = 								NULL;
         fFitSignalInvMassPtBin_SubPiZero[i] =						NULL;
@@ -5799,6 +6332,10 @@ void Delete(){
         if (fMesonYieldsBackFit[k])                              delete fMesonYieldsBackFit[k];
         if (fMesonYieldsBackFit_SubPiZero[k])                    delete fMesonYieldsBackFit_SubPiZero[k];
         if (fMesonYieldsBackFit_FixedPzPiZero[k])                delete fMesonYieldsBackFit_FixedPzPiZero[k];
+
+        if (fMesonYieldsBackFitFromFit)                              delete fMesonYieldsBackFitFromFit;
+        if (fMesonYieldsBackFitFromFit_SubPiZero)                    delete fMesonYieldsBackFitFromFit_SubPiZero;
+        if (fMesonYieldsBackFitFromFit_FixedPzPiZero)                delete fMesonYieldsBackFitFromFit_FixedPzPiZero;
 
         if (fMesonYieldsBackFitError[k])                         delete fMesonYieldsBackFitError[k];
         if (fMesonYieldsBackFitError_SubPiZero[k])               delete fMesonYieldsBackFitError_SubPiZero[k];

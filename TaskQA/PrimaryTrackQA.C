@@ -491,9 +491,9 @@ void PrimaryTrackQA(
         else if(ConvEventCutsContainer) ConvEventCutsContainer->SetOwner(kTRUE);
         //PionCutsContainer; PionCuts directory in the "Cut Number" directory with the chosen cut number
         TString fPionCutsContainerCutString=Form("%s_%s_%s_%s_%s",fEventCutSelection[i].Data(),fGammaCutSelection[i].Data(),fPionCutSelection[i].Data(),fNeutralPionCutSelection[i].Data(),fMesonCutSelection[i].Data()); // default for mode 40
-        if((fMode==41)||(fMode==42)){
+        if((fMode==41)|| (fMode==42) ||(fMode==61) || (fMode==62)){
             fPionCutsContainerCutString=Form("%s_%s_%s_%s_%s_%s",fEventCutSelection[i].Data(),fGammaCutSelection[i].Data(),fClusterCutSelection[i].Data(),fPionCutSelection[i].Data(),fNeutralPionCutSelection[i].Data(),fMesonCutSelection[i].Data());
-        } else if ((fMode==44)||(fMode==45)){
+        } else if ((fMode==44)||(fMode==45)||(fMode==64)||(fMode==65)){
             fPionCutsContainerCutString=Form("%s_%s_%s_%s_%s",fEventCutSelection[i].Data(),fClusterCutSelection[i].Data(),fPionCutSelection[i].Data(),fNeutralPionCutSelection[i].Data(),fMesonCutSelection[i].Data());
         }
         TList* PionCutsContainer       = (TList*) TopContainer->FindObject(Form("PionCuts_%s",fPionCutsContainerCutString.Data()));
@@ -752,6 +752,12 @@ void PrimaryTrackQA(
             if (iParticleType==0){StrNameOfHistogram="ESD_PrimaryPions_DCAxy";}
             if (iParticleType==1){StrNameOfHistogram="";}
             TH2D* fHistESD_PrimaryPions_DCAxy = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+            if(!fHistESD_PrimaryPions_DCAxy){
+                // not found in ESD container, take identical one from PionContainer
+                if (iParticleType==0){StrNameOfHistogram="hTrack_DCAxy_Pt_after";}
+                if (iParticleType==1){StrNameOfHistogram="";}
+                fHistESD_PrimaryPions_DCAxy = (TH2D*)PionCutsContainer->FindObject(Form("%s %s",StrNameOfHistogram.Data(),fPionCutsContainerCutString.Data()));
+            }
             if(fHistESD_PrimaryPions_DCAxy){
                 GetMinMaxBin(fHistESD_PrimaryPions_DCAxy,minB,maxB);
                 SetXRange(fHistESD_PrimaryPions_DCAxy,minB-1,maxB+1);
@@ -781,6 +787,12 @@ void PrimaryTrackQA(
             if (iParticleType==0){StrNameOfHistogram="ESD_PrimaryPions_DCAz";}
             if (iParticleType==1){StrNameOfHistogram="";}
             TH2D* fHistESD_PrimaryPions_DCAz = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+            if(!fHistESD_PrimaryPions_DCAz){
+                // not found in ESD container, take identical one from PionContainer
+                if (iParticleType==0){StrNameOfHistogram="hTrack_DCAz_Pt_after";}
+                if (iParticleType==1){StrNameOfHistogram="";}
+                fHistESD_PrimaryPions_DCAz = (TH2D*)PionCutsContainer->FindObject(Form("%s %s",StrNameOfHistogram.Data(),fPionCutsContainerCutString.Data()));
+            }
             if(fHistESD_PrimaryPions_DCAz){
                 GetMinMaxBin(fHistESD_PrimaryPions_DCAz,minB,maxB);
                 SetXRange(fHistESD_PrimaryPions_DCAz,minB-1,maxB+1);
@@ -810,6 +822,12 @@ void PrimaryTrackQA(
             if (iParticleType==0){StrNameOfHistogram="ESD_PrimaryPions_TPCdEdx";}
             if (iParticleType==1){StrNameOfHistogram="";}
             TH2D* fHistESD_PrimaryPions_TPCdEdx = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+            if(!fHistESD_PrimaryPions_TPCdEdx){
+                // not found in ESD container, take identical one from PionContainer
+                if (iParticleType==0){StrNameOfHistogram="Pion_dEdx_after";}
+                if (iParticleType==1){StrNameOfHistogram="";}
+                fHistESD_PrimaryPions_TPCdEdx = (TH2D*)PionCutsContainer->FindObject(Form("%s %s",StrNameOfHistogram.Data(),fPionCutsContainerCutString.Data()));
+            }
             if(fHistESD_PrimaryPions_TPCdEdx){
                 GetMinMaxBin(fHistESD_PrimaryPions_TPCdEdx,minB,maxB);
                 SetXRange(fHistESD_PrimaryPions_TPCdEdx,minB-1,maxB+1);
@@ -933,6 +951,12 @@ void PrimaryTrackQA(
             if (iParticleType==0){StrNameOfHistogram="ESD_PrimaryPions_TPCdEdxSignal";}
             if (iParticleType==1){StrNameOfHistogram="";}
             TH2D* fHistESD_PrimaryPions_TPCdEdxSignal = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+            if(!fHistESD_PrimaryPions_TPCdEdxSignal){
+                // not found in ESD container, take identical one from PionContainer
+                if (iParticleType==0){StrNameOfHistogram="Pion_dEdxSignal_after";}
+                if (iParticleType==1){StrNameOfHistogram="";}
+                fHistESD_PrimaryPions_TPCdEdxSignal = (TH2D*)PionCutsContainer->FindObject(Form("%s %s",StrNameOfHistogram.Data(),fPionCutsContainerCutString.Data()));
+            }
             if(fHistESD_PrimaryPions_TPCdEdxSignal){
                 GetMinMaxBin(fHistESD_PrimaryPions_TPCdEdxSignal,minB,maxB);
                 SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,minB-1,maxB+1);
@@ -3038,8 +3062,8 @@ void PrimaryTrackQA(
         for(Int_t iVec=0; iVec<(Int_t)vecESD_PrimaryNegPions_Pt.size(); iVec++){
             TH1D* temp = vecESD_PrimaryNegPions_Pt.at(iVec);
             temp->Sumw2();
-            temp->Scale(1./temp->Integral());
-            //temp->Scale(1./nEvents[iVec]);
+            //temp->Scale(1./temp->Integral());
+            temp->Scale(1./nEvents[iVec]);
             SetXRange(temp,minB,maxB);
         }
         TGaxis::SetExponentOffset(-0.03, -0.04, "x");
@@ -3064,8 +3088,8 @@ void PrimaryTrackQA(
         for(Int_t iVec=0; iVec<(Int_t)vecESD_PrimaryPosPions_Pt.size(); iVec++){
             TH1D* temp = vecESD_PrimaryPosPions_Pt.at(iVec);
             temp->Sumw2();
-            temp->Scale(1./temp->Integral());
-            //temp->Scale(1./nEvents[iVec]);
+            //temp->Scale(1./temp->Integral());
+            temp->Scale(1./nEvents[iVec]);
             SetXRange(temp,minB,maxB);
         }
         TGaxis::SetExponentOffset(-0.03, -0.04, "x");
@@ -3135,6 +3159,7 @@ void PrimaryTrackQA(
     }
     //-------------------------------------------------------------------------------------------------------------------------------
     // ESD_PrimaryNegPions_Eta
+    cout << "now I am here" << endl;
     if ((Int_t)vecESD_PrimaryNegPions_Eta.size()>0){
         if (iParticleType==0){StrNameOfHistogram="ESD_PrimaryNegPions_Eta";}
         if (iParticleType==1){StrNameOfHistogram="";}
@@ -3159,6 +3184,7 @@ void PrimaryTrackQA(
                                          0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
         SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_ESD_PrimaryNegPions_Eta.%s", outputDir.Data(), suffix.Data()));
     }
+    cout << "now I am there" << endl;
     //-------------------------------------------------------------------------------------------------------------------------------
     // ESD_PrimaryPosPions_Eta
     if ((Int_t)vecESD_PrimaryPosPions_Eta.size()>0){
@@ -3185,8 +3211,10 @@ void PrimaryTrackQA(
                                          0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
         SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_ESD_PrimaryPosPions_Eta.%s", outputDir.Data(), suffix.Data()));
     }
+     cout << "now I am there 2" << endl;
     //-------------------------------------------------------------------------------------------------------------------------------
     // ESD_PrimaryPions_TPCdEdx_ProjPt
+    cout << vecESD_PrimaryPions_TPCdEdx_ProjPt.size() << endl;
     if ((Int_t)vecESD_PrimaryPions_TPCdEdx_ProjPt.size()>0){
         if (iParticleType==0){StrNameOfHistogram="ESD_PrimaryPions_TPCdEdx_ProjPt";}
         if (iParticleType==1){StrNameOfHistogram="";}
@@ -3211,6 +3239,7 @@ void PrimaryTrackQA(
                                          0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
         SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_ESD_PrimaryPions_TPCdEdx_ProjPt.%s", outputDir.Data(), suffix.Data()));
     }
+         cout << "now I am there 3" << endl;
     //-------------------------------------------------------------------------------------------------------------------------------
     // ESD_PrimaryPions_TPCdEdx_LowPt_ProjPt
     if ((Int_t)vecESD_PrimaryPions_TPCdEdx_LowPt_ProjPt.size()>0){
@@ -3237,6 +3266,7 @@ void PrimaryTrackQA(
                                          0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
         SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_ESD_PrimaryPions_TPCdEdx_LowPt_ProjPt.%s", outputDir.Data(), suffix.Data()));
     }
+         cout << "now I am there 4" << endl;
     //-------------------------------------------------------------------------------------------------------------------------------
     // ESD_PrimaryPions_TPCdEdx_MidPt_ProjPt
     if ((Int_t)vecESD_PrimaryPions_TPCdEdx_MidPt_ProjPt.size()>0){
@@ -3265,6 +3295,7 @@ void PrimaryTrackQA(
     }
     //-------------------------------------------------------------------------------------------------------------------------------
     // ESD_PrimaryPions_TPCdEdx_HighPt_ProjPt
+         cout << "now I am there 5" << endl;
     if ((Int_t)vecESD_PrimaryPions_TPCdEdx_HighPt_ProjPt.size()>0){
         if (iParticleType==0){StrNameOfHistogram="ESD_PrimaryPions_TPCdEdx_HighPt_ProjPt";}
         if (iParticleType==1){StrNameOfHistogram="";}
@@ -3289,6 +3320,7 @@ void PrimaryTrackQA(
                                          0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
         SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_ESD_PrimaryPions_TPCdEdx_HighPt_ProjPt.%s", outputDir.Data(), suffix.Data()));
     }
+         cout << "now I am there 6" << endl;
     //-------------------------------------------------------------------------------------------------------------------------------
     // ESD_PrimaryPions_TPCdEdxSignal_ProjPt
     if ((Int_t)vecESD_PrimaryPions_TPCdEdxSignal_ProjPt.size()>0){
@@ -3397,15 +3429,17 @@ void PrimaryTrackQA(
     //---------------------------------------|Compare Histograms: MC vs True Histograms|---------------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------------
     if (isMC){
-        for (Int_t iVec=0; iVec<(Int_t)vecMCvsTrueAllPosPions_Pt.size();iVec++){
-            vecMCvsTrueAllPosPions_Pt[iVec].at(0)=vecMC_AllPosPions_Pt.at(iVec);
-            vecMCvsTrueAllPosPions_Pt[iVec].at(1)=(TH1D*)vecESD_TruePosPion_Pt.at(iVec)->Clone("ESD_TruePosPion_PtClone");
-            vecMCvsTrueAllNegPions_Pt[iVec].at(0)=vecMC_AllNegPions_Pt.at(iVec);
-            vecMCvsTrueAllNegPions_Pt[iVec].at(1)=(TH1D*)vecESD_TrueNegPion_Pt.at(iVec)->Clone("ESD_TrueNegPion_PtClone");
-            vecMCvsTruePosPionsFromNeutralMeson_Pt[iVec].at(0)=vecMC_PosPionsFromNeutralMeson_Pt.at(iVec);
-            vecMCvsTruePosPionsFromNeutralMeson_Pt[iVec].at(1)=(TH1D*)vecESD_TruePosPionFromNeutralMeson_Pt.at(iVec)->Clone("ESD_TruePosPionFromNeutralMeson_PtClone");
-            vecMCvsTrueNegPionsFromNeutralMeson_Pt[iVec].at(0)=vecMC_NegPionsFromNeutralMeson_Pt.at(iVec);
-            vecMCvsTrueNegPionsFromNeutralMeson_Pt[iVec].at(1)=(TH1D*)vecESD_TrueNegPionFromNeutralMeson_Pt.at(iVec)->Clone("ESD_TrueNegPionFromNeutralMeson_PtClone");
+        if(vecMCvsTrueAllPosPions_Pt.size()>0){
+            for (Int_t iVec=0; iVec<(Int_t)vecMCvsTrueAllPosPions_Pt.size();iVec++){
+                vecMCvsTrueAllPosPions_Pt[iVec].at(0)=vecMC_AllPosPions_Pt.at(iVec);
+                vecMCvsTrueAllPosPions_Pt[iVec].at(1)=(TH1D*)vecESD_TruePosPion_Pt.at(iVec)->Clone("ESD_TruePosPion_PtClone");
+                vecMCvsTrueAllNegPions_Pt[iVec].at(0)=vecMC_AllNegPions_Pt.at(iVec);
+                vecMCvsTrueAllNegPions_Pt[iVec].at(1)=(TH1D*)vecESD_TrueNegPion_Pt.at(iVec)->Clone("ESD_TrueNegPion_PtClone");
+                vecMCvsTruePosPionsFromNeutralMeson_Pt[iVec].at(0)=vecMC_PosPionsFromNeutralMeson_Pt.at(iVec);
+                vecMCvsTruePosPionsFromNeutralMeson_Pt[iVec].at(1)=(TH1D*)vecESD_TruePosPionFromNeutralMeson_Pt.at(iVec)->Clone("ESD_TruePosPionFromNeutralMeson_PtClone");
+                vecMCvsTrueNegPionsFromNeutralMeson_Pt[iVec].at(0)=vecMC_NegPionsFromNeutralMeson_Pt.at(iVec);
+                vecMCvsTrueNegPionsFromNeutralMeson_Pt[iVec].at(1)=(TH1D*)vecESD_TrueNegPionFromNeutralMeson_Pt.at(iVec)->Clone("ESD_TrueNegPionFromNeutralMeson_PtClone");
+            }
         }
         for (Int_t iVecLoop=0; iVecLoop<(Int_t)vecMCvsTrueAllPosPions_Pt.size();iVecLoop++){
             //-------------------------------------------------------------------------------------------------------------------------------

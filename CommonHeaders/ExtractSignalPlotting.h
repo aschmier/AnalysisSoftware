@@ -1617,7 +1617,7 @@
           histo1DInvMassDummy             = new TH1F("histo1DInvMass2","histo1DInvMass2",11000,0.645,0.89);
           SetStyleHistoTH1ForGraphs(histo1DInvMassDummy, Form("#it{M}_{%s} (GeV/#it{c}^{2})",decayChannel.Data()),"Counts",0.85*textsizeLabelsInvMass, textsizeLabelsInvMass,
                                       0.85*textsizeLabelsInvMass, textsizeLabelsInvMass,0.88, 0.115/(textsizeFacInvMass*marginInvMass));
-
+          
           histo1DInvMassDummy->GetYaxis()->SetLabelOffset(0.008);
           histo1DInvMassDummy->GetXaxis()->SetLabelOffset(0.005);
         }
@@ -1738,7 +1738,11 @@
             legendInvMass2->AddEntry(histoPi0InvMassSigPlusBG,"Raw real events","le");
         }
         legendInvMass2->AddEntry(fitOmegaInvMassBG,"Fitted BG using","l");
-                legendInvMass2->AddEntry((TObject*)0,"4th order polynomial","");
+        if(fMesonType.CompareTo("Omega") == 0){
+            legendInvMass2->AddEntry((TObject*)0,"2nd order polynomial","");
+        } else{
+            legendInvMass2->AddEntry((TObject*)0,"4th order polynomial","");
+        }
         legendInvMass2->AddEntry(histoPi0InvMassSig,"BG subtracted","p");
         if (scaleFacSignal != 1.0){
             legendInvMass2->AddEntry((TObject*)0,Form("scaled by %2.1f",scaleFacSignal),"");
@@ -1747,9 +1751,9 @@
         legendInvMass2->Draw();
         histo1DInvMassDummy->Draw("AXIS,same");
 
-        if(titleInvMassSignalWithBG.Contains("SubPiZero")==kTRUE){
+        if(titleInvMassSignalWithBG.Contains("SubPiZero")){
           canvasInvMassSamplePlot->SaveAs(Form("%s/%s_%s_InvMassBinBckFit_SubPiZero_%s_%s.%s",outputDir.Data(),fMesonType.Data(),fSimulation.Data(), methodStrOut.Data(), triggerStr2.Data(),  suffix.Data()));
-        } else if(titleInvMassSignalWithBG.Contains("FixedPzPiZero")==kTRUE){
+        } else if(titleInvMassSignalWithBG.Contains("FixedPzPiZero")){
           canvasInvMassSamplePlot->SaveAs(Form("%s/%s_%s_InvMassBinBckFit_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fMesonType.Data(),fSimulation.Data(), methodStrOut.Data(), triggerStr2.Data(),  suffix.Data()));
         } else{
           canvasInvMassSamplePlot->SaveAs(Form("%s/%s_%s_InvMassBinBckFit%s_%s.%s",outputDir.Data(),fMesonType.Data(),fSimulation.Data(), methodStrOut.Data(), triggerStr2.Data(),  suffix.Data()));

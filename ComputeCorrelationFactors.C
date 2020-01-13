@@ -81,6 +81,8 @@ void ComputeCorrelationFactors(
         mesonPlot           = "#eta/#pi^{0}";
     else if(meson.CompareTo("Omega") == 0)
         mesonPlot           = "#omega";
+    else if(meson.CompareTo("OmegaToPi0") == 0)
+        mesonPlot           = "#omega/#pi^{0}";
     else if(meson.CompareTo("GammaInc") == 0 )
         mesonPlot           = "#gamma_{inc}";
     else if(meson.CompareTo("IncGammaToPi0") == 0 )
@@ -339,7 +341,7 @@ void ComputeCorrelationFactors(
     TLatex *labelWeightsPi0     = 0x0;
     if(meson.CompareTo("Pi0EtaBinning") == 0 || meson.CompareTo("EtaToPi0") == 0 || meson.Contains("Gamma") )
         labelWeightsPi0         = new TLatex(0.95,0.14+((nRowsLabels-2)*0.05),Form("%s",mesonPlot.Data()));
-    else if(mode >= 40 && mode <= 45)
+    else if(mode >= 60 && mode <= 65)
         labelWeightsPi0         = new TLatex(0.95,0.14+((nRowsLabels-2)*0.05),Form("%s #rightarrow #pi^{+}#pi^{-}#pi^{0}",mesonPlot.Data()));
     else
         labelWeightsPi0         = new TLatex(0.95,0.14+((nRowsLabels-2)*0.05),Form("%s #rightarrow #gamma#gamma",mesonPlot.Data()));

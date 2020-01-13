@@ -337,4 +337,20 @@
                                                         4, 4, 4 };
     Int_t fBinsPi0EtaBinning5TeV2017DalitzPtRebin[9]    = { 8, 2, 2, 2, 2, 2, 4, 4, 4};
 
+    //__________________________________Omega binning____________________________________
+    Double_t fBinsOmegaPiPlPiMiPiZero5TevPtPCM[14]         = {0,1,1.4,1.6,1.8,2,2.5,3,3.5,4,5,6.,8.,12.};
+    Int_t fBinsOmegaPiPlPiMiPiZero5TevPtRebinPCM[13]       = {10,10,7,7,5,4,5,5,5,5,5,10,10};
+
+    Double_t fBinsOmegaPiPlPiMiPiZero5TevPtPCMEMC[12]      = {0,1,1.5,2,2.5,3,3.5,4,5.,6.,8.,12.};
+    Int_t fBinsOmegaPiPlPiMiPiZero5TevPtRebinPCMEMC[11]    = {10,10,10,10,10,10,4,4,4,4,4};
+
+    Double_t fBinsOmegaPiPlPiMiPiZero5TevPtEMC[13]         = {0,1.5,2,2.5,3,3.5,4,5,6.,8.,10.,12.,16};
+    Int_t fBinsOmegaPiPlPiMiPiZero5TevPtRebinEMC[12]       = {10,10,10,10,10,4,4,4,4,4,8,8};
+    
+    Double_t fBinsOmegaPiPlPiMiPiZero5TevPtPCMPHOS[14]     =  {0,1,1.4,1.6,1.8,2,2.5,3,3.5,4,5,6.,8.,12.};
+    Int_t fBinsOmegaPiPlPiMiPiZero5TevPtRebinPCMPHOS[13]   = {4,4,4,4,5,5,5,4,4,4,4,4,10};
+
+    Double_t fBinsOmegaPiPlPiMiPiZero5TevPtPHOS[10]        = {0,1.8,2,2.5,3.,3.5,4.,6.,8.,10};
+    Int_t fBinsOmegaPiPlPiMiPiZero5TevPtRebinPHOS[9]       = {5,5,5, 6,6,6,6,6,6};
+
 #endif

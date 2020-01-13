@@ -77,9 +77,11 @@ void PrimaryTrackQA_Runwise(
     //          48 // new output EMCAL-DALITZ
     //          49 // new output PHOS-DALITZ
     //          50 // new output DCAL-DALITZ
-    if (fMode == 40 || fMode == 41 || fMode == 42 || fMode == 43 || fMode == 47)
+    if (fMode == 40 || fMode == 41 || fMode == 42 || fMode == 43 || fMode == 47
+        || fMode == 60 || fMode == 61 || fMode == 62 || fMode == 63 || fMode == 67)
         isConv                          = kTRUE;
-    if (fMode == 41 || fMode == 42 || fMode == 43 || fMode == 44 || fMode == 45 || fMode == 46)
+    if (fMode == 41 || fMode == 42 || fMode == 43 || fMode == 44 || fMode == 45 || fMode == 46
+    || fMode == 61 || fMode == 62 || fMode == 63 || fMode == 64 || fMode == 65 || fMode == 66)
         isCalo                          = kTRUE;
     
     
@@ -225,7 +227,7 @@ void PrimaryTrackQA_Runwise(
     TString fPionCutSelection        = "";
     TString fNeutralPionCutSelection = "";
     TString fMesonCutSelection       = "";
-    fMode=ReturnSeparatedCutNumberPiPlPiMiPiZero(fCutSelection, fTypeCutSelection, fEventCutSelection, fGammaCutSelection, fClusterCutSelection,fPionCutSelection, fNeutralPionCutSelection, fMesonCutSelection);
+    fMode=ReturnSeparatedCutNumberPiPlPiMiPiZero(fCutSelection, fTypeCutSelection, fEventCutSelection, fGammaCutSelection, fClusterCutSelection,fPionCutSelection, fNeutralPionCutSelection, fMesonCutSelection,true);
     cout<<"fCutSelection: "<<fCutSelection<<endl<<"fTypeCutSelection: "<<fTypeCutSelection<<endl<<"fEventCutSelection: "<<fEventCutSelection<<endl<<"fGammaCutSelection: "<<fGammaCutSelection<<endl<<"fClusterCutSelection: "<<fClusterCutSelection<<endl<<"fMClusterCutSelection: "<<fMClusterCutSelection<<endl<<"fPionCutSelection:"<<fPionCutSelection<<endl<<"fNeutralPionCutSelection: "<<fNeutralPionCutSelection<<endl<<"fMesonCutSelection: "<<fMesonCutSelection<<endl;
     if (fMode!=mode){
         cout << "ERROR: Chosen mode ("<<mode<<") is not identical to mode extracted from cutstring ("<<fMode<<")! " << endl;
@@ -516,6 +518,7 @@ void PrimaryTrackQA_Runwise(
     std::vector<TH1D*>* vecHistos                               = new std::vector<TH1D*>[nSets];
     std::vector<TString> vecHistosName;
     TString histoName;
+    TString StrNameOfHistogram;
     TCanvas* canvas1                 = new TCanvas("canvas1","",10,10,750,500);//Just for Debugging!
     
     
@@ -550,6 +553,7 @@ void PrimaryTrackQA_Runwise(
         if (i==0) vecHistosName.push_back(histoName);
         hESD_PrimaryNegPions_Pt[i]                 = new TH1D(Form("%s_%s", histoName.Data(), DataSets[i].Data()),Form("h%s; Run Number; Mean #it{p}_{T, #it{#pi^{-}}} (GeV/#it{c})",histoName.Data()),hNBin,hFBin,hLBin);
         EditTH1(globalRuns, doEquidistantXaxis, hESD_PrimaryNegPions_Pt[i], hMarkerStyle[i], hMarkerSize[i], hMarkerColor[i], hLineColor[i]);
+        cout << hESD_PrimaryNegPions_Pt[i]->GetEntries() << endl;
         vecHistos[i].push_back(hESD_PrimaryNegPions_Pt[i]);
         //-------------------------------------------------------------------------------------------------------------------------------
         if (iParticleType==0){histoName="ESD_PrimaryPosPions_Pt";}
@@ -1332,7 +1336,14 @@ void PrimaryTrackQA_Runwise(
             if (ConvEventCutsContainer == NULL) {cout << "ERROR: " << Form("ConvEventCuts_%s",fEventCutSelection.Data()) << " not found in File" << endl; return;}
             else if (ConvEventCutsContainer) ConvEventCutsContainer->SetOwner(kTRUE);
             //PionCutsContainer; PionCuts directory in the "Cut Number" directory with the chosen cut number
+
             TString fPionCutsContainerCutString=Form("%s_%s_%s_%s_%s",fEventCutSelection.Data(),fGammaCutSelection.Data(),fNeutralPionCutSelection.Data(),fPionCutSelection.Data(),fMesonCutSelection.Data());
+            switch(fMode){
+                 case 40: case 60: fPionCutsContainerCutString=Form("%s_%s_%s_%s_%s",fEventCutSelection.Data(),fGammaCutSelection.Data(),fPionCutSelection.Data(),fNeutralPionCutSelection.Data(),fMesonCutSelection.Data()); break;
+                case 41: case 61: case 42: case 62: case 43: case 63: fPionCutsContainerCutString=Form("%s_%s_%s_%s_%s_%s",fEventCutSelection.Data(),fGammaCutSelection.Data(),fClusterCutSelection.Data(),fPionCutSelection.Data(),fNeutralPionCutSelection.Data(),fMesonCutSelection.Data()); break;
+                case 44: case 64: case 45: case 65: fPionCutsContainerCutString=Form("%s_%s_%s_%s_%s",fEventCutSelection.Data(),fClusterCutSelection.Data(),fPionCutSelection.Data(),fNeutralPionCutSelection.Data(),fMesonCutSelection.Data()); break;
+               
+            }
             TList* PionCutsContainer       = (TList*) TopContainer->FindObject(Form("PionCuts_%s",fPionCutsContainerCutString.Data()));
             if (PionCutsContainer == NULL) {
                 cout << "INFO: " << Form("PionCuts_%s",fPionCutsContainerCutString.Data()) << " not found in File; Trying other Cut String" << endl;
@@ -1400,6 +1411,7 @@ void PrimaryTrackQA_Runwise(
                 if (iParticleType==0){histoName="ESD_PrimaryNegPions_Pt";}
                 if (iParticleType==1){histoName="";}
                 TH1D* fHistESD_PrimaryNegPions_Pt = (TH1D*)ESDContainer->FindObject(Form("%s",histoName.Data()));
+                cout << fHistESD_PrimaryNegPions_Pt->GetMinimum() << " Max " << fHistESD_PrimaryNegPions_Pt->GetMaximum() << endl;
                 if ((fHistESD_PrimaryNegPions_Pt)&&(fHistESD_PrimaryNegPions_Pt->GetEntries()>0)){
                     TH1D* fHistESD_PrimaryNegPions_Pt__temp = new TH1D(*fHistESD_PrimaryNegPions_Pt);
                     hESD_PrimaryNegPions_Pt[i]->SetBinContent(bin, fHistESD_PrimaryNegPions_Pt__temp->GetMean());
@@ -1699,6 +1711,7 @@ void PrimaryTrackQA_Runwise(
                 } //else cout << "INFO: Object |fHist"<<histoName<<"| could not be found!" << endl;
                 //-------------------------------------------------------------------------------------------------------------------------------
                 //ESD_PrimaryPosPions_ClsTPC
+                cout << "ping" << endl;
                 if (iParticleType==0){histoName="ESD_PrimaryPosPions_ClsTPC";}
                 if (iParticleType==1){histoName="";}
                 TH2D* fHistESD_PrimaryPosPions_ClsTPC = (TH2D*) ESDContainer->FindObject(Form("%s",histoName.Data()));
@@ -1716,6 +1729,12 @@ void PrimaryTrackQA_Runwise(
                 if (iParticleType==0){histoName="ESD_PrimaryPions_DCAxy";}
                 if (iParticleType==1){histoName="";}
                 TH2D* fHistESD_PrimaryPions_DCAxy = (TH2D*) ESDContainer->FindObject(Form("%s",histoName.Data()));
+                if(!fHistESD_PrimaryPions_DCAxy){
+                    // not found in ESD container, take identical one from PionContainer
+                    if (iParticleType==0){StrNameOfHistogram="hTrack_DCAxy_Pt_after";}
+                    if (iParticleType==1){StrNameOfHistogram="";}
+                    fHistESD_PrimaryPions_DCAxy = (TH2D*)PionCutsContainer->FindObject(Form("%s %s",StrNameOfHistogram.Data(),fPionCutsContainerCutString.Data()));
+                }
                 if ((fHistESD_PrimaryPions_DCAxy)&&(fHistESD_PrimaryPions_DCAxy->GetEntries()>0)){
                     TH1D* fHistESD_PrimaryPions_DCAxy__temp = (TH1D*) fHistESD_PrimaryPions_DCAxy->ProjectionX(Form("%s",histoName.Data()),fHistESD_PrimaryPions_DCAxy->GetYaxis()->GetFirst(),fHistESD_PrimaryPions_DCAxy->GetYaxis()->GetLast());
                     hESD_PrimaryPions_DCAxy_ProjPt[i]->SetBinContent(bin, fHistESD_PrimaryPions_DCAxy__temp->GetMean());
@@ -1730,6 +1749,12 @@ void PrimaryTrackQA_Runwise(
                 if (iParticleType==0){histoName="ESD_PrimaryPions_DCAz";}
                 if (iParticleType==1){histoName="";}
                 TH2D* fHistESD_PrimaryPions_DCAz = (TH2D*) ESDContainer->FindObject(Form("%s",histoName.Data()));
+                if(!fHistESD_PrimaryPions_DCAz){
+                    // not found in ESD container, take identical one from PionContainer
+                    if (iParticleType==0){StrNameOfHistogram="hTrack_DCAz_Pt_after";}
+                    if (iParticleType==1){StrNameOfHistogram="";}
+                    fHistESD_PrimaryPions_DCAz = (TH2D*)PionCutsContainer->FindObject(Form("%s %s",StrNameOfHistogram.Data(),fPionCutsContainerCutString.Data()));
+                }
                 if ((fHistESD_PrimaryPions_DCAz)&&(fHistESD_PrimaryPions_DCAz->GetEntries()>0)){
                     TH1D* fHistESD_PrimaryPions_DCAz__temp = (TH1D*) fHistESD_PrimaryPions_DCAz->ProjectionX(Form("%s",histoName.Data()),fHistESD_PrimaryPions_DCAz->GetYaxis()->GetFirst(),fHistESD_PrimaryPions_DCAz->GetYaxis()->GetLast());
                     hESD_PrimaryPions_DCAz_ProjPt[i]->SetBinContent(bin, fHistESD_PrimaryPions_DCAz__temp->GetMean());
@@ -1744,6 +1769,12 @@ void PrimaryTrackQA_Runwise(
                 if (iParticleType==0){histoName="ESD_PrimaryPions_TPCdEdx";}
                 if (iParticleType==1){histoName="";}
                 TH2D* fHistESD_PrimaryPions_TPCdEdx = (TH2D*) ESDContainer->FindObject(Form("%s",histoName.Data()));
+                if(!fHistESD_PrimaryPions_TPCdEdx){
+                    // not found in ESD container, take identical one from PionContainer
+                    if (iParticleType==0){StrNameOfHistogram="Pion_dEdx_after";}
+                    if (iParticleType==1){StrNameOfHistogram="";}
+                    fHistESD_PrimaryPions_TPCdEdx = (TH2D*)PionCutsContainer->FindObject(Form("%s %s",StrNameOfHistogram.Data(),fPionCutsContainerCutString.Data()));
+                }
                 if ((fHistESD_PrimaryPions_TPCdEdx)&&(fHistESD_PrimaryPions_TPCdEdx->GetEntries()>0)){
                     TH1D* fHistESD_PrimaryPions_TPCdEdx__temp = (TH1D*) fHistESD_PrimaryPions_TPCdEdx->ProjectionY(Form("%s",histoName.Data()),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetLast());
                     hESD_PrimaryPions_TPCdEdx_ProjPt[i]->SetBinContent(bin, fHistESD_PrimaryPions_TPCdEdx__temp->GetMean());
@@ -1757,8 +1788,8 @@ void PrimaryTrackQA_Runwise(
                 //ESD_PrimaryPions_TPCdEdx_LowPt
                 if (iParticleType==0){histoName="ESD_PrimaryPions_TPCdEdx_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistESD_PrimaryPions_TPCdEdx,fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetLast());
                 if ((fHistESD_PrimaryPions_TPCdEdx)&&(fHistESD_PrimaryPions_TPCdEdx->GetEntries()>0)){
+                    SetXRange(fHistESD_PrimaryPions_TPCdEdx,fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistESD_PrimaryPions_TPCdEdx,minB,maxB);
                     SetXRange(fHistESD_PrimaryPions_TPCdEdx,0,fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->FindBin(0.2));
                     //SetXRange(fHistESD_PrimaryPions_TPCdEdx,minB-1,maxB+1);
@@ -1778,8 +1809,8 @@ void PrimaryTrackQA_Runwise(
                 //ESD_PrimaryPions_TPCdEdx_MidPt
                 if (iParticleType==0){histoName="ESD_PrimaryPions_TPCdEdx_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistESD_PrimaryPions_TPCdEdx,fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetLast());
                 if ((fHistESD_PrimaryPions_TPCdEdx)&&(fHistESD_PrimaryPions_TPCdEdx->GetEntries()>0)){
+                    SetXRange(fHistESD_PrimaryPions_TPCdEdx,fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistESD_PrimaryPions_TPCdEdx,minB,maxB);
                     SetXRange(fHistESD_PrimaryPions_TPCdEdx,fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->FindBin(2),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistESD_PrimaryPions_TPCdEdx,minYB,maxYB);
@@ -1798,8 +1829,8 @@ void PrimaryTrackQA_Runwise(
                 //ESD_PrimaryPions_TPCdEdx_HighPt
                 if (iParticleType==0){histoName="ESD_PrimaryPions_TPCdEdx_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistESD_PrimaryPions_TPCdEdx,fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetLast());
                 if ((fHistESD_PrimaryPions_TPCdEdx)&&(fHistESD_PrimaryPions_TPCdEdx->GetEntries()>0)){
+                     SetXRange(fHistESD_PrimaryPions_TPCdEdx,fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistESD_PrimaryPions_TPCdEdx,minB,maxB);
                     SetXRange(fHistESD_PrimaryPions_TPCdEdx,fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->FindBin(3),fHistESD_PrimaryPions_TPCdEdx->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistESD_PrimaryPions_TPCdEdx,minYB,maxYB);
@@ -1819,6 +1850,12 @@ void PrimaryTrackQA_Runwise(
                 if (iParticleType==0){histoName="ESD_PrimaryPions_TPCdEdxSignal";}
                 if (iParticleType==1){histoName="";}
                 TH2D* fHistESD_PrimaryPions_TPCdEdxSignal = (TH2D*) ESDContainer->FindObject(Form("%s",histoName.Data()));
+                if(!fHistESD_PrimaryPions_TPCdEdxSignal){
+                    // not found in ESD container, take identical one from PionContainer
+                    if (iParticleType==0){StrNameOfHistogram="Pion_dEdxSignal_after";}
+                    if (iParticleType==1){StrNameOfHistogram="";}
+                    fHistESD_PrimaryPions_TPCdEdxSignal = (TH2D*)PionCutsContainer->FindObject(Form("%s %s",StrNameOfHistogram.Data(),fPionCutsContainerCutString.Data()));
+                }
                 if ((fHistESD_PrimaryPions_TPCdEdxSignal)&&(fHistESD_PrimaryPions_TPCdEdxSignal->GetEntries()>0)){
                     TH1D* fHistESD_PrimaryPions_TPCdEdxSignal__temp = (TH1D*) fHistESD_PrimaryPions_TPCdEdxSignal->ProjectionY(Form("%s",histoName.Data()),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetLast());
                     hESD_PrimaryPions_TPCdEdxSignal_ProjPt[i]->SetBinContent(bin, fHistESD_PrimaryPions_TPCdEdxSignal__temp->GetMean());
@@ -1832,8 +1869,8 @@ void PrimaryTrackQA_Runwise(
                 //ESD_PrimaryPions_TPCdEdxSignal_LowPt
                 if (iParticleType==0){histoName="ESD_PrimaryPions_TPCdEdxSignal_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetLast());
                 if ((fHistESD_PrimaryPions_TPCdEdxSignal)&&(fHistESD_PrimaryPions_TPCdEdxSignal->GetEntries()>0)){
+                    SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistESD_PrimaryPions_TPCdEdxSignal,minB,maxB);
                     SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,0,fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistESD_PrimaryPions_TPCdEdxSignal,minYB,maxYB);
@@ -1852,8 +1889,8 @@ void PrimaryTrackQA_Runwise(
                 //ESD_PrimaryPions_TPCdEdxSignal_MidPt
                 if (iParticleType==0){histoName="ESD_PrimaryPions_TPCdEdxSignal_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetLast());
                 if ((fHistESD_PrimaryPions_TPCdEdxSignal)&&(fHistESD_PrimaryPions_TPCdEdxSignal->GetEntries()>0)){
+                    SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistESD_PrimaryPions_TPCdEdxSignal,minB,maxB);
                     SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->FindBin(2),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistESD_PrimaryPions_TPCdEdxSignal,minYB,maxYB);
@@ -1872,8 +1909,8 @@ void PrimaryTrackQA_Runwise(
                 //ESD_PrimaryPions_TPCdEdxSignal_HighPt
                 if (iParticleType==0){histoName="ESD_PrimaryPions_TPCdEdxSignal_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetLast());
                 if ((fHistESD_PrimaryPions_TPCdEdxSignal)&&(fHistESD_PrimaryPions_TPCdEdxSignal->GetEntries()>0)){
+                    SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetFirst(),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistESD_PrimaryPions_TPCdEdxSignal,minB,maxB);
                     SetXRange(fHistESD_PrimaryPions_TPCdEdxSignal,fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->FindBin(3),fHistESD_PrimaryPions_TPCdEdxSignal->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistESD_PrimaryPions_TPCdEdxSignal,minYB,maxYB);
@@ -1910,8 +1947,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_ITS_after_LowPt
                 if (iParticleType==0){histoName="Pion_ITS_after_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_ITS_after_AfterQA,fHistPion_ITS_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_ITS_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_ITS_after_AfterQA)&&(fHistPion_ITS_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_ITS_after_AfterQA,fHistPion_ITS_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_ITS_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_ITS_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_ITS_after_AfterQA,0,fHistPion_ITS_after_AfterQA->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_ITS_after_AfterQA,minYB,maxYB);
@@ -1930,8 +1967,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_ITS_after_MidPt
                 if (iParticleType==0){histoName="Pion_ITS_after_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_ITS_after_AfterQA,fHistPion_ITS_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_ITS_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_ITS_after_AfterQA)&&(fHistPion_ITS_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_ITS_after_AfterQA,fHistPion_ITS_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_ITS_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_ITS_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_ITS_after_AfterQA,fHistPion_ITS_after_AfterQA->GetXaxis()->FindBin(2),fHistPion_ITS_after_AfterQA->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_ITS_after_AfterQA,minYB,maxYB);
@@ -1950,8 +1987,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_ITS_after_HighPt
                 if (iParticleType==0){histoName="Pion_ITS_after_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_ITS_after_AfterQA,fHistPion_ITS_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_ITS_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_ITS_after_AfterQA)&&(fHistPion_ITS_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_ITS_after_AfterQA,fHistPion_ITS_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_ITS_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_ITS_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_ITS_after_AfterQA,fHistPion_ITS_after_AfterQA->GetXaxis()->FindBin(2),fHistPion_ITS_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_ITS_after_AfterQA,minYB,maxYB);
@@ -1984,8 +2021,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_dEdx_after_LowPt
                 if (iParticleType==0){histoName="Pion_dEdx_after_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdx_after_AfterQA,fHistPion_dEdx_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdx_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_dEdx_after_AfterQA)&&(fHistPion_dEdx_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdx_after_AfterQA,fHistPion_dEdx_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdx_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdx_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_dEdx_after_AfterQA,0,fHistPion_dEdx_after_AfterQA->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_dEdx_after_AfterQA,minYB,maxYB);
@@ -2004,8 +2041,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_dEdx_after_MidPt
                 if (iParticleType==0){histoName="Pion_dEdx_after_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdx_after_AfterQA,fHistPion_dEdx_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdx_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_dEdx_after_AfterQA)&&(fHistPion_dEdx_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdx_after_AfterQA,fHistPion_dEdx_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdx_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdx_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_dEdx_after_AfterQA,fHistPion_dEdx_after_AfterQA->GetXaxis()->FindBin(2),fHistPion_dEdx_after_AfterQA->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_dEdx_after_AfterQA,minYB,maxYB);
@@ -2024,8 +2061,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_dEdx_after_HighPt
                 if (iParticleType==0){histoName="Pion_dEdx_after_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdx_after_AfterQA,fHistPion_dEdx_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdx_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_dEdx_after_AfterQA)&&(fHistPion_dEdx_after_AfterQA->GetEntries()>0)){
+                     SetXRange(fHistPion_dEdx_after_AfterQA,fHistPion_dEdx_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdx_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdx_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_dEdx_after_AfterQA,fHistPion_dEdx_after_AfterQA->GetXaxis()->FindBin(2),fHistPion_dEdx_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_dEdx_after_AfterQA,minYB,maxYB);
@@ -2058,8 +2095,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_dEdxSignal_after_LowPt
                 if (iParticleType==0){histoName="Pion_dEdxSignal_after_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdxSignal_after_AfterQA,fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_dEdxSignal_after_AfterQA)&&(fHistPion_dEdxSignal_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdxSignal_after_AfterQA,fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdxSignal_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_dEdxSignal_after_AfterQA,0,fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_dEdxSignal_after_AfterQA,minYB,maxYB);
@@ -2078,8 +2115,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_dEdxSignal_after_MidPt
                 if (iParticleType==0){histoName="Pion_dEdxSignal_after_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdxSignal_after_AfterQA,fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_dEdxSignal_after_AfterQA)&&(fHistPion_dEdxSignal_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdxSignal_after_AfterQA,fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdxSignal_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_dEdxSignal_after_AfterQA,fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->FindBin(2),fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_dEdxSignal_after_AfterQA,minYB,maxYB);
@@ -2098,8 +2135,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_dEdxSignal_after_HighPt
                 if (iParticleType==0){histoName="Pion_dEdxSignal_after_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdxSignal_after_AfterQA,fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_dEdxSignal_after_AfterQA)&&(fHistPion_dEdxSignal_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdxSignal_after_AfterQA,fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdxSignal_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_dEdxSignal_after_AfterQA,fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->FindBin(3),fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_dEdxSignal_after_AfterQA,minYB,maxYB);
@@ -2132,8 +2169,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_TOF_after_LowPt
                 if (iParticleType==0){histoName="Pion_TOF_after_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_TOF_after_AfterQA,fHistPion_TOF_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_TOF_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_TOF_after_AfterQA)&&(fHistPion_TOF_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_TOF_after_AfterQA,fHistPion_TOF_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_TOF_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_TOF_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_TOF_after_AfterQA,0,fHistPion_TOF_after_AfterQA->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_TOF_after_AfterQA,minYB,maxYB);
@@ -2152,8 +2189,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_TOF_after_MidPt
                 if (iParticleType==0){histoName="Pion_TOF_after_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_TOF_after_AfterQA,fHistPion_TOF_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_TOF_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_TOF_after_AfterQA)&&(fHistPion_TOF_after_AfterQA->GetEntries()>0)){
+                    SetXRange(fHistPion_TOF_after_AfterQA,fHistPion_TOF_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_TOF_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_TOF_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_TOF_after_AfterQA,fHistPion_TOF_after_AfterQA->GetXaxis()->FindBin(2),fHistPion_dEdxSignal_after_AfterQA->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_TOF_after_AfterQA,minYB,maxYB);
@@ -2172,8 +2209,8 @@ void PrimaryTrackQA_Runwise(
                 //AfterQA: Pion_TOF_after_HighPt
                 if (iParticleType==0){histoName="Pion_TOF_after_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_TOF_after_AfterQA,fHistPion_TOF_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_TOF_after_AfterQA->GetXaxis()->GetLast());
                 if ((fHistPion_TOF_after_AfterQA)&&(fHistPion_TOF_after_AfterQA->GetEntries()>0)){
+                     SetXRange(fHistPion_TOF_after_AfterQA,fHistPion_TOF_after_AfterQA->GetXaxis()->GetFirst(),fHistPion_TOF_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_TOF_after_AfterQA,minB,maxB);
                     SetXRange(fHistPion_TOF_after_AfterQA,fHistPion_TOF_after_AfterQA->GetXaxis()->FindBin(3),fHistPion_TOF_after_AfterQA->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_TOF_after_AfterQA,minYB,maxYB);
@@ -2249,8 +2286,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_ITS_before_LowPt
                 if (iParticleType==0){histoName="Pion_ITS_before_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_ITS_before_PreSel,fHistPion_ITS_before_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_ITS_before_PreSel)&&(fHistPion_ITS_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_ITS_before_PreSel,fHistPion_ITS_before_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_ITS_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_ITS_before_PreSel,0,fHistPion_ITS_before_PreSel->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_ITS_before_PreSel,minYB,maxYB);
@@ -2268,8 +2305,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_ITS_before_MidPt
                 if (iParticleType==0){histoName="Pion_ITS_before_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_ITS_before_PreSel,fHistPion_ITS_before_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_ITS_before_PreSel)&&(fHistPion_ITS_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_ITS_before_PreSel,fHistPion_ITS_before_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_ITS_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_ITS_before_PreSel,fHistPion_ITS_before_PreSel->GetXaxis()->FindBin(2),fHistPion_ITS_before_PreSel->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_ITS_before_PreSel,minYB,maxYB);
@@ -2287,8 +2324,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_ITS_before_HighPt
                 if (iParticleType==0){histoName="Pion_ITS_before_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_ITS_before_PreSel,fHistPion_ITS_before_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_ITS_before_PreSel)&&(fHistPion_ITS_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_ITS_before_PreSel,fHistPion_ITS_before_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_ITS_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_ITS_before_PreSel,fHistPion_ITS_before_PreSel->GetXaxis()->FindBin(2),fHistPion_ITS_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_ITS_before_PreSel,minYB,maxYB);
@@ -2320,8 +2357,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdx_before_LowPt
                 if (iParticleType==0){histoName="Pion_dEdx_before_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdx_before_PreSel,fHistPion_dEdx_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdx_before_PreSel)&&(fHistPion_dEdx_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdx_before_PreSel,fHistPion_dEdx_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdx_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdx_before_PreSel,0,fHistPion_dEdx_before_PreSel->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_dEdx_before_PreSel,minYB,maxYB);
@@ -2340,8 +2377,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdx_before_MidPt
                 if (iParticleType==0){histoName="Pion_dEdx_before_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdx_before_PreSel,fHistPion_dEdx_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdx_before_PreSel)&&(fHistPion_dEdx_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdx_before_PreSel,fHistPion_dEdx_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdx_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdx_before_PreSel,fHistPion_dEdx_before_PreSel->GetXaxis()->FindBin(2),fHistPion_dEdx_before_PreSel->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_dEdx_before_PreSel,minYB,maxYB);
@@ -2360,8 +2397,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdx_before_HighPt
                 if (iParticleType==0){histoName="Pion_dEdx_before_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdx_before_PreSel,fHistPion_dEdx_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdx_before_PreSel)&&(fHistPion_dEdx_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdx_before_PreSel,fHistPion_dEdx_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdx_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdx_before_PreSel,fHistPion_dEdx_before_PreSel->GetXaxis()->FindBin(2),fHistPion_dEdx_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_dEdx_before_PreSel,minYB,maxYB);
@@ -2394,8 +2431,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdxSignal_before_LowPt
                 if (iParticleType==0){histoName="Pion_dEdxSignal_before_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdxSignal_before_PreSel,fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdxSignal_before_PreSel)&&(fHistPion_dEdxSignal_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdxSignal_before_PreSel,fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdxSignal_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdxSignal_before_PreSel,0,fHistPion_dEdxSignal_before_PreSel->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_dEdxSignal_before_PreSel,minYB,maxYB);
@@ -2414,8 +2451,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdxSignal_before_MidPt
                 if (iParticleType==0){histoName="Pion_dEdxSignal_before_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdxSignal_before_PreSel,fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdxSignal_before_PreSel)&&(fHistPion_dEdxSignal_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdxSignal_before_PreSel,fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdxSignal_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdxSignal_before_PreSel,fHistPion_dEdxSignal_before_PreSel->GetXaxis()->FindBin(2),fHistPion_dEdxSignal_before_PreSel->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_dEdxSignal_before_PreSel,minYB,maxYB);
@@ -2434,8 +2471,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdxSignal_before_HighPt
                 if (iParticleType==0){histoName="Pion_dEdxSignal_before_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdxSignal_before_PreSel,fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdxSignal_before_PreSel)&&(fHistPion_dEdxSignal_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdxSignal_before_PreSel,fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdxSignal_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdxSignal_before_PreSel,fHistPion_dEdxSignal_before_PreSel->GetXaxis()->FindBin(3),fHistPion_dEdxSignal_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_dEdxSignal_before_PreSel,minYB,maxYB);
@@ -2468,8 +2505,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_TOF_before_PreSel_LowPt
                 if (iParticleType==0){histoName="Pion_TOF_before_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_TOF_before_PreSel,fHistPion_TOF_before_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_TOF_before_PreSel)&&(fHistPion_TOF_before_PreSel->GetEntries()>0)){
+                     SetXRange(fHistPion_TOF_before_PreSel,fHistPion_TOF_before_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_TOF_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_TOF_before_PreSel,0,fHistPion_TOF_before_PreSel->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_TOF_before_PreSel,minYB,maxYB);
@@ -2488,8 +2525,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_TOF_before_PreSel_MidPt
                 if (iParticleType==0){histoName="Pion_TOF_before_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_TOF_before_PreSel,fHistPion_TOF_before_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_TOF_before_PreSel)&&(fHistPion_TOF_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_TOF_before_PreSel,fHistPion_TOF_before_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_TOF_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_TOF_before_PreSel,fHistPion_TOF_before_PreSel->GetXaxis()->FindBin(2),fHistPion_dEdxSignal_before_PreSel->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_dEdxSignal_before_PreSel,minYB,maxYB);
@@ -2508,8 +2545,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_TOF_before_PreSel_HighPt
                 if (iParticleType==0){histoName="Pion_TOF_before_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_TOF_before_PreSel,fHistPion_TOF_before_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_before_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_TOF_before_PreSel)&&(fHistPion_TOF_before_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_TOF_before_PreSel,fHistPion_TOF_before_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_TOF_before_PreSel,minB,maxB);
                     SetXRange(fHistPion_TOF_before_PreSel,fHistPion_TOF_before_PreSel->GetXaxis()->FindBin(3),fHistPion_TOF_before_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_TOF_before_PreSel,minYB,maxYB);
@@ -2593,8 +2630,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_ITS_after_LowPt
                 if (iParticleType==0){histoName="Pion_ITS_after_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_ITS_after_PreSel,fHistPion_ITS_after_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_ITS_after_PreSel)&&(fHistPion_ITS_after_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_ITS_after_PreSel,fHistPion_ITS_after_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_ITS_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_ITS_after_PreSel,0,fHistPion_ITS_after_PreSel->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_ITS_after_PreSel,minYB,maxYB);
@@ -2612,8 +2649,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_ITS_after_MidPt
                 if (iParticleType==0){histoName="Pion_ITS_after_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_ITS_after_PreSel,fHistPion_ITS_after_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_ITS_after_PreSel)&&(fHistPion_ITS_after_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_ITS_after_PreSel,fHistPion_ITS_after_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_ITS_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_ITS_after_PreSel,fHistPion_ITS_after_PreSel->GetXaxis()->FindBin(2),fHistPion_ITS_after_PreSel->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_ITS_after_PreSel,minYB,maxYB);
@@ -2631,8 +2668,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_ITS_after_HighPt
                 if (iParticleType==0){histoName="Pion_ITS_after_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_ITS_after_PreSel,fHistPion_ITS_after_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_ITS_after_PreSel)&&(fHistPion_ITS_after_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_ITS_after_PreSel,fHistPion_ITS_after_PreSel->GetXaxis()->GetFirst(),fHistPion_ITS_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_ITS_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_ITS_after_PreSel,fHistPion_ITS_after_PreSel->GetXaxis()->FindBin(3),fHistPion_ITS_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_ITS_after_PreSel,minYB,maxYB);
@@ -2664,8 +2701,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdx_after_LowPt
                 if (iParticleType==0){histoName="Pion_dEdx_after_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdx_after_PreSel,fHistPion_dEdx_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdx_after_PreSel)&&(fHistPion_dEdx_after_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdx_after_PreSel,fHistPion_dEdx_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdx_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdx_after_PreSel,0,fHistPion_dEdx_after_PreSel->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_dEdx_after_PreSel,minYB,maxYB);
@@ -2684,8 +2721,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdx_after_MidPt
                 if (iParticleType==0){histoName="Pion_dEdx_after_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdx_after_PreSel,fHistPion_dEdx_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdx_after_PreSel)&&(fHistPion_dEdx_after_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdx_after_PreSel,fHistPion_dEdx_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdx_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdx_after_PreSel,fHistPion_dEdx_after_PreSel->GetXaxis()->FindBin(2),fHistPion_dEdx_after_PreSel->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_dEdx_after_PreSel,minYB,maxYB);
@@ -2704,8 +2741,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdx_after_HighPt
                 if (iParticleType==0){histoName="Pion_dEdx_after_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdx_after_PreSel,fHistPion_dEdx_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdx_after_PreSel)&&(fHistPion_dEdx_after_PreSel->GetEntries()>0)){
+                     SetXRange(fHistPion_dEdx_after_PreSel,fHistPion_dEdx_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdx_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdx_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdx_after_PreSel,fHistPion_dEdx_after_PreSel->GetXaxis()->FindBin(3),fHistPion_dEdx_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_dEdx_after_PreSel,minYB,maxYB);
@@ -2738,8 +2775,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdxSignal_after_LowPt
                 if (iParticleType==0){histoName="Pion_dEdxSignal_after_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdxSignal_after_PreSel,fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdxSignal_after_PreSel)&&(fHistPion_dEdxSignal_after_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdxSignal_after_PreSel,fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdxSignal_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdxSignal_after_PreSel,0,fHistPion_dEdxSignal_after_PreSel->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_dEdxSignal_after_PreSel,minYB,maxYB);
@@ -2758,8 +2795,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdxSignal_after_MidPt
                 if (iParticleType==0){histoName="Pion_dEdxSignal_after_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdxSignal_after_PreSel,fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdxSignal_after_PreSel)&&(fHistPion_dEdxSignal_after_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdxSignal_after_PreSel,fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdxSignal_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdxSignal_after_PreSel,fHistPion_dEdxSignal_after_PreSel->GetXaxis()->FindBin(2),fHistPion_dEdxSignal_after_PreSel->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_dEdxSignal_after_PreSel,minYB,maxYB);
@@ -2778,8 +2815,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_dEdxSignal_after_HighPt
                 if (iParticleType==0){histoName="Pion_dEdxSignal_after_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_dEdxSignal_after_PreSel,fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_dEdxSignal_after_PreSel)&&(fHistPion_dEdxSignal_after_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_dEdxSignal_after_PreSel,fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetFirst(),fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_dEdxSignal_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_dEdxSignal_after_PreSel,fHistPion_dEdxSignal_after_PreSel->GetXaxis()->FindBin(3),fHistPion_dEdxSignal_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_dEdxSignal_after_PreSel,minYB,maxYB);
@@ -2812,8 +2849,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_TOF_after_PreSel_LowPt
                 if (iParticleType==0){histoName="Pion_TOF_after_LowPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_TOF_after_PreSel,fHistPion_TOF_after_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_TOF_after_PreSel)&&(fHistPion_TOF_after_PreSel->GetEntries()>0)){
+                     SetXRange(fHistPion_TOF_after_PreSel,fHistPion_TOF_after_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_TOF_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_TOF_after_PreSel,0,fHistPion_TOF_after_PreSel->GetXaxis()->FindBin(0.2));
                     GetMinMaxBinY(fHistPion_TOF_after_PreSel,minYB,maxYB);
@@ -2832,8 +2869,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_TOF_after_PreSel_MidPt
                 if (iParticleType==0){histoName="Pion_TOF_after_MidPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_TOF_after_PreSel,fHistPion_TOF_after_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_TOF_after_PreSel)&&(fHistPion_TOF_after_PreSel->GetEntries()>0)){
+                     SetXRange(fHistPion_TOF_after_PreSel,fHistPion_TOF_after_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_TOF_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_TOF_after_PreSel,fHistPion_TOF_after_PreSel->GetXaxis()->FindBin(2),fHistPion_dEdxSignal_after_PreSel->GetXaxis()->FindBin(3));
                     GetMinMaxBinY(fHistPion_TOF_after_PreSel,minYB,maxYB);
@@ -2852,8 +2889,8 @@ void PrimaryTrackQA_Runwise(
                 //Pre Selection: Pion_TOF_after_PreSel_HighPt
                 if (iParticleType==0){histoName="Pion_TOF_after_HighPt";}
                 if (iParticleType==1){histoName="";}
-                SetXRange(fHistPion_TOF_after_PreSel,fHistPion_TOF_after_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_after_PreSel->GetXaxis()->GetLast());
                 if ((fHistPion_TOF_after_PreSel)&&(fHistPion_TOF_after_PreSel->GetEntries()>0)){
+                    SetXRange(fHistPion_TOF_after_PreSel,fHistPion_TOF_after_PreSel->GetXaxis()->GetFirst(),fHistPion_TOF_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBin(fHistPion_TOF_after_PreSel,minB,maxB);
                     SetXRange(fHistPion_TOF_after_PreSel,fHistPion_TOF_after_PreSel->GetXaxis()->FindBin(3),fHistPion_TOF_after_PreSel->GetXaxis()->GetLast());
                     GetMinMaxBinY(fHistPion_TOF_after_PreSel,minYB,maxYB);

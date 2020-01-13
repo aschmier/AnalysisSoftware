@@ -84,8 +84,10 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
 
     Bool_t      doOmegaPi0Ratio                                 = kFALSE;
 
+
     // Variable to quickly change which type of yield is used
     TString InvMassTypeEnding = "_SubPiZero";
+    Bool_t useBackFit = kTRUE;
 
     // Set common default plot style
     StyleSettingsThesis();
@@ -178,6 +180,8 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
 
     cout << " " << endl;
 
+
+
     // Determine number of collisions for PbPb case
     if( optionEnergy.Contains("Pb") && optionMult.CompareTo("Mult") == 0) {
         for (Int_t i=0; i< NumberOfCuts; i++){
@@ -204,12 +208,15 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
     TFile*  CutcorrPi0OmegaBinfile      [ConstNumberOfCuts];
     TFile*  Cutuncorrfile               [ConstNumberOfCuts];
     TH1D*   histoCorrectedYieldCut      [ConstNumberOfCuts];
+    TH1D*   histoCorrectedYieldCutBackFit;
     TH1D*   histoCorrectedYieldPi0OmegaCut[ConstNumberOfCuts];
     TH1D*   histoRawClusterPtCut        [ConstNumberOfCuts];
     TH1D*   histoTrueEffiCut            [ConstNumberOfCuts];
     TH1D*   histoAcceptanceCut          [ConstNumberOfCuts];
     TH1D*   histoRawYieldCut            [ConstNumberOfCuts];
+    TH1D*   histoRawYieldCutBackFit;
     TH1D*   histoRawYieldCutRelUnc      [ConstNumberOfCuts];
+    TH1D*   histoRawYieldCutRelUncBackFit;
     TH1D*   histoTrueEffiCutRelUnc      [ConstNumberOfCuts];
     TH1D*   histoMassRatioCut           [ConstNumberOfCuts];
     TH1D*   histoWidthRatioCut          [ConstNumberOfCuts];
@@ -235,11 +242,17 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
     TH1D*   histoCorrectedYieldNorm;
     TH1D*   histoCorrectedYieldTrueNarrow;
     TH1D*   histoCorrectedYieldTrueWide;
+    TH1D*   histoCorrectedYieldNormBackFit;
+    TH1D*   histoCorrectedYieldTrueNarrowBackFit;
+    TH1D*   histoCorrectedYieldTrueWideBackFit;
+    TH1D*   histoRatioCorrectedYieldCutBackFit;
     TString cutStringsName              [MaxNumberOfCuts];
 
     // Define yield extraction error graphs
     TGraphAsymmErrors* systErrGraphNegYieldExt                  = NULL;
     TGraphAsymmErrors* systErrGraphPosYieldExt                  = NULL;
+    TGraphAsymmErrors* systErrGraphNegEffi                  = NULL;
+    TGraphAsymmErrors* systErrGraphPosEffi                  = NULL;
     TGraphAsymmErrors* systErrGraphNegYieldExtPi0OmegaBinning     = NULL;
     TGraphAsymmErrors* systErrGraphPosYieldExtPi0OmegaBinning     = NULL;
 
@@ -485,16 +498,31 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
                     negErrorYield[j]                            = -1*negErrorYield[j];
                 }
                 systErrGraphPosYieldExt                         = (TGraphAsymmErrors*)Cutcorrfile[i]->Get(Form("%s_SystErrorRelPos_YieldExtraction_%s",meson.Data(), centralityString.Data()));
+
+                // Efficiency systematics
+                systErrGraphNegEffi                         = (TGraphAsymmErrors*)Cutcorrfile[i]->Get(Form("%s_SystErrorRelNeg_Efficiency_%s",meson.Data(), centralityString.Data()));
+                Double_t* negErrorYieldEffi                         = systErrGraphNegEffi->GetY();
+                for (Int_t j = 0; j < systErrGraphNegEffi->GetN(); j++){
+                    negErrorYieldEffi[j]                            = -1*negErrorYieldEffi[j];
+                }
+                systErrGraphPosEffi                         = (TGraphAsymmErrors*)Cutcorrfile[i]->Get(Form("%s_SystErrorRelPos_Efficiency_%s",meson.Data(), centralityString.Data()));
                 //systErrGraphBGEstimate                          = (TGraphAsymmErrors*)Cutcorrfile[i]->Get(Form("%s_SystErrorRel_BGEstimate_%s",meson.Data(), centralityString.Data()));
                 //systErrGraphBGEstimateIterations                = (TGraphAsymmErrors*)Cutcorrfile[i]->Get(Form("%s_SystErrorRel_BGEstimateIterations_%s",meson.Data(), centralityString.Data()));
             }
 
-            TString nameCorrectedYield                          = Form("CorrectedYieldTrueEff%s",InvMassTypeEnding.Data());
-            TString nameCorrectedYieldNorm                      = Form("CorrectedYieldNormEff%s",InvMassTypeEnding.Data());
-            TString nameCorrectedYieldTrueNarrow                = Form("CorrectedYieldTrueEffNarrow%s",InvMassTypeEnding.Data());
-            TString nameCorrectedYieldTrueWide                  = Form("CorrectedYieldTrueEffWide%s",InvMassTypeEnding.Data());
+            TString BackFit = "";
+            if(useBackFit) BackFit = "BackFit";
+            TString nameCorrectedYield                          = Form("CorrectedYieldTrueEff%s%s",BackFit.Data(),InvMassTypeEnding.Data());
+            TString nameCorrectedYieldNorm                      = Form("CorrectedYieldNormEff%s%s",BackFit.Data(),InvMassTypeEnding.Data());
+            TString nameCorrectedYieldTrueNarrow                = Form("CorrectedYieldTrueEffNarrow%s%s",BackFit.Data(),InvMassTypeEnding.Data());
+            TString nameCorrectedYieldTrueWide                  = Form("CorrectedYieldTrueEffWide%s%s",BackFit.Data(),InvMassTypeEnding.Data());
             TString nameEfficiency                              = Form("TrueMesonEffiPt%s",InvMassTypeEnding.Data());
             TString nameAcceptance                              = "fMCMesonAccepPt";
+
+            TString nameCorrectedYieldBackFit                          = Form("CorrectedYieldTrueEffBackFit%s",InvMassTypeEnding.Data());
+            TString nameCorrectedYieldNormBackFit                      = Form("CorrectedYieldNormEffBackFit%s",InvMassTypeEnding.Data());
+            TString nameCorrectedYieldTrueNarrowBackFit                = Form("CorrectedYieldTrueEffNarrowBackFit%s",InvMassTypeEnding.Data());
+            TString nameCorrectedYieldTrueWideBackFit                  = Form("CorrectedYieldTrueEffWideBackFit%s",InvMassTypeEnding.Data());
 
             // names for histograms loaded from pi0 file
             TString nameCorrectedYieldPi0                          = "CorrectedYieldTrueEff";
@@ -505,6 +533,14 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
                histoCorrectedYieldNorm                       = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYieldNorm.Data());
                histoCorrectedYieldTrueNarrow                 = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYieldTrueNarrow.Data());
                histoCorrectedYieldTrueWide                   = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYieldTrueWide.Data());
+
+               if(cutVariationName.Contains("Omega_BackgroundScheme")){
+                  histoCorrectedYieldCutBackFit                         = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYieldBackFit.Data());
+                  histoCorrectedYieldCutBackFit->SetName(Form("%s_%s", nameCorrectedYieldBackFit.Data(),cutNumber[i].Data()));
+                  histoCorrectedYieldNormBackFit                       = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYieldNormBackFit.Data());
+                  histoCorrectedYieldTrueNarrowBackFit                 = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYieldTrueNarrowBackFit.Data());
+                  histoCorrectedYieldTrueWideBackFit                   = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYieldTrueWideBackFit.Data());
+               }
             }
             histoCorrectedYieldCut[i]                           = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYield.Data());
             histoCorrectedYieldCut[i]->SetName(Form("%s_%s", nameCorrectedYield.Data(),cutNumber[i].Data()));
@@ -555,6 +591,26 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
         histoRawYieldCut[i]->SetName(Form("histoYieldMesonPerEvent_%s",cutNumber[i].Data()));
         histoRawYieldCut[i]->Scale(1./nColls[i]);
 
+        if(cutVariationName.Contains("Omega_BackgroundScheme")){
+            if(i==0){
+                histoRawYieldCutBackFit                                     = (TH1D*)Cutuncorrfile[i]->Get(Form("histoYieldMesonPerEventBackFit%s",InvMassTypeEnding.Data()));
+                histoRawYieldCutBackFit->SetName(Form("histoYieldMesonPerEventBackFit_%s",cutNumber[i].Data()));
+                histoRawYieldCutBackFit->Scale(1./nColls[i]);
+
+                histoRawYieldCutRelUncBackFit                               = (TH1D*)histoRawYieldCutBackFit->Clone("histoYieldMesonPerEventRelUncBackFit");
+                for (Int_t k = 1; k < histoRawYieldCutRelUncBackFit->GetNbinsX()+1; k++){
+                    if (histoRawYieldCutRelUncBackFit->GetBinContent(k) != 0){
+                        histoRawYieldCutRelUncBackFit->SetBinContent(k, histoRawYieldCutRelUncBackFit->GetBinError(k)/histoRawYieldCutRelUncBackFit->GetBinContent(k)*100);
+                        histoRawYieldCutRelUncBackFit->SetBinError(k, 0);
+                    } else {
+                        histoRawYieldCutRelUncBackFit->SetBinContent(k, 0);
+                        histoRawYieldCutRelUncBackFit->SetBinError(k, 0);
+                    }
+                }
+            }
+        }
+
+        
         histoRawYieldCutRelUnc[i]                               = (TH1D*)histoRawYieldCut[i]->Clone("histoYieldMesonPerEventRelUnc");
         for (Int_t k = 1; k < histoRawYieldCutRelUnc[i]->GetNbinsX()+1; k++){
             if (histoRawYieldCutRelUnc[i]->GetBinContent(k) != 0){
@@ -587,6 +643,13 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
         if (correctionFilesAvail){
             histoRatioCorrectedYieldCut[i]                      = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("histoRatioCorrectedYieldCut_%s", cutNumber[i].Data()));
             histoRatioCorrectedYieldCut[i]->Divide(histoRatioCorrectedYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
+
+            if(cutVariationName.Contains("Omega_BackgroundScheme")){
+                if(i==0){
+                    histoRatioCorrectedYieldCutBackFit                      = (TH1D*) histoCorrectedYieldCutBackFit->Clone(Form("histoRatioCorrectedYieldCutBackFit_%s", cutNumber[i].Data()));
+                    histoRatioCorrectedYieldCutBackFit->Divide(histoRatioCorrectedYieldCutBackFit,histoCorrectedYieldCut[0],1.,1.,"B");
+                }
+            }
 
             if (i > 0){
                 maxPt= histoCorrectedYieldCut[i]->GetBinCenter(histoCorrectedYieldCut[i]->GetNbinsX()) + 0.5* histoCorrectedYieldCut[i]->GetBinWidth(histoCorrectedYieldCut[i]->GetNbinsX());
@@ -1328,6 +1391,12 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
                 legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], cutStringsName[i].Data());
             }
         }
+        // Draw back fit yield in addition
+        if(cutVariationName.Contains("Omega_BackgroundScheme")){
+             DrawGammaSetMarker(histoCorrectedYieldCutBackFit, 20+NumberOfCuts, 1.,color[NumberOfCuts],color[NumberOfCuts]);
+             histoCorrectedYieldCutBackFit->DrawCopy("same,e1,p");
+             legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCutBackFit, "fitted background");
+        }
         legendCorrectedYieldMeson->Draw();
 
         // labeling the plot
@@ -1366,6 +1435,15 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
                 histoRatioCorrectedYieldCut[i]->SetFillColor(kGray+2);
                 histoRatioCorrectedYieldCut[i]->SetFillStyle(0);
                 histoRatioCorrectedYieldCut[i]->DrawCopy("p,e2");
+
+                if(cutVariationName.Contains("Omega_BackgroundScheme")){
+                    if(NumberOfCuts<20){
+                        DrawGammaSetMarker(histoRatioCorrectedYieldCutBackFit,20+ NumberOfCuts, 1.,color[NumberOfCuts],color[NumberOfCuts]);
+                    } else{
+                        DrawGammaSetMarker(histoRatioCorrectedYieldCutBackFit,20, 1.,color[1],color[1]);
+                    }
+                    histoRatioCorrectedYieldCutBackFit->DrawCopy("same,e1,p");
+                }
 
                 //                 histoRatioCorrectedYieldCut[i]->DrawCopy("p,e1");
             } else{
@@ -1998,23 +2076,35 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
         }
 
         // Create array of Sys Err Objects and fill them
-        SysErrorConversion SysErrCut[ConstNumberOfCuts][NBinstPtConst];
-        SysErrorConversion SysErrCutRaw[ConstNumberOfCuts][NBinstPtConst];
+        // make increase array size by one, in case backfit sys has to be added
+        SysErrorConversion SysErrCut[ConstNumberOfCuts+1][NBinstPtConst];
+        SysErrorConversion SysErrCutRaw[ConstNumberOfCuts+1][NBinstPtConst];
         for (Int_t j = 0; j < NumberOfCuts; j++){
             for (Int_t i = 1; i < NBinsPt +1; i++){
                 SysErrCut[j][i].value       = histoCorrectedYieldCut[j]->GetBinContent(i);
                 SysErrCut[j][i].error       = histoCorrectedYieldCut[j]->GetBinError(i);
                 SysErrCutRaw[j][i].value    = histoRawYieldCut[j]->GetBinContent(i);
                 SysErrCutRaw[j][i].error    = histoRawYieldCut[j]->GetBinError(i);
-            }
+            }       
         }
 
+        // Back fit sys uncertainty
+        if(cutVariationName.Contains("Omega_BackgroundScheme")){
+            for (Int_t i = 1; i < NBinsPt +1; i++){
+                SysErrCut[NumberOfCuts][i].value       = histoCorrectedYieldCutBackFit->GetBinContent(i);
+                SysErrCut[NumberOfCuts][i].error       = histoCorrectedYieldCutBackFit->GetBinError(i);
+                SysErrCutRaw[NumberOfCuts][i].value    = histoRawYieldCutBackFit->GetBinContent(i);
+                SysErrCutRaw[NumberOfCuts][i].error    = histoRawYieldCutBackFit->GetBinError(i);
+            } 
+        }  
+
+
         // Create Difference arrays
-        Double_t DifferenceCut[ConstNumberOfCuts][NBinstPtConst];
-        Double_t DifferenceErrorCut[ConstNumberOfCuts][NBinstPtConst];
-        Double_t RelDifferenceCut[ConstNumberOfCuts][NBinstPtConst];
-        Double_t RelDifferenceErrorCut[ConstNumberOfCuts][NBinstPtConst];
-        Double_t RelDifferenceRawCut[ConstNumberOfCuts][NBinstPtConst];
+        Double_t DifferenceCut[ConstNumberOfCuts+1][NBinstPtConst];
+        Double_t DifferenceErrorCut[ConstNumberOfCuts+1][NBinstPtConst];
+        Double_t RelDifferenceCut[ConstNumberOfCuts+1][NBinstPtConst];
+        Double_t RelDifferenceErrorCut[ConstNumberOfCuts+1][NBinstPtConst];
+        Double_t RelDifferenceRawCut[ConstNumberOfCuts+1][NBinstPtConst];
 
         // Create largest difference array
         Double_t LargestDiffNeg[NBinstPtConst];
@@ -2026,6 +2116,10 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
         Double_t LargestDiffRelErrorNeg[NBinstPtConst];
         Double_t LargestDiffRelErrorPos[NBinstPtConst];
 
+        if(cutVariationName.Contains("Omega_BackgroundScheme")){
+            cutNumber[NumberOfCuts] = "backfit";
+            NumberOfCuts ++;
+        }
         // Initialize all differences with 0
         for (Int_t j = 0; j < NumberOfCuts; j++){
             for ( Int_t i = 0; i < NBinstPtConst; i++) {
@@ -2413,6 +2507,8 @@ void CutStudiesOverviewOmega(TString CombineCutsName                 = "CombineC
         }
         systErrGraphNegYieldExt->Write(Form("%s_SystErrorRelNeg_YieldExtraction_%s",meson.Data(),centralityString.Data()),TObject::kOverwrite);
         systErrGraphPosYieldExt->Write(Form("%s_SystErrorRelPos_YieldExtraction_%s",meson.Data(),centralityString.Data()),TObject::kOverwrite);
+        systErrGraphNegEffi->Write(Form("%s_SystErrorRelNeg_Efficiency_%s",meson.Data(),centralityString.Data()),TObject::kOverwrite);
+        systErrGraphPosEffi->Write(Form("%s_SystErrorRelPos_Efficiency_%s",meson.Data(),centralityString.Data()),TObject::kOverwrite);
         if (systErrGraphBGEstimate) systErrGraphBGEstimate->Write(Form("%s_SystErrorRel_BGEstimate_%s",meson.Data(),centralityString.Data()),TObject::kOverwrite);
         if (systErrGraphBGEstimateIterations) systErrGraphBGEstimateIterations->Write(Form("%s_SystErrorRel_BGEstimateIterations_%s",meson.Data(),centralityString.Data()),TObject::kOverwrite);
         SystematicErrorFile->Write();

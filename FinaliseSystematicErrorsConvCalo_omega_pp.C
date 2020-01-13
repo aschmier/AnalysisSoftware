@@ -297,6 +297,11 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
             TString nameGraphPos            = Form("%s_SystErrorRelPos_%s_pp",meson.Data(),nameCutVariationSC[i].Data()  );
             TString nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_pp",meson.Data(),nameCutVariationSC[i].Data()  );
             graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());            
+        } else if (nameCutVariationSC[i].CompareTo("Omega_RecoEfficiency")==0){
+            TString nameGraphPos            = Form("%s_SystErrorRelPos_%s_pp",meson.Data(),"Efficiency"  );
+            TString nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_pp",meson.Data(),"Efficiency"  );
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
             graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
         } else if (nameCutVariationSC[i].CompareTo("Clusterizer")==0){
             // take pileup graph as dummy
@@ -447,7 +452,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
             } else if (nameCutVariationSC[i].CompareTo("Conversion_TPCdEdxCutPion")==0 ){
                 minPt       = startPtSys;
                 if (!energy.CompareTo("7TeV"))
-                    errorReset  = 1.; //
+                    errorReset  = 4.; //
 
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (ptBins[k] > minPt){
@@ -536,9 +541,12 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
             } else if (nameCutVariationSC[i].CompareTo("Calo_TrackMatching")==0 ){
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
-                    if (!energy.CompareTo("7TeV")){ // taken from pi0
-                        errorReset          = 1.0+40/pow(100,ptBins[k]);
-                        if(ptBins[k]>=4) errorReset += 2E-3*(ptBins[k]-4)*(ptBins[k]-4)+0.2*(ptBins[k]-4);
+                    if (!energy.CompareTo("7TeV")){ 
+                       if(mode==61 || mode == 41){ // PCM-EMC
+                          errorReset = 2.5; // evaluated at 5 TeV, almost no effect
+                       } else{
+                          errorReset = 2.5;
+                       }
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -553,7 +561,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                            errorReset = 1.5;
+                            errorReset = 3.;
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -671,7 +679,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 10.0;
+                        errorReset = 4.0; // evaluated at 5 TeV
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -701,7 +709,11 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 9; // used from conv
+                        if(mode==61 || mode == 41){ // PCM-EMC
+                            errorReset = 6; // used from conv
+                        } else{
+                            errorReset = 6; // used from conv
+                        } 
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -716,7 +728,11 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 13.;
+                        if(mode==61 || mode == 41){ // PCM-EMC
+                             errorReset = 7;
+                        } else{ // PCM-PHOS
+                             errorReset = 7;
+                        }
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -740,6 +756,19 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                     }
                 }
                 // Yield Extraction
+            } else if (nameCutVariationSC[i].CompareTo("Omega_RecoEfficiency")==0 ){
+                minPt       = startPtSys;
+                for (Int_t k = 0; k < nPtBins; k++){
+                    if (!energy.CompareTo("7TeV")){
+                        errorReset = 7;
+                    }
+                    if (ptBins[k] > minPt){
+                        errorsMean[i][k]            = errorReset;
+                        errorsMeanErr[i][k]         = errorReset*0.01;
+                        errorsMeanCorr[i][k]        = errorReset;
+                        errorsMeanErrCorr[i][k]     = errorReset*0.01;
+                    }
+                }
             } else if (nameCutVariationSC[i].CompareTo("YieldExtraction")==0 ){
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
@@ -1085,6 +1114,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
     Double_t errorsMeanCorrPhotonRecoConv[nPtBins];
     Double_t errorsMeanCorrPhotonRecoCalo[nPtBins];
     Double_t errorsMeanCorrPileup[nPtBins];
+    Double_t errorsMeanRecEfficiency[nPtBins];
 
     for (Int_t l=0; l< nPtBins; l++){
         //"0 YieldExtraction_pp"
@@ -1105,7 +1135,6 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
         // Signal extraction:
         errorsMeanCorrSignalExtraction[l]   =   TMath::Sqrt(pow(errorsMeanCorr[20][l],2)+    // charged pion mass
                                                             pow(errorsMeanCorr[22][l],2)+    // BG description
-                                                            pow(errorsMeanCorr[23][l],2)+    // reco efficiency
                                                             pow(errorsMeanCorr[24][l],2)+    // branching ratio
                                                             pow(errorsMeanCorr[25][l],2));   // YieldExtraction
 
@@ -1135,6 +1164,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                                                             pow(errorsMeanCorr[6][l],2)+     // chi2 gamma
                                                             pow(errorsMeanCorr[7][l],2));    // psi pair
 
+        errorsMeanRecEfficiency[l]  = errorsMeanCorr[23][l];    // reco efficiency
 
         // pi0 reco: pT, alpha, mass window
        errorsMeanCorrPi0Reco[l]          =                    errorsMeanCorr[21][l]; // mass window
@@ -1151,6 +1181,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
     TGraphErrors* meanErrorsPhotonRecoCalo          = new TGraphErrors(nPtBins,ptBins ,errorsMeanCorrPhotonRecoCalo ,ptBinsErr ,errorsMeanErrCorrSummed );
     TGraphErrors* meanErrorsSignalExtraction    = new TGraphErrors(nPtBins,ptBins ,errorsMeanCorrSignalExtraction ,ptBinsErr ,errorsMeanErrCorrSummed );
     TGraphErrors* meanErrorsPi0Reco           = new TGraphErrors(nPtBins,ptBins ,errorsMeanCorrPi0Reco ,ptBinsErr ,errorsMeanErrCorrSummed );
+    TGraphErrors* meanErrorsRecoEffi           = new TGraphErrors(nPtBins,ptBins ,errorsMeanRecEfficiency ,ptBinsErr ,errorsMeanErrCorrSummed );
     TGraphErrors* meanErrorsPileup              = NULL;
     if(!energy.CompareTo("8TeV")||!energy.CompareTo("7TeV"))
         meanErrorsPileup              = new TGraphErrors(nPtBins,ptBins ,errorsMeanCorrPileup ,ptBinsErr ,errorsMeanErrCorrSummed );
@@ -1220,6 +1251,10 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
         DrawGammaSetMarkerTGraphErr(graphMaterialError, 26, 1.,kViolet+1,kViolet+1);
         graphMaterialError->Draw("p,csame");
         legendSummedMeanNew->AddEntry(graphMaterialError,"material","p");
+
+        DrawGammaSetMarkerTGraphErr(meanErrorsRecoEffi, 27, 1.,kRed,kRed);
+        meanErrorsRecoEffi->Draw("p,csame");
+        legendSummedMeanNew->AddEntry(meanErrorsRecoEffi,"rec. efficiency","p");
 
         DrawGammaSetMarkerTGraphErr(meanErrorsCorrSummedIncMat, 20, 1.,kBlack,kBlack);
         meanErrorsCorrSummedIncMat->Draw("p,csame");

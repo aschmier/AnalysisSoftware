@@ -57,6 +57,18 @@ void CorrectYield(TH1D* histoCorrectedYield,TH1D* histoEffiPt, TH1D* histoAccept
 	histoCorrectedYield->Sumw2();
 	histoCorrectedYield->Scale(1./nEvt);
     histoCorrectedYield->Divide(histoCorrectedYield,histoEffiPt,1.,1.,"");
+	cout << "bins corrected yield = " << histoCorrectedYield->GetNbinsX() << endl;
+	for (Int_t i = 0; i < histoCorrectedYield->GetNbinsX(); i++)
+	{
+		cout << i  << " x: " << histoCorrectedYield->GetBinCenter(i) << " value: " << histoCorrectedYield->GetBinContent(i) << endl;
+	}
+	
+	cout << "bins acceptance = " << histoAcceptance->GetNbinsX() << endl;
+	for (Int_t i = 0; i < histoAcceptance->GetNbinsX(); i++)
+	{
+		cout << i  << " x: " << histoAcceptance->GetBinCenter(i) << " value: " << histoAcceptance->GetBinContent(i) << endl;
+	}
+	histoAcceptance->Print();
     histoCorrectedYield->Divide(histoCorrectedYield,histoAcceptance,1.,1.,"");
 	histoCorrectedYield->Scale(1./deltaRapid);
 	histoCorrectedYield->Scale(scaling);
@@ -132,6 +144,10 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     // ********************** general style settings ********************************************
     // ******************************************************************************************
 	
+	// SETTINGS FOR YIELD EXTRACTION ERROR:
+    // 0: averaged back fit; 1: norm bck fit 2: true bckfit
+	Int_t yieldExtractionMode = 2;
+
 	gROOT->Reset();   
 	gROOT->SetStyle("Plain");
 	
@@ -243,8 +259,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
    
     TH1D *histoUnCorrectedYield             = (TH1D*)fileUncorrected.Get(Form("histoYieldMeson%s%s",BackFitString.Data(),InvMassTypeEnding.Data()));
 
-
-    TH1D *histoUnCorrectedYieldWide      ;  
+	TH1D *histoUnCorrectedYieldWide      ;  
     TH1D *histoUnCorrectedYieldNarrow    ;  
     TH1D *histoUnCorrectedYieldLeft      ;  
     TH1D *histoUnCorrectedYieldLeftWide  ;  
@@ -254,10 +269,18 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	
     TH1D *histoMassMeson                 ;  
     TH1D *histoMassMesonLeft             ;  
+
+	// Backfit histos
+	TH1D *histoUnCorrectedYieldBackFit = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonBackFit%s",InvMassTypeEnding.Data()));
+	TH1D *histoUnCorrectedYieldWideBackFit;  
+    TH1D *histoUnCorrectedYieldNarrowBackFit;  
+	TH1D *histoUnCorrectedYieldBackFitFromFit = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonBackFitFromFit%s",InvMassTypeEnding.Data()));
     
 	if(backMode.CompareTo("4")){ 
     	histoUnCorrectedYieldWide         = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonWide%s",InvMassTypeEnding.Data()));
     	histoUnCorrectedYieldNarrow       = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonNarrow%s",InvMassTypeEnding.Data()));
+		histoUnCorrectedYieldWideBackFit  = (TH1D*)fileUncorrected.Get(Form("histoYieldWideMesonBackFit%s",InvMassTypeEnding.Data()));
+    	histoUnCorrectedYieldNarrowBackFit = (TH1D*)fileUncorrected.Get(Form("histoYieldNarrowMesonBackFit%s",InvMassTypeEnding.Data()));
     	histoUnCorrectedYieldLeft         = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeft%s",InvMassTypeEnding.Data()));
     	histoUnCorrectedYieldLeftWide     = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftWide%s",InvMassTypeEnding.Data()));
     	histoUnCorrectedYieldLeftNarrow   = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftNarrow%s",InvMassTypeEnding.Data()));
@@ -267,13 +290,15 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     	histoMassMeson                    = (TH1D*)fileUncorrected.Get(Form("histoMassMeson%s",InvMassTypeEnding.Data()));
     	histoMassMesonLeft                = (TH1D*)fileUncorrected.Get(Form("histoMassMesonLeft%s",InvMassTypeEnding.Data()));
 	} else{ // no background calculation
-		histoUnCorrectedYieldWide         = (TH1D*)fileUncorrected.Get(Form("histoYieldWideMesonBackFit%s",InvMassTypeEnding.Data()));
-    	histoUnCorrectedYieldNarrow       = (TH1D*)fileUncorrected.Get(Form("histoYieldNarrowMesonBackFit%s",InvMassTypeEnding.Data()));
-    	histoUnCorrectedYieldLeft         = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeft%s",InvMassTypeEnding.Data()));
-    	histoUnCorrectedYieldLeftWide     = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftWide%s",InvMassTypeEnding.Data()));
-    	histoUnCorrectedYieldLeftNarrow   = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftNarrow%s",InvMassTypeEnding.Data()));
-    	histoFWHMMeson                    = (TH1D*)fileUncorrected.Get(Form("histoFWHMMeson%s",InvMassTypeEnding.Data()));
-    	histoFWHMMesonLeft                = (TH1D*)fileUncorrected.Get(Form("histoFWHMMesonLeft%s",InvMassTypeEnding.Data()));
+		histoUnCorrectedYieldWide          = (TH1D*)fileUncorrected.Get(Form("histoYieldWideMesonBackFit%s",InvMassTypeEnding.Data()));
+    	histoUnCorrectedYieldNarrow        = (TH1D*)fileUncorrected.Get(Form("histoYieldNarrowMesonBackFit%s",InvMassTypeEnding.Data()));
+		histoUnCorrectedYieldWideBackFit   = (TH1D*)fileUncorrected.Get(Form("histoYieldWideMesonBackFit%s",InvMassTypeEnding.Data()));
+    	histoUnCorrectedYieldNarrowBackFit = (TH1D*)fileUncorrected.Get(Form("histoYieldNarrowMesonBackFit%s",InvMassTypeEnding.Data()));
+    	histoUnCorrectedYieldLeft          = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeft%s",InvMassTypeEnding.Data()));
+    	histoUnCorrectedYieldLeftWide      = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftWide%s",InvMassTypeEnding.Data()));
+    	histoUnCorrectedYieldLeftNarrow    = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftNarrow%s",InvMassTypeEnding.Data()));
+    	histoFWHMMeson                     = (TH1D*)fileUncorrected.Get(Form("histoFWHMMeson%s",InvMassTypeEnding.Data()));
+    	histoFWHMMesonLeft                 = (TH1D*)fileUncorrected.Get(Form("histoFWHMMesonLeft%s",InvMassTypeEnding.Data()));
 	
     	histoMassMeson                    = (TH1D*)fileUncorrected.Get(Form("histoMassMeson%s",InvMassTypeEnding.Data()));
     	histoMassMesonLeft                = (TH1D*)fileUncorrected.Get(Form("histoMassMesonLeft%s",InvMassTypeEnding.Data()));
@@ -384,39 +409,75 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 		if (fileAltCorrections->IsZombie()) return;
 	}
 
-    TH1D *histoEffiPt = NULL;
-    TH1D *histoEffiNarrowPt = NULL;
-    TH1D *histoEffiWidePt = NULL;
-    TH1D *histoEffiLeftPt = NULL;
-    TH1D *histoEffiLeftNarrowPt = NULL;
-    TH1D *histoEffiLeftWidePt = NULL;
-    TH1D *histoAcceptance= NULL;
+    TH1D *histoEffiPt              = NULL;
+    TH1D *histoEffiNarrowPt        = NULL;
+    TH1D *histoEffiWidePt          = NULL;
+	TH1D *histoEffiPtBackFit 	   = NULL;
+	TH1D *histoEffiPtBackFitFromFit= NULL;
+    TH1D *histoEffiNarrowPtBackFit = NULL;
+    TH1D *histoEffiWidePtBackFit   = NULL;
+    TH1D *histoEffiLeftPt          = NULL;
+    TH1D *histoEffiLeftNarrowPt    = NULL;
+    TH1D *histoEffiLeftWidePt      = NULL;
+    TH1D *histoAcceptance          = NULL;
 
+    histoEffiPtBackFitFromFit =              (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitFromFitPt%s",InvMassTypeEnding.Data())); //not yet correct MesonEffiPt
 	if(backMode.CompareTo("4")){ 
 		 histoEffiPt =                     (TH1D*)fileCorrections->Get(Form("MesonEffiPt%s",InvMassTypeEnding.Data())); //not yet correct MesonEffiPt
          histoEffiNarrowPt =               (TH1D*)fileCorrections->Get(Form("MesonNarrowEffiPt%s",InvMassTypeEnding.Data()));
          histoEffiWidePt =                 (TH1D*)fileCorrections->Get(Form("MesonWideEffiPt%s",InvMassTypeEnding.Data()));
+		 histoEffiPtBackFit =              (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitPt%s",InvMassTypeEnding.Data())); //not yet correct MesonEffiPt
+         histoEffiNarrowPtBackFit =        (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitNarrowPt%s",InvMassTypeEnding.Data()));
+         histoEffiWidePtBackFit =          (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitWidePt%s",InvMassTypeEnding.Data()));
          histoEffiLeftPt =                 (TH1D*)fileCorrections->Get(Form("MesonLeftEffiPt%s",InvMassTypeEnding.Data()));
          histoEffiLeftNarrowPt =           (TH1D*)fileCorrections->Get(Form("MesonLeftNarrowEffiPt%s",InvMassTypeEnding.Data()));
          histoEffiLeftWidePt =             (TH1D*)fileCorrections->Get(Form("MesonLeftWideEffiPt%s",InvMassTypeEnding.Data()));
-         if(!useDiffAcceptance) {
-			 histoAcceptance=                  (TH1D*)fileCorrections->Get("fMCMesonAccepPt");
-		 } else{
-			 histoAcceptance=                  (TH1D*)fileAltCorrections->Get("fMCMesonAccepPt");
+
+		 histoAcceptance=                  (TH1D*)fileCorrections->Get("fMCMesonAccepPt");
+         if(useDiffAcceptance) {
+			 TH1D* histoAcceptanceAlt=                  (TH1D*)fileAltCorrections->Get("fMCMesonAccepPt");
+
+			// fill acceptance histo with correct values (to keep binning correct)
+			for (Int_t i = 0; i < histoAcceptance->GetNbinsX()+1; i++)
+			{
+				Double_t center = histoAcceptance->GetBinCenter(i);
+				Double_t accVal = histoAcceptanceAlt->GetBinContent(histoAcceptanceAlt->FindBin(center));
+				Double_t accErr = histoAcceptanceAlt->GetBinError(histoAcceptanceAlt->FindBin(center));
+
+				histoAcceptance->SetBinContent(i,accVal);
+				histoAcceptance->SetBinError(i,accErr);
+			}
+			
 		 }
 	} else{ // no background calculation used
 		 histoEffiPt =                     (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitPt%s",InvMassTypeEnding.Data())); //not yet correct MesonEffiPt
          histoEffiNarrowPt =               (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitNarrowPt%s",InvMassTypeEnding.Data()));
          histoEffiWidePt =                 (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitWidePt%s",InvMassTypeEnding.Data()));
 
+		 histoEffiPtBackFit =              (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitPt%s",InvMassTypeEnding.Data())); //not yet correct MesonEffiPt
+         histoEffiNarrowPtBackFit =        (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitNarrowPt%s",InvMassTypeEnding.Data()));
+         histoEffiWidePtBackFit =          (TH1D*)fileCorrections->Get(Form("MesonEffiBackFitWidePt%s",InvMassTypeEnding.Data()));
+
 		 // not avilable for no backrgoudn calculation
          histoEffiLeftPt =                 (TH1D*)fileCorrections->Get(Form("MesonLeftEffiPt%s",InvMassTypeEnding.Data()));
          histoEffiLeftNarrowPt =           (TH1D*)fileCorrections->Get(Form("MesonLeftNarrowEffiPt%s",InvMassTypeEnding.Data()));
          histoEffiLeftWidePt =             (TH1D*)fileCorrections->Get(Form("MesonLeftWideEffiPt%s",InvMassTypeEnding.Data()));
-         if(!useDiffAcceptance){ 
-		 	histoAcceptance=                  (TH1D*)fileCorrections->Get("fMCMesonAccepPt");
-		} else{
-			histoAcceptance=                  (TH1D*)fileAltCorrections->Get("fMCMesonAccepPt");
+		 histoAcceptance=                  (TH1D*)fileCorrections->Get("fMCMesonAccepPt");
+         
+		 if(useDiffAcceptance) {
+			 TH1D* histoAcceptanceAlt=                  (TH1D*)fileAltCorrections->Get("fMCMesonAccepPt");
+
+			// fill acceptance histo with correct values (to keep binning correct)
+			for (Int_t i = 0; i < histoAcceptance->GetNbinsX()+1; i++)
+			{
+				Double_t center = histoAcceptance->GetBinCenter(i);
+				Double_t accVal = histoAcceptanceAlt->GetBinContent(histoAcceptanceAlt->FindBin(center));
+				Double_t accErr = histoAcceptanceAlt->GetBinError(histoAcceptanceAlt->FindBin(center));
+
+				histoAcceptance->SetBinContent(i,accVal);
+				histoAcceptance->SetBinError(i,accErr);
+			}
+			
 		 }
 	}
 	
@@ -454,12 +515,37 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	TH1D *histoEffiNarrowPtFixed = (TH1D*)histoEffiNarrowPt->Clone("MesonNarrowEffiPtFixed");
 	TH1D *histoEffiWidePtFixed = (TH1D*)histoEffiWidePt->Clone("MesonWideEffiPt");
 
+	TH1D *histoEffiPtFixedBackFit = (TH1D*)histoEffiPtBackFit->Clone("histoEffiPtFixed");
+	TH1D *histoEffiNarrowPtFixedBackFit = (TH1D*)histoEffiNarrowPtBackFit->Clone("MesonNarrowEffiPtFixed");
+	TH1D *histoEffiWidePtFixedBackFit = (TH1D*)histoEffiWidePtBackFit->Clone("MesonWideEffiPt");
+
 	histoTrueEffiPtFixed = FixEfficiency(histoTrueEffiPtFixed,histoTrueEffiPt,optionEnergy,centralityString);
 	histoTrueEffiNarrowPtFixed = FixEfficiency(histoTrueEffiNarrowPtFixed,histoTrueEffiNarrowPt,optionEnergy,centralityString);
 	histoTrueEffiWidePtFixed = FixEfficiency(histoTrueEffiWidePtFixed,histoTrueEffiWidePt,optionEnergy,centralityString);
 	histoEffiPtFixed = FixEfficiency(histoEffiPtFixed,histoEffiPt,optionEnergy,centralityString);
 	histoEffiNarrowPtFixed = FixEfficiency(histoEffiNarrowPtFixed,histoEffiNarrowPt,optionEnergy,centralityString);
 	histoEffiWidePtFixed = FixEfficiency(histoEffiWidePtFixed,histoEffiWidePt,optionEnergy,centralityString);
+
+    // Calculate weighted average of effies
+	TH1D* histoEffiWeightedAverage        = NULL;
+	TH1D* histoEffiWeightedBackFitFromFit = NULL;
+	TH1D* histoTrueEffiWeighted           = NULL;
+
+    histoEffiWeightedAverage = (TH1D*) histoEffiPtBackFit->Clone("histoEffiWeightedAverage");
+    histoEffiWeightedAverage->Sumw2();
+    histoEffiWeightedAverage->SetBit(TH1::kIsAverage);
+
+	histoEffiWeightedBackFitFromFit = (TH1D*) histoEffiPtBackFitFromFit->Clone("histoEffiWeightedBackFitFromFit");
+    histoEffiWeightedBackFitFromFit->Sumw2();
+    histoEffiWeightedBackFitFromFit->SetBit(TH1::kIsAverage);
+
+	histoTrueEffiWeighted = (TH1D*) histoTrueEffiPt->Clone("histoTrueEffiWeighted");
+    histoTrueEffiWeighted->Sumw2();
+    histoTrueEffiWeighted->SetBit(TH1::kIsAverage);
+
+	histoEffiWeightedAverage->Add(histoEffiWeightedBackFitFromFit);
+	histoEffiWeightedAverage->Add(histoTrueEffiWeighted);
+
 
 	Float_t nEvtMC = 0;
 	if (optionEnergy.CompareTo("PbPb_2.76TeV") == 0){
@@ -1184,7 +1270,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 			else histoAcceptance->GetYaxis()->SetRangeUser(0.7,1.02);   
 		} else {
 			if (optionEnergy.CompareTo("pPb_5.023TeV")==0) histoAcceptance->GetYaxis()->SetRangeUser(0.1,1.);
-				else  histoAcceptance->GetYaxis()->SetRangeUser(0.5,1.);
+				else  histoAcceptance->GetYaxis()->SetRangeUser(0.,1.1);
 		}  
 		histoAcceptance->SetYTitle( Form("Geom. Acceptance for %s in |y| < %s",textMeson.Data(),rapidityRange.Data()));  
 		histoAcceptance->GetXaxis()->SetLabelSize(0.03);
@@ -1362,13 +1448,60 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	canvasRAWYield->SaveAs(Form("%s/%s_%s_RAWYieldPt_%s.%s",outputDir.Data(),nameMeson.Data(),prefix2.Data(),fCutSelection.Data(),suffix.Data()));
 	delete canvasRAWYield;
 
+	// Scale backFit uncorrected yield
+	TH1D* histoUnCorrectedYieldDrawingBackFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
+	histoUnCorrectedYieldDrawingBackFit->Scale(1./nEvt);
+
+    //
+    // ─── CORRECTED YIELDS NORM EFFI ─────────────────────────────────────────────────
+    //
+	
+
+	TH1D* histoCorrectedYieldNorm = (TH1D*)histoUnCorrectedYield->Clone();
+    histoCorrectedYieldNorm->SetName(Form("CorrectedYieldNormEff%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldNormNarrow = (TH1D*)histoUnCorrectedYieldNarrow->Clone();
+    histoCorrectedYieldNormNarrow->SetName(Form("CorrectedYieldNormEffNarrow%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldNormWide = (TH1D*)histoUnCorrectedYieldWide->Clone();
+    histoCorrectedYieldNormWide->SetName(Form("CorrectedYieldNormEffWide%s",InvMassTypeEnding.Data()));
+
+    TH1D* histoCorrectedYieldNormBackFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
+    histoCorrectedYieldNormBackFit->SetName(Form("CorrectedYieldNormEffBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldNormWideBackFit = (TH1D*)histoUnCorrectedYieldWideBackFit->Clone();
+    histoCorrectedYieldNormWideBackFit->SetName(Form("CorrectedYieldNormEffWideBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldNormNarrowBackFit = (TH1D*)histoUnCorrectedYieldNarrowBackFit->Clone();
+    histoCorrectedYieldNormNarrowBackFit->SetName(Form("CorrectedYieldNormEffNarrowBackFit%s",InvMassTypeEnding.Data()));
+
+    // effi from fit
+	 TH1D* histoCorrectedYieldNormBackFitFromFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
+    histoCorrectedYieldNormBackFitFromFit->SetName(Form("CorrectedYieldNormEffBackFitFromFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldNormWideBackFitFromFit = (TH1D*)histoUnCorrectedYieldWideBackFit->Clone();
+    histoCorrectedYieldNormWideBackFitFromFit->SetName(Form("CorrectedYieldNormEffWideBackFitFromFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldNormNarrowBackFitFromFit = (TH1D*)histoUnCorrectedYieldNarrowBackFit->Clone();
+    histoCorrectedYieldNormNarrowBackFitFromFit->SetName(Form("CorrectedYieldNormEffNarrowBackFitFromFit%s",InvMassTypeEnding.Data()));
+	
+	// averaged
+	 TH1D* histoCorrectedYieldAveragedEffiBackFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
+    histoCorrectedYieldAveragedEffiBackFit->SetName(Form("CorrectedYieldAveragedEffiBackFit%s",InvMassTypeEnding.Data()));
+
+    TH1D* histoCorrectedYieldAveragedEffiWideBackFit = (TH1D*)histoUnCorrectedYieldWideBackFit->Clone();
+    histoCorrectedYieldAveragedEffiWideBackFit->SetName(Form("CorrectedYieldAveragedEffiWideBackFit%s",InvMassTypeEnding.Data()));
+
+    TH1D* histoCorrectedYieldAveragedEffiNarrowBackFit = (TH1D*)histoUnCorrectedYieldNarrowBackFit->Clone();
+    histoCorrectedYieldAveragedEffiNarrowBackFit->SetName(Form("CorrectedYieldAveragedEffiNarrowBackFit%s",InvMassTypeEnding.Data()));
+
+    // averaged
+	 TH1D* histoCorrectedYieldAveragedEffi = (TH1D*)histoUnCorrectedYield->Clone();
+    histoCorrectedYieldAveragedEffi->SetName(Form("CorrectedYieldAveragedEffi%s",InvMassTypeEnding.Data()));
+
+    TH1D* histoCorrectedYieldAveragedEffiWide = (TH1D*)histoUnCorrectedYieldWide->Clone();
+    histoCorrectedYieldAveragedEffiWide->SetName(Form("CorrectedYieldAveragedEffiWide%s",InvMassTypeEnding.Data()));
+
+    TH1D* histoCorrectedYieldAveragedEffiNarrow = (TH1D*)histoUnCorrectedYieldNarrow->Clone();
+    histoCorrectedYieldAveragedEffiNarrow->SetName(Form("CorrectedYieldAveragedEffiNarrow%s",InvMassTypeEnding.Data()));
+
 	//***********************************************************************************************
 	//***************************  correction for yield with True effi ******************************
 	//***********************************************************************************************
-		
-	
-	TH1D* histoCorrectedYieldNorm = (TH1D*)histoUnCorrectedYield->Clone();
-    histoCorrectedYieldNorm->SetName(Form("CorrectedYieldNormEff%s",InvMassTypeEnding.Data()));
 	TH1D* histoCorrectedYieldTrue = (TH1D*)histoUnCorrectedYield->Clone();
     histoCorrectedYieldTrue->SetName(Form("CorrectedYieldTrueEff%s",InvMassTypeEnding.Data()));
 	TH1D* histoCorrectedYieldTrueNarrow = (TH1D*)histoUnCorrectedYieldNarrow->Clone();
@@ -1405,16 +1538,65 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     histoCorrectedYieldTrueLeftNarrowFitted->SetName(Form("CorrectedYieldTrueEffLeftNarrowFitted%s",InvMassTypeEnding.Data()));
 	TH1D* histoCorrectedYieldTrueLeftWideFitted = (TH1D*)histoUnCorrectedYieldLeftWide->Clone();
     histoCorrectedYieldTrueLeftWideFitted->SetName(Form("CorrectedYieldTrueEffLeftWideFitted%s",InvMassTypeEnding.Data()));
+
+    // Corrected yields for fitted background
+	TH1D* histoCorrectedYieldTrueBackFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
+    histoCorrectedYieldTrueBackFit->SetName(Form("CorrectedYieldTrueEffBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldTrueNarrowBackFit = (TH1D*)histoUnCorrectedYieldNarrowBackFit->Clone();
+    histoCorrectedYieldTrueNarrowBackFit->SetName(Form("CorrectedYieldTrueEffNarrowBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldTrueWideBackFit = (TH1D*)histoUnCorrectedYieldWideBackFit->Clone();
+    histoCorrectedYieldTrueWideBackFit->SetName(Form("CorrectedYieldTrueEffWideBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldFixedBackFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
+    histoCorrectedYieldFixedBackFit->SetName(Form("CorrectedYieldEffFixedBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldNarrowFixedBackFit = (TH1D*)histoUnCorrectedYieldNarrowBackFit->Clone();
+    histoCorrectedYieldNarrowFixedBackFit->SetName(Form("CorrectedYieldEffNarrowFixedBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldWideFixedBackFit = (TH1D*)histoUnCorrectedYieldWideBackFit->Clone();
+    histoCorrectedYieldWideFixedBackFit->SetName(Form("CorrectedYieldEffWideFixedBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldTrueFixedBackFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
+    histoCorrectedYieldTrueFixedBackFit->SetName(Form("CorrectedYieldTrueEffFixedBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldTrueNarrowFixedBackFit = (TH1D*)histoUnCorrectedYieldNarrowBackFit->Clone();
+    histoCorrectedYieldTrueNarrowFixedBackFit->SetName(Form("CorrectedYieldTrueEffNarrowFixedBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldTrueWideFixedBackFit = (TH1D*)histoUnCorrectedYieldWideBackFit->Clone();
+    histoCorrectedYieldTrueWideFixedBackFit->SetName(Form("CorrectedYieldTrueEffWideFixedBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldTrueFittedBackFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
+    histoCorrectedYieldTrueFittedBackFit->SetName(Form("CorrectedYieldTrueEffFittedBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldTrueNarrowFittedBackFit = (TH1D*)histoUnCorrectedYieldNarrowBackFit->Clone();
+    histoCorrectedYieldTrueNarrowFittedBackFit->SetName(Form("CorrectedYieldTrueEffNarrowFittedBackFit%s",InvMassTypeEnding.Data()));
+	TH1D* histoCorrectedYieldTrueWideFittedBackFit = (TH1D*)histoUnCorrectedYieldWideBackFit->Clone();
+    histoCorrectedYieldTrueWideFittedBackFit->SetName(Form("CorrectedYieldTrueEffWideFittedBackFit%s",InvMassTypeEnding.Data()));
 	
 	TH1D* histoCompleteCorr = (TH1D*)histoTrueEffiPt->Clone();
 
     if (!optDalitz){
+		//
+		// ─── CORRECTION NORM EFFI ────────────────────────────────────────
+		//
         CorrectYield(histoCorrectedYieldNorm, histoEffiPt, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldNormWide, histoEffiWidePt, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldNormNarrow, histoEffiNarrowPt, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+
+        CorrectYield(histoCorrectedYieldNormBackFit, histoEffiPtBackFit, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldNormWideBackFit, histoEffiWidePtBackFit, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldNormNarrowBackFit, histoEffiNarrowPtBackFit, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+
+        CorrectYield(histoCorrectedYieldNormBackFitFromFit, histoEffiPtBackFitFromFit, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldNormWideBackFitFromFit, histoEffiPtBackFitFromFit, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldNormNarrowBackFitFromFit, histoEffiPtBackFitFromFit, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+
+        CorrectYield(histoCorrectedYieldAveragedEffiBackFit, histoEffiWeightedAverage, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldAveragedEffiWideBackFit, histoEffiWeightedAverage, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldAveragedEffiNarrowBackFit, histoEffiWeightedAverage, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+
+        CorrectYield(histoCorrectedYieldAveragedEffi, histoEffiWeightedAverage, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldAveragedEffiWide, histoEffiWeightedAverage, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldAveragedEffiNarrow, histoEffiWeightedAverage, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+
+        //
+        // ─── TRUE ────────────────────────────────────────────────────────
+        //
 
         CorrectYield(histoCorrectedYieldTrue, histoTrueEffiPt, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
         CompileFullCorrectionFactor( histoCompleteCorr, histoAcceptance, deltaRapid);
-    //       CorrectYield(histoCorrectedYieldNormBackFit, histoYieldSecMesonBackFit, histoYieldSecFromK0SMesonBackFit, histoEffiPtBackFit, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson);
-    //       CorrectYield(histoCorrectedYieldTrueBackFit, histoYieldSecMesonBackFit, histoYieldSecFromK0SMesonBackFit, histoTrueEffiPt, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson);
         CorrectYield(histoCorrectedYieldTrueNarrow, histoTrueEffiNarrowPt, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
         CorrectYield(histoCorrectedYieldTrueWide,  histoTrueEffiWidePt, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
 
@@ -1436,6 +1618,24 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
         CorrectYield(histoCorrectedYieldTrueLeftFitted, histoTrueEffiPtFit, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
         CorrectYield(histoCorrectedYieldTrueLeftNarrowFitted, histoTrueEffiNarrowPtFit, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
         CorrectYield(histoCorrectedYieldTrueLeftWideFitted, histoTrueEffiWidePtFit, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+
+        // Correct Yields for fitted background
+        CorrectYield(histoCorrectedYieldTrueBackFit, histoTrueEffiPt, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        //CompileFullCorrectionFactor( histoCompleteCorr, histoAcceptance, deltaRapid);
+        CorrectYield(histoCorrectedYieldTrueNarrowBackFit, histoTrueEffiNarrowPt, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldTrueWideBackFit,  histoTrueEffiWidePt, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+
+        CorrectYield(histoCorrectedYieldFixedBackFit, histoEffiPtFixedBackFit, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldNarrowFixedBackFit, histoEffiNarrowPtFixedBackFit, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldWideFixedBackFit,  histoEffiWidePtFixedBackFit, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+
+        CorrectYield(histoCorrectedYieldTrueFixedBackFit,  histoTrueEffiPtFixed, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldTrueNarrowFixedBackFit, histoTrueEffiNarrowPtFixed, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldTrueWideFixedBackFit,  histoTrueEffiWidePtFixed, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+
+        CorrectYield(histoCorrectedYieldTrueFittedBackFit, histoTrueEffiPtFit, histoAcceptance, deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldTrueNarrowFittedBackFit, histoTrueEffiNarrowPtFit, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
+        CorrectYield(histoCorrectedYieldTrueWideFittedBackFit, histoTrueEffiWidePtFit, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
     }
 
 	TCanvas* canvasCorrecftedYield = new TCanvas("canvasCorrecftedYield","",1350,1500);  // gives the page size
@@ -1558,8 +1758,330 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	canvasCorrecftedYield->Update();
 	canvasCorrecftedYield->SaveAs(Form("%s/%s_%s_CorrectedYieldTrueEff_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
 
+//
+	// ─── CORRECTED YIELD BACK INT RANGE COMPARISON ────────────────
+	//
+
+    TCanvas* canvasCorrectedYieldBackFitIntRangeComparison = new TCanvas("canvasCorrectedYieldBackFitIntRangeComparison","",1350,1500);  // gives the page size
+	DrawGammaCanvasSettings( canvasCorrectedYieldBackFitIntRangeComparison, 0.13, 0.02, 0.02, 0.09);   
+	canvasCorrectedYieldBackFitIntRangeComparison->SetLogy();   
+
+	DrawGammaPadSettings( padCorrectedYieldHistos, 0.12, 0.02, 0.02, 0.);
+	padCorrectedYieldHistos->Draw();
+
+	DrawGammaPadSettings( padCorrectedYieldRatios, 0.12, 0.02, 0., 0.2);
+	padCorrectedYieldRatios->Draw();
+
+	padCorrectedYieldHistos->cd();
+	padCorrectedYieldHistos->SetLogy();    
+
+    DrawAutoGammaMesonHistos( histoCorrectedYieldTrueBackFit,
+                                "", "p_{T} (GeV/c)", "#frac{1}{2#pi N_{ev.}} #frac{d^{2}N}{p_{T}dp_{T}dy} (c/GeV)^{2}",
+                                kTRUE, 3., 4e-10, kFALSE,
+                                kFALSE, 0., 0.7,
+                                kFALSE, 0., 25.);
+	DrawGammaSetMarker(histoCorrectedYieldTrueBackFit, 22, 1., kBlack, kBlack);                             
+	histoCorrectedYieldTrueBackFit->DrawCopy("e1");  
+
+	DrawGammaSetMarker(histoCorrectedYieldTrueWideBackFit, 26, 1., kGray+1, kGray+1);                                
+	histoCorrectedYieldTrueWideBackFit->DrawCopy("e1,same"); 
+
+	DrawGammaSetMarker(histoCorrectedYieldTrueNarrowBackFit, 20, 1., kBlue, kBlue);                              
+	histoCorrectedYieldTrueNarrowBackFit->DrawCopy("e1,same"); 
+
+
 	
+	legendYield3 = new TLegend(0.15,0.03,0.66,0.19);
+	legendYield3->SetTextSize(0.02);       
+	legendYield3->SetFillColor(0);
+    legendYield3->SetBorderSize(0);
+	legendYield3->AddEntry(histoCorrectedYieldTrueBackFit,"norm / norm");
+	legendYield3->AddEntry(histoCorrectedYieldTrueWideBackFit,"wide / norm");
+	legendYield3->AddEntry(histoCorrectedYieldTrueNarrowBackFit,"narrow / norm");
+	legendYield3->Draw();
+
+	padCorrectedYieldRatios->cd();
+	padCorrectedYieldRatios->SetTickx();
+	padCorrectedYieldRatios->SetTicky();
+	padCorrectedYieldRatios->SetLogy(0);
+	RatioTrue = (TH1D*) histoCorrectedYieldTrueBackFit->Clone(); 
+	RatioTrue->Divide(RatioTrue,histoCorrectedYieldTrueBackFit,1.,1.,"");
+	TH1D *RatioWide = (TH1D*) histoCorrectedYieldTrueWideBackFit->Clone();   
+	RatioWide->Divide(RatioWide,histoCorrectedYieldTrueBackFit,1.,1.,"");
+	TH1D *RatioNarrow = (TH1D*) histoCorrectedYieldTrueNarrowBackFit->Clone(); 
+	RatioNarrow->Divide(RatioNarrow,histoCorrectedYieldTrueBackFit,1.,1.,"");
+
+
+	RatioTrue->SetYTitle("#frac{standard}{modified}"); 
+	RatioTrue->GetYaxis()->SetRangeUser(0.8,1.23);
+	RatioTrue->GetYaxis()->SetLabelSize(0.07);
+	RatioTrue->GetYaxis()->SetNdivisions(505);
+	RatioTrue->GetYaxis()->SetTitleSize(0.1); 
+	RatioTrue->GetYaxis()->SetDecimals();
+	RatioTrue->GetYaxis()->SetTitleOffset(0.5);
+	RatioTrue->GetXaxis()->SetTitleSize(0.11);   
+	RatioTrue->GetXaxis()->SetLabelSize(0.08);
+	RatioTrue->SetMarkerStyle(22);
+	RatioTrue->SetMarkerSize(1.);
+	RatioTrue->SetMarkerColor(kBlack);
+	RatioTrue->SetLineColor(kBlack);
+	RatioTrue->DrawCopy("p,e1"); 
+
+	DrawGammaSetMarker(RatioTrue, 22, 1., kBlack, kBlack);                               
+	RatioTrue->DrawCopy("p,e1");  
+
+	DrawGammaSetMarker(RatioWide, 26, 1., kGray+1, kGray+1);                               
+	RatioWide->DrawCopy("e1,same"); 
+
+	DrawGammaSetMarker(RatioNarrow, 26, 1., kGray+3, kGray+3);                               
+	RatioNarrow->DrawCopy("e1,same"); 
+
+
+	canvasCorrectedYieldBackFitIntRangeComparison->Update();
+	canvasCorrectedYieldBackFitIntRangeComparison->SaveAs(Form("%s/%s_%s_CorrectedYieldBackFitIntRangeComparison_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
 	
+
+	
+	//
+	// ─── CORRECTED YIELD AND CORRECTED YIELD WITH BACKFIT COMPARISON ────────────────
+	//
+
+    TCanvas* canvasCorrectedYieldBackFitComparison = new TCanvas("canvasCorrectedYieldBackFitComparison","",1350,1500);  // gives the page size
+	DrawGammaCanvasSettings( canvasCorrectedYieldBackFitComparison, 0.13, 0.02, 0.02, 0.09);   
+	canvasCorrectedYieldBackFitComparison->SetLogy();   
+
+	DrawGammaPadSettings( padCorrectedYieldHistos, 0.12, 0.02, 0.02, 0.);
+	padCorrectedYieldHistos->Draw();
+
+	DrawGammaPadSettings( padCorrectedYieldRatios, 0.12, 0.02, 0., 0.2);
+	padCorrectedYieldRatios->Draw();
+
+	padCorrectedYieldHistos->cd();
+	padCorrectedYieldHistos->SetLogy();    
+
+    DrawAutoGammaMesonHistos( histoCorrectedYieldTrue,
+                                "", "p_{T} (GeV/c)", "#frac{1}{2#pi N_{ev.}} #frac{d^{2}N}{p_{T}dp_{T}dy} (c/GeV)^{2}",
+                                kTRUE, 3., 4e-10, kFALSE,
+                                kFALSE, 0., 0.7,
+                                kFALSE, 0., 25.);
+	DrawGammaSetMarker(histoCorrectedYieldTrue, 22, 1., kBlack, kBlack);                             
+	histoCorrectedYieldTrue->DrawCopy("e1");  
+
+    // Normal efficiency
+	DrawGammaSetMarker(histoCorrectedYieldNorm, 26, 1., kGray+1, kGray+1);                                
+	histoCorrectedYieldNorm->DrawCopy("e1,same"); 
+
+
+    //True efficiency back fit
+	DrawGammaSetMarker(histoCorrectedYieldTrueBackFit, 20, 1., kBlue, kBlue);                              
+	histoCorrectedYieldTrueBackFit->DrawCopy("e1,same"); 
+
+    //norm efficiency back fit
+	DrawGammaSetMarker(histoCorrectedYieldNormBackFit, 24, 1., kBlue-5, kBlue-5);                      
+	histoCorrectedYieldNormBackFit->DrawCopy("e1,same"); 
+
+	
+	legendYield3 = new TLegend(0.15,0.03,0.66,0.19);
+	legendYield3->SetTextSize(0.02);       
+	legendYield3->SetFillColor(0);
+    legendYield3->SetBorderSize(0);
+	legendYield3->AddEntry(histoCorrectedYieldTrue,"true eff / true eff");
+	legendYield3->AddEntry(histoCorrectedYieldNorm,"norm eff / true eff");
+	legendYield3->AddEntry(histoCorrectedYieldTrueBackFit,"backfit true eff /true eff");
+	legendYield3->AddEntry(histoCorrectedYieldNormBackFit,Form("back fit norm eff /true eff"));
+	legendYield3->Draw();
+
+	padCorrectedYieldRatios->cd();
+	padCorrectedYieldRatios->SetTickx();
+	padCorrectedYieldRatios->SetTicky();
+	padCorrectedYieldRatios->SetLogy(0);
+	RatioTrue = (TH1D*) histoCorrectedYieldTrue->Clone(); 
+	RatioTrue->Divide(RatioTrue,histoCorrectedYieldTrue,1.,1.,"");
+	TH1D *RatioNorm = (TH1D*) histoCorrectedYieldNorm->Clone();   
+	RatioNorm->Divide(RatioNorm,histoCorrectedYieldTrue,1.,1.,"");
+	TH1D *RatioBackFitTrue = (TH1D*) histoCorrectedYieldTrueBackFit->Clone(); 
+	RatioBackFitTrue->Divide(RatioBackFitTrue,histoCorrectedYieldTrue,1.,1.,"");
+	TH1D *RatioBackFitNorm = (TH1D*) histoCorrectedYieldNormBackFit->Clone();   
+	RatioBackFitNorm->Divide(RatioBackFitNorm,histoCorrectedYieldTrue,1.,1.,"");
+
+	RatioTrue->SetYTitle("#frac{standard}{modified}"); 
+	RatioTrue->GetYaxis()->SetRangeUser(0.8,1.23);
+	RatioTrue->GetYaxis()->SetLabelSize(0.07);
+	RatioTrue->GetYaxis()->SetNdivisions(505);
+	RatioTrue->GetYaxis()->SetTitleSize(0.1); 
+	RatioTrue->GetYaxis()->SetDecimals();
+	RatioTrue->GetYaxis()->SetTitleOffset(0.5);
+	RatioTrue->GetXaxis()->SetTitleSize(0.11);   
+	RatioTrue->GetXaxis()->SetLabelSize(0.08);
+	RatioTrue->SetMarkerStyle(22);
+	RatioTrue->SetMarkerSize(1.);
+	RatioTrue->SetMarkerColor(kBlack);
+	RatioTrue->SetLineColor(kBlack);
+	RatioTrue->DrawCopy("p,e1"); 
+
+	DrawGammaSetMarker(RatioTrue, 22, 1., kBlack, kBlack);                               
+	RatioTrue->DrawCopy("p,e1");  
+
+	DrawGammaSetMarker(RatioNorm, 26, 1., kGray+1, kGray+1);                               
+	RatioNorm->DrawCopy("e1,same"); 
+
+	DrawGammaSetMarker(RatioBackFitTrue, 26, 1., kGray+3, kGray+3);                               
+	RatioBackFitTrue->DrawCopy("e1,same"); 
+
+	DrawGammaSetMarker(RatioBackFitNorm, 20, 1., kBlue, kBlue);                             
+	RatioBackFitNorm->DrawCopy("e1,same"); 
+
+	canvasCorrectedYieldBackFitComparison->Update();
+	canvasCorrectedYieldBackFitComparison->SaveAs(Form("%s/%s_%s_CorrectedYieldBackFitComparison_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
+	
+
+	//
+	// ─── CORRECTED YIELD COMPARISOn AVERAGED WITH BCKFIT VS EVENTMISIN ────────────────
+	//
+
+    TCanvas* canvasCorrectedYieldAveragedComparison = new TCanvas("canvasCorrectedYieldAveragedComparison","",1350,1500);  // gives the page size
+	DrawGammaCanvasSettings( canvasCorrectedYieldAveragedComparison, 0.13, 0.02, 0.02, 0.09);   
+	canvasCorrectedYieldAveragedComparison->SetLogy();   
+
+	DrawGammaPadSettings( padCorrectedYieldHistos, 0.12, 0.02, 0.02, 0.);
+	padCorrectedYieldHistos->Draw();
+
+	DrawGammaPadSettings( padCorrectedYieldRatios, 0.12, 0.02, 0., 0.2);
+	padCorrectedYieldRatios->Draw();
+
+	padCorrectedYieldHistos->cd();
+	padCorrectedYieldHistos->SetLogy();    
+
+    DrawAutoGammaMesonHistos( histoCorrectedYieldAveragedEffiBackFit,
+                                "", "p_{T} (GeV/c)", "#frac{1}{2#pi N_{ev.}} #frac{d^{2}N}{p_{T}dp_{T}dy} (c/GeV)^{2}",
+                                kTRUE, 3., 4e-10, kFALSE,
+                                kFALSE, 0., 0.7,
+                                kFALSE, 0., 25.);
+	DrawGammaSetMarker(histoCorrectedYieldAveragedEffiBackFit, 22, 1., kBlack, kBlack);                             
+	histoCorrectedYieldAveragedEffiBackFit->DrawCopy("e1");  
+
+    // Normal efficiency
+	DrawGammaSetMarker(histoCorrectedYieldAveragedEffi, 26, 1., kRed+2, kRed+2);                                
+	histoCorrectedYieldAveragedEffi->DrawCopy("e1,same"); 
+
+
+	
+	legendYield3 = new TLegend(0.15,0.03,0.66,0.19);
+	legendYield3->SetTextSize(0.02);       
+	legendYield3->SetFillColor(0);
+    legendYield3->SetBorderSize(0);
+	legendYield3->AddEntry(histoCorrectedYieldAveragedEffiBackFit,"averaged effi w back fit / averaged effi w back fit");
+	legendYield3->AddEntry(histoCorrectedYieldAveragedEffi,"averaged effi w back fit / averaged effi w event mixing");
+
+	legendYield3->Draw();
+
+	padCorrectedYieldRatios->cd();
+	padCorrectedYieldRatios->SetTickx();
+	padCorrectedYieldRatios->SetTicky();
+	padCorrectedYieldRatios->SetLogy(0);
+	TH1D* RatioAveraged = (TH1D*) histoCorrectedYieldAveragedEffiBackFit->Clone(); 
+	RatioAveraged->Divide(RatioAveraged,histoCorrectedYieldAveragedEffiBackFit,1.,1.,"");
+	TH1D *RatioAveragedOverEvtMix = (TH1D*) histoCorrectedYieldAveragedEffiBackFit->Clone();   
+	RatioAveragedOverEvtMix->Divide(RatioAveragedOverEvtMix,histoCorrectedYieldAveragedEffi,1.,1.,"");
+
+
+	RatioAveraged->SetYTitle("#frac{standard}{modified}"); 
+	RatioAveraged->GetYaxis()->SetRangeUser(0.8,1.23);
+	RatioAveraged->GetYaxis()->SetLabelSize(0.07);
+	RatioAveraged->GetYaxis()->SetNdivisions(505);
+	RatioAveraged->GetYaxis()->SetTitleSize(0.1); 
+	RatioAveraged->GetYaxis()->SetDecimals();
+	RatioAveraged->GetYaxis()->SetTitleOffset(0.5);
+	RatioAveraged->GetXaxis()->SetTitleSize(0.11);   
+	RatioAveraged->GetXaxis()->SetLabelSize(0.08);
+	RatioAveraged->SetMarkerStyle(22);
+	RatioAveraged->SetMarkerSize(1.);
+	RatioAveraged->SetMarkerColor(kBlack);
+	RatioAveraged->SetLineColor(kBlack);
+	RatioAveraged->DrawCopy("p,e1"); 
+
+	DrawGammaSetMarker(RatioAveraged, 22, 1., kBlack, kBlack);                               
+	RatioAveraged->DrawCopy("p,e1");  
+
+	DrawGammaSetMarker(RatioAveragedOverEvtMix, 26, 1., kRed+2, kRed+2);                               
+	RatioAveragedOverEvtMix->DrawCopy("e1,same"); 
+
+
+
+	canvasCorrectedYieldAveragedComparison->Update();
+	canvasCorrectedYieldAveragedComparison->SaveAs(Form("%s/%s_%s_CorrectedYieldAveragedBackComparison_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
+	
+	//
+	// ─── BACK FIT ONLY CORRECTED YIELDS ─────────────────────────────────────────────
+	//
+
+		
+	
+	TCanvas* canvasCorrectedYieldBackFitOnlyComparison = new TCanvas("canvasCorrectedYieldBackFitOnlyComparison","",1350,1500);  // gives the page size
+	DrawGammaCanvasSettings( canvasCorrectedYieldBackFitOnlyComparison, 0.13, 0.02, 0.02, 0.09);   
+	canvasCorrectedYieldBackFitOnlyComparison->SetLogy();   
+
+	DrawGammaPadSettings( padCorrectedYieldHistos, 0.12, 0.02, 0.02, 0.);
+	padCorrectedYieldHistos->Draw();
+
+	DrawGammaPadSettings( padCorrectedYieldRatios, 0.12, 0.02, 0., 0.2);
+	padCorrectedYieldRatios->Draw();
+
+	padCorrectedYieldHistos->cd();
+	padCorrectedYieldHistos->SetLogy();    
+
+    DrawAutoGammaMesonHistos( histoCorrectedYieldTrueBackFit,
+                                "", "p_{T} (GeV/c)", "#frac{1}{2#pi N_{ev.}} #frac{d^{2}N}{p_{T}dp_{T}dy} (c/GeV)^{2}",
+                                kTRUE, 3., 4e-10, kFALSE,
+                                kFALSE, 0., 0.7,
+                                kFALSE, 0., 25.);
+	DrawGammaSetMarker(histoCorrectedYieldTrueBackFit, 22, 1., kBlack, kBlack);                             
+	histoCorrectedYieldTrueBackFit->DrawCopy("e1");  
+
+    // True efficiency
+	DrawGammaSetMarker(histoCorrectedYieldNormBackFit, 26, 1., kGray+1, kGray+1);                                
+	histoCorrectedYieldNormBackFit->DrawCopy("e1,same"); 
+
+	
+	legendYield3 = new TLegend(0.15,0.03,0.66,0.19);
+	legendYield3->SetTextSize(0.02);       
+	legendYield3->SetFillColor(0);
+    legendYield3->SetBorderSize(0);
+	legendYield3->AddEntry(histoCorrectedYieldTrueBackFit,"backfit true eff /true eff");
+	legendYield3->AddEntry(histoCorrectedYieldNormBackFit,Form("back fit norm eff /true eff"));
+	legendYield3->Draw();
+
+	padCorrectedYieldRatios->cd();
+	padCorrectedYieldRatios->SetTickx();
+	padCorrectedYieldRatios->SetTicky();
+	padCorrectedYieldRatios->SetLogy(0);
+	
+	RatioNorm = (TH1D*) histoCorrectedYieldNormBackFit->Clone();   
+	RatioNorm->Divide(RatioNorm,histoCorrectedYieldTrueBackFit,1.,1.,"");
+	
+	RatioNorm->SetYTitle("#frac{standard}{modified}"); 
+	RatioNorm->GetYaxis()->SetRangeUser(0.7,1.3);
+	RatioNorm->GetYaxis()->SetLabelSize(0.07);
+	RatioNorm->GetYaxis()->SetNdivisions(505);
+	RatioNorm->GetYaxis()->SetTitleSize(0.1); 
+	RatioNorm->GetYaxis()->SetDecimals();
+	RatioNorm->GetYaxis()->SetTitleOffset(0.5);
+	RatioNorm->GetXaxis()->SetTitleSize(0.11);   
+	RatioNorm->GetXaxis()->SetLabelSize(0.08);
+	RatioNorm->SetMarkerStyle(22);
+	RatioNorm->SetMarkerSize(1.);
+	RatioNorm->SetMarkerColor(kBlack);
+	RatioNorm->SetLineColor(kBlack);
+	RatioNorm->DrawCopy("p,e1"); 
+
+	DrawGammaSetMarker(RatioNorm, 22, 1., kBlack, kBlack);                               
+	RatioNorm->DrawCopy("p,e1");  
+
+
+	canvasCorrectedYieldBackFitOnlyComparison->Update();
+	canvasCorrectedYieldBackFitOnlyComparison->SaveAs(Form("%s/%s_%s_CorrectedYieldBackFitOnlyComparison_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
+	
+
     if (isMC == kTRUE){
 		canvasCorrecftedYield->cd();   
 
@@ -1711,6 +2233,45 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     canvasEffiComparison->SaveAs(Form("%s/%s_TrueNormEffComparison_%s.%s",outputDir.Data(),nameMeson.Data(),fCutSelection.Data(),suffix.Data()));
     delete canvasEffiComparison;
 
+	    //**********************************************************************************
+    //******************** Simple Efficiency Comparison  back fit********************************
+    //**********************************************************************************
+    TCanvas* canvasEffiComparisonBackFit = new TCanvas("canvasEffComparison","",200,10,1350,900);  // gives the page size
+    DrawGammaCanvasSettings( canvasEffiComparisonBackFit, 0.13, 0.02, 0.03, 0.09);
+    //       canvasEffSimple->SetLogy(1);
+
+    DrawAutoGammaMesonHistos( histoEffiPtBackFit,
+                                "", "p_{T} (GeV/c)", "Efficiency",
+                                kFALSE, 1., 1e-5, kFALSE,
+                                kFALSE, 0., 0.7,
+                                kTRUE, 0., 25.);
+
+    DrawGammaSetMarker(histoEffiPtBackFit, 22, 1., kBlack, kBlack);
+    histoEffiPtBackFit->DrawCopy("e1");
+    DrawGammaSetMarker(histoTrueEffiPt, 22, 1., kRed+2, kRed+2);
+    histoTrueEffiPt->DrawCopy("e1,same");
+
+	DrawGammaSetMarker(histoEffiPtBackFitFromFit, 22, 1., kBlue, kBlue);
+    histoEffiPtBackFitFromFit->DrawCopy("e1,same");
+	
+	DrawGammaSetMarker(histoEffiWeightedAverage, 22, 1., kGreen, kGreen);
+    histoEffiWeightedAverage->DrawCopy("e1,same");
+
+    TLegend* legendEffiComparisonBackFit= new TLegend(0.6,0.2,0.97,0.3);
+    legendEffiComparisonBackFit->SetTextSize(0.03);
+    legendEffiComparisonBackFit->SetFillColor(0);
+    legendEffiComparisonBackFit->SetBorderSize(0);
+
+    legendEffiComparisonBackFit->AddEntry(histoEffiPtBackFit, "Normal back fit efficiency");
+    legendEffiComparisonBackFit->AddEntry(histoTrueEffiPt, "True efficiency");
+    legendEffiComparisonBackFit->AddEntry(histoEffiPtBackFitFromFit, "back fit efficiency from fit");
+    legendEffiComparisonBackFit->AddEntry(histoEffiWeightedAverage, "average");
+    legendEffiComparisonBackFit->Draw();
+    canvasEffiComparisonBackFit->Update();
+
+    canvasEffiComparisonBackFit->SaveAs(Form("%s/%s_TrueNormEffComparisonBackFit_%s.%s",outputDir.Data(),nameMeson.Data(),fCutSelection.Data(),suffix.Data()));
+    delete canvasEffiComparisonBackFit;
+
 	//***********************************************************************************************
 	//***************************  Secondary RAW Yield  *********************************************
 	//***********************************************************************************************
@@ -1797,8 +2358,19 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     binsXWidth[0]=       0.;
 
     for (Int_t i = 1; i < nBinsPt +1; i++){
-		binsXCenter[i] =  histoCorrectedYieldTrue->GetBinCenter(i);
-		binsXWidth[i]=    histoCorrectedYieldTrue->GetBinWidth(i)/2.;
+		if(yieldExtractionMode==0){
+			binsXCenter[i] =  histoCorrectedYieldAveragedEffiBackFit->GetBinCenter(i);
+			binsXWidth[i]=    histoCorrectedYieldAveragedEffiBackFit->GetBinWidth(i)/2.;
+		} else if (yieldExtractionMode==1){
+			binsXCenter[i] =  histoCorrectedYieldNormBackFit->GetBinCenter(i);
+			binsXWidth[i]=    histoCorrectedYieldNormBackFit->GetBinWidth(i)/2.;
+		} else if (yieldExtractionMode==2){
+			binsXCenter[i] =  histoCorrectedYieldTrueBackFit->GetBinCenter(i);
+			binsXWidth[i]=    histoCorrectedYieldTrueBackFit->GetBinWidth(i)/2.;
+		} else{
+			cout << "Invalid mode for sys calculation of yield extraction was used !" << endl;
+			break;
+		}
 	}
 
 
@@ -1810,33 +2382,45 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	SysErrorConversion sysErrLeftNarrow[50];
 
 	for (Int_t i = 1; i < nBinsPt +1; i++){
-		if (optionEnergy.CompareTo("PbPb_2.76TeV")==0  ){  //|| optionEnergy.CompareTo("2.76TeV")==0
-
-            sysErrNormal[i].value = histoCorrectedYieldTrueFitted->GetBinContent(i);
-			sysErrNormal[i].error = histoCorrectedYieldTrueFitted->GetBinError(i);
-			sysErrLeft[i].value = histoCorrectedYieldTrueLeftFitted->GetBinContent(i);
-			sysErrLeft[i].error = histoCorrectedYieldTrueLeftFitted->GetBinError(i);
-			sysErrNarrow[i].value = histoCorrectedYieldTrueNarrowFitted->GetBinContent(i);
-			sysErrNarrow[i].error = histoCorrectedYieldTrueNarrowFitted->GetBinError(i);
-			sysErrLeftNarrow[i].value = histoCorrectedYieldTrueLeftNarrowFitted->GetBinContent(i);
-			sysErrLeftNarrow[i].error = histoCorrectedYieldTrueLeftNarrowFitted->GetBinError(i);
-			sysErrWide[i].value = histoCorrectedYieldTrueWideFitted->GetBinContent(i);
-			sysErrWide[i].error = histoCorrectedYieldTrueWideFitted->GetBinError(i);
-			sysErrLeftWide[i].value = histoCorrectedYieldTrueLeftWideFitted->GetBinContent(i);
-			sysErrLeftWide[i].error = histoCorrectedYieldTrueLeftWideFitted->GetBinError(i); 
-		} else {
-            sysErrNormal[i].value = histoCorrectedYieldTrue->GetBinContent(i);
-			sysErrNormal[i].error = histoCorrectedYieldTrue->GetBinError(i);
-			sysErrLeft[i].value = histoCorrectedYieldTrueLeft->GetBinContent(i);
-			sysErrLeft[i].error = histoCorrectedYieldTrueLeft->GetBinError(i);
-			sysErrNarrow[i].value = histoCorrectedYieldTrueNarrow->GetBinContent(i);
-			sysErrNarrow[i].error = histoCorrectedYieldTrueNarrow->GetBinError(i);
-			sysErrLeftNarrow[i].value = histoCorrectedYieldTrueLeftNarrow->GetBinContent(i);
-			sysErrLeftNarrow[i].error = histoCorrectedYieldTrueLeftNarrow->GetBinError(i);
-			sysErrWide[i].value = histoCorrectedYieldTrueWide->GetBinContent(i);
-			sysErrWide[i].error = histoCorrectedYieldTrueWide->GetBinError(i);
-			sysErrLeftWide[i].value = histoCorrectedYieldTrueLeftWide->GetBinContent(i);
-			sysErrLeftWide[i].error = histoCorrectedYieldTrueLeftWide->GetBinError(i); 
+		if(yieldExtractionMode==0){
+            sysErrNormal[i].value = histoCorrectedYieldAveragedEffiBackFit->GetBinContent(i);
+			sysErrNormal[i].error = histoCorrectedYieldAveragedEffiBackFit->GetBinError(i);
+			//sysErrLeft[i].value = histoCorrectedYieldTrueLeft->GetBinContent(i);
+			//sysErrLeft[i].error = histoCorrectedYieldTrueLeft->GetBinError(i);
+			sysErrNarrow[i].value = histoCorrectedYieldAveragedEffiNarrowBackFit->GetBinContent(i);
+			sysErrNarrow[i].error = histoCorrectedYieldAveragedEffiNarrowBackFit->GetBinError(i);
+			//sysErrLeftNarrow[i].value = histoCorrectedYieldTrueLeftNarrow->GetBinContent(i);
+			//sysErrLeftNarrow[i].error = histoCorrectedYieldTrueLeftNarrow->GetBinError(i);
+			sysErrWide[i].value = histoCorrectedYieldAveragedEffiWideBackFit->GetBinContent(i);
+			sysErrWide[i].error = histoCorrectedYieldAveragedEffiWideBackFit->GetBinError(i);
+			//sysErrLeftWide[i].value = histoCorrectedYieldTrueLeftWide->GetBinContent(i);
+			//sysErrLeftWide[i].error = histoCorrectedYieldTrueLeftWide->GetBinError(i); 
+		} else if(yieldExtractionMode==1){
+            sysErrNormal[i].value = histoCorrectedYieldNormBackFit->GetBinContent(i);
+			sysErrNormal[i].error = histoCorrectedYieldNormBackFit->GetBinError(i);
+			//sysErrLeft[i].value = histoCorrectedYieldTrueLeft->GetBinContent(i);
+			//sysErrLeft[i].error = histoCorrectedYieldTrueLeft->GetBinError(i);
+			sysErrNarrow[i].value = histoCorrectedYieldNormNarrowBackFit->GetBinContent(i);
+			sysErrNarrow[i].error = histoCorrectedYieldNormNarrowBackFit->GetBinError(i);
+			//sysErrLeftNarrow[i].value = histoCorrectedYieldTrueLeftNarrow->GetBinContent(i);
+			//sysErrLeftNarrow[i].error = histoCorrectedYieldTrueLeftNarrow->GetBinError(i);
+			sysErrWide[i].value = histoCorrectedYieldNormWideBackFit->GetBinContent(i);
+			sysErrWide[i].error = histoCorrectedYieldNormWideBackFit->GetBinError(i);
+			//sysErrLeftWide[i].value = histoCorrectedYieldTrueLeftWide->GetBinContent(i);
+			//sysErrLeftWide[i].error = histoCorrectedYieldTrueLeftWide->GetBinError(i); 
+		} else if(yieldExtractionMode==2){
+            sysErrNormal[i].value = histoCorrectedYieldTrueBackFit->GetBinContent(i);
+			sysErrNormal[i].error = histoCorrectedYieldTrueBackFit->GetBinError(i);
+			//sysErrLeft[i].value = histoCorrectedYieldTrueLeft->GetBinContent(i);
+			//sysErrLeft[i].error = histoCorrectedYieldTrueLeft->GetBinError(i);
+			sysErrNarrow[i].value = histoCorrectedYieldTrueNarrowBackFit->GetBinContent(i);
+			sysErrNarrow[i].error = histoCorrectedYieldTrueNarrowBackFit->GetBinError(i);
+			//sysErrLeftNarrow[i].value = histoCorrectedYieldTrueLeftNarrow->GetBinContent(i);
+			//sysErrLeftNarrow[i].error = histoCorrectedYieldTrueLeftNarrow->GetBinError(i);
+			sysErrWide[i].value = histoCorrectedYieldTrueWideBackFit->GetBinContent(i);
+			sysErrWide[i].error = histoCorrectedYieldTrueWideBackFit->GetBinError(i);
+			//sysErrLeftWide[i].value = histoCorrectedYieldTrueLeftWide->GetBinContent(i);
+			//sysErrLeftWide[i].error = histoCorrectedYieldTrueLeftWide->GetBinError(i); 
 		}
 	}
 	Double_t differenceLeft[50];
@@ -1878,35 +2462,35 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 		relLargestDifferencePosError[i] =   0;
 
         //Calculate differences
-		differenceLeft[i] =        sysErrLeft[i].value - sysErrNormal[i].value;
-		differenceLeftError[i] =      TMath::Sqrt(TMath::Abs(TMath::Power(sysErrLeft[i].error,2)-TMath::Power(sysErrNormal[i].error,2)));
-		differenceLeftNarrow[i] =     sysErrLeftNarrow[i].value - sysErrNormal[i].value;
-		differenceLeftNarrowError[i] =   TMath::Sqrt(TMath::Abs(TMath::Power(sysErrLeftNarrow[i].error,2)-TMath::Power(sysErrNormal[i].error,2)));
-		differenceLeftWide[i] =          sysErrLeftWide[i].value - sysErrNormal[i].value;
-		differenceLeftWideError[i] =     TMath::Sqrt(TMath::Abs(TMath::Power(sysErrLeftWide[i].error,2)-TMath::Power(sysErrNormal[i].error,2)));
+		// differenceLeft[i] =        sysErrLeft[i].value - sysErrNormal[i].value;
+		// differenceLeftError[i] =      TMath::Sqrt(TMath::Abs(TMath::Power(sysErrLeft[i].error,2)-TMath::Power(sysErrNormal[i].error,2)));
+		// differenceLeftNarrow[i] =     sysErrLeftNarrow[i].value - sysErrNormal[i].value;
+		// differenceLeftNarrowError[i] =   TMath::Sqrt(TMath::Abs(TMath::Power(sysErrLeftNarrow[i].error,2)-TMath::Power(sysErrNormal[i].error,2)));
+		// differenceLeftWide[i] =          sysErrLeftWide[i].value - sysErrNormal[i].value;
+		// differenceLeftWideError[i] =     TMath::Sqrt(TMath::Abs(TMath::Power(sysErrLeftWide[i].error,2)-TMath::Power(sysErrNormal[i].error,2)));
 		differenceNarrow[i] =         sysErrNarrow[i].value - sysErrNormal[i].value;
 		differenceNarrowError[i] =       TMath::Sqrt(TMath::Abs(TMath::Power(sysErrNarrow[i].error,2)-TMath::Power(sysErrNormal[i].error,2)));
 		differenceWide[i] =        sysErrWide[i].value - sysErrNormal[i].value;
 		differenceWideError[i] =      TMath::Sqrt(TMath::Abs(TMath::Power(sysErrWide[i].error,2)-TMath::Power(sysErrNormal[i].error,2)));
 
 		if (sysErrNormal[i].value != 0){
-			relDifferenceLeft[i] =     (differenceLeft[i]/sysErrNormal[i].value)*100.;
-			relDifferenceLeftError[i] =   (differenceLeftError[i]/sysErrNormal[i].value)*100.;
-			relDifferenceLeftNarrow[i] =  (differenceLeftNarrow[i]/sysErrNormal[i].value)*100.;
-			relDifferenceLeftNarrowError[i] = (differenceLeftNarrowError[i]/sysErrNormal[i].value)*100.;
-			relDifferenceLeftWide[i] =    (differenceLeftWide[i]/sysErrNormal[i].value)*100.;
-			relDifferenceLeftWideError[i] = (differenceLeftWideError[i]/sysErrNormal[i].value)*100.;
+			// relDifferenceLeft[i] =     (differenceLeft[i]/sysErrNormal[i].value)*100.;
+			// relDifferenceLeftError[i] =   (differenceLeftError[i]/sysErrNormal[i].value)*100.;
+			// relDifferenceLeftNarrow[i] =  (differenceLeftNarrow[i]/sysErrNormal[i].value)*100.;
+			// relDifferenceLeftNarrowError[i] = (differenceLeftNarrowError[i]/sysErrNormal[i].value)*100.;
+			// relDifferenceLeftWide[i] =    (differenceLeftWide[i]/sysErrNormal[i].value)*100.;
+			// relDifferenceLeftWideError[i] = (differenceLeftWideError[i]/sysErrNormal[i].value)*100.;
 			relDifferenceNarrow[i] =   (differenceNarrow[i]/sysErrNormal[i].value)*100.;
 			relDifferenceNarrowError[i] = (differenceNarrowError[i]/sysErrNormal[i].value)*100.;
 			relDifferenceWide[i] =     (differenceWide[i]/sysErrNormal[i].value)*100.;
 			relDifferenceWideError[i] =   (differenceWideError[i]/sysErrNormal[i].value)*100.;
 		} else {
-			relDifferenceLeft[i] =     0.;
-			relDifferenceLeftError[i] =   0.;
-			relDifferenceLeftNarrow[i] =  0.;
-			relDifferenceLeftNarrowError[i] = 0.;
-			relDifferenceLeftWide[i] =    0.;
-			relDifferenceLeftWideError[i] = 0.;
+			// relDifferenceLeft[i] =     0.;
+			// relDifferenceLeftError[i] =   0.;
+			// relDifferenceLeftNarrow[i] =  0.;
+			// relDifferenceLeftNarrowError[i] = 0.;
+			// relDifferenceLeftWide[i] =    0.;
+			// relDifferenceLeftWideError[i] = 0.;
 			relDifferenceNarrow[i] =      0.;
 			relDifferenceNarrowError[i] = 0.;
 			relDifferenceWide[i] =     0.;
@@ -1982,21 +2566,21 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	for(Int_t i = 1; i < (nBinsPt +1); i++){
 		fileSysErrDat << i << "\t" << sysErrWide[i].value << "\t" << sysErrWide[i].error << "\t" << differenceWide[i] << "\t" << differenceWideError[i] << "\t" << relDifferenceWide[i] << "\t" << relDifferenceWideError[i] <<endl;
 	}
-	fileSysErrDat << endl;
-	fileSysErrDat << "Bin" << "\t" << "Left value" << "\t" << "Left error" << "\t" << "Diff to Norm" << endl;
-	for(Int_t i = 1; i < (nBinsPt +1); i++){
-		fileSysErrDat << i << "\t" << sysErrLeft[i].value << "\t" << sysErrLeft[i].error << "\t" << differenceLeft[i] << "\t" << differenceLeftError[i] << "\t" << relDifferenceLeft[i] << "\t" << relDifferenceLeftError[i] <<endl;
-	}
-	fileSysErrDat << endl;
-	fileSysErrDat << "Bin" << "\t" << "Left Narrow value" << "\t" << "Left Narrow error" << "\t" << "Diff to Norm" << endl;
-	for(Int_t i = 1; i < (nBinsPt +1); i++){
-		fileSysErrDat << i << "\t" << sysErrLeftNarrow[i].value << "\t" << sysErrLeftNarrow[i].error << "\t" << differenceLeftNarrow[i] <<  "\t" << differenceLeftNarrowError[i] << "\t" << relDifferenceLeftNarrow[i] << "\t" << relDifferenceLeftNarrowError[i] <<endl;
-	}
-	fileSysErrDat << endl;
-	fileSysErrDat << "Bin" << "\t" << "Left Wide value" << "\t" << "Left Wide error" << "\t" << "Diff to Norm" << endl;
-	for(Int_t i = 1; i < (nBinsPt +1); i++){
-		fileSysErrDat << i << "\t" << sysErrLeftWide[i].value << "\t" << sysErrLeftWide[i].error << "\t" << differenceLeftWide[i] << "\t" << differenceLeftWideError[i] << "\t" << relDifferenceLeftWide[i] << "\t" << relDifferenceLeftWideError[i] <<endl;
-	}
+	// fileSysErrDat << endl;
+	// fileSysErrDat << "Bin" << "\t" << "Left value" << "\t" << "Left error" << "\t" << "Diff to Norm" << endl;
+	// for(Int_t i = 1; i < (nBinsPt +1); i++){
+	// 	fileSysErrDat << i << "\t" << sysErrLeft[i].value << "\t" << sysErrLeft[i].error << "\t" << differenceLeft[i] << "\t" << differenceLeftError[i] << "\t" << relDifferenceLeft[i] << "\t" << relDifferenceLeftError[i] <<endl;
+	// }
+	// fileSysErrDat << endl;
+	// fileSysErrDat << "Bin" << "\t" << "Left Narrow value" << "\t" << "Left Narrow error" << "\t" << "Diff to Norm" << endl;
+	// for(Int_t i = 1; i < (nBinsPt +1); i++){
+	// 	fileSysErrDat << i << "\t" << sysErrLeftNarrow[i].value << "\t" << sysErrLeftNarrow[i].error << "\t" << differenceLeftNarrow[i] <<  "\t" << differenceLeftNarrowError[i] << "\t" << relDifferenceLeftNarrow[i] << "\t" << relDifferenceLeftNarrowError[i] <<endl;
+	// }
+	// fileSysErrDat << endl;
+	// fileSysErrDat << "Bin" << "\t" << "Left Wide value" << "\t" << "Left Wide error" << "\t" << "Diff to Norm" << endl;
+	// for(Int_t i = 1; i < (nBinsPt +1); i++){
+	// 	fileSysErrDat << i << "\t" << sysErrLeftWide[i].value << "\t" << sysErrLeftWide[i].error << "\t" << differenceLeftWide[i] << "\t" << differenceLeftWideError[i] << "\t" << relDifferenceLeftWide[i] << "\t" << relDifferenceLeftWideError[i] <<endl;
+	// }
 	fileSysErrDat << endl;
 
 	fileSysErrDat << "Bin" << "\t" << "Largest Dev Neg" << "\t" << "Largest Dev Pos"  << endl;
@@ -2013,10 +2597,173 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	TGraphAsymmErrors* SystErrGraphNeg = new TGraphAsymmErrors(nBinsPt+1, binsXCenter, relLargestDifferenceNeg, binsXWidth, binsXWidth, relLargestDifferenceNegError, relLargestDifferenceNegError);
 	TGraphAsymmErrors* SystErrGraphPos = new TGraphAsymmErrors(nBinsPt+1, binsXCenter, relLargestDifferencePos, binsXWidth, binsXWidth, relLargestDifferencePosError, relLargestDifferencePosError);
 
+	//*************************************************************************************************
+	//******************** Output of the systematic Error due to reconstruction efficiency ************
+	//*************************************************************************************************
+	Double_t  binsXCenterEffi[50];
+	Double_t  binsXWidthEffi[50];
+
+    binsXWidthEffi[0]=       0.;
+
+    for (Int_t i = 1; i < nBinsPt +1; i++){
+		binsXCenterEffi[i] =  histoCorrectedYieldAveragedEffiBackFit->GetBinCenter(i);
+		binsXWidthEffi[i]=    histoCorrectedYieldAveragedEffiBackFit->GetBinWidth(i)/2.;
+	}
+
+
+	SysErrorConversion sysErrAverageEffi[50];
+	SysErrorConversion sysErrTrueEffi[50];
+	SysErrorConversion sysErrNormEffi[50];
+	SysErrorConversion sysErrNormFromFit[50];
+
+	for (Int_t i = 1; i < nBinsPt +1; i++){
+        sysErrAverageEffi[i].value = histoCorrectedYieldAveragedEffiBackFit->GetBinContent(i);
+		sysErrAverageEffi[i].error = histoCorrectedYieldAveragedEffiBackFit->GetBinError(i);
+		sysErrNormEffi[i].value = histoCorrectedYieldNormBackFit->GetBinContent(i);
+		sysErrNormEffi[i].error = histoCorrectedYieldNormBackFit->GetBinError(i);
+		sysErrTrueEffi[i].value = histoCorrectedYieldTrueBackFit->GetBinContent(i);
+		sysErrTrueEffi[i].error = histoCorrectedYieldTrueBackFit->GetBinError(i);
+		sysErrNormFromFit[i].value = histoCorrectedYieldNormBackFitFromFit->GetBinContent(i);
+		sysErrNormFromFit[i].error = histoCorrectedYieldNormBackFitFromFit->GetBinError(i); 
+	}
+	Double_t differenceNormFromFit[50];
+	Double_t differenceTrue[50];
+	Double_t differenceNorm[50];
+	Double_t largestDifferenceNegEffi[50];
+	Double_t largestDifferencePosEffi[50];
+	Double_t differenceNormFromFitError[50];
+	Double_t differenceTrueError[50];
+	Double_t differenceNormError[50];
+	Double_t largestDifferenceNegEffiError[50];
+	Double_t largestDifferencePosEffiError[50];
+	Double_t relDifferenceNormFromFit[50];
+	Double_t relDifferenceTrue[50];
+	Double_t relDifferenceNorm[50];
+	Double_t rellargestDifferenceNegEffi[50];
+	Double_t rellargestDifferencePosEffi[50];
+	Double_t relDifferenceNormFromFitError[50];
+	Double_t relDifferenceTrueError[50];
+	Double_t relDifferenceNormError[50];
+	Double_t rellargestDifferenceNegEffiError[50];
+	Double_t rellargestDifferencePosEffiError[50];
+	for (Int_t i = 1; i < nBinsPt +1; i++){
+		largestDifferenceNegEffi[i] =     0;
+		largestDifferencePosEffi[i] =     0;
+		largestDifferenceNegEffiError[i] =   0;
+		largestDifferencePosEffiError[i] =   0;
+		rellargestDifferenceNegEffi[i] =     0;
+		rellargestDifferencePosEffi[i] =     0;
+		rellargestDifferenceNegEffiError[i] =   0;
+		rellargestDifferencePosEffiError[i] =   0;
+
+        //Calculate differences
+		differenceNormFromFit[i] =          sysErrNormFromFit[i].value - sysErrAverageEffi[i].value;
+		differenceNormFromFitError[i] =     TMath::Sqrt(TMath::Abs(TMath::Power(sysErrNormFromFit[i].error,2)-TMath::Power(sysErrAverageEffi[i].error,2)));
+		differenceNorm[i] =         sysErrNormEffi[i].value - sysErrAverageEffi[i].value;
+		differenceNormError[i] =       TMath::Sqrt(TMath::Abs(TMath::Power(sysErrNormEffi[i].error,2)-TMath::Power(sysErrAverageEffi[i].error,2)));
+		differenceTrue[i] =        sysErrTrueEffi[i].value - sysErrAverageEffi[i].value;
+		differenceTrueError[i] =      TMath::Sqrt(TMath::Abs(TMath::Power(sysErrTrueEffi[i].error,2)-TMath::Power(sysErrAverageEffi[i].error,2)));
+
+		if (sysErrAverageEffi[i].value != 0){
+			relDifferenceNormFromFit[i] =    (differenceNormFromFit[i]/sysErrAverageEffi[i].value)*100.;
+			relDifferenceNormFromFitError[i] = (differenceNormFromFitError[i]/sysErrAverageEffi[i].value)*100.;
+			relDifferenceNorm[i] =   (differenceNorm[i]/sysErrAverageEffi[i].value)*100.;
+			relDifferenceNormError[i] = (differenceNormError[i]/sysErrAverageEffi[i].value)*100.;
+			relDifferenceTrue[i] =     (differenceTrue[i]/sysErrAverageEffi[i].value)*100.;
+			relDifferenceTrueError[i] =   (differenceTrueError[i]/sysErrAverageEffi[i].value)*100.;
+		} else {
+			relDifferenceNormFromFit[i] =    0.;
+			relDifferenceNormFromFitError[i] = 0.;
+			relDifferenceNorm[i] =      0.;
+			relDifferenceNormError[i] = 0.;
+			relDifferenceTrue[i] =     0.;
+			relDifferenceTrueError[i] =   0.;
+		}
+
+		if (TMath::Abs(relDifferenceNorm[i]) < 75.){
+			if(differenceNorm[i] < 0){
+				if(differenceNorm[i] < largestDifferenceNegEffi[i]){
+				largestDifferenceNegEffi[i] =     differenceNorm[i]; 
+				largestDifferenceNegEffiError[i] =   differenceNormError[i];  
+				rellargestDifferenceNegEffi[i] =     relDifferenceNorm[i]; 
+				rellargestDifferenceNegEffiError[i] =   relDifferenceNormError[i];  
+				}
+			} else {
+				if(differenceNorm[i] > largestDifferencePosEffi[i]){
+				largestDifferencePosEffi[i] =     differenceNorm[i];
+				largestDifferencePosEffiError[i] =   differenceNormError[i];
+				rellargestDifferencePosEffi[i] =     relDifferenceNorm[i];
+				rellargestDifferencePosEffiError[i] =   relDifferenceNormError[i];
+				}
+			}  
+		}
+		if (TMath::Abs(relDifferenceTrue[i]) < 75.){
+			if(differenceTrue[i] < 0){
+				if(differenceTrue[i] < largestDifferenceNegEffi[i]){
+				largestDifferenceNegEffi[i] =     differenceTrue[i];
+				largestDifferenceNegEffiError[i] =   differenceTrueError[i];
+				rellargestDifferenceNegEffi[i] =     relDifferenceTrue[i];
+				rellargestDifferenceNegEffiError[i] =   relDifferenceTrueError[i];
+				}
+			} else {
+				if(differenceTrue[i] > largestDifferencePosEffi[i]) {
+				largestDifferencePosEffi[i] =     differenceTrue[i];   
+				largestDifferencePosEffiError[i] =   differenceTrueError[i]; 
+				rellargestDifferencePosEffi[i] =     relDifferenceTrue[i];   
+				rellargestDifferencePosEffiError[i] =   relDifferenceTrueError[i]; 
+				}
+			}
+        }
+	}  
+
+	cout << "done filling" << endl;
+	const char *nameFileSysErrDatEffi = Form("%s/%s/%s_%s_SystematicErrorEfficiency_%s.dat",fCutSelection.Data(),optionEnergy.Data() ,nameMeson.Data(),prefix2.Data(),fCutSelection.Data());
+	fstream fileSysErrDatEffi;
+	fileSysErrDatEffi.open(nameFileSysErrDatEffi, ios::out);
+	fileSysErrDatEffi << "Calculation of the systematic error due to the reco efficiency" << endl;
+	fileSysErrDatEffi << "Bin" << "\t" << "average reco value" << "\t" << " error" << endl;
+	for(Int_t i = 1; i < (nBinsPt +1); i++){
+		fileSysErrDatEffi << i << "\t" << sysErrAverageEffi[i].value << "\t" << sysErrAverageEffi[i].error << endl;
+	}
+	fileSysErrDatEffi << endl;
+	fileSysErrDatEffi << "Bin" << "\t" << "Norm value" << "\t" << "Norm error" << "\t" << "diff to average" << endl;
+	for(Int_t i = 1; i < (nBinsPt +1); i++){
+		fileSysErrDatEffi << i << "\t" << sysErrNormEffi[i].value << "\t" << sysErrNormEffi[i].error << "\t" << differenceNorm[i] << "\t" << differenceNormError[i] << "\t" << relDifferenceNorm[i] << "\t" << relDifferenceNormError[i] <<endl;
+	}
+	fileSysErrDatEffi << endl;
+	fileSysErrDatEffi << "Bin" << "\t" << "True value" << "\t" << "True error" << "\t" << "diff to average" << endl;
+	for(Int_t i = 1; i < (nBinsPt +1); i++){
+		fileSysErrDatEffi << i << "\t" << sysErrTrueEffi[i].value << "\t" << sysErrTrueEffi[i].error << "\t" << differenceTrue[i] << "\t" << differenceTrueError[i] << "\t" << relDifferenceTrue[i] << "\t" << relDifferenceTrueError[i] <<endl;
+	}
+	fileSysErrDatEffi << endl;
+	fileSysErrDatEffi << "Bin" << "\t" << "norm from fit value" << "\t" << "error" << "\t" << "diff to average" << endl;
+	for(Int_t i = 1; i < (nBinsPt +1); i++){
+		fileSysErrDatEffi << i << "\t" << sysErrNormFromFit[i].value << "\t" << sysErrNormFromFit[i].error << "\t" << differenceNormFromFit[i] << "\t" << differenceNormFromFitError[i] << "\t" << relDifferenceNormFromFit[i] << "\t" << relDifferenceNormFromFitError[i] <<endl;
+	}
+	fileSysErrDatEffi << endl;
+
+	fileSysErrDatEffi << "Bin" << "\t" << "Largest Dev Neg" << "\t" << "Largest Dev Pos"  << endl;
+	for(Int_t i = 1; i < (nBinsPt +1); i++){
+		fileSysErrDatEffi << i << "\t" << largestDifferenceNegEffi[i] <<  "\t" << largestDifferenceNegEffiError[i] << "\t" << largestDifferencePosEffi[i] << "\t" << largestDifferencePosEffiError[i]<<endl;
+	}
+	fileSysErrDatEffi << "Bin" << "\t" << "Largest Rel Dev Neg" << "\t" << "Largest Rel Dev Pos"  << endl;
+	for(Int_t i = 1; i < (nBinsPt +1); i++){
+		fileSysErrDatEffi << i << "\t" << rellargestDifferenceNegEffi[i] <<  "\t" << rellargestDifferenceNegEffiError[i] << "\t" << rellargestDifferencePosEffi[i] << "\t" << rellargestDifferencePosEffiError[i]<<endl;
+	}
+
+	fileSysErrDatEffi.close();
+	
+	TGraphAsymmErrors* SystErrGraphNegEffi = new TGraphAsymmErrors(nBinsPt+1, binsXCenterEffi, rellargestDifferenceNegEffi, binsXWidthEffi, binsXWidthEffi, rellargestDifferenceNegEffiError, rellargestDifferenceNegEffiError);
+	TGraphAsymmErrors* SystErrGraphPosEffi = new TGraphAsymmErrors(nBinsPt+1, binsXCenterEffi, rellargestDifferencePosEffi, binsXWidthEffi, binsXWidthEffi, rellargestDifferencePosEffiError, rellargestDifferencePosEffiError);
+
 	const char* nameOutput2 = Form("%s/%s/%s_%s_GammaConv_OnlyCorrectionFactor%s_%s.root",fCutSelection.Data(),optionEnergy.Data(),nameMeson.Data(),prefix2.Data(),optionPeriod.Data(),fCutSelection.Data());
 	TFile* correctedOutput2 = new TFile(nameOutput2,"RECREATE");     
 		histoAcceptance->Write();
         histoTrueEffiPt->Write(Form("TrueMesonEffiPt%s",InvMassTypeEnding.Data()));
+        histoEffiPt->Write(Form("MesonEffiPtNorm%s",InvMassTypeEnding.Data()));
+        histoEffiPtBackFit->Write(Form("MesonEffiPtNormBackFit%s",InvMassTypeEnding.Data()));
+        histoEffiPtBackFitFromFit->Write(Form("MesonEffiPtNormBackFitFromFit%s",InvMassTypeEnding.Data()));
+        histoEffiWeightedAverage->Write(Form("MesonEffiPtAveraged%s",InvMassTypeEnding.Data()));
         histoCompleteCorr->Write(Form("EffiTimesAcceptanceTimesDeltaY%s",InvMassTypeEnding.Data()));
 	correctedOutput2->Write();
 	correctedOutput2->Close();
@@ -2026,8 +2773,31 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	TFile* correctedOutput = new TFile(nameOutput,"RECREATE");     
 
 	histoCorrectedYieldNorm->Write();
+	histoCorrectedYieldNormWide->Write();
+	histoCorrectedYieldNormNarrow->Write();
+
+	histoCorrectedYieldNormBackFitFromFit->Write();
+	histoCorrectedYieldNormWideBackFitFromFit->Write();
+	histoCorrectedYieldNormNarrowBackFitFromFit->Write();
+
+	histoTrueEffiPt->Write(Form("TrueMesonEffiPt%s",InvMassTypeEnding.Data()));
+    histoEffiPt->Write(Form("MesonEffiPtNorm%s",InvMassTypeEnding.Data()));
+    histoEffiPtBackFit->Write(Form("MesonEffiPtNormBackFit%s",InvMassTypeEnding.Data()));
+    histoEffiPtBackFitFromFit->Write(Form("MesonEffiPtNormBackFitFromFit%s",InvMassTypeEnding.Data()));
+    histoEffiWeightedAverage->Write(Form("MesonEffiPtAveraged%s",InvMassTypeEnding.Data()));
+
+	histoCorrectedYieldAveragedEffiBackFit->Write();
+	histoCorrectedYieldAveragedEffiWideBackFit->Write();
+	histoCorrectedYieldAveragedEffiNarrowBackFit->Write();
+
+	histoCorrectedYieldAveragedEffi->Write();
+	histoCorrectedYieldAveragedEffiWide->Write();
+	histoCorrectedYieldAveragedEffiNarrow->Write();
 	SystErrGraphPos->Write(Form("%s_SystErrorRelPos_YieldExtraction_%s",nameMeson.Data(),centralityString.Data()),TObject::kOverwrite);
 	SystErrGraphNeg->Write(Form("%s_SystErrorRelNeg_YieldExtraction_%s",nameMeson.Data(),centralityString.Data()),TObject::kOverwrite);
+
+	SystErrGraphPosEffi->Write(Form("%s_SystErrorRelPos_Efficiency_%s",nameMeson.Data(),centralityString.Data()),TObject::kOverwrite);
+	SystErrGraphNegEffi->Write(Form("%s_SystErrorRelNeg_Efficiency_%s",nameMeson.Data(),centralityString.Data()),TObject::kOverwrite);
 	if(histoCorrectionFactorsHistvsPtCatA)histoCorrectionFactorsHistvsPtCatA->Write("PileupContamination");
     histoCorrectedYieldTrue->Write();
 	histoCorrectedYieldTrueNarrow->Write();
@@ -2047,9 +2817,30 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	histoCorrectedYieldTrueLeftFitted->Write();
 	histoCorrectedYieldTrueLeftWideFitted->Write();
 	histoCorrectedYieldTrueLeftNarrowFitted->Write();
+
+    // Write back fit histos
+	histoCorrectedYieldNormBackFit->Write();
+	histoCorrectedYieldNormWideBackFit->Write();
+	histoCorrectedYieldNormNarrowBackFit->Write();
+	//SystErrGraphPos->Write(Form("%s_SystErrorRelPos_YieldExtraction_%s",nameMeson.Data(),centralityString.Data()),TObject::kOverwrite);
+	//SystErrGraphNeg->Write(Form("%s_SystErrorRelNeg_YieldExtraction_%s",nameMeson.Data(),centralityString.Data()),TObject::kOverwrite);
+	//if(histoCorrectionFactorsHistvsPtCatA)histoCorrectionFactorsHistvsPtCatA->Write("PileupContamination");
+    histoCorrectedYieldTrueBackFit->Write();
+	histoCorrectedYieldTrueNarrowBackFit->Write();
+    histoCorrectedYieldTrueWideBackFit->Write();
+	histoCorrectedYieldFixedBackFit->Write();
+	histoCorrectedYieldNarrowFixedBackFit->Write();
+	histoCorrectedYieldWideFixedBackFit->Write();
+	histoCorrectedYieldTrueFixedBackFit->Write();
+	histoCorrectedYieldTrueNarrowFixedBackFit->Write();
+	histoCorrectedYieldTrueWideFixedBackFit->Write();
+	histoCorrectedYieldTrueFittedBackFit->Write();
+	histoCorrectedYieldTrueNarrowFittedBackFit->Write();
+	histoCorrectedYieldTrueWideFittedBackFit->Write();
 	
 
 	histoUnCorrectedYield->Write();
+	histoUnCorrectedYieldBackFit->Write();
 
 	histoFWHMMeson->Write();
 	histoMassMeson->Write();
@@ -2078,6 +2869,9 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	
     histoUnCorrectedYieldDrawing->SetName(Form("histoYieldMesonPerEvent%s",InvMassTypeEnding.Data()));
 	histoUnCorrectedYieldDrawing->Write();
+
+	histoUnCorrectedYieldDrawingBackFit->SetName(Form("histoYieldMesonPerEventBackFit%s",InvMassTypeEnding.Data()));
+	histoUnCorrectedYieldDrawingBackFit->Write();
 	deltaPt->Write("deltaPt");
 	correctedOutput->Write();
 	correctedOutput->Close();

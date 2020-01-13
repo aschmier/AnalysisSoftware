@@ -300,6 +300,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     Double_t nWeightedEvents        [MaxNumberOfFiles];
     Double_t xSection               [MaxNumberOfFiles];
     Double_t weight                 [MaxNumberOfFiles];
+    Double_t weightNew              [MaxNumberOfFiles];
     Double_t weightApplied          [MaxNumberOfFiles];
     Double_t deltaRapid             [MaxNumberOfFiles];
 
@@ -328,25 +329,32 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         anchoredTo                      = "LHC17";
 
     TString acceptanceOf = "";
-    if (mode == 0) acceptanceOf     = "|#eta_{#gamma}| < 0.9 (PCM acc.)";
-    if (mode == 2) acceptanceOf     = "|#eta_{#gamma_{1}}| < 0.9,  #gamma_{2} in EMCal acc.";
-    if (mode == 4) acceptanceOf     = "#gamma's in EMCal acc.";
-    if (mode == 3) acceptanceOf     = "|#eta_{#gamma_{1}}| < 0.9,  #gamma_{2} in PHOS acc.";
-    if (mode == 5) acceptanceOf     = "#gamma's in PHOS acc.";
+    if (mode == 0 || mode == 60) acceptanceOf     = "|#eta_{#gamma}| < 0.9 (PCM acc.)";
+    if (mode == 2 || mode == 62) acceptanceOf     = "|#eta_{#gamma_{1}}| < 0.9,  #gamma_{2} in EMCal acc.";
+    if (mode == 4 || mode == 64) acceptanceOf     = "#gamma's in EMCal acc.";
+    if (mode == 3 || mode == 63) acceptanceOf     = "|#eta_{#gamma_{1}}| < 0.9,  #gamma_{2} in PHOS acc.";
+    if (mode == 5 || mode == 65) acceptanceOf     = "#gamma's in PHOS acc.";
     if (mode == 10) acceptanceOf    = "#gamma in EMCal acc.";
     if (mode == 11) acceptanceOf    = "#gamma in PHOS acc.";
+
+    TString mesonName = "Pi0";
+
+    if(mode >= 60 && mode < 70) mesonName = "HNM";
 
     cout << __LINE__ << endl;
     for (Int_t i=0; i< nrOfPtHardBins; i++){
         // Define CutSelections
-        TString fEventCutSelection                      = "";
+        TString fType                                   = "";    
+        TString fEventCutSelection                      = "";                   
         TString fGammaCutSelection                      = "";
         TString fClusterCutSelection                    = "";
         TString fElectronCutSelection                   = "";
+        TString fNeutralPionCutSelection                      = "";
         TString fMesonCutSelection                      = "";
         // disentangle cut selection
         ReturnSeparatedCutNumberAdvanced(cutSelection.Data(),fEventCutSelection, fGammaCutSelection, fClusterCutSelection, fElectronCutSelection, fMesonCutSelection, mode);
-
+        if(mode >= 60 && mode < 70)
+            ReturnSeparatedCutNumberPiPlPiMiPiZero(cutSelection.Data(),fType,fEventCutSelection,fGammaCutSelection,fClusterCutSelection,fElectronCutSelection,fNeutralPionCutSelection,fMesonCutSelection,kTRUE);
         fileInput[i]                                = new TFile(fileNameInput[i]);
         if (fileInput[i]->IsZombie()) return;
         cout << fileNameInput[i] << endl;
@@ -366,6 +374,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         TopDir->SetOwner();
 
         TString rapidityRange                       = "";
+        cout << fMesonCutSelection.Data() << endl;
         deltaRapid[i]                               = ReturnRapidityStringAndDouble(fMesonCutSelection, rapidityRange);
 
 
@@ -382,11 +391,16 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         histoNTrials[i]                             = (TH1F*)ESDContainer->FindObject("NTrials");
         histoNTrials[i]->SetName(Form("NTrials%d",i));
         nTrials[i]                                  = histoNTrials[i]->GetBinContent(1);
-        histoNEvents[i]                             = (TH1F*)ESDContainer->FindObject("NEventsWOWeight");
-        histoNEvents[i]->SetName(Form("NEventsWOWeight%d",i));
         histoNEventsWWeight[i]                      = (TH1F*)ESDContainer->FindObject("NEvents");
         histoNEventsWWeight[i]->SetName(Form("NEventsWWeight%d",i));
 
+        histoNEvents[i]                             = (TH1F*)ESDContainer->FindObject("NEventsWOWeight");
+        if(!histoNEvents[i]){
+            cout << "WARNING: could not finde NEventsWOWeight. Will use NEvents as well instead." << endl;
+            histoNEvents[i]        = (TH1F*)histoNEventsWWeight[i]->Clone();
+        } 
+        histoNEvents[i]->SetName(Form("NEventsWOWeight%d",i));
+        cout << " test" << endl;
         nGeneratedEvents[i]                         = histoNEvents[i]->GetEntries();
         if (optionEnergy.Contains("PbPb") || optionEnergy.Contains("pPb"))
             nWeightedEvents[i]                      = histoNEventsWWeight[i]->GetBinContent(1);
@@ -398,6 +412,8 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         xSection[i]                                 = profXSection[i]->GetBinContent(1);
 
         weight[i]                                   = xSection[i]/(nTrials[i]/nGeneratedEvents[i]);
+        Int_t nTriggered                            = histoNEvents[i]->GetBinContent(4);
+        weightNew[i]                                = xSection[i]/(nTrials[i]/(nGeneratedEvents[i]-nTriggered));
         weightApplied[i]                            = histoNEventsWWeight[i]->GetBinContent(1)/histoNEvents[i]->GetBinContent(1);
 
         TList *MCContainer                          = (TList*)HistosGammaConversion->FindObject(Form("%s MC histograms",cutSelection.Data()));
@@ -405,21 +421,26 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
             cout<<"ERROR: " << Form("MC histograms %s",cutSelection.Data()) << " not Found in File"<<endl;
             return;
         }
-        TH1F* temp = (TH1F*)MCContainer->FindObject("MC_Pi0_Pt");
+        TH1F* temp = (TH1F*)MCContainer->FindObject(Form("MC_%s_Pt",mesonName.Data()));
         histoMCPi0Input[i]                          = new TH1F(*temp);
-        histoMCPi0Input[i]->SetName(Form("MC_Pi0_Pt%d",i));
-        temp = (TH1F*)MCContainer->FindObject("MC_Pi0InAcc_Pt");
+        histoMCPi0Input[i]->SetName(Form("MC_%s_Pt%d",mesonName.Data(),i));
+        temp = (TH1F*)MCContainer->FindObject(Form("MC_%sInAcc_Pt",mesonName.Data()));
         histoMCPi0InputAcc[i]                       = new TH1F(*temp);
-        histoMCPi0InputAcc[i]->SetName(Form("MC_Pi0InAcc_Pt%d",i));
-        temp = (TH1F*)MCContainer->FindObject("MC_Pi0_WOEventWeights_Pt");
+        histoMCPi0InputAcc[i]->SetName(Form("MC_%sInAcc_Pt%d",mesonName.Data(),i));
+        temp = (TH1F*)MCContainer->FindObject(Form("MC_%s_WOEventWeights_Pt",mesonName.Data()));
+        if(!temp){
+            printf("WARNING: could not find MC_%s_WOEventWeights_Pt. Will use non weighted version instead.",mesonName.Data());
+            temp = (TH1F*) histoMCPi0Input[i]->Clone();
+            cout << temp << endl;
+        }
         histoMCPi0InputW0EvtWeigth[i]               = new TH1F(*temp);
-        histoMCPi0InputW0EvtWeigth[i]->SetName(Form("MC_Pi0_WOEventWeights_Pt%d",i));
+        histoMCPi0InputW0EvtWeigth[i]->SetName(Form("MC_%s_WOEventWeights_Pt%d",mesonName.Data(),i));
         if (optionEnergy.CompareTo("pPb_5.023TeVRun2") == 0 || optionEnergy.CompareTo("13TeV") == 0|| optionEnergy.Contains("pPb_8TeV")){
             histoMCPi0Input[i]->Rebin(8);
             histoMCPi0InputAcc[i]->Rebin(8);
             histoMCPi0InputW0EvtWeigth[i]->Rebin(8);
         }
-        if ( !(mode == 10 || mode == 11) ){
+        if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) ){
             temp = (TH1F*)MCContainer->FindObject("MC_Eta_Pt");
             histoMCEtaInput[i]                      = new TH1F(*temp);
             histoMCEtaInput[i]->SetName(Form("MC_Eta_Pt%d",i));
@@ -438,9 +459,9 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
 
         }
         if (additionalQA){
-            histoMCPi0vsJetPt[i] 							= (TH2F*)MCContainer->FindObject("MC_Pi0_Pt_JetPt");
-            histoMCPi0vsJetPt[i]->SetName(Form("MC_Pi0_Pt_JetPt%d",i));
-            if (!(mode == 10 || mode == 11) ){
+            histoMCPi0vsJetPt[i] 							= (TH2F*)MCContainer->FindObject(Form("MC_%s_Pt_JetPt",mesonName.Data()));
+            histoMCPi0vsJetPt[i]->SetName(Form("MC_%s_Pt_JetPt%d",mesonName.Data(),i));
+            if (!(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) ){
                 histoMCEtavsJetPt[i] 				= (TH2F*)MCContainer->FindObject("MC_Eta_Pt_JetPt");
                 histoMCEtavsJetPt[i]->SetName(Form("MC_Eta_Pt_JetPt%d",i));
             }
@@ -452,7 +473,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
             Float_t minimumPi0 = FindSmallestEntryIn2D(histoMCPi0vsJetPt[i]);
             histoMCPi0vsJetPt[i]->GetZaxis()->SetRangeUser(minimumPi0,maximumPi0);
             PlotStandard2D( histoMCPi0vsJetPt[i] ,
-                        Form("%s/MC_Pi0Pt_JetPt_%d.%s",outputDir.Data(),i,suffix.Data()),
+                        Form("%s/MC_%sPt_JetPt_%d.%s",outputDir.Data(),mesonName.Data(),i,suffix.Data()),
                         "", "#it{p}_{#pi^{0},T} (GeV/#it{c})", "#it{p}_{jet,T} (GeV/#it{c})",
                         kFALSE, 30., 180., kFALSE, 0.01, 20., 0, 0, 1,
                         floatLocationRightUp2D,500,500,"MC", period);
@@ -469,7 +490,8 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         }
         cout << ">>>>>>>> pT hard bin #: " << i << endl;
         cout << "ntrials: " <<  nTrials[i] << "\t xSection: " << xSection[i] << "\t number of generated events: " << nGeneratedEvents[i] << "\t weight: "
-            << Form("%2.8e",weight[i]) << "\t weight applied: "<< Form("%2.5e",weightApplied[i])<< endl;
+            << Form("%2.8e",weight[i]) << "\t weight new: "
+            << weightNew[i] << "\t weight ratio: "<< weightNew[i]/weight[i] << "\t weight applied: "<<  Form("%2.5e",weightApplied[i])<< endl;
         delete TopDir;
 
         fileInput[i]->Close();
@@ -516,10 +538,10 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
 
     histo2DInputUnscaledPi0->Draw("same,axis");
     canvasInputUnscaled->Update();
-    canvasInputUnscaled->SaveAs(Form("%s/Pi0_MC_InputUnscaled.%s",outputDir.Data(),suffix.Data()));
+    canvasInputUnscaled->SaveAs(Form("%s/%s_MC_InputUnscaled.%s",outputDir.Data(),mesonName.Data(),suffix.Data()));
 
 
-    if ( !(mode == 10 || mode == 11) ){
+    if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70)){
         Float_t maximumEtaUnscaled = FindLargestEntryIn1D(histoMCEtaInputW0EvtWeigth[0])*10;
         if(optionEnergy.CompareTo("8TeV")==0) maximumEtaUnscaled*=5;
         Float_t minimumEtaUnscaled = FindSmallestEntryIn1D(histoMCEtaInputW0EvtWeigth[nrOfPtHardBins-1]);
@@ -566,10 +588,10 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
 
         histo2DInputUnscaledPi0->Draw("same,axis");
         canvasInputUnscaled->Update();
-        canvasInputUnscaled->SaveAs(Form("%s/Pi0_MC_InputUnscaledDLog.%s",outputDir.Data(),suffix.Data()));
+        canvasInputUnscaled->SaveAs(Form("%s/%s_MC_InputUnscaledDLog.%s",outputDir.Data(),mesonName.Data(),suffix.Data()));
 
 
-        if ( !(mode == 10 || mode == 11) ){
+        if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) ){
 
             canvasInputUnscaled->cd();
             canvasInputUnscaled->SetLogy();
@@ -636,7 +658,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
 
 
     canvasInputScaled->Update();
-    canvasInputScaled->SaveAs(Form("%s/Pi0_MC_InputScaled.%s",outputDir.Data(),suffix.Data()));
+    canvasInputScaled->SaveAs(Form("%s/%s_MC_InputScaled.%s",outputDir.Data(),mesonName.Data(),suffix.Data()));
 
     histo2DInputScaledPi0->DrawCopy();
     legendScaled->Draw();
@@ -651,10 +673,10 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
 
 
     canvasInputScaled->Update();
-    canvasInputScaled->SaveAs(Form("%s/Pi0_MC_InputScaledInAcceptance.%s",outputDir.Data(),suffix.Data()));
+    canvasInputScaled->SaveAs(Form("%s/%s_MC_InputScaledInAcceptance.%s",outputDir.Data(),mesonName.Data(),suffix.Data()));
 
 
-    if ( !(mode == 10 || mode == 11) ){
+    if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) ){
         Float_t maximumEtaScaled = FindLargestEntryIn1D(histoMCEtaInput[0])*10;
         if(optionEnergy.CompareTo("8TeV")==0) maximumEtaScaled*=2;
         Float_t minimumEtaScaled = FindSmallestEntryIn1D(histoMCEtaInput[nrOfPtHardBins-1]);
@@ -712,7 +734,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
             labelMCNameDLog->Draw();
 
         canvasInputScaled->Update();
-        canvasInputScaled->SaveAs(Form("%s/Pi0_MC_InputScaledDLog.%s",outputDir.Data(),suffix.Data()));
+        canvasInputScaled->SaveAs(Form("%s/%s_MC_InputScaledDLog.%s",outputDir.Data(),mesonName.Data(),suffix.Data()));
 
         canvasInputScaled->cd();
         histo2DInputScaledPi0->DrawCopy();
@@ -727,9 +749,9 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
             labelAcceptance->Draw();
 
         canvasInputScaled->Update();
-        canvasInputScaled->SaveAs(Form("%s/Pi0_MC_InputScaledInAcceptanceDLog.%s",outputDir.Data(),suffix.Data()));
+        canvasInputScaled->SaveAs(Form("%s/%s_MC_InputScaledInAcceptanceDLog.%s",outputDir.Data(),mesonName.Data(),suffix.Data()));
 
-        if ( !(mode == 10 || mode == 11) ){
+        if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70)){
 
             canvasInputScaled->cd();
             Float_t maximumEtaScaled = FindLargestEntryIn1D(histoMCEtaInput[0])*10;
@@ -774,9 +796,9 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     TH1D* histoPi0InvYield  [MaxNumberOfFiles];
     TH1D* histoEtaInvYield  [MaxNumberOfFiles];
     for (Int_t i=0; i< nrOfPtHardBins; i++){
-        histoPi0InvYield[i]     = (TH1D*)histoMCPi0Input[i]->Clone(Form("MC_Pi0_InvYield_%i", i));
-        ScaleMCYield( histoPi0InvYield[i], deltaRapid[i], scaling, nWeightedEvents[i], "Pi0");
-        if ( !(mode == 10 || mode == 11) ){
+        histoPi0InvYield[i]     = (TH1D*)histoMCPi0Input[i]->Clone(Form("MC_%s_InvYield_%i",mesonName.Data(),i));
+        ScaleMCYield( histoPi0InvYield[i], deltaRapid[i], scaling, nWeightedEvents[i], mesonName.Data());
+        if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70)){
             histoEtaInvYield[i]     = (TH1D*)histoMCEtaInput[i]->Clone(Form("MC_Eta_InvYield_%i", i));
             ScaleMCYield( histoEtaInvYield[i], deltaRapid[i], scaling, nWeightedEvents[i], "Eta");
         }
@@ -791,7 +813,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
             histoMCPi0InputW0EvtWeigth[i]->Write();
             histoMCPi0Input[i]->Write();
             histoPi0InvYield[i]->Write();
-            if ( !(mode == 10 || mode == 11) ){
+            if ( !(mode == 10 || mode == 11)&& !(mode >= 60 && mode < 70) ){
                 histoMCEtaInputW0EvtWeigth[i]->Write();
                 histoMCEtaInput[i]->Write();
                 histoEtaInvYield[i]->Write();

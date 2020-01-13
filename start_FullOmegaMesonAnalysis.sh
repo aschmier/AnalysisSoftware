@@ -58,6 +58,15 @@ function GiveBinning13TeV()
 
 }
 
+function GiveBinning5TeV()
+{
+    echo "How many p_T bins do you want to use for Omega? 36(7gev), 37(8gev), 38(10gev), 39(12gev), 40 (16gev), 41 (20gev), 42 (25gev)";
+    read answer
+    BinsPtOmega=$answer
+    correctOmega=1
+    echo "You have chosen " $answer " pt bins for Omega";
+
+}
 
 function GiveBinningpPb()
 {
@@ -79,7 +88,7 @@ function ExtractSignal()
 
 function CorrectSignal()
 {
-    root -x -l -b -q TaskV1/CorrectSignalPiPlPiMiPiZero.C++\($1\)
+    root -x -l -b -q TaskV1/CorrectSignalPiPlPiMiPiZero.C+\($1\)
 }
 
 
@@ -183,7 +192,7 @@ elif [[ "$1" == "-omegaOnly" ]] ; then
         PARTLY=1
         MCFILE=0
     fi
-    if [ -f $AltCorrFile ] && ![ -z "$AltCorrFile"  ]; then
+    if [ -f $AltCorrFile ]; then
         altAccFileGiven=1
         echo "An additional file $AltCorrFile was given, which will be used to load the acceptance histogram."
     fi
@@ -218,7 +227,7 @@ elif [[ "$1" == -d* ]] ; then
     MCRootFile=$3
     Suffix=$4;
     AltCorrFile=$5
-    if [ -f $AltCorrFile ] && ![ -z "$AltCorrFile" ]; then
+    if [ -f $AltCorrFile ]; then
         altAccFileGiven=1
         echo "An additional file $AltCorrFile was given, which will be used to load the acceptance histogram."
     fi
@@ -391,7 +400,7 @@ do
          AdvMesonQA="AdvancedMesonQA"
          correct=1
     elif [ $answer = "65" ]; then
- .       echo "You are analysing PHOS-PHOS output";
+         echo "You are analysing PHOS-PHOS output";
          mode=65
          AdvMesonQA="AdvancedMesonQA"
          correct=1
@@ -459,6 +468,8 @@ do
         energy="7TeV";
     elif [ $answer = "7TeVSys" ] || [ $answer = "7Sys" ]; then
         energy="7TeVSys";
+    elif [ $answer = "5TeV" ] || [ $answer = "5" ]; then
+        energy="5TeV";
     elif [ $answer = "8TeV" ] || [ $answer = "8" ]; then
         energy="8TeV";
     elif [ $answer = "13TeV" ] || [ $answer = "13" ]; then
@@ -521,6 +532,21 @@ do
         if [ $ONLYCORRECTION -eq 0 ]; then
             GiveBinning7TeVOmega
             GiveBinning7TeVEta
+        else
+            correctOmega=1
+        fi
+        if [ $correctOmega -eq 0 ]; then
+            correct=0
+        else
+            correct=1
+        fi
+
+        if [ $mode = 2 ] || [ $mode = 3 ] || [ $mode = 4 ] || [ $mode = 5 ]; then
+            AdvMesonQA="AdvancedMesonQA"
+        fi
+    elif [ $energy = "5TeV" ] ; then
+        if [ $ONLYCORRECTION -eq 0 ]; then
+            GiveBinning5TeV
         else
             correctOmega=1
         fi

@@ -1694,6 +1694,31 @@
                 corrFracPHOS_PCMEMC_PHOS[0]            = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PHOS_PCMEMC-PHOS");
                 corrFracPHOS_EMC_PHOS[0]               = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PHOS_EMC-PHOS");
                 corrFracPHOS_PCMPHOS_PHOS[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PHOS_PCMPHOS-PHOS");
+            } else if (energy.CompareTo("7TeV") == 0 && mesonType.CompareTo("OmegaToPi0") == 0){
+                corrFracPCM_PCM_PCMEMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCM_PCM-PCMEMC");
+                corrFracPCM_PCM_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCM_PCM-PCMPHOS");
+                corrFracPCM_PCM_PHOS[0]                = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCM_PCM-PHOS");
+                corrFracPCM_PCM_EMC[0]                 = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCM_PCM-EMC");
+
+                corrFracPCMEMC_PCM_PCMEMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCMEMC_PCM-PCMEMC");
+                corrFracPCMEMC_PCMEMC_EMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCMEMC_PCMEMC-EMC");
+                corrFracPCMEMC_PCMEMC_PCMPHOS[0]       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCMEMC_PCMEMC-PCMPHOS");
+                corrFracPCMEMC_PCMEMC_PHOS[0]          = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCMEMC_PCMEMC-PHOS");
+
+                corrFracEMC_PCM_EMC[0]                 = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "EMC_PCM-EMC");
+                corrFracEMC_PCMEMC_EMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "EMC_PCMEMC-EMC");
+                corrFracEMC_EMC_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "EMC_EMC-PCMPHOS");
+                corrFracEMC_EMC_PHOS[0]                = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "EMC_EMC-PHOS");
+
+                corrFracPCMPHOS_PCM_PCMPHOS[0]         = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCMPHOS_PCM-PCMPHOS");
+                corrFracPCMPHOS_PCMEMC_PCMPHOS[0]      = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCMPHOS_PCMEMC-PCMPHOS");
+                corrFracPCMPHOS_EMC_PCMPHOS[0]         = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCMPHOS_EMC-PCMPHOS");
+                corrFracPCMPHOS_PCMPHOS_PHOS[0]        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCMPHOS_PCMPHOS-PHOS");
+
+                corrFracPHOS_PCM_PHOS[0]               = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PHOS_PCM-PHOS");
+                corrFracPHOS_PCMEMC_PHOS[0]            = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PHOS_PCMEMC-PHOS");
+                corrFracPHOS_EMC_PHOS[0]               = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PHOS_EMC-PHOS");
+                corrFracPHOS_PCMPHOS_PHOS[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PHOS_PCMPHOS-PHOS");
 
             } else if (energy.BeginsWith("8TeV") && mesonType.CompareTo("Pi0") == 0){
                 corrFracPCM_PCM_PCMEMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Pi0", "PCM_PCM-PCMEMC");

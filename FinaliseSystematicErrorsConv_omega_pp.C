@@ -145,7 +145,7 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
                                                    1, 1, 1, 1, 1,               // charged pion
                                                    1,                           // neutral pion
                                                    1, 1, 1,                     // omega
-                                                   0};                          // yield extraction
+                                                   1};                          // yield extraction
     Bool_t bsmoothMBOmegaToPi07TeV[17]             = { 0, 0, 0, 0,  0, 0, 0, 0, 0,0,
                                                 0, 0, 0,  0 ,0 , 0, 0}; // currently not used
 
@@ -266,6 +266,13 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
         } else if (nameCutVariationSC[i].CompareTo("YieldExtraction")==0){
             TString nameGraphPos            = Form("%s_SystErrorRelPos_%s_pp",meson.Data(),nameCutVariationSC[i].Data()  );
             TString nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_pp",meson.Data(),nameCutVariationSC[i].Data()  );
+            cout << "name graph pos =" << nameGraphPos.Data() << endl;
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
+            cout << "graphpos= " << graphPosErrors;
+        } else if (nameCutVariationSC[i].CompareTo("Omega_RecoEfficiency")==0){
+            TString nameGraphPos            = Form("%s_SystErrorRelPos_%s_pp",meson.Data(),"Efficiency"  );
+            TString nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_pp",meson.Data(),"Efficiency" );
             cout << "name graph pos =" << nameGraphPos.Data() << endl;
             graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
             graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
@@ -506,7 +513,7 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 10.0;
+                        errorReset = 4.; // evaluated at 5 TeV
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -550,7 +557,8 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 9.;
+                        errorReset = 6.;
+                        // after evaluation on 5 TeV changed to 7%
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -565,10 +573,12 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 5.2;
-                        if(ptBins[k]<5.0){
-                            errorReset = 15.9952+-4.41681*ptBins[k]+0.450559*pow(ptBins[k],2);
-                        }
+                        // comparison of backfit and evt mixing on 5 TeV shows
+                        errorReset = 2.00173+85.5985/pow(3.45065,ptBins[k]);
+                        //errorReset = 5.2;
+                        // if(ptBins[k]<5.0){
+                        //     errorReset = 15.9952+-4.41681*ptBins[k]+0.450559*pow(ptBins[k],2);
+                        // }
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -591,12 +601,26 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
                         errorsMeanErrCorr[i][k]     = errorReset*0.01;
                     }
                 }
+            } else if (nameCutVariationSC[i].CompareTo("Omega_RecoEfficiency")==0 ){
+                minPt       = startPtSys;
+                for (Int_t k = 0; k < nPtBins; k++){
+                    if (!energy.CompareTo("7TeV")){
+                        errorReset = 7.;
+                    }
+                    if (ptBins[k] > minPt){
+                        errorsMean[i][k]            = errorReset;
+                        errorsMeanErr[i][k]         = errorReset*0.01;
+                        errorsMeanCorr[i][k]        = errorReset;
+                        errorsMeanErrCorr[i][k]     = errorReset*0.01;
+                    }
+                }
             // Yield Extraction
             } else if (nameCutVariationSC[i].CompareTo("YieldExtraction")==0 ){
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 17.+0.2*pow(ptBins[k]-5.5,2);
+                        //errorReset = 17.+0.2*pow(ptBins[k]-5.5,2);
+                        errorReset = 1.67329*ptBins[k];
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -941,6 +965,7 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
     Double_t errorsMeanCorrPhotonReco[nPtBins];
     Double_t errorsMeanCorrPileup[nPtBins];
     Double_t errorsMeanCorrOmegaReco[nPtBins];
+    Double_t errorsMeanRecEfficiency[nPtBins];
 
     for (Int_t l=0; l< nPtBins; l++){
         //"0 YieldExtraction_pp"
@@ -961,7 +986,6 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
 
         errorsMeanCorrSignalExtraction[l]   =   TMath::Sqrt(pow(errorsMeanCorr[12][l],2)+    // charged pion mass cut
                                                             pow(errorsMeanCorr[14][l],2)+    // background
-                                                            pow(errorsMeanCorr[15][l],2)+    // reco efficiency
                                                             pow(errorsMeanCorr[16][l],2)+    // branching ratio
                                                             pow(errorsMeanCorr[17][l],2));   // YieldExtraction
 
@@ -984,6 +1008,8 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
         // pi0 reco: pT, alpha, mass window
         errorsMeanCorrPi0Reco[l]           =   errorsMeanCorr[13][l];
 
+        errorsMeanRecEfficiency[l]    =  errorsMeanCorr[15][l];
+
 
         // pileup
         if(!energy.CompareTo("8TeV")||!energy.CompareTo("7TeV")){
@@ -994,6 +1020,7 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
     TGraphErrors* meanErrorsPhotonReco          = new TGraphErrors(nPtBins,ptBins ,errorsMeanCorrPhotonReco ,ptBinsErr ,errorsMeanErrCorrSummed );
     TGraphErrors* meanErrorsSignalExtraction    = new TGraphErrors(nPtBins,ptBins ,errorsMeanCorrSignalExtraction ,ptBinsErr ,errorsMeanErrCorrSummed );
     TGraphErrors* meanErrorsPi0Reco           = new TGraphErrors(nPtBins,ptBins ,errorsMeanCorrPi0Reco ,ptBinsErr ,errorsMeanErrCorrSummed );
+    TGraphErrors* meanErrorsRecoEffi           = new TGraphErrors(nPtBins,ptBins ,errorsMeanRecEfficiency ,ptBinsErr ,errorsMeanErrCorrSummed );
     TGraphErrors* meanErrorsPileup              = NULL;
     if(!energy.CompareTo("8TeV")||!energy.CompareTo("7TeV"))
         meanErrorsPileup              = new TGraphErrors(nPtBins,ptBins ,errorsMeanCorrPileup ,ptBinsErr ,errorsMeanErrCorrSummed );
@@ -1061,6 +1088,11 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
         meanErrorsCorrSummedIncMat->Draw("p,csame");
         legendSummedMeanNew->AddEntry(meanErrorsCorrSummedIncMat,"quad. sum.","p");
         legendSummedMeanNew->Draw();
+
+        DrawGammaSetMarkerTGraphErr(meanErrorsRecoEffi, 27, 1.,kRed,kRed);
+        meanErrorsRecoEffi->Draw("p,csame");
+        legendSummedMeanNew->AddEntry(meanErrorsRecoEffi,"rec. efficiency","p");
+
 
         labelMeson->Draw();
         labelCentrality->Draw();

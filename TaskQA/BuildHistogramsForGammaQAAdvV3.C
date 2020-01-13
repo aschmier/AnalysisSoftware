@@ -33,6 +33,7 @@
 #include "TMarker.h"
 #include "TVectorT.h"
 #include "TArc.h"
+#include "../CommonHeaders/ConversionFunctions.h"
 
 typedef TVectorT<double> TVectorD;
 typedef TVectorT<float> TVectorF;

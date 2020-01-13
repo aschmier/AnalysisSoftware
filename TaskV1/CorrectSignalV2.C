@@ -66,7 +66,7 @@ void CorrectYieldDalitz(TH1D* histoCorrectedYield,TH1D* histoRawGGYield, TH1D* h
         histoCorrectedYield->SetBinContent(i,newBinContent);
         histoCorrectedYield->SetBinError(i,newBinError);
     }
-    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0 ){
+    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0  ||nameMeson.CompareTo("Pi0OmegaBinning") == 0  ){
         histoCorrectedYield->Scale(1./0.01198);
     }else{
         histoCorrectedYield->Scale(1./0.000068);
@@ -112,7 +112,7 @@ void CorrectYield(TH1D* histoCorrectedYield, TH1D** histoRawSecYield, TH1D** his
         histoCorrectedYield->SetBinError(i,newBinError);
     }
     // scale with 1/ BR
-    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0 ){
+    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0 ||nameMeson.CompareTo("Pi0OmegaBinning") == 0 ){
         histoCorrectedYield->Scale(1./0.98798);
     }else{
         histoCorrectedYield->Scale(1./0.3931);
@@ -167,7 +167,7 @@ void CorrectYieldInclResonanceFeedDown(TH1D* histoCorrectedYield, TH1D** histoRa
     }
 
     // scale with 1/ BR
-    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0 ){
+    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0 ||nameMeson.CompareTo("Pi0OmegaBinning") == 0 ){
         histoCorrectedYield->Scale(1./0.98798);
     } else {
         histoCorrectedYield->Scale(1./0.3931);
@@ -201,7 +201,7 @@ void CorrectYieldWOSec(TH1D* histoCorrectedYield, TH1D* histoEffiPt, TH1D* histo
         histoCorrectedYield->SetBinError(i,newBinError);
     }
     // scale with 1/ BR
-    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0 ){
+    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0  ||nameMeson.CompareTo("Pi0OmegaBinning") == 0 ){
         histoCorrectedYield->Scale(1./0.98798);
     }else{
         histoCorrectedYield->Scale(1./0.3931);
@@ -220,7 +220,7 @@ void ScaleMCYield(TH1D* histoCorrectedToBeScaled, Double_t deltaRapid, Double_t 
         histoCorrectedToBeScaled->SetBinContent(i,newBinContent);
         histoCorrectedToBeScaled->SetBinError(i,newBinError);
     }
-    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0 ){
+    if (nameMeson.CompareTo("Pi0") == 0 ||nameMeson.CompareTo("Pi0EtaBinning") == 0  ||nameMeson.CompareTo("Pi0OmegaBinning") == 0 ){
         if (!optionDalitz){
             histoCorrectedToBeScaled->Scale(1./0.98798);
         } else {
@@ -3150,7 +3150,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
                                 kFALSE, 0., histoUnCorrectedYield[0]->GetXaxis()->GetBinUpEdge(histoUnCorrectedYield[0]->GetNbinsX()));
 
         TF1* fitTsallisMC;
-        if (nameMeson.CompareTo("Pi0")==0 || nameMeson.CompareTo("Pi0EtaBinning")==0 ){
+        if (nameMeson.CompareTo("Pi0")==0 || nameMeson.CompareTo("Pi0EtaBinning")==0  || nameMeson.CompareTo("Pi0OmegaBinning") == 0 ){
             fitTsallisMC= FitObject("l","fitTsallisMC","Pi0",histoMCYieldMesonOldBin,0.3,histoUnCorrectedYield[0]->GetXaxis()->GetBinUpEdge(histoUnCorrectedYield[0]->GetNbinsX()),NULL,"QNRME+");
         } else {
             fitTsallisMC= FitObject("l","fitTsallisMC","Eta",histoMCYieldMesonOldBin,0.3,histoUnCorrectedYield[0]->GetXaxis()->GetBinUpEdge(histoUnCorrectedYield[0]->GetNbinsX()),NULL,"QNRME+");

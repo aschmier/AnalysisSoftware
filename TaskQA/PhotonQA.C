@@ -2301,6 +2301,7 @@ void PhotonQA(
 
         for(Int_t iL=0; iL<2; iL++){
             TH3D* dEdxEtaP = (TH3D*)TopDir->Get(Form("histo%sdEdxEtaP",lepton[iL].Data()));
+            TH3D* NSigmadEdxEtaP = (TH3D*)TopDir->Get(Form("histo%sNSigmadEdxEtaP",lepton[iL].Data()));
             TString labelNLeptons = Form("#frac{1}{N_{e^{%s}}}",charge[iL].Data());
             Double_t nLeptons = 1.;
             if(dEdxEtaP){
@@ -2319,8 +2320,10 @@ void PhotonQA(
                                     xPosLabel2D,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, histodEdxP, Form("%s/dEdxTPC_%s_%s.%s", outputDir.Data(), lepton[iL].Data(), DataSets[i].Data(), suffix.Data()));
                 delete histodEdxP;
+             }else cout << Form("INFO: Object |histo%sdEdxEtaP| could not be found! Skipping Draw...",lepton[iL].Data()) << endl;
+             if(NSigmadEdxEtaP){     
                 //-----------------------------------
-                TH1D* NSigmadEdx = (TH1D*)dEdxEtaP->Project3D("x");
+                TH1D* NSigmadEdx = (TH1D*)NSigmadEdxEtaP->Project3D("x");
                 NSigmadEdx->Sumw2();
                 NSigmadEdx->Scale(1./nLeptons);
                 GetMinMaxBin(NSigmadEdx,minB,maxB);
@@ -2330,7 +2333,8 @@ void PhotonQA(
                                     xPosLabel1D,0.94,0.03,fCollisionSystem,plotDataSets[i],"");
                 SaveCanvasAndWriteHistogram(canvas, NSigmadEdx, Form("%s/nSigmadEdxTPC_%s_%s.%s", outputDir.Data(), lepton[iL].Data(), DataSets[i].Data(), suffix.Data()));
                 vecNSigmadEdx[iL].push_back(NSigmadEdx);
-            }else cout << Form("INFO: Object |histo%sdEdxEtaP| could not be found! Skipping Draw...",lepton[iL].Data()) << endl;
+             }else cout << Form("INFO: Object |histo%sNSigmadEdxEtaP| could not be found! Skipping Draw...",lepton[iL].Data()) << endl;
+        
         //-----------------------------------
             if(nLeptons <= 1.){
             cout << "********************************************************" << endl;
@@ -2338,7 +2342,6 @@ void PhotonQA(
             cout << "********************************************************" << endl;
             }
         //-----------------------------------
-            TH3D* NSigmadEdxEtaP = (TH3D*)TopDir->Get(Form("histo%sNSigmadEdxEtaP",lepton[iL].Data()));
             if(NSigmadEdxEtaP){
                 TH2D* histoSigmadEdxP = (TH2D*)NSigmadEdxEtaP->Project3D("xz");
                 histoSigmadEdxP->Sumw2();

@@ -945,6 +945,36 @@ void ProduceTheoryGraphsPP(){
     graphNLOCalcDSS14InvSecPi07000GeV->RemovePoint(0); //remove first zero bin
     TGraphAsymmErrors* graphNLOCalcDSS14InvYieldPi07000GeV = ScaleGraphAsym(graphNLOCalcDSS14InvSecPi07000GeV, 1/(xSection7000GeV*recalcBarn));
 
+    //**********************************************************************************************************************
+    //******************************** 7 TeV vector meson calc***************************************************************
+    //**********************************************************************************************************************
+    /*
+        Data for 1/(2pi p_T) d^2sigma/(dy dp_T) mb/(GeV/c)^2 as a function of pT
+        for vector meson production (3=(K*+K*bar)/2; 5=omega; 6=phi) at
+        different sqrt(s) for central collisions |y| <=0.5, averaged over y range.
+
+        Model = Broken SU(3) model; Int.J.Mod.Phys. A32 (2017) no.33, 1750199.
+    */
+    Double_t       ptNLOOmega7000GeV[100];
+    Double_t       xSectionNLOOmega7000GeV[100];
+    Int_t       nlinesNLOOmega7000GeV =       0;
+    TString fileNameNLOOmega7000GeV = "ExternalInput/Theory/vectormeson_frag_omega_Indumathi_2019.out";
+    ifstream  fileNLOOmega7000GeV;
+    fileNLOOmega7000GeV.open(fileNameNLOOmega7000GeV,ios_base::in);
+    cout << fileNameNLOOmega7000GeV << endl;
+
+    while(!fileNLOOmega7000GeV.eof()){
+        TString     garbage;
+        nlinesNLOOmega7000GeV++;
+        fileNLOOmega7000GeV >> garbage >> ptNLOOmega7000GeV[nlinesNLOOmega7000GeV] >> garbage >> garbage >> xSectionNLOOmega7000GeV[nlinesNLOOmega7000GeV] >> garbage;
+        cout << nlinesNLOOmega7000GeV << "         "  <<  ptNLOOmega7000GeV[nlinesNLOOmega7000GeV] << "         "  << xSectionNLOOmega7000GeV[nlinesNLOOmega7000GeV] << endl;
+    }
+    fileNLOOmega7000GeV.close();
+    TGraph* graphNLOCalcInvSecOmega7000GeVMilli = new TGraph(nlinesNLOOmega7000GeV,ptNLOOmega7000GeV,xSectionNLOOmega7000GeV);
+    graphNLOCalcInvSecOmega7000GeVMilli->RemovePoint(0);
+    TGraph* graphNLOCalcInvSecOmega7000GeV = ScaleGraph(graphNLOCalcInvSecOmega7000GeVMilli,1e9); // convert to picobarn
+
+
     //**************************************************************************************************
     //********************** Pythia 6 Perugia2011 MC spectra and ratio *********************************
     //**************************************************************************************************
@@ -1322,20 +1352,30 @@ void ProduceTheoryGraphsPP(){
 //     histoEtaToPi0RatioPythia8Monash7TeV->Sumw2();
 //     histoEtaToPi0RatioPythia8Monash7TeV->Divide(histoEtaToPi0RatioPythia8Monash7TeV,histoPi0Pythia8MonashInvSec7TeV);
 
-    TFile* filePythia8Monash2013_7TeVLego        = TFile::Open("ExternalInput/Theory/Pythia/Pythia8_Monash2013_7TeV_1650Mio.root");
-    TH1F* histoPi0Pythia8MonashInvSec7TeVLego    = (TH1F*)filePythia8Monash2013_7TeVLego->Get("hPt_Pi0_MB_XSec");
+    // Monash 2013
+    //TFile* filePythia8Monash2013_7TeVLego        = TFile::Open("ExternalInput/Theory/Pythia/Pythia8_Monash2013_7TeV_1650Mio.root");
+    TFile* filePythia8Monash2013_7TeVLego        = TFile::Open("ExternalInput/Theory/Pythia/Pythia8_Monash2013_7000GeV_2000Mio_omegapaper.root");
+    TH1F* histoPi0Pythia8MonashInvSec7TeVLego    = (TH1F*)filePythia8Monash2013_7TeVLego->Get("hPt_PrimaryPi0_MB_XSec");
     TH1F* histoEtaPythia8MonashInvSec7TeVLego    = (TH1F*)filePythia8Monash2013_7TeVLego->Get("hPt_Eta_MB_XSec");
     TH1F* histoEtaToPi0RatioPythia8Monash7TeVLego= (TH1F*)histoEtaPythia8MonashInvSec7TeVLego->Clone("histoEtaToPi0RatioPythia8Monash7TeVLego");
     histoEtaToPi0RatioPythia8Monash7TeVLego->Sumw2();
     histoEtaToPi0RatioPythia8Monash7TeVLego->Divide(histoEtaToPi0RatioPythia8Monash7TeVLego,histoPi0Pythia8MonashInvSec7TeVLego);
+
+    // tune4c
+    TFile* filePythia8tune4C_7TeVLego        = TFile::Open("ExternalInput/Theory/Pythia/Pythia8_tune4C_7000GeV_2000Mio_omegapaper.root");
+    TH1F* histoPi0Pythia8tune4CInvSec7TeVLego    = (TH1F*)filePythia8tune4C_7TeVLego->Get("hPt_PrimaryPi0_MB_XSec");
+    TH1F* histoEtaPythia8tune4CInvSec7TeVLego    = (TH1F*)filePythia8tune4C_7TeVLego->Get("hPt_Eta_MB_XSec");
+    TH1F* histoEtaToPi0RatioPythia8tune4C7TeVLego= (TH1F*)histoEtaPythia8tune4CInvSec7TeVLego->Clone("histoEtaToPi0RatioPythia8tune4C7TeVLego");
+    histoEtaToPi0RatioPythia8tune4C7TeVLego->Sumw2();
+    histoEtaToPi0RatioPythia8tune4C7TeVLego->Divide(histoEtaToPi0RatioPythia8tune4C7TeVLego,histoPi0Pythia8tune4CInvSec7TeVLego);
     //charged pions
     TH1F* histoChPionPythia8MonashInvSec7TeVLego = (TH1F*)filePythia8Monash2013_7TeVLego->Get("hPt_PiPl_MB_XSec");
     histoChPionPythia8MonashInvSec7TeVLego->Add((TH1F*)filePythia8Monash2013_7TeVLego->Get("hPt_PiMi_MB_XSec"),1);
     histoChPionPythia8MonashInvSec7TeVLego->Scale(0.5);
 
     //omega
-    TFile *filePythia8Monash2013_7TeV = new TFile("ExternalInput/Theory/Pythia/pythia8_7TeV_compilation_poppenborg.root");
-    TH1F* histoOmegaPythia8MonashInvSec7TeV = (TH1F*)filePythia8Monash2013_7TeV->Get("h_omega_yDefault");
+    TH1F* histoOmegaPythia8MonashInvSec7TeV = (TH1F*)filePythia8Monash2013_7TeVLego->Get("hPt_Omega_MB_XSec");
+    TH1F* histoOmegaPythia8tune4CInvSec7TeV = (TH1F*)filePythia8tune4C_7TeVLego->Get("hPt_Omega_MB_XSec");
 
     //**********************************************************************************************************************
     //***************************** Pythia calculations 8TeV ************************************************************
@@ -1794,8 +1834,16 @@ void ProduceTheoryGraphsPP(){
         histoEtaToPi0RatioPythia8Monash7TeVLego->Write("histoEtaToPi0RatioPythia8Monash2013Lego7TeV", TObject::kOverwrite);
         histoChPionPythia8MonashInvSec7TeVLego->Write("histoInvSecPythia8Monash2013LegoChPion7TeV", TObject::kOverwrite);
 
+        histoPi0Pythia8tune4CInvSec7TeVLego->Write("histoInvSecPythia8tune4CLegoPi07TeV", TObject::kOverwrite);
+        histoEtaPythia8tune4CInvSec7TeVLego->Write("histoInvSecPythia8tune4CLegoEta7TeV", TObject::kOverwrite);
+        histoEtaToPi0RatioPythia8tune4C7TeVLego->Write("histoEtaToPi0RatioPythia8tune4CLego7TeV", TObject::kOverwrite);
+
         // omega
         histoOmegaPythia8MonashInvSec7TeV->Write("histoInvSecPythia8Monash2013Omega7TeV", TObject::kOverwrite);
+        histoOmegaPythia8tune4CInvSec7TeV->Write("histoInvSecPythia8tune4COmega7TeV", TObject::kOverwrite);
+
+        // Model = Broken SU(3) model; Int.J.Mod.Phys. A32 (2017) no.33, 1750199.
+        graphNLOCalcInvSecOmega7000GeV->Write("graphNLOCalcOmega7000GeV",TObject::kOverwrite);
 
         // pi0, eta, eta/pi0 Pythia 6.4 Perugia2011
         histoPi07TeVPythia6->Write("histoPi0Pythia6_Perugia2011_7000TeV", TObject::kOverwrite);
