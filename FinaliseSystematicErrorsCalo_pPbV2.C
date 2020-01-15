@@ -115,24 +115,52 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
     Bool_t bsmooth[12]                      = { 0, 0, 0, 0, 0,
                                                 0, 0, 0, 0, 0,
                                                 0, 0 };
-    Bool_t bsmoothMBPi0[12]                 = { 0, 0, 0, 1, 1,
-                                                0, 0, 1, 0, 1,
-                                                1, 1 };
-    Bool_t bsmoothMBEta[12]                 = { 0, 1, 1, 1, 1,
+    Bool_t bsmoothMBPi05TeV[12]             = { 0, 1, 1, 1, 1,
                                                 1, 1, 1, 1, 1,
                                                 1, 1 };
-    Bool_t bsmoothMBEtaToPi0[12]            = { 0, 1, 1, 1, 1,
+    Bool_t bsmoothMBEta5TeV[12]             = { 0, 1, 1, 1, 1,
+                                                1, 1, 1, 1, 1,
+                                                1, 1 };
+    Bool_t bsmoothMBEtaToPi05TeV[12]        = { 0, 1, 1, 1, 1,
+                                                1, 1, 1, 1, 1,
+                                                1, 0 };
+//     Bool_t bsmoothMBPi0[12]                 = { 0, 0, 0, 1, 1,
+//                                                 0, 0, 1, 0, 1,
+//                                                 1, 1 };
+//     Bool_t bsmoothMBEta[12]                 = { 0, 1, 1, 1, 1,
+//                                                 1, 1, 1, 1, 1,
+//                                                 1, 1 };
+//     Bool_t bsmoothMBEtaToPi0[12]            = { 0, 1, 1, 1, 1,
+//                                                 1, 1, 1, 1, 1,
+//                                                 1, 0 };
+    Bool_t bsmoothCentPi05TeV[12]           = { 0, 1, 1, 1, 1,
+                                                1, 1, 1, 1, 1,
+                                                1, 1 };
+    Bool_t bsmoothCentEta5TeV[12]           = { 0, 1, 1, 1, 1,
+                                                1, 1, 1, 1, 1,
+                                                1, 1 };
+    Bool_t bsmoothCentEtaToPi05TeV[12]      = { 0, 1, 1, 1, 1,
                                                 1, 1, 1, 1, 1,
                                                 1, 0 };
 
     for (Int_t i = 0; i < numberCutStudies; i++){
-        if (additionalNameOutput.CompareTo("") == 0 && meson.CompareTo("Pi0")==0){
-            bsmooth[i]                      = bsmoothMBPi0[i];
-        } else if (additionalNameOutput.CompareTo("") == 0 && meson.CompareTo("Eta")==0){
-            bsmooth[i]                      = bsmoothMBEta[i];
-        } else if (additionalNameOutput.CompareTo("") == 0 && meson.CompareTo("EtaToPi0")==0){
-            bsmooth[i]                      = bsmoothMBEtaToPi0[i];
+        if (energy.CompareTo("pPb_5.023TeV") == 0 || energy.CompareTo("pPb_5.023TeVCent") == 0 ){
+            if ( (additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0)&& meson.CompareTo("Pi0")==0){
+                bsmooth[i]                      = bsmoothMBPi05TeV[i];
+            } else if ((additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0) && meson.CompareTo("Eta")==0){
+                bsmooth[i]                      = bsmoothMBEta5TeV[i];
+            } else if ((additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0) && meson.CompareTo("EtaToPi0")==0){
+                bsmooth[i]                      = bsmoothMBEtaToPi05TeV[i];
+            // for multiplicity bins
+            } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("Pi0")==0){
+                bsmooth[i]                      = bsmoothCentPi05TeV[i];
+            } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("Eta")==0){
+                bsmooth[i]                      = bsmoothCentEta5TeV[i];
+            } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("EtaToPi0")==0){
+                bsmooth[i]                      = bsmoothCentEtaToPi05TeV[i];
+            }
         }
+
     }
 
 
@@ -204,11 +232,13 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
     TFile* fileErrorInput= new TFile(nameDataFileErrors);
 
     for (Int_t i = 0;i < nCuts;i++){
+        Double_t minPt      = -10;
+        Double_t errorReset = -10000;
 
         // read data
         TGraphAsymmErrors* graphPosErrors;
         TGraphAsymmErrors* graphNegErrors;
-        if (i == 0 || i == 3 || i == 4 || i == 9 || i==10 || (i!=11 && useMBSyst)){// || i == 8 || i == 9 || i == 10special treatment for Yield extraction error and calculated erros
+        if (i == 0 || i == 1|| i == 7 || i == 8 || i == 9 || i==10 || (i!=11 && useMBSyst) ){// i == 3 || i == 4 || i == 9 || i == 10special treatment for Yield extraction error and calculated erros
             TString nameGraphPos    = "";
             TString nameGraphNeg    = "";
             if ( meson.CompareTo("EtaToPi0") != 0 ){
@@ -270,13 +300,10 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
                 cout << "Yield extraction smoothing" << endl;
                 if (meson.CompareTo("Eta") == 0 || (meson.CompareTo("EtaToPi0") == 0 && i == 0) ){
                     for (Int_t k = 0;k < nPtBins;k++){
-                        Double_t error;
                         if(ptBins[k]<4.5 && errorsMean[i][k] > 12.5){
-                            error                       = 12.5;
-                            errorsMean[i][k]            = error;
-                            errorsMeanErr[i][k]         = error*0.01;
-                            errorsMeanCorr[i][k]        = error;
-                            errorsMeanErrCorr[i][k]     = error*0.01;
+                            errorReset                       = 12.5;
+                            errorsMean[i][k]            = errorReset;
+                            errorsMeanCorr[i][k]        = errorReset;
                         }
                     }
                 }
@@ -286,160 +313,148 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
             if  (nameCutVariationSC[i].CompareTo("OpeningAngle") == 0){
                 cout << "Opening Angle smoothing" << endl;
                 for (Int_t k = 0;k < nPtBins;k++){
-                  Double_t error;
                   if(ptBins[k]<4){
-                    error = 0.45;
+                    errorReset              = 0.45;
                   }else{
-                    error              = 0.753156-0.237041*ptBins[k]+0.0327857*ptBins[k]*ptBins[k];
+                    errorReset              = 0.753156-0.237041*ptBins[k]+0.0327857*ptBins[k]*ptBins[k];
                   }
-                  errorsMean[i][k]            = error;
-                  errorsMeanErr[i][k]         = error*0.01;
-                  errorsMeanCorr[i][k]        = error;
-                  errorsMeanErrCorr[i][k]     = error*0.01;
+                  errorsMean[i][k]            = errorReset;
+                  errorsMeanCorr[i][k]        = errorReset;
                 }
             }
 
             // manual smoothing for minimum cluster energy errors - variation 2
             if (nameCutVariationSC[i].CompareTo("ClusterMinEnergy")==0  ){
                 cout << "Cluster minimum energy smoothing" << endl;
-                Double_t error = 0.5;
-                if (meson.CompareTo("Eta") == 0 )       error = error*3.;
-                if (meson.CompareTo("EtaToPi0") == 0 )  error = 2.;
+//                 Double_t error = 0.5;
+//                 if (meson.CompareTo("Eta") == 0 )       error = error*3.;
+//                 if (meson.CompareTo("EtaToPi0") == 0 )  error = 2.;
                 for (Int_t k = 0;k < nPtBins;k++){
-                        errorsMean[i][k]        = error;
-                        errorsMeanErr[i][k]     = 0.01*error;
-                        errorsMeanCorr[i][k]    = error;
-                        errorsMeanErrCorr[i][k] = 0.01*error;
+                    errorReset              = 140.5*pow(0.1,ptBins[k])+0.5;
+                    errorsMean[i][k]        = errorReset;
+                    errorsMeanCorr[i][k]    = errorReset;
                 }
             }
             // manual smoothing for minimum number of cells in cluster errors - variation 3
             if (nameCutVariationSC[i].CompareTo("ClusterNCells")==0 ){
                 cout << "Cluster NCells smoothing" << endl;
-                for (Int_t k = 0;k < nPtBins;k++){
-                    Double_t error              = 1.5;
-                    if (meson.CompareTo("EtaToPi0") == 0 ) error = TMath::Sqrt(2.)*1.5;
-                    errorsMean[i][k]            = error;
-                    errorsMeanErr[i][k]         = error*0.01;
-                    errorsMeanCorr[i][k]        = error;
-                    errorsMeanErrCorr[i][k]     = error*0.01;
-                }
+                minPt               = 1.2; 
+                errorReset          = 1.5;
+                if (meson.CompareTo("EtaToPi0") == 0)
+                    errorReset          = TMath::Sqrt(2.)*1.5;;    // cancels fully for eta/pi0
             }
+            
             // manual smoothing for energy calibration errors - variation 4
             if (nameCutVariationSC[i].CompareTo("ClusterNonLinearity")==0 ){//&& meson.Contains("Pi0")
                 cout << "Cluster non linearity smoothing" << endl;
                 for (Int_t k = 0;k < nPtBins;k++){
-                    Double_t error              = 0.0104652+0.086*ptBins[k]+0.0032*ptBins[k]*ptBins[k];
+                    errorReset              = 0.0104652+0.086*ptBins[k]+0.0032*ptBins[k]*ptBins[k];
                     if (meson.CompareTo("Eta") == 0 )
-                        error                   = 2.5+0.086*ptBins[k]+0.01*ptBins[k]*ptBins[k];
+//                         errorReset                   = 2.5+0.086*ptBins[k]+0.01*ptBins[k]*ptBins[k];
+                        errorReset                   = 0.0104652+0.086*ptBins[k]+0.01*ptBins[k]*ptBins[k];
                     if (meson.CompareTo("EtaToPi0") == 0 )
-                        error                   = 2.5+0.086*ptBins[k]+0.01*ptBins[k]*ptBins[k];
-                    error = TMath::Sqrt(error*error+0.95*0.95);//adding 0.95% error for timing cut
-                    errorsMean[i][k]            = error;
-                    errorsMeanErr[i][k]         = error*0.01;
-                    errorsMeanCorr[i][k]        = error;
-                    errorsMeanErrCorr[i][k]     = error*0.01;
+                        errorReset                   = 0.0104652+0.086*ptBins[k]+0.01*ptBins[k]*ptBins[k];
+//                         errorReset                   = 2.5+0.086*ptBins[k]+0.01*ptBins[k]*ptBins[k];
+                    errorReset                  = TMath::Sqrt(errorReset*errorReset+0.95*0.95);//adding 0.95% error for timing cut
+                    errorsMean[i][k]            = errorReset;
+                    errorsMeanCorr[i][k]        = errorReset;
                 }
             }
             // manual smoothing for cluster matching errors - variation 5
             if (nameCutVariationSC[i].CompareTo("ClusterTrackMatchingCalo")==0 ){
                 cout << "Cluster track matching smoothing" << endl;
                     for (Int_t k = 0;k < nPtBins;k++){
-                        Double_t error          = 2.5+(+0.09)*ptBins[k];
+                         errorReset          = 0.2+0.003*ptBins[k]*ptBins[k];
+//                         Double_t error          = 2.5+(+0.09)*ptBins[k];
                         if (meson.CompareTo("Eta") == 0)
-                            error               = error*1.5;
+                            errorReset          = 0.6+0.003*ptBins[k]*ptBins[k];
+//                             errorReset          = errorReset*1.5;
                         if( meson.CompareTo("EtaToPi0") == 0 )
-                            error               = error*1.5;
-                        errorsMean[i][k]        = error;
-                        errorsMeanErr[i][k]     = 0.01*error;
-                        errorsMeanCorr[i][k]    = error;
-                        errorsMeanErrCorr[i][k] = 0.01*error;
+//                             errorReset               = errorReset*1.5;
+                            errorReset          = 0.6+0.003*ptBins[k]*ptBins[k];
+                        errorsMean[i][k]        = errorReset;
+                        errorsMeanCorr[i][k]    = errorReset;
                     }
             }
            // manual smoothing for cluster shape errors - variation 6
             if (nameCutVariationSC[i].CompareTo("ClusterM02")==0 ){//&& meson.Contains("Pi0")
                 cout << "Cluster M02 smoothing" << endl;
                 for (Int_t k = 0;k < nPtBins;k++){
-                  Double_t error = 0.8+0.0191655*ptBins[k]+0.01*ptBins[k]*ptBins[k];
+//                   Double_t error = 0.8+0.0191655*ptBins[k]+0.01*ptBins[k]*ptBins[k];
+                  errorReset = 30.5*pow(0.1,ptBins[k])+0.6+0.012*ptBins[k]+0.007*ptBins[k]*ptBins[k];
+                  if (meson.CompareTo("Eta") == 0)
+                      errorReset = 300.5*pow(0.1,ptBins[k])+0.6+0.012*ptBins[k]+0.009*ptBins[k]*ptBins[k];
                   if( meson.CompareTo("EtaToPi0") == 0 )
-                      error = TMath::Sqrt(2.)*error;
-                  errorsMean[i][k]            = error;
-                  errorsMeanErr[i][k]         = error*0.01;
-                  errorsMeanCorr[i][k]        = error;
-                  errorsMeanErrCorr[i][k]     = error*0.01;
+                      errorReset = 400.5*pow(0.1,ptBins[k])+0.6+0.012*ptBins[k]+0.009*ptBins[k]*ptBins[k];
+//                       errorReset = TMath::Sqrt(2.)*errorReset;
+                  errorsMean[i][k]            = errorReset;
+                  errorsMeanCorr[i][k]        = errorReset;
                 }
             }
             // manual smoothing for Material infront of EMC - variation 7
             if (nameCutVariationSC[i].CompareTo("ClusterMaterialTRD")==0 ){
                 cout << "Material smoothing" << endl;
-                Double_t error                  = 4.24; //(3% for TRD mat, 3% for TOF mat added in quadrature)
+                minPt               = 1.2; 
+                errorReset          = 4.24;
                 if (meson.CompareTo("EtaToPi0") == 0)
-                    error                       = 0;    // cancels fully for eta/pi0
-                for (Int_t k = 0;k < nPtBins;k++){
-                    errorsMean[i][k]            = error;
-                    errorsMeanErr[i][k]         = error*0.01;
-                    errorsMeanCorr[i][k]        = error;
-                    errorsMeanErrCorr[i][k]     = error*0.01;
-                }
+                    errorReset          = 0;    // cancels fully for eta/pi0
             }
 
             // manual smoothing for energy scale errors (derived from mass difference MC & Data) - variation 8
             if (nameCutVariationSC[i].CompareTo("ClusterEnergyScale")==0 ){//&& meson.Contains("Pi0")
                 cout << "Cluster non linearity smoothing" << endl;
-                for (Int_t k = 0;k < nPtBins;k++){
-                    Double_t error              = 0.2*7.2;
-                    if (meson.CompareTo("Eta") == 0)
-                        error                   = 2* error;
-                    if (meson.CompareTo("EtaToPi0") == 0)
-                        error                   = 2* error;
-                    errorsMean[i][k]            = error;
-                    errorsMeanErr[i][k]         = error*0.01;
-                    errorsMeanCorr[i][k]        = error;
-                    errorsMeanErrCorr[i][k]     = error*0.01;
-                }
+                minPt               = 1.2; 
+                errorReset          = 0.2*7.2;
+                if (meson.CompareTo("Eta") == 0)
+                    errorReset          = 2* errorReset;
+                if (meson.CompareTo("EtaToPi0") == 0)
+                    errorReset          = 2* errorReset;
             }
 
 
             // manual smoothing for Trigger normalization uncertainties - variation 9
             if (nameCutVariationSC[i].CompareTo("Trigger") == 0){
                 cout << "Trigger smoothing" << endl;
-                for (Int_t k = 0;k < nPtBins;k++){
-                    Double_t error              = 0.;
-                    if (additionalNameOutput.CompareTo("")==0 )
-                        error                   = 0.;
-                    errorsMean[i][k]            = error;
-                    errorsMeanErr[i][k]         = error*0.01;
-                    errorsMeanCorr[i][k]        = error;
-                    errorsMeanErrCorr[i][k]     = error*0.01;
-                }
+                minPt               = 1.2; 
+                errorReset          = 0;
+                if (additionalNameOutput.CompareTo("")==0 )
+                    errorReset          = 0.;
 
             }
             // manual smoothing for Efficiency uncertainties - variation 10
             if (nameCutVariationSC[i].CompareTo("Efficiency") == 0){
                 cout << "Efficiency smoothing" << endl;
-                for (Int_t k = 0;k < nPtBins;k++){
-                    Double_t error              = 2.0;
-                    if (meson.CompareTo("Eta") == 0)        error   = 4.0;
-                    if (meson.CompareTo("EtaToPi0")== 0)    error   = TMath::Sqrt(2*2+4*4);
-                    if(!additionalName.CompareTo("0-100%")==0) error += 2;
-                    errorsMean[i][k]            = error;
-                    errorsMeanErr[i][k]          = error*0.01;
-                    errorsMeanCorr[i][k]        = error;
-                    errorsMeanErrCorr[i][k]     = error*0.01;
-                }
-
+                minPt               = 1.2; 
+                errorReset          = 2.0;
+                if (meson.CompareTo("Eta") == 0 )
+                    errorReset          = 4;
+                else if ( meson.CompareTo("EtaToPi0") == 0)
+                    errorReset          = TMath::Sqrt(2*2+4*4);
             }
 
             // manual smoothing for Rapidity
             if (nameCutVariationSC[i].CompareTo("Rapidity")==0 ){
                 cout << "Rapidity" << endl;
-                for (Int_t k = 0;k < nPtBins;k++){
-                    Double_t error              = 0.75;
-                    if (meson.CompareTo("Eta") == 0 || meson.CompareTo("EtaToPi0") == 0)
-                        error                   *= 2;
-                    errorsMean[i][k]            = error;
-                    errorsMeanErr[i][k]         = error*0.01;
-                    errorsMeanCorr[i][k]        = error;
-                    errorsMeanErrCorr[i][k]     = error*0.01;
+                minPt               = 1.2; 
+                errorReset          = 0.75;
+                if (meson.CompareTo("Eta") == 0 || meson.CompareTo("EtaToPi0") == 0)
+                    errorReset          = 2;
+            }
+
+            // reset to a constant if enabled
+            if (minPt != -10 && errorReset != -10000 ){
+                for (Int_t k = 0; k < nPtBins; k++){
+                    if (ptBins[k] > minPt){
+                        errorsMean[i][k]            = errorReset;
+                        errorsMeanErr[i][k]         = errorReset*0.01;
+                        errorsMeanCorr[i][k]        = errorReset;
+                        errorsMeanErrCorr[i][k]     = errorReset*0.01;
+                    }
+                }
+            } else {
+                for (Int_t k = 0; k < nPtBins; k++){
+                    errorsMeanErr[i][k]         = errorsMeanErr[i][k]*0.01;
+                    errorsMeanErrCorr[i][k]     = errorsMeanCorr[i][k]*0.01;
                 }
             }
 
@@ -589,7 +604,7 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
 
         TLatex *labelTrig   = NULL;
         if (additionalNameOutput.CompareTo("")==0){
-            labelTrig= new TLatex(0.94,0.84,Form("MB LHC13bc"));
+            labelTrig= new TLatex(0.94,0.84,Form("MB LHC13b-f+LHC16q+t"));
         }
         SetStyleTLatex( labelTrig, 0.038, 4, 1, 42, kTRUE, 31);
         labelTrig->Draw();

@@ -611,7 +611,28 @@
                     if (directPhotonRunningOption.CompareTo("directPhoton") == 0)
                         return 13;
                     if (centrality.CompareTo("0-100%") != 0){
-                        return 15;
+                        switch (trigger){
+                            case 0:
+                            case 1:
+                            case 10:
+                            case 11:
+                                return 15;      // INT triggers
+                                break;
+                            case 51:
+                            case 52:
+                            case 53:
+                            case 85:
+                                return 12;
+                                break;
+                            case 81:
+                            case 82:
+                            case 83:
+                                return 15;      // EGA triggers
+                                break;
+                            default:
+                                return 15;
+                                break;
+                        }
                     } else {
                         switch (trigger){
                             case 0:
@@ -1156,7 +1177,10 @@
                             return 8;      // EMC triggers
                             break;
                         case 85:
-                            return 16;
+                            if (centrality.CompareTo("0-100%") == 0)
+                                return 16;
+                            else 
+                                return 10;
                             break;
                         case 81:
                         case 82:
@@ -1690,9 +1714,9 @@
                                 break;
                             case 2: // EG2 trigger
                                 if ((centrality.CompareTo("0-100%") == 0 ) )
-                                    startPtBin     = 8;
+                                    startPtBin     = 3;
                                 else
-                                    startPtBin     = 2;
+                                    startPtBin     = 1;
                                 break;
                             case 3: // EG1 trigger
                                 if ((centrality.CompareTo("0-100%") == 0 ) )
@@ -2214,7 +2238,7 @@
                                 break;
                             case 2: // EG2 trigger
                                 if (centrality.CompareTo("0-100%") == 0)
-                                    startPtBin     = 8;
+                                    startPtBin     = 2;
                                 else
                                     startPtBin     = 3;
                                 break;
@@ -3093,9 +3117,9 @@
                                 break;
                             case 2:
                                 if ( centrality.CompareTo("0-100%") == 0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG2Pt,binning,40);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG2Pt,binning,35);
                                 else
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG2CentPt,binning,18);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG2CentPt,binning,15);
                                 break;
                             case 3:
                                 if ( centrality.CompareTo("0-100%") == 0)
@@ -3121,16 +3145,10 @@
                         maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVmEMCPt,binning, 31);
                         break;
                     case 20:
-                        if ( !centrality.CompareTo("20-40%")){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombCentPt,binning,26);
-                        }else if ( !centrality.CompareTo("40-60%")){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombCentPt,binning,26);
-                        }else if ( !centrality.CompareTo("60-100%")){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombCentPt,binning,25);
-                        }else if ( centrality.CompareTo("0-100%")){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombCentPt,binning,27);
+                        if ( !centrality.CompareTo("0-100%")){
+                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombPt,binning,82);
                         } else {
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCPt,binning,32);
+                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombCentPt,binning,50);
                         }
                         break;
                     case 21:
@@ -3963,9 +3981,9 @@
                                 break;
                             case 2:
                                 if (centrality.CompareTo("0-100%") == 0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG2Pt,binning, 27);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG2Pt,binning, 22);
                                 else
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG2CentPt,binning, 13);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG2CentPt,binning, 11);
                                 break;
                             case 3:
                                 if (centrality.CompareTo("0-100%") == 0)
@@ -3975,9 +3993,9 @@
                                 break;
                             default:
                                 if (centrality.CompareTo("0-100%") == 0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigPt,binning, 41);
-                                else
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigCentPt,binning, 22);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigPt,binning, 39);
+                                else 
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigCentPt,binning, 20);
                                 break;
                         }
                         break;
@@ -3990,18 +4008,13 @@
                         maxNBins    = 12;
                         break;
                     case 20:
-                        if (!centrality.CompareTo("20-40%") || !centrality.CompareTo("40-60%") || !centrality.CompareTo("0-20%")){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMCentPt,binning);
-                            maxNBins    = 15;
-                        } else if (!centrality.CompareTo("60-100%") ){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMCentPt,binning);
-                            maxNBins    = 14;
-                        } else if (centrality.CompareTo("0-100%")){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMCentPt,binning);
-                            maxNBins    = 16;
+                        cout << "entered case 20" << endl;
+                        if (!centrality.CompareTo("0-100%")){
+                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVCombPt,binning);
+                            maxNBins    = 50;
                         } else {
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCPt,binning);
-                            maxNBins    = 19;
+                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVCombCentPt,binning);
+                            maxNBins    = 28;
                         }
                         break;
                     case 21:

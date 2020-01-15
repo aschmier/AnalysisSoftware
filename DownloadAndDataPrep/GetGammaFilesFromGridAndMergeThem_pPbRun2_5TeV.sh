@@ -9,7 +9,7 @@ listsToMerge=`cat runlistsToMerge.txt`
 DOWNLOADON=1
 MERGEON=1
 MERGEONData=1
-MERGEONMC=0
+MERGEONMC=1
 MERGEONFASTAndWOSDD=1
 SINGLERUN=1
 SEPARATEON=0
@@ -18,6 +18,7 @@ MERGEONSINGLEMC=1
 MERGEONSINGLEMCJJ=0
 CLEANUP=1
 CLEANUPMAYOR=$2
+jALIEN=1
 number=""
 FAST="_FAST"
 SEPARATEONLYConv=1
@@ -252,16 +253,26 @@ if [ $3 = "AODSKIMMB" ]; then
 #     LHC13fData="691" #skim MB
 #     LHC13fData="700" #skim MB
 
-    TRAINDIR=20191122-PCMCentDepAddPCM
+#     TRAINDIR=20191122-PCMCentDepAddPCM
+#     LHC13beData="";
+#     LHC13bcData="713"
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+#     LHC13deData="714" #skim MB
+#     LHC13dData="child_1"
+#     LHC13eData="child_2"
+#     LHC13fData="715" #skim MB
+    TRAINDIR=20200106-EMCSysJJGT
     LHC13beData="";
-    LHC13bcData="713"
+    LHC13bcData="729"
     LHC13bData="child_1"
     LHC13cData="child_2"
-    LHC13deData="714" #skim MB
+    LHC13deData="730" #skim MB
     LHC13dData="child_1"
     LHC13eData="child_2"
-    LHC13fData="715" #skim MB
+    LHC13fData="731" #skim MB
 
+    
 elif [ $3 = "AODSKIMEMC7" ]; then
     TRAINDIR=20190831-EMCNonLin2
     # LHC13beData="600" #skim EMC7
@@ -306,15 +317,23 @@ elif [ $3 = "AODSKIMEGAJE" ]; then
 #     LHC13dData="child_3"
 #     LHC13eData="child_4"
 #     LHC13fData="671" #skim EGA
-    TRAINDIR=20191104-FullStatAllMethods
-    LHC13beData="693" #skim EGA
-#     LHC13beData="683" #skim EGA
+#     TRAINDIR=20191104-FullStatAllMethods
+#     LHC13beData="693" #skim EGA
+# #     LHC13beData="683" #skim EGA
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+#     LHC13dData="child_3"
+#     LHC13eData="child_4"
+#     LHC13fData="694" #skim EGA
+#     LHC13fData="684" #skim EGA
+    
+    TRAINDIR=20200106-EMCSysJJGT
+    LHC13beData="738" #skim EGA
     LHC13bData="child_1"
     LHC13cData="child_2"
     LHC13dData="child_3"
     LHC13eData="child_4"
-    LHC13fData="694" #skim EGA
-#     LHC13fData="684" #skim EGA
+    LHC13fData="740" #skim EGA
     
 elif [ $3 = "AODSKIMPHI7" ]; then
 #     TRAINDIR=20190831-EMCNonLin
@@ -455,8 +474,8 @@ else
 #     LHC17g6a2MC="877";
 #     LHC17g6a3MC="878";
 
-    TRAINDIR=20200106-EMCSysJJGT
-#     LHC16qtData="688";
+#     TRAINDIR=20200106-EMCSysJJGT
+#     LHC16qtData="737";
 #     LHC16qDataFast="child_1";
 #     LHC16tDataFast="child_2";
 #     LHC16qData="child_3";
@@ -473,10 +492,59 @@ else
 #     LHC16c3bMC2="899";
 #     LHC17g6a2MC="901";
 #     LHC17g6a3MC="902";
-    LHC18j5MC="952"
-    LHC18j5_1MC="child_1"
+#     LHC18j5MC="952"
+#     LHC18j5_1MC="child_1"
 #     LHC18j5_2MC="child_2"
 #     LHC18j5_3MC="child_3"
+#     LHC18f3MCMoth="951";
+#     LHC18f3MC1="child_2";
+#     LHC18f3MC2="child_4";
+#     LHC18f3MCFast1="child_1";
+#     LHC18f3MCFast2="child_3";
+    
+    TRAINDIR=20200106-PCMEMCSysJJGT
+#     #EG1 - 1
+#     LHC16c3aMC1="907";
+#     LHC16c3aMC2="903";
+#     LHC16c3bMC1="915";
+#     LHC16c3bMC2="911";
+#     LHC17g6a2MC="919";
+#     LHC17g6a3MC="923";
+#     #EG1 - 2
+#     LHC16c3aMC1="908";
+#     LHC16c3aMC2="904";
+#     LHC16c3bMC1="916";
+#     LHC16c3bMC2="912";
+#     LHC17g6a2MC="920";
+#     LHC17g6a3MC="924";
+#     #EG1 - 3
+#     LHC16c3aMC1="909";
+#     LHC16c3aMC2="905";
+#     LHC16c3bMC1="917";
+#     LHC16c3bMC2="913";
+#     LHC17g6a2MC="921";
+#     LHC17g6a3MC="925";
+# #     #EG1 - 4
+#     LHC16c3aMC1="910";
+#     LHC16c3aMC2="906";
+#     LHC16c3bMC1="918";
+#     LHC16c3bMC2="914";
+#     LHC17g6a2MC="922";
+#     LHC17g6a3MC="926";
+#     #EG2 - 1
+#     LHC16c3aMC1="931";
+#     LHC16c3aMC2="927";
+#     LHC16c3bMC1="939";
+#     LHC16c3bMC2="935";
+#     LHC17g6a2MC="943";
+#     LHC17g6a3MC="947";
+#     #EG2 - 2
+    LHC16c3aMC1="932";
+    LHC16c3aMC2="928";
+    LHC16c3bMC1="940";
+    LHC16c3bMC2="936";
+    LHC17g6a2MC="944";
+    LHC17g6a3MC="948";
     
 fi
 
@@ -891,38 +959,38 @@ if [ $CLEANUPMAYOR == 0 ]; then
                 ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC19a42 $NSlashes "MC_LHC19a4_2-$runListName" "-$runListName"
             done;
         fi
-        if [ $HAVELHC16c3a1 == 1 ]; then
-            ls $OUTPUTDIR_LHC16c3a1/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3a1.txt
-            fileNumbers=`cat fileLHC16c3a1.txt`
-            for fileName in $fileNumbers; do
-                echo $fileName
-                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3a1 $NSlashes "MC_LHC16c3a_1-$runListName" "-$runListName"
-            done;
-        fi
-        if [ $HAVELHC16c3a2 == 1 ]; then
-            ls $OUTPUTDIR_LHC16c3a2/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3a2.txt
-            fileNumbers=`cat fileLHC16c3a2.txt`
-            for fileName in $fileNumbers; do
-                echo $fileName
-                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3a2 $NSlashes "MC_LHC16c3a_2-$runListName" "-$runListName"
-            done;
-        fi
-        if [ $HAVELHC16c3b1 == 1 ]; then
-            ls $OUTPUTDIR_LHC16c3b1/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3b1.txt
-            fileNumbers=`cat fileLHC16c3b1.txt`
-            for fileName in $fileNumbers; do
-                echo $fileName
-                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3b1 $NSlashes "MC_LHC16c3b_1-$runListName" "-$runListName"
-            done;
-        fi
-        if [ $HAVELHC16c3b2 == 1 ]; then
-            ls $OUTPUTDIR_LHC16c3b2/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3b2.txt
-            fileNumbers=`cat fileLHC16c3b2.txt`
-            for fileName in $fileNumbers; do
-                echo $fileName
-                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3b2 $NSlashes "MC_LHC16c3b_2-$runListName" "-$runListName"
-            done;
-        fi
+#         if [ $HAVELHC16c3a1 == 1 ]; then
+#             ls $OUTPUTDIR_LHC16c3a1/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3a1.txt
+#             fileNumbers=`cat fileLHC16c3a1.txt`
+#             for fileName in $fileNumbers; do
+#                 echo $fileName
+#                 ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3a1 $NSlashes "MC_LHC16c3a_1-$runListName" "-$runListName"
+#             done;
+#         fi
+#         if [ $HAVELHC16c3a2 == 1 ]; then
+#             ls $OUTPUTDIR_LHC16c3a2/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3a2.txt
+#             fileNumbers=`cat fileLHC16c3a2.txt`
+#             for fileName in $fileNumbers; do
+#                 echo $fileName
+#                 ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3a2 $NSlashes "MC_LHC16c3a_2-$runListName" "-$runListName"
+#             done;
+#         fi
+#         if [ $HAVELHC16c3b1 == 1 ]; then
+#             ls $OUTPUTDIR_LHC16c3b1/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3b1.txt
+#             fileNumbers=`cat fileLHC16c3b1.txt`
+#             for fileName in $fileNumbers; do
+#                 echo $fileName
+#                 ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3b1 $NSlashes "MC_LHC16c3b_1-$runListName" "-$runListName"
+#             done;
+#         fi
+#         if [ $HAVELHC16c3b2 == 1 ]; then
+#             ls $OUTPUTDIR_LHC16c3b2/$FILENAMEBASE-$runListName\_*.root > fileLHC16c3b2.txt
+#             fileNumbers=`cat fileLHC16c3b2.txt`
+#             for fileName in $fileNumbers; do
+#                 echo $fileName
+#                 ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC16c3b2 $NSlashes "MC_LHC16c3b_2-$runListName" "-$runListName"
+#             done;
+#         fi
         if [ $HAVELHC17g8a == 1 ]; then
             ls $OUTPUTDIR_LHC17g8a/$FILENAMEBASE-$runListName\_*.root > fileLHC17g8a.txt
             fileNumbers=`cat fileLHC17g8a.txt`

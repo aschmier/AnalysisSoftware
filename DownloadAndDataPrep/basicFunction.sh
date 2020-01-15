@@ -20,6 +20,9 @@ MODE=0
 tempDir=""
 tempPath=""
 tempBool=1
+prefDownloadLocal="file:"
+prefDownloadGrid="alien:"
+jALIEN=0
 
 function FindCorrectTrainDirectory()
 {
@@ -350,12 +353,18 @@ function CopyFileIfNonExisitent()
     echo "  detailed path subdirs: " $4
     echo "  separate also the tree: " $5
     echo "  log file: " $6
+    
+    if [ $jALIEN == 1 ]; then 
+        prefDownloadLocal="file://"
+        prefDownloadGrid=""
+    fi
+    
     if [ $DOWNLOADON == 1 ]; then
         if [ -f $1/root_archive.zip ] && [ -s $1/root_archive.zip ]; then
             echo "$1/root_archive.zip exists";
         else
             mkdir -p $1
-            alien_cp alien:$2/root_archive.zip file:$1/
+            alien_cp $prefDownloadGrid$2/root_archive.zip $prefDownloadLocal$1/
             echo $2/root_archive.zip > $6
             if [ -f $1/root_archive.zip ] && [ -s $1/root_archive.zip ]; then
                 echo "copied correctly"
@@ -377,7 +386,7 @@ function CopyFileIfNonExisitent()
                         if [ -f $1/Stage1/$dirName/root_archive.zip ] && [ -s $1/Stage1/$dirName/root_archive.zip ]; then
                             echo "$1/Stage1/$dirName/root_archive.zip exists";
                         else
-                            alien_cp alien:$4/$dirName/root_archive.zip file:$1/Stage1/$dirName/
+                            alien_cp $prefDownloadGrid$4/$dirName/root_archive.zip $prefDownloadLocal$1/Stage1/$dirName/
                             unzip -u $1/Stage1/$dirName/root_archive.zip -d $1/Stage1/$dirName/
                         fi
                     done
@@ -442,7 +451,12 @@ function CopyFileIfNonExisitentDiffList()
     echo "  detailed path subdirs:    \"$5\""
     echo "  separate also the tree:   \"$6\""
     echo "  bookkeeping:              \"$7\""
-    
+
+     if [ $jALIEN == 1 ]; then 
+        prefDownloadLocal="file://"
+        prefDownloadGrid=""
+    fi
+   
     # Download and copy with proper file name
     if [ $DOWNLOADON == 1 ]; then
         if [ -f $1/$3/root_archive.zip ] && [ -s $1/$3/root_archive.zip ]; then
@@ -454,13 +468,13 @@ function CopyFileIfNonExisitentDiffList()
             if  grep -q "no such file" templog.txt ;
             then
                 echo "no root_archive.zip has been found, copying single files"
-                alien_cp alien:$2/Gamma* file:$1/$3/
+                alien_cp $prefDownloadGrid$2/Gamma* $prefDownloadLocal$1/$3/
                 cd $1/$3
                 zip root_archive.zip *.root
                 ehco $2/root_archive.zip > $7
                 cd -
             else
-                alien_cp alien:$2/root_archive.zip file:$1/$3/
+                alien_cp $prefDownloadGrid$2/root_archive.zip $prefDownloadLocal$1/$3/
             fi
             if [ -f $1/$3/root_archive.zip ] && [ -s $1/root_archive.zip ]; then
                 echo "copied correctly"
@@ -481,7 +495,7 @@ function CopyFileIfNonExisitentDiffList()
                         if [ -f $1/$3/Stage1/$dirName/root_archive.zip ] && [ -s $1/$3/Stage1/$dirName/root_archive.zip ]; then
                             echo "$1/$3/Stage1/$dirName/root_archive.zip exists";
                         else
-                            alien_cp alien:$5/$dirName/root_archive.zip file:$1/$3/Stage1/$dirName/
+                            alien_cp $prefDownloadGrid$5/$dirName/root_archive.zip $prefDownloadLocal$1/$3/Stage1/$dirName/
                             unzip -u $1/$3/Stage1/$dirName/root_archive.zip -d $1/$3/Stage1/$dirName/
                         fi
                     done

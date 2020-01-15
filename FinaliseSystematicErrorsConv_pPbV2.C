@@ -63,6 +63,12 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
     TString energyForOutput                 = energy;
     energyForOutput.ReplaceAll(".","_");
 
+    TString additionalName2 = additionalName;
+    if(additionalName.Contains("ZNA") || additionalName.Contains("CL1")) additionalName2.Replace(3,1,"_");
+    cout << additionalName2.Data() << endl;
+    gSystem->Exec("mkdir -p SystematicErrorsCalculatedConv");
+    gSystem->Exec(Form("mkdir -p SystematicErrorsCalculatedConv/%s",additionalName2.Data()));
+
     // ***************************************************************************************************
     // ******************************* general variable definition  **************************************
     // ***************************************************************************************************
@@ -120,15 +126,15 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
 //                                                 1, 1, 0, 1, 0,  0 };
 //     Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
 //                                                 1, 1, 0, 1, 0,  0 };
-    Bool_t bsmoothMBPi05TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 0,
+    Bool_t bsmoothMBPi05TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
                                                 1, 1, 0, 1, 0,  0 };
-    Bool_t bsmoothMBEta5TeV[16]             = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
-                                                0, 1, 0, 1, 0,  0 };
-    Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
-                                                0, 1, 0, 1, 0,  0 };
+    Bool_t bsmoothMBEta5TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+                                                1, 1, 0, 1, 0,  0 };
+    Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+                                                1, 1, 0, 1, 0,  0 };
     Bool_t bsmoothCentPi05TeV[16]           = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 0,
                                                 1, 1, 0, 1, 0,  0 };
-    Bool_t bsmoothCentEta5TeV[16]           = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+    Bool_t bsmoothCentEta5TeV[16]           = { 0, 0, 0, 0, 1,  1, 1, 1, 1, 1,
                                                 1, 1, 0, 1, 0,  0 };
     Bool_t bsmoothCentEtaToPi05TeV[16]      = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
                                                 1, 1, 0, 1, 0,  0 };
@@ -352,7 +358,7 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             // dEdxE - cutstudies nr 2
             if (nameCutVariationSC[i].CompareTo("dEdxE")==0 ){
                 if (meson.CompareTo("Pi0")==0){
-                    for (Int_t k = 1; k < nPtBins; k++){
+                    for (Int_t k = 0; k < nPtBins; k++){
                         errorReset              = 0.25 + 0.05*ptBins[k];
 //                         errorReset              = 0.5 + 6.51640e+00/pow(6.76502e+00,ptBins[k]);
                         errorsMean[i][k]        = errorReset;
@@ -360,10 +366,21 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
                         errorsMeanCorr[i][k]    = errorReset;
                         errorsMeanErrCorr[i][k] = 0.01*errorReset;
                     }
-                } else if (meson.CompareTo("Eta")==0 || meson.CompareTo("EtaToPi0")==0){
+                } else if (meson.CompareTo("Eta")==0 ){
                     for (Int_t k = 0; k < nPtBins; k++){
                         errorReset              = errorsMean[i][k];
-                        errorReset              = 13.5*pow(0.17,ptBins[k])+0.5+pow(ptBins[k],2)*0.025;
+//                         errorReset              = 13.5*pow(0.17,ptBins[k])+0.5+pow(ptBins[k],2)*0.025;
+                        errorReset              = 13.5*pow(0.17,ptBins[k])+0.3;
+                        errorsMean[i][k]        = errorReset;
+                        errorsMeanErr[i][k]     = 0.01*errorReset;
+                        errorsMeanCorr[i][k]    = errorReset;
+                        errorsMeanErrCorr[i][k] = 0.01*errorReset;
+                    }
+                } else if (meson.CompareTo("EtaToPi0")==0){
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = errorsMean[i][k];
+//                         errorReset              = 13.5*pow(0.17,ptBins[k])+0.5+pow(ptBins[k],2)*0.025;
+                        errorReset              = 13.5*pow(0.05,ptBins[k])+0.5;
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
                         errorsMeanCorr[i][k]    = errorReset;
@@ -382,9 +399,19 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
                         errorsMeanCorr[i][k]    = errorReset;
                         errorsMeanErrCorr[i][k] = 0.01*errorReset;
                     }
-                } else if (meson.CompareTo("Eta")==0 || meson.CompareTo("EtaToPi0")==0 ){
+                } else if (meson.CompareTo("Eta")==0 ){
                     for (Int_t k = 0; k < nPtBins; k++){
-                        errorReset              = 1.45+pow(ptBins[k],2)*0.03;
+//                         errorReset              = 1.45+pow(ptBins[k],2)*0.03;
+                        errorReset              = 0.5+pow(ptBins[k],2)*0.02;
+                        errorsMean[i][k]        = errorReset;
+                        errorsMeanErr[i][k]     = 0.01*errorReset;
+                        errorsMeanCorr[i][k]    = errorReset;
+                        errorsMeanErrCorr[i][k] = 0.01*errorReset;
+                    }
+                } else if (meson.CompareTo("EtaToPi0")==0 ){
+                    for (Int_t k = 0; k < nPtBins; k++){
+//                         errorReset              = 1.45+pow(ptBins[k],2)*0.03;
+                        errorReset              = 0.25+pow(ptBins[k],2)*0.02;
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
                         errorsMeanCorr[i][k]    = errorReset;
@@ -416,8 +443,9 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
                         errorsMeanErrCorr[i][k] = 0.01*errorReset;
                     }
                 } else if (meson.CompareTo("Eta")==0 ){
-                    for (Int_t k = 1; k < nPtBins; k++){
-                        errorReset              = 40*pow(0.05,ptBins[k])+0.5+pow(ptBins[k],2)*0.001;
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = 0.4+pow(ptBins[k],2)*0.03;
+//                         errorReset              = 40*pow(0.05,ptBins[k])+0.5+pow(ptBins[k],2)*0.001;
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
                         errorsMeanCorr[i][k]    = errorReset;
@@ -448,7 +476,8 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
                     }
                 } else if ( meson.CompareTo("Eta")==0  ||  meson.CompareTo("EtaToPi0")==0  ){
                     for (Int_t k = 2; k < nPtBins; k++){
-                        errorReset              = 0.8+pow(ptBins[k],2)*0.024+ptBins[k]*0.02;
+//                         errorReset              = 0.8+pow(ptBins[k],2)*0.024+ptBins[k]*0.02;
+                        errorReset              = 0.3+pow(ptBins[k],2)*0.024+ptBins[k]*0.02+13.5*pow(0.05,ptBins[k]);
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
                         errorsMeanCorr[i][k]    = errorReset;
@@ -477,7 +506,7 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
                         errorsMeanErrCorr[i][k] = 0.01*errorReset;
                     }
                 } else if (meson.CompareTo("Eta")==0 || meson.CompareTo("EtaToPi0")==0){
-                    for (Int_t k = 2; k < nPtBins; k++){
+                    for (Int_t k = 0; k < nPtBins; k++){
                         errorReset              = 1.65+pow(ptBins[k],2)*0.03+ptBins[k]*0.02;
                         errorsMean[i][k]        = errorReset;
                         errorsMeanErr[i][k]     = 0.01*errorReset;
@@ -495,10 +524,26 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
 
             // BG - cutstudies nr 10
             if (nameCutVariationSC[i].CompareTo("BG")==0  ){
-                minPt           = 0;
-                errorReset      = 0.15;
-                if (meson.CompareTo("EtaToPi0")==0 )
-                    errorReset      = 0.25;
+                if ( meson.CompareTo("Pi0")==0){
+                    minPt           = 0;
+                    errorReset      = 0.15;
+                } else if (meson.CompareTo("EtaToPi0")==0 ){
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = 13.5*pow(0.05,ptBins[k])+0.2;
+                        errorsMean[i][k]        = errorReset;
+                        errorsMeanErr[i][k]     = 0.01*errorReset;
+                        errorsMeanCorr[i][k]    = errorReset;
+                        errorsMeanErrCorr[i][k] = 0.01*errorReset;                        
+                    }
+                } else if (meson.CompareTo("Eta")==0 ){
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = 13.5*pow(0.05,ptBins[k])+0.2;
+                        errorsMean[i][k]        = errorReset;
+                        errorsMeanErr[i][k]     = 0.01*errorReset;
+                        errorsMeanCorr[i][k]    = errorReset;
+                        errorsMeanErrCorr[i][k] = 0.01*errorReset;                        
+                    }
+                }
             }
 
             // MCSmearing - cutstudies nr 11
@@ -775,21 +820,21 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             cout <<"plotting: " << color[cut] << "\t" << markerStyle[cut] <<endl;
 
             meanErrorsCorr[cut]->Print();
-            canvasNewSysErrMean->SaveAs(Form("SystematicErrorsCalculatedConv/SysMeanNewWithMeanSingle_%s_%s%s_%s_Variation%d.%s",meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data(),cut, suffix.Data()));
+            canvasNewSysErrMean->SaveAs(Form("SystematicErrorsCalculatedConv/%s/SysMeanNewWithMeanSingle_%s_%s%s_%s_Variation%d.%s",additionalName2.Data(), meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data(),cut, suffix.Data()));
         } else {
             cout <<endl << endl<<  "variation: " << cut << " \t"<< nameCutVariation[cut].Data() << endl;
 
             DrawGammaSetMarkerTGraphErr(meanErrorsCorr[cut], markerStyle[cut], 1.,color[cut],color[cut]);
             meanErrorsCorr[cut]->Draw("p,csame");
 
-            canvasNewSysErrMean->SaveAs(Form("SystematicErrorsCalculatedConv/SysMeanNewWithMeanSingleSmoothed_%s_%s%s_%s_Variation%d.%s",meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data(),cut, suffix.Data()));
+            canvasNewSysErrMean->SaveAs(Form("SystematicErrorsCalculatedConv/%s/SysMeanNewWithMeanSingleSmoothed_%s_%s%s_%s_Variation%d.%s",additionalName2.Data(),meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data(),cut, suffix.Data()));
         }
     }
 
     // ***************************************************************************************************
     // ********************* Create output files with errors *********************************************
     // ***************************************************************************************************
-    const char *SysErrDatname = Form("SystematicErrorsCalculatedConv/SystematicErrorPCM_%s_%s%s_%s.dat", meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data());
+    const char *SysErrDatname = Form("SystematicErrorsCalculatedConv/%s/SystematicErrorPCM_%s_%s%s_%s.dat", additionalName2.Data(), meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data());
     fstream SysErrDat;
     cout << SysErrDatname << endl;
     SysErrDat.open(SysErrDatname, ios::out);
@@ -798,7 +843,7 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
     }
     SysErrDat.close();
 
-    const char *SysErrDatnameMean = Form("SystematicErrorsCalculatedConv/SystematicErrorAveragedPCM_%s_%s%s_%s.dat", meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data());
+    const char *SysErrDatnameMean = Form("SystematicErrorsCalculatedConv/%s/SystematicErrorAveragedPCM_%s_%s%s_%s.dat", additionalName2.Data(), meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data());
     fstream SysErrDatAver;
     cout << SysErrDatnameMean << endl;
     SysErrDatAver.open(SysErrDatnameMean, ios::out);
@@ -808,7 +853,7 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
     }
     SysErrDatAver.close();
 
-    const char *SysErrDatnameMeanSingleErr = Form("SystematicErrorsCalculatedConv/SystematicErrorAveragedSinglePCM_%s_%s%s_%s.dat", meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data());
+    const char *SysErrDatnameMeanSingleErr = Form("SystematicErrorsCalculatedConv/%s/SystematicErrorAveragedSinglePCM_%s_%s%s_%s.dat", additionalName2.Data(), meson.Data(), energyForOutput.Data(), additionalNameOutput.Data(), dateForOutput.Data());
     fstream SysErrDatAverSingle;
     cout << SysErrDatnameMeanSingleErr << endl;
     SysErrDatAverSingle.open(SysErrDatnameMeanSingleErr, ios::out);
@@ -963,11 +1008,11 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
     labelCentrality->Draw();
 
     canvasSummedErrMean->Update();
-    canvasSummedErrMean->SaveAs(Form("SystematicErrorsCalculatedConv/SysErrorSummedVisu_%s_%s%s_%s.%s",meson.Data(), energyForOutput.Data(),additionalNameOutput.Data(),dateForOutput.Data(),suffix.Data()));
+    canvasSummedErrMean->SaveAs(Form("SystematicErrorsCalculatedConv/%s/SysErrorSummedVisu_%s_%s%s_%s.%s",additionalName2.Data(), meson.Data(), energyForOutput.Data(),additionalNameOutput.Data(),dateForOutput.Data(),suffix.Data()));
 
     delete canvasSummedErrMean;
 
-    const char *SysErrDatnameMeanPaper = Form("SystematicErrorsCalculatedConv/SystematicErrorAveragedPCMPaper_%s_%s%s_%s.dat",meson.Data(),energyForOutput.Data(),additionalNameOutput.Data(),dateForOutput.Data());
+    const char *SysErrDatnameMeanPaper = Form("SystematicErrorsCalculatedConv/%s/SystematicErrorAveragedPCMPaper_%s_%s%s_%s.dat",additionalName2.Data(), meson.Data(),energyForOutput.Data(),additionalNameOutput.Data(),dateForOutput.Data());
     fstream SysErrDatAverPaper;
     cout << SysErrDatnameMeanPaper << endl;
     SysErrDatAverPaper.open(SysErrDatnameMeanPaper, ios::out);

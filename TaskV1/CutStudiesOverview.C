@@ -385,6 +385,9 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         } else if (cutVariationName.Contains("ClusterNonLinearity")){
           TString fClusterNonLinearity                          = fClusterCutSelection(GetClusterNonLinearityCutPosition(fClusterCutSelection),2);
           cutStringsName[i]                                     = AnalyseClusterNonLinearityCut(CutNumberToInteger(fClusterNonLinearity));
+        } else if (cutVariationName.Contains("ClusterAcceptance")){
+          TString fClusterAcc                                   = fClusterCutSelection(GetClusterTypeCutPosition(fClusterCutSelection),5);
+          cutStringsName[i]                                     = AnalyseClusterAcceptanceCut(fClusterAcc);
         } else if (cutVariationName.Contains("PhotonAsymmetry")){
             TString fPhotonAsymmetry                            = fGammaCutSelection(GetPhotonDoPhotonAsymmetryCutPosition(fGammaCutSelection),1);
             cutStringsName[i]                                   = AnalysePhotonAsymmetry(CutNumberToInteger(fPhotonAsymmetry));
@@ -394,7 +397,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         } else if (cutVariationName.Contains("Mult")){
             TString fMultiplicityCut                                      = fEventCutSelection(0,3);
             cutStringsName[i]                                   = AnalyseMultiplicity(fMultiplicityCut);
-	} else if (cutVariationName.Contains("RBins")){
+        } else if (cutVariationName.Contains("RBins")){
              TString fRBinCut                                    = fGammaCutSelection(GetPhotonMinRCutPosition(fGammaCutSelection),1);
              cutStringsName[i]                                   = AnalyseRBinCut(CutNumberToInteger(fRBinCut));
         } else {
@@ -406,6 +409,10 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             // for first cut read yield extraction errors as well
             if(i == 0){
                 centralityString                                = GetCentralityString(fEventCutSelection.Data());
+                
+                TString curTrigger                              = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
+                TString simpleTriggerName                       = AnalyseSpecialTriggerCutSimple(CutNumberToInteger(curTrigger));
+                
                 centralityStringOutput                          = GetCentralityStringOutput(fEventCutSelection.Data());
                 cout << centralityString.Data()<< endl;
                 systErrGraphNegYieldExt                         = (TGraphAsymmErrors*)Cutcorrfile[i]->Get(Form("%s_SystErrorRelNeg_YieldExtraction_%s",meson.Data(), centralityString.Data()));
@@ -424,6 +431,8 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
                     }
                     systErrGraphPosYieldExtPi0EtaBinning        = (TGraphAsymmErrors*)CutcorrPi0EtaBinfile[i]->Get(Form("Pi0EtaBinning_SystErrorRelPos_YieldExtraction_%s", centralityString.Data()));
                 }
+                if (simpleTriggerName.CompareTo("MB")!= 0)
+                    centralityString                            = simpleTriggerName+"_"+centralityString;
             }
 
             TString nameCorrectedYield                          = "CorrectedYieldTrueEff";

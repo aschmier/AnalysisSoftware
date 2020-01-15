@@ -138,18 +138,30 @@ void FinaliseSystematicErrorsConvCalo_pPb(  TString nameDataFileErrors    = "",
                                         0, 0, 0, 0, 0,
                                         0, 0, 0, 0 };
     // minimum bias trigger PCM-EMC
-    Bool_t bsmoothMBPi0[19]         = { 0, 1, 1, 1, 1,
-                                        1, 1, 1, 1, 1,
-                                        1, 1, 1, 1, 1,
-                                        1, 1, 1, 0 };
-    Bool_t bsmoothMBEta[19]         = { 0, 1, 1, 1, 1,
-                                        1, 1, 1, 1, 1,
-                                        1, 1, 1, 1, 1,
-                                        1, 1, 1, 0 };
-    Bool_t bsmoothMBEtaToPi0[19]    = { 0, 1, 1, 1, 1,
-                                        1, 1, 1, 1, 1,
-                                        1, 1, 1, 1, 1,
-                                        1, 1, 1, 0 };
+    Bool_t bsmoothMBPi0[19]         = { 0, 0, 0, 0, 0,
+                                        0, 0, 0, 0, 0,
+                                        0, 0, 0, 0, 0,
+                                        0, 0, 0, 0 };
+    Bool_t bsmoothMBEta[19]         = { 0, 0, 0, 0, 0,
+                                        0, 0, 0, 0, 0,
+                                        0, 0, 0, 0, 0,
+                                        0, 0, 0, 0 };
+    Bool_t bsmoothMBEtaToPi0[19]    = { 0, 0, 0, 0, 0,
+                                        0, 0, 0, 0, 0,
+                                        0, 0, 0, 0, 0,
+                                        0, 0, 0, 0 };
+//     Bool_t bsmoothMBPi0[19]         = { 0, 1, 1, 1, 1,
+//                                         1, 1, 1, 1, 1,
+//                                         1, 1, 1, 1, 1,
+//                                         1, 1, 1, 0 };
+//     Bool_t bsmoothMBEta[19]         = { 0, 1, 1, 1, 1,
+//                                         1, 1, 1, 1, 1,
+//                                         1, 1, 1, 1, 1,
+//                                         1, 1, 1, 0 };
+//     Bool_t bsmoothMBEtaToPi0[19]    = { 0, 1, 1, 1, 1,
+//                                         1, 1, 1, 1, 1,
+//                                         1, 1, 1, 1, 1,
+//                                         1, 1, 1, 0 };
     // minimum bias trigger PCM-PHOS
     Bool_t bsmoothMBPi0PCMPHOS[19]  = { 0, 1, 1, 1, 1,
                                         1, 1, 1, 1, 1,

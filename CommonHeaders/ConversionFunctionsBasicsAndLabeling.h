@@ -4525,7 +4525,113 @@
 
         }
     }
+//************************************************************************************
+    //******** Analyzes the trigger event cut, return correct cut label ******************
+    //************************************************************************************
+    TString AnalyseSpecialTriggerCutSimple(Int_t SpecialTrigger){
+        // Set Cut
+        switch(SpecialTrigger){
+            case 0:
+                return "MB";
+            case 1:
+                return "MB";
+            case 3:
+                return "MB";
+            case 10:
+                return "MB";
+            case 11:
+                return "MB";
+            case 12:
+                 return "MB";
+            case 13:
+                return "MB";
+            case 310 :
+                return "V0HM";
+            case 311 :
+                return "V0HM";
+            case 312 :
+                return "V0HM";
+            case 313 :
+                return "V0HM";
+            case 51:
+                return "EMC1";
+            case 52:
+                return "EMC7";
+            case 53:
+                return "EMC8";
+            case 54:
+                return "DMC1";
+            case 55:
+                return "DMC7";
+            case 56:
+                return "DMC8";
+            case 61:
+                return "PHI1";
+            case 62:
+                return "PHI7";
+            case 63:
+                return "PHI8";
+            case 71:
+                return "SPHM1";
+            case 72:
+                return "SPHM7";
+            case 73:
+                return "SPHM8";
+            case 74:
+                return "V0HM";
+            case 75:
+                return "HM";
+            case 76:
+                return "V0HM";
+            case 81:
+                return "EGA";
+            case 82:
+                return "EGA";
+            case 83:
+                return "EG1";
+            case 84:
+                return "EG1";
+            case 85:
+                return "EG2";
+            case 86:
+                return "EG2";
+            case 87:
+                return "DGA";
+            case 88:
+                return "DGA";
+            case 89:
+                return "DG1";
+            case 810:
+                return "DG1";
+            case 811:
+                return "DG2";
+            case 812:
+                return "DG2";
+            case 91:
+                return "EJE";
+            case 92:
+                return "EJE";
+            case 93:
+                return "EJ1";
+            case 94:
+                return "EJ1";
+            case 95:
+                return "EJ2";
+            case 96:
+                return "EJ2";
+            case 97:
+                return "DJ1";
+            case 98:
+                return "DJ1";
+            case 99:
+                return "DJ2";
+            case 910:
+                return "DJ2";
+            default:
+                return "MB";
 
+        }
+    }
     //************************************************************************************
     //******** Analyzes the multiplicity cut in pp events ********************************
     //************************************************************************************
@@ -4612,7 +4718,7 @@
     //**** Analyzes the cluster track matching cuts for calo, return correct cut label ***
     //************************************************************************************
     TString AnalyseTrackMatchingCaloCut(Int_t trackmatching, Int_t clusterType ){
-        if (clusterType == 1){
+        if (clusterType == 1 || clusterType == 4){
             switch(trackmatching) {
                 case 0:
                     return "TM disabled";
@@ -4634,6 +4740,22 @@
                     return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.05-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.10-0.015)})^{1/1.75})^{1.75}}";
                 case 9:
                     return "TM #scale[0.5]{#Delta#eta #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.06-0.015))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.020 + (#frac{1}{#it{p}_{T} + (1/(0.12-0.020)})^{1/1.75})^{1.75}}";
+                case 10:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.035-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.085-0.015)})^{1/2})^{2}}";
+                case 11:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.045-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.095-0.015)})^{1/1.75})^{1.75}}";
+                case 12:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}}";
+                case 13:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 3";
+                case 14:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 2";
+                case 15:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 1.75";
+                case 16:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 1.5";
+                case 17:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 1.25";
                 case 18:
                     return "TM #scale[0.5]{MIP subtraction: #Delta#eta < 0.010, -0.011 < #Delta#varphi_{+,-} < 0.011}";
                 case 19:
@@ -4982,6 +5104,18 @@
         return "";
     }
 
+    //************************************************************************************
+    //********************* Analyzes the phi & eta cut, return correct cut label *********
+    //************************************************************************************
+    TString AnalyseClusterAcceptanceCut( TString clusterCutBegin){
+        if (clusterCutBegin.CompareTo("11111") == 0)
+            return "EMCal";
+        else if (clusterCutBegin.CompareTo("41179") == 0)
+            return "EMCal+DCal";
+        else 
+            return "";
+    }
+    
     //************************************************************************************
     //***************** Analyzes the min energy cut, return correct cut label ************
     //************************************************************************************
