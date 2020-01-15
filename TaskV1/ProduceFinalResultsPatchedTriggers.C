@@ -2329,7 +2329,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
              (optionEnergy.CompareTo("pPb_5.023TeV")==0) ||
              (optionEnergy.CompareTo("pPb_8TeV")==0) ||
              (optionEnergy.CompareTo("XeXe_5.44TeV")==0) ||
-             (optionEnergy.BeginsWith("5TeV"))
+             (optionEnergy.BeginsWith("5TeV")) ||
+             (optionEnergy.Contains("13TeV") )
              ){
                 DrawGammaSetMarker(histoWidthPi0Data[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
                 histoWidthPi0Data[i]->DrawCopy("e1,same");
@@ -3935,7 +3936,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
              (optionEnergy.CompareTo("pPb_5.023TeV")==0) ||
              (optionEnergy.CompareTo("pPb_8TeV")==0) ||
              (optionEnergy.CompareTo("XeXe_5.44TeV")==0 ) ||
-             (optionEnergy.BeginsWith("5TeV"))
+             (optionEnergy.BeginsWith("5TeV")) ||
+             (optionEnergy.Contains("13TeV") )
              ){
                 if (graphWidthPi0Data[i] && !maskedFullyPi0[i]) {
                     DrawGammaSetMarkerTGraphAsym(graphWidthPi0Data[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
@@ -5287,7 +5289,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
              (optionEnergy.BeginsWith("8TeV")) ||
              (optionEnergy.CompareTo("pPb_5.023TeV")==0) ||
              (optionEnergy.CompareTo("pPb_8TeV")==0) ||
-             (optionEnergy.BeginsWith("5TeV"))
+             (optionEnergy.BeginsWith("5TeV")) ||
+             (optionEnergy.Contains("13TeV") )
              ){
                 DrawGammaSetMarker(histoWidthEtaData[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
                 histoWidthEtaData[i]->DrawCopy("e1,same");
@@ -6585,7 +6588,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
              (optionEnergy.BeginsWith("8TeV")) ||
              (optionEnergy.CompareTo("pPb_5.023TeV")==0) ||
              (optionEnergy.CompareTo("pPb_8TeV")==0) ||
-             (optionEnergy.BeginsWith("5TeV"))
+             (optionEnergy.BeginsWith("5TeV")) ||
+             (optionEnergy.Contains("13TeV") )
              ){
                 if (graphWidthEtaData[i] && !maskedFullyEta[i]) {
                     DrawGammaSetMarkerTGraphAsym(graphWidthEtaData[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
