@@ -1378,6 +1378,232 @@ void ProduceTheoryGraphsPPb(){
     TGraphAsymmErrors* graphRatioElecFromWeakBoson   = CalculateAsymGraphRatioToGraph(graphElecFromWeakBosonPowhegXSecpPb8TeVEMCal, graphElecFromJJXSecpPb8TeVEMCal);
     TSpline3* splineRatioElecFromWeakBoson = new TSpline3("splineRatioElecFromWeakBoson_pPb8TeV", graphRatioElecFromWeakBoson,"b2e2",0,0);
 
+
+
+
+
+    //**********************************************************************************************************************
+    //********************************pp 5.023 TeV Pi0 and Eta calc*********************************************************
+    //**********************************************************************************************************************
+
+    //*********************************************************
+    // Eta: PDF:CTEQ6M5 - FF:AESSS
+    Double_t ptNLOEta8160GeV[200];
+    Double_t muHalfEta8160GeV[200];
+    Double_t muOneEta8160GeV[200];
+    Double_t muTwoEta8160GeV[200];
+    Int_t nlinesNLOEta8160GeV                       = 0;
+    Bool_t fillAllMuScalesEta8160GeV                = kTRUE;
+
+    TString fileNameNLOEta8160GeV                   = "ExternalInput/Theory/alice_8160gev_aesss_muhalf_one_two.dat"; // currently only mu = 1pt
+    ifstream  fileNLOEta8160GeV;
+    fileNLOEta8160GeV.open(fileNameNLOEta8160GeV,ios_base::in);
+    cout << fileNameNLOEta8160GeV << endl;
+
+    // read eta input theory file for 5.023TeV
+    while(!fileNLOEta8160GeV.eof() && nlinesNLOEta8160GeV < 200){
+        if (fillAllMuScalesEta8160GeV){
+            fileNLOEta8160GeV >> ptNLOEta8160GeV[nlinesNLOEta8160GeV] >> muHalfEta8160GeV[nlinesNLOEta8160GeV] >> muOneEta8160GeV[nlinesNLOEta8160GeV] >> muTwoEta8160GeV[nlinesNLOEta8160GeV];
+        } else {
+            fileNLOEta8160GeV >> ptNLOEta8160GeV[nlinesNLOEta8160GeV] >> muOneEta8160GeV[nlinesNLOEta8160GeV] ;
+            muHalfEta8160GeV[nlinesNLOEta8160GeV]   = muOneEta8160GeV[nlinesNLOEta8160GeV] ;
+            muTwoEta8160GeV[nlinesNLOEta8160GeV]    = muOneEta8160GeV[nlinesNLOEta8160GeV] ;
+        }
+        nlinesNLOEta8160GeV++;
+    }
+    fileNLOEta8160GeV.close();
+    // reduce number of lines by 1
+    nlinesNLOEta8160GeV--;
+
+    // generate graphs
+    TGraph* graphNLOCalcInvSecEtaMuHalf8160GeV      = NULL;
+    TGraph* graphNLOCalcInvSecEtaMuOne8160GeV       = NULL;
+    TGraph* graphNLOCalcInvSecEtaMuTwo8160GeV       = NULL;
+    TGraph* graphNLOCalcInvYieldEtaMuHalfpPb8160GeV = NULL;
+    TGraph* graphNLOCalcInvYieldEtaMuOnepPb8160GeV  = NULL;
+    TGraph* graphNLOCalcInvYieldEtaMuTwopPb8160GeV  = NULL;
+    TGraph* graphNLOCalcInvYieldEtaMuHalfpp8160GeV = NULL;
+    TGraph* graphNLOCalcInvYieldEtaMuOnepp8160GeV  = NULL;
+    TGraph* graphNLOCalcInvYieldEtaMuTwopp8160GeV  = NULL;
+
+    // fill x-section graph for default mu
+    graphNLOCalcInvSecEtaMuOne8160GeV               = new TGraph(nlinesNLOEta8160GeV,ptNLOEta8160GeV,muOneEta8160GeV);
+    graphNLOCalcInvSecEtaMuOne8160GeV->Print();
+    // fill yield graph for default mu
+    graphNLOCalcInvYieldEtaMuOnepPb8160GeV          = ScaleGraph(graphNLOCalcInvSecEtaMuOne8160GeV, 208/(2.095*recalcBarn));
+    graphNLOCalcInvYieldEtaMuOnepp8160GeV           = ScaleGraph(graphNLOCalcInvSecEtaMuOne8160GeV, 1);
+
+    if (fillAllMuScalesEta8160GeV){
+        // fill x-section graphs for mu variations
+        graphNLOCalcInvSecEtaMuHalf8160GeV          = new TGraph(nlinesNLOEta8160GeV,ptNLOEta8160GeV,muHalfEta8160GeV);
+        // graphNLOCalcInvSecEtaMuHalf8160GeV->RemovePoint(0);
+        graphNLOCalcInvSecEtaMuTwo8160GeV           = new TGraph(nlinesNLOEta8160GeV,ptNLOEta8160GeV,muTwoEta8160GeV);
+        // fill yield graphs for mu variations
+        graphNLOCalcInvYieldEtaMuHalfpPb8160GeV     = ScaleGraph(graphNLOCalcInvSecEtaMuHalf8160GeV, 208/(2.095*recalcBarn));
+        graphNLOCalcInvYieldEtaMuTwopPb8160GeV      = ScaleGraph(graphNLOCalcInvSecEtaMuTwo8160GeV, 208/(2.095*recalcBarn));
+        graphNLOCalcInvYieldEtaMuHalfpp8160GeV      = ScaleGraph(graphNLOCalcInvSecEtaMuHalf8160GeV, 1);
+        graphNLOCalcInvYieldEtaMuTwopp8160GeV       = ScaleGraph(graphNLOCalcInvSecEtaMuTwo8160GeV, 1);
+    }
+    // combine all mu scales into 1 graph for eventual plotting
+    TGraphAsymmErrors* graphNLOCalcInvSecEta8160GeV     = CombineMuScales(nlinesNLOEta8160GeV, ptNLOEta8160GeV, muOneEta8160GeV, muHalfEta8160GeV, muTwoEta8160GeV);
+    TGraphAsymmErrors* graphNLOCalcInvYieldEtapPb8160GeV= ScaleGraphAsym(graphNLOCalcInvSecEta8160GeV, 208/(2.095*recalcBarn));
+    TGraphAsymmErrors* graphNLOCalcInvYieldEtapp8160GeV = ScaleGraphAsym(graphNLOCalcInvSecEta8160GeV, 1);
+
+    //*********************************************************
+    // Pi0: PDF:CTEQ6M5 - FF:DSS07
+    Double_t ptNLOPi08160GeV[200];
+    Double_t muHalfPi08160GeV[200];
+    Double_t muOnePi08160GeV[200];
+    Double_t muTwoPi08160GeV[200];
+    Int_t nlinesNLOPi08160GeV                       = 0;
+
+    TString fileNameNLOPi08160GeV                   = "ExternalInput/Theory/alice_8160gev_dss07_muhalf_one_two.dat";
+    ifstream  fileNLOPi08160GeV;
+    fileNLOPi08160GeV.open(fileNameNLOPi08160GeV,ios_base::in);
+    cout << fileNameNLOPi08160GeV << endl;
+
+    while(!fileNLOPi08160GeV.eof() && nlinesNLOPi08160GeV < 200){
+        fileNLOPi08160GeV >> ptNLOPi08160GeV[nlinesNLOPi08160GeV] >> muHalfPi08160GeV[nlinesNLOPi08160GeV] >> muOnePi08160GeV[nlinesNLOPi08160GeV] >> muTwoPi08160GeV[nlinesNLOPi08160GeV];
+        cout << nlinesNLOPi08160GeV << "         "  << ptNLOPi08160GeV[nlinesNLOPi08160GeV] << "         "  << muHalfPi08160GeV[nlinesNLOPi08160GeV] << "         "  << muOnePi08160GeV[nlinesNLOPi08160GeV] << "         "  << muTwoPi08160GeV[nlinesNLOPi08160GeV] << endl;
+        nlinesNLOPi08160GeV++;
+    }
+    fileNLOPi08160GeV.close();
+    // reduce number of lines by 1
+    nlinesNLOPi08160GeV--;
+
+    // fill x-section graphs
+    TGraph* graphNLOCalcInvSecPi0MuHalf8160GeV      = new TGraph(nlinesNLOPi08160GeV,ptNLOPi08160GeV,muHalfPi08160GeV);
+    // graphNLOCalcInvSecPi0MuHalf8160GeV->RemovePoint(0);
+    TGraph* graphNLOCalcInvSecPi0MuOne8160GeV       = new TGraph(nlinesNLOPi08160GeV,ptNLOPi08160GeV,muOnePi08160GeV);
+    TGraph* graphNLOCalcInvSecPi0MuTwo8160GeV       = new TGraph(nlinesNLOPi08160GeV,ptNLOPi08160GeV,muTwoPi08160GeV);
+    // fill yield graphs
+    TGraph* graphNLOCalcInvYieldPi0MuHalfpPb8160GeV     = ScaleGraph(graphNLOCalcInvSecPi0MuHalf8160GeV, 208/(2.095*recalcBarn));
+    TGraph* graphNLOCalcInvYieldPi0MuOnepPb8160GeV      = ScaleGraph(graphNLOCalcInvSecPi0MuOne8160GeV, 208/(2.095*recalcBarn));
+    TGraph* graphNLOCalcInvYieldPi0MuTwopPb8160GeV      = ScaleGraph(graphNLOCalcInvSecPi0MuTwo8160GeV, 208/(2.095*recalcBarn));
+    TGraph* graphNLOCalcInvYieldPi0MuHalfpp8160GeV      = ScaleGraph(graphNLOCalcInvSecPi0MuHalf8160GeV, 1);
+    TGraph* graphNLOCalcInvYieldPi0MuOnepp8160GeV       = ScaleGraph(graphNLOCalcInvSecPi0MuOne8160GeV, 1);
+    TGraph* graphNLOCalcInvYieldPi0MuTwopp8160GeV       = ScaleGraph(graphNLOCalcInvSecPi0MuTwo8160GeV, 1);
+    // combine all mu scales into 1 graph for eventual plotting
+    TGraphAsymmErrors* graphNLOCalcInvSecPi08160GeV     = CombineMuScales(nlinesNLOPi08160GeV, ptNLOPi08160GeV, muOnePi08160GeV, muHalfPi08160GeV, muTwoPi08160GeV);
+    TGraphAsymmErrors* graphNLOCalcInvYieldPi0pPb8160GeV= ScaleGraphAsym(graphNLOCalcInvSecPi08160GeV, 208/(2.095*recalcBarn));
+    TGraphAsymmErrors* graphNLOCalcInvYieldPi0pp8160GeV = ScaleGraphAsym(graphNLOCalcInvSecPi08160GeV, 1);
+    //*********************************************************
+    // Eta/Pi0 Vogelsang FF pi0: DSS14, FF eta: AESSS, PDF: CT10
+    Double_t* valueNLOMuHalfEta8160GeV              = NULL;
+    Double_t* valueNLOMuOneEta8160GeV               = graphNLOCalcInvSecEtaMuOne8160GeV->GetY();
+    Double_t* valueNLOMuTwoEta8160GeV               = NULL;
+    if (fillAllMuScalesEta8160GeV){
+        valueNLOMuHalfEta8160GeV                    = graphNLOCalcInvSecEtaMuHalf8160GeV->GetY();
+        valueNLOMuTwoEta8160GeV                     = graphNLOCalcInvSecEtaMuTwo8160GeV->GetY();
+    }
+    Double_t* valueNLOMuHalfPi08160GeV              = graphNLOCalcInvSecPi0MuHalf8160GeV->GetY();
+    Double_t* valueNLOMuOnePi08160GeV               = graphNLOCalcInvSecPi0MuOne8160GeV->GetY();
+    Double_t* valueNLOMuTwoPi08160GeV               = graphNLOCalcInvSecPi0MuTwo8160GeV->GetY();
+    Double_t* xValueNLO8160GeV                      = graphNLOCalcInvSecPi0MuOne8160GeV->GetX();
+    Int_t xNBins8160GeV                             = graphNLOCalcInvSecPi0MuOne8160GeV->GetN();
+    Double_t valueNLOEtaToPi0NLOMuHalf8160GeV[200];
+    Double_t valueNLOEtaToPi0NLOMuOne8160GeV[200];
+    Double_t valueNLOEtaToPi0NLOMuTwo8160GeV[200];
+
+    // calculate eta/pi0 ratios for different mu scales
+    for ( Int_t n = 0; n < xNBins8160GeV+1; n++){
+        if (valueNLOMuOnePi08160GeV[n] != 0){
+            valueNLOEtaToPi0NLOMuOne8160GeV[n] = valueNLOMuOneEta8160GeV[n]/valueNLOMuOnePi08160GeV[n];
+        } else {
+            valueNLOEtaToPi0NLOMuOne8160GeV[n] = 0.;
+        }
+
+        if (fillAllMuScalesEta8160GeV){
+            if (n == 0){
+                valueNLOEtaToPi0NLOMuHalf8160GeV[n] = 0.;
+            } else {
+                if (valueNLOMuHalfPi08160GeV[n] != 0){
+                    valueNLOEtaToPi0NLOMuHalf8160GeV[n] = valueNLOMuHalfEta8160GeV[n]/valueNLOMuHalfPi08160GeV[n];
+                } else {
+                    valueNLOEtaToPi0NLOMuHalf8160GeV[n] = 0.;
+                }
+            }
+            if (valueNLOMuTwoPi08160GeV[n] != 0){
+                valueNLOEtaToPi0NLOMuTwo8160GeV[n] = valueNLOMuTwoEta8160GeV[n]/valueNLOMuTwoPi08160GeV[n];
+            } else {
+                valueNLOEtaToPi0NLOMuTwo8160GeV[n] = 0.;
+            }
+        } else {
+            valueNLOEtaToPi0NLOMuHalf8160GeV[n] = valueNLOEtaToPi0NLOMuOne8160GeV[n];
+            valueNLOEtaToPi0NLOMuTwo8160GeV[n] = valueNLOEtaToPi0NLOMuOne8160GeV[n];
+        }
+    }
+    // fill graphs
+    TGraph* graphEtaToPi0NLOMuHalf8160GeV           = NULL;
+    TGraph* graphEtaToPi0NLOMuTwo8160GeV            = NULL;
+    TGraph* graphEtaToPi0NLOMuOne8160GeV            = new TGraph(xNBins8160GeV,xValueNLO8160GeV,valueNLOEtaToPi0NLOMuOne8160GeV);
+    if (fillAllMuScalesEta8160GeV){
+        graphEtaToPi0NLOMuHalf8160GeV               = new TGraph(xNBins8160GeV,xValueNLO8160GeV,valueNLOEtaToPi0NLOMuHalf8160GeV);
+        // graphEtaToPi0NLOMuHalf8160GeV->RemovePoint(0);
+        graphEtaToPi0NLOMuTwo8160GeV                = new TGraph(xNBins8160GeV,xValueNLO8160GeV,valueNLOEtaToPi0NLOMuTwo8160GeV);
+    }
+    // combine all mu scales into 1 graph for plotting
+    TGraphAsymmErrors* graphNLOCalcEtaToPi08160GeV  = CombineMuScales(xNBins8160GeV, xValueNLO8160GeV, valueNLOEtaToPi0NLOMuOne8160GeV, valueNLOEtaToPi0NLOMuHalf8160GeV, valueNLOEtaToPi0NLOMuTwo8160GeV);
+
+
+    //*********************************************************
+    // Pi0: PDF:CT10 - FF:DSS14
+    Double_t ptNLOPi0nPDF8160GeV[200];
+    Double_t muHalfPi0nPDF8160GeV[200];
+    Double_t muOnePi0nPDF8160GeV[200];
+    Double_t muTwoPi0nPDF8160GeV[200];
+    Int_t nlinesNLOPi0nPDF8160GeV                       = 0;
+    Bool_t fillAllMuScalesPi0nPDF8160GeV                = kTRUE;
+
+    TString fileNameNLOPi0nPDF8160GeV                   = "ExternalInput/Theory/alice_8160gev_dss14_muhalf_one_two.dat";
+    ifstream  fileNLOPi0nPDF8160GeV;
+    fileNLOPi0nPDF8160GeV.open(fileNameNLOPi0nPDF8160GeV,ios_base::in);
+    cout << fileNameNLOPi0nPDF8160GeV << endl;
+
+    // read eta input theory file for 5.023TeV
+    while(!fileNLOPi0nPDF8160GeV.eof() && nlinesNLOPi0nPDF8160GeV < 200){
+        if (fillAllMuScalesPi0nPDF8160GeV){
+            fileNLOPi0nPDF8160GeV >> ptNLOPi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV] >> muHalfPi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV] >> muOnePi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV] >> muTwoPi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV];
+        } else {
+            fileNLOPi0nPDF8160GeV >> ptNLOPi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV] >> muOnePi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV] ;
+            muHalfPi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV]   = muOnePi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV] ;
+            muTwoPi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV]    = muOnePi0nPDF8160GeV[nlinesNLOPi0nPDF8160GeV] ;
+        }
+        nlinesNLOPi0nPDF8160GeV++;
+    }
+    fileNLOPi0nPDF8160GeV.close();
+    // reduce number of lines by 1
+    nlinesNLOPi0nPDF8160GeV--;
+
+    // generate graphs
+    TGraph* graphNLOCalcInvSecPi0nPDFMuHalf8160GeV      = NULL;
+    TGraph* graphNLOCalcInvSecPi0nPDFMuOne8160GeV       = NULL;
+    TGraph* graphNLOCalcInvSecPi0nPDFMuTwo8160GeV       = NULL;
+    TGraph* graphNLOCalcInvYieldPi0nPDFMuHalfpPb8160GeV = NULL;
+    TGraph* graphNLOCalcInvYieldPi0nPDFMuOnepPb8160GeV  = NULL;
+    TGraph* graphNLOCalcInvYieldPi0nPDFMuTwopPb8160GeV  = NULL;
+
+    // fill x-section graph for default mu
+    graphNLOCalcInvSecPi0nPDFMuOne8160GeV               = new TGraph(nlinesNLOPi0nPDF8160GeV,ptNLOPi0nPDF8160GeV,muOnePi0nPDF8160GeV);
+    graphNLOCalcInvSecPi0nPDFMuOne8160GeV->Print();
+    // fill yield graph for default mu
+    graphNLOCalcInvYieldPi0nPDFMuOnepPb8160GeV          = ScaleGraph(graphNLOCalcInvSecPi0nPDFMuOne8160GeV, 208/(2.095*recalcBarn));
+
+    if (fillAllMuScalesPi0nPDF8160GeV){
+        // fill x-section graphs for mu variations
+        graphNLOCalcInvSecPi0nPDFMuHalf8160GeV          = new TGraph(nlinesNLOPi0nPDF8160GeV,ptNLOPi0nPDF8160GeV,muHalfPi0nPDF8160GeV);
+        // graphNLOCalcInvSecPi0nPDFMuHalf8160GeV->RemovePoint(0);
+        graphNLOCalcInvSecPi0nPDFMuTwo8160GeV           = new TGraph(nlinesNLOPi0nPDF8160GeV,ptNLOPi0nPDF8160GeV,muTwoPi0nPDF8160GeV);
+        // fill yield graphs for mu variations
+        graphNLOCalcInvYieldPi0nPDFMuHalfpPb8160GeV     = ScaleGraph(graphNLOCalcInvSecPi0nPDFMuHalf8160GeV, 208/(2.095*recalcBarn));
+        graphNLOCalcInvYieldPi0nPDFMuTwopPb8160GeV      = ScaleGraph(graphNLOCalcInvSecPi0nPDFMuTwo8160GeV, 208/(2.095*recalcBarn));
+
+    }
+    // combine all mu scales into 1 graph for eventual plotting
+    TGraphAsymmErrors* graphNLOCalcInvSecPi0nPDF8160GeV     = CombineMuScales(nlinesNLOPi0nPDF8160GeV, ptNLOPi0nPDF8160GeV, muOnePi0nPDF8160GeV, muHalfPi0nPDF8160GeV, muTwoPi0nPDF8160GeV);
+    TGraphAsymmErrors* graphNLOCalcInvYieldPi0nPDFpPb8160GeV= ScaleGraphAsym(graphNLOCalcInvSecPi0nPDF8160GeV, 208/(2.095*recalcBarn));
+
+
     //**********************************************************************************************************************
     //********************************* Write graphs and histos to compilation file for pPb ********************************
     //**********************************************************************************************************************
@@ -1626,6 +1852,40 @@ void ProduceTheoryGraphsPPb(){
             histoEtaHIJING8160GeV->Write("histoEtaSpecHIJING_MCGenpPb8TeV", TObject::kOverwrite);
             histoEtaToPi0HIJING8160GeV->Write("histoEtaToPi0HIJING_MCGenpPb8TeV", TObject::kOverwrite);
             histoPi0ToPiCHHIJING8160GeV->Write("histoPi0ToPiChHIJING_MCGenpPb8TeV", TObject::kOverwrite);
+
+            // pi0 Vogelsang PDF: CTEQ6M5, FF: DSS07 scaled to pPb
+            graphNLOCalcInvYieldPi0MuHalfpPb8160GeV->Write("graphNLOCalcDSS07InvYieldPi0MuHalf8160GeV", TObject::kOverwrite);
+            graphNLOCalcInvYieldPi0MuOnepPb8160GeV->Write("graphNLOCalcDSS07InvYieldPi0MuOne8160GeV", TObject::kOverwrite);
+            graphNLOCalcInvYieldPi0MuTwopPb8160GeV->Write("graphNLOCalcDSS07InvYieldPi0MuTwo8160GeV", TObject::kOverwrite);
+            graphNLOCalcInvYieldPi0pPb8160GeV->Write("graphNLOCalcDSS07InvYieldPi08160GeV", TObject::kOverwrite);
+            graphNLOCalcInvYieldPi0MuHalfpp8160GeV->Write("graphNLOCalcDSS07InvYieldPi0MuHalfPP8160GeV", TObject::kOverwrite);
+            graphNLOCalcInvYieldPi0MuOnepp8160GeV->Write("graphNLOCalcDSS07InvYieldPi0MuOnePP8160GeV", TObject::kOverwrite);
+            graphNLOCalcInvYieldPi0MuTwopp8160GeV->Write("graphNLOCalcDSS07InvYieldPi0MuTwoPP8160GeV", TObject::kOverwrite);
+            graphNLOCalcInvYieldPi0pp8160GeV->Write("graphNLOCalcDSS07InvYieldPi0PP8160GeV", TObject::kOverwrite);
+            // eta Vogelsang PDF: CTEQ6M5, FF AESSS
+            if (graphNLOCalcInvYieldEtaMuHalfpPb8160GeV) graphNLOCalcInvYieldEtaMuHalfpPb8160GeV->Write("graphNLOCalcAESSSInvYieldEtaMuHalf8160GeV", TObject::kOverwrite);
+            if (graphNLOCalcInvYieldEtaMuOnepPb8160GeV) graphNLOCalcInvYieldEtaMuOnepPb8160GeV->Write("graphNLOCalcAESSSInvYieldEtaMuOne8160GeV", TObject::kOverwrite);
+            if (graphNLOCalcInvYieldEtaMuTwopPb8160GeV) graphNLOCalcInvYieldEtaMuTwopPb8160GeV->Write("graphNLOCalcAESSSInvYieldEtaMuTwo8160GeV", TObject::kOverwrite);
+            graphNLOCalcInvYieldEtapPb8160GeV->Write("graphNLOCalcAESSSInvYieldEta8160GeV", TObject::kOverwrite);
+            if (graphNLOCalcInvYieldEtaMuHalfpp8160GeV) graphNLOCalcInvYieldEtaMuHalfpp8160GeV->Write("graphNLOCalcAESSSInvYieldEtaMuHalfPP8160GeV", TObject::kOverwrite);
+            if (graphNLOCalcInvYieldEtaMuOnepp8160GeV) graphNLOCalcInvYieldEtaMuOnepp8160GeV->Write("graphNLOCalcAESSSInvYieldEtaMuOnePP8160GeV", TObject::kOverwrite);
+            if (graphNLOCalcInvYieldEtaMuTwopp8160GeV) graphNLOCalcInvYieldEtaMuTwopp8160GeV->Write("graphNLOCalcAESSSInvYieldEtaMuTwoPP8160GeV", TObject::kOverwrite);
+            graphNLOCalcInvYieldEtapp8160GeV->Write("graphNLOCalcAESSSInvYieldEtaPP8160GeV", TObject::kOverwrite);
+            // eta/pi0 Vogelsang PDF: CTEQ6M5, FF eta- AESSS, FF pi0 - DSS07
+            if (graphEtaToPi0NLOMuHalf8160GeV) graphEtaToPi0NLOMuHalf8160GeV->Write("graphNLOCalcEtaOverPi0MuHalf8160GeV", TObject::kOverwrite);
+            if (graphEtaToPi0NLOMuOne8160GeV) graphEtaToPi0NLOMuOne8160GeV->Write("graphNLOCalcEtaOverPi0MuOne8160GeV", TObject::kOverwrite);
+            if (graphEtaToPi0NLOMuTwo8160GeV) graphEtaToPi0NLOMuTwo8160GeV->Write("graphNLOCalcEtaOverPi0MuTwo8160GeV", TObject::kOverwrite);
+            graphNLOCalcEtaToPi08160GeV->Write("graphNLOCalcEtaOverPi08160GeV_AESSS_DSS07", TObject::kOverwrite);
+
+            // pi0 Vogelsang nPDF: CT10, FF: DSS14 scaled to pPb
+            if (graphNLOCalcInvYieldPi0nPDFMuHalfpPb8160GeV) graphNLOCalcInvYieldPi0nPDFMuHalfpPb8160GeV->Write("graphNLOCalcDSS14InvYieldPi0MuHalf8160GeV_CT10", TObject::kOverwrite);
+            if (graphNLOCalcInvYieldPi0nPDFMuOnepPb8160GeV) graphNLOCalcInvYieldPi0nPDFMuOnepPb8160GeV->Write("graphNLOCalcDSS14InvYieldPi0MuOne8160GeV_CT10", TObject::kOverwrite);
+            if (graphNLOCalcInvYieldPi0nPDFMuTwopPb8160GeV) graphNLOCalcInvYieldPi0nPDFMuTwopPb8160GeV->Write("graphNLOCalcDSS14InvYieldPi0MuTwo8160GeV_CT10", TObject::kOverwrite);
+            graphNLOCalcInvYieldPi0nPDFpPb8160GeV->Write("graphNLOCalcDSS14InvYieldPi08160GeV_CT10", TObject::kOverwrite);
+
+
+            // graphRpPbEPPS16_DSS14->Write("graphNLOCalcDSS14RpAPi08160GeV_EPPS16", TObject::kOverwrite);
+            // graphRpPbEPPS16_DSS14_muOne->Write("graphNLOCalcDSS14RpAPi08160GeV_muOne_EPPS16", TObject::kOverwrite);
     fileTheoryGraphsPPb.Close();
 
 }

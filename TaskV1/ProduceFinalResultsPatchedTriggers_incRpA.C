@@ -826,8 +826,18 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             offSetsPi0Sys[5]+=4;
     }
 
-
-    TH2F * histo2DInvXSecSpectra = new TH2F("histo2DInvXSecSpectra","histo2DInvXSecSpectra",1000,0., maxPtGlobalPi0,10000,1,5e14);
+    Double_t minpTscaledyield = 0;
+    Double_t maxpTscaledyield = maxPtGlobalPi0;
+    Double_t minscaledyield = 1;
+    Double_t maxscaledyield = 5e14;
+    if(mode==10){
+        minpTscaledyield = 8;
+        maxpTscaledyield = 230;
+        minscaledyield = 1e-1;
+        maxscaledyield = 5e7;
+        canvasCorrSpectra->SetLogx(kTRUE);
+    }
+    TH2F * histo2DInvXSecSpectra = new TH2F("histo2DInvXSecSpectra","histo2DInvXSecSpectra",1000,minpTscaledyield, maxPtGlobalPi0,10000,minscaledyield,maxscaledyield);
     SetStyleHistoTH2ForGraphs(histo2DInvXSecSpectra, "#it{p}_{T} (GeV/#it{c})","#frac{1}{2#pi #it{N}_{ev}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)^{2}",
                             0.85*textSizeSpectra,0.04, 0.85*textSizeSpectra,textSizeSpectra, 0.8,1.55);
     // histo2DInvXSecSpectra->GetYaxis()->SetRangeUser(minCorrYieldSpectra,maxCorrYieldSpectra);
@@ -838,9 +848,13 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
         for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
             DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0Scaled[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
             graphCorrectedYieldPi0Scaled[i]->Draw("e1,p,same");
-            DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0RefScaled[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
+            DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0RefScaled[i], markerTriggMC[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
             graphCorrectedYieldPi0RefScaled[i]->Draw("e1,p,same");
             legendSpectra->AddEntry(graphCorrectedYieldPi0Scaled[i],triggerNameLabel[i].Data(),"p");
+            cout << "scaled yield for pPb trigger " << triggerNameLabel[i].Data() << endl;
+            graphCorrectedYieldPi0Scaled[i]->Print();
+            cout << "scaled yield for pp trigger " << triggerNameLabel[i].Data() << endl;
+            graphCorrectedYieldPi0RefScaled[i]->Print();
         }
         legendSpectra->Draw();
 
@@ -850,6 +864,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
 
         canvasCorrSpectra->Update();
         canvasCorrSpectra->SaveAs(Form("%s/Pi0_%s_CorrectedYieldScaledTrigg.%s",outputDir.Data(),isMC.Data(),suffix.Data()));
+        canvasCorrSpectra->SetLogx(kFALSE);
 
     // create weighted graphs for spectra and supporting graphs
     TString nameWeightsLogFilePi0 =     Form("%s/weightsPi0_%s.dat",outputDir.Data(),isMC.Data());

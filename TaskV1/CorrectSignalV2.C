@@ -250,7 +250,8 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
                         TString fEstimatePileup         = "",
                         Bool_t optDalitz                = kFALSE,
                         Int_t mode                      = 9,
-                        Int_t triggerSet                = -1
+                        Int_t triggerSet                = -1,
+                        Bool_t useExtAccept             = kFALSE
 
                      ){
 
@@ -444,7 +445,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     }
     // calculate number of events
     Float_t nEvt    = 0;
-    if (kCollisionSystem == 1){
+    if (kCollisionSystem > 0){
         nEvt        = histoEventQuality->GetBinContent(1);
     } else {
         nEvt        = GetNEvents(histoEventQuality);
@@ -601,6 +602,10 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     }
 
     TH1D* histoAcceptance                           = (TH1D*)fileCorrections->Get("fMCMesonAccepPt");
+    TH1D* histoAcceptanceStandard                   = NULL; // acceptance from train output for comparison with external acceptance
+    if(useExtAccept){
+        histoAcceptanceStandard                     = (TH1D*)fileCorrections->Get("fMCMesonAccepStandardPt");
+    }
     TH1D* histoSecAcceptance[4]                     = {NULL, NULL, NULL, NULL};
     Bool_t hasNewSecQuantities                      = kFALSE;
     Int_t nAccHistSec                               = 0;
@@ -990,7 +995,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     TH1D* histoMCrecWidthGaussMeson                 = (TH1D*)fileCorrections->Get("histoWidthGaussianMeson");
 
     Float_t nEvtMC = 0;
-    if (kCollisionSystem == 1){
+    if (kCollisionSystem > 0){
         nEvtMC = histoEventQualityMC->GetBinContent(1);
     } else {
         nEvtMC = GetNEvents(histoEventQualityMC);
@@ -998,7 +1003,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     }
     Float_t nEvtMCAddSig = 0;
     if (histoEventQualityMCAddedSig){
-        if (kCollisionSystem == 1){
+        if (kCollisionSystem > 0){
             nEvtMCAddSig = histoEventQualityMCAddedSig->GetBinContent(1);
         } else {
             nEvtMCAddSig = GetNEvents(histoEventQualityMCAddedSig);
@@ -1007,7 +1012,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     }
     Float_t nEvtMCJetJet = 0;
     if (histoEventQualityMCJetJet){
-        if (kCollisionSystem == 1){
+        if (kCollisionSystem > 0){
             nEvtMCJetJet = histoEventQualityMCJetJet->GetBinContent(1);
         } else {
             nEvtMCJetJet = GetNEvents(histoEventQualityMCJetJet);
@@ -2690,7 +2695,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             }
         } else if (mode == 2 || mode == 13 || mode == 4 || mode == 12){
             rangeAcc[0]         = 0.;
-            rangeAcc[1]         = 0.3;
+            rangeAcc[1]         = 0.5;
         } else if (mode == 3 || mode == 5){
             rangeAcc[0]         = 0.;
             rangeAcc[1]         = 0.06;
@@ -2704,6 +2709,10 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
 
         DrawGammaSetMarker(histoAcceptance, 20, 1.5, kAzure-6, kAzure-6);
         histoAcceptance->DrawCopy("e1");
+        if(useExtAccept){
+            DrawGammaSetMarker(histoAcceptanceStandard, 24, 1.5, kSpring-6, kSpring-6);
+            histoAcceptanceStandard->DrawCopy("e1,same");
+        }
 
         PutProcessLabelAndEnergyOnPlot(0.72, 0.25, 28, collisionSystem.Data(), fTextMeasurement.Data(), fDetectionProcess.Data(), 43, 0.03);
 
@@ -4254,7 +4263,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
                                        fCutSelection.Data());
     cout << fCutSelection.Data() << "\t"<<  nameOutput2.Data() << endl;
     TFile* correctedOutput2 = new TFile(nameOutput2.Data(),"RECREATE");
-        if (histoAcceptance)                histoAcceptance->Write();
+        if (histoAcceptance)                histoAcceptance->Write("fMCMesonAccepPt");
         if (histoTrueEffiPt[0])             histoTrueEffiPt[0]->Write("TrueMesonEffiPt");
         if (histoCompleteCorr)              histoCompleteCorr->Write("EffiTimesAcceptanceTimesDeltaY");
     correctedOutput2->Write();
@@ -4337,7 +4346,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
         if (histoRatioRecFWHMGauss)             histoRatioRecFWHMGauss->Write("histoRatioRecFWHMGauss");
         if (histoRatioValRecFWHMGauss)          histoRatioValRecFWHMGauss->Write("histoRatioValRecFWHMGauss");
 
-        if (histoAcceptance)                    histoAcceptance->Write();
+        if (histoAcceptance)                    histoAcceptance->Write("fMCMesonAccepPt");
         if (histoAcceptanceWOEvtWeights)        histoAcceptanceWOEvtWeights->Write();
 
         if (histoEventQuality)                  histoEventQuality->Write();

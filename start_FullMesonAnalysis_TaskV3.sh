@@ -56,6 +56,7 @@ NEWGAMMAMACROS=1
 ADDEDSIG=0
 ADDPILEUPCORR=kFALSE
 FILEWEIGHTGAMMA=""
+USEEXTACC="kFALSE"
 
 # Boolean for switching on and of different meson processings
 DOGAMMA=1
@@ -85,7 +86,7 @@ source start_FullMesonAnalysis_helperPbPb.sh
 
 function ExtractSignal()
 {
-    root -x -q -l -b  TaskV1/ExtractSignalV2.C\+\($1\,$MODE\,$USETHNSPARSE\,-1\,\"$CORRFSETTING\"\)
+    root -x -q -l -b  TaskV1/ExtractSignalV2.C\+\($1\,$MODE\,$USETHNSPARSE\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
 }
 
 # Compile directly with G++ incl fsanitize (prototype)
@@ -116,7 +117,7 @@ function ExtractSignalGammaV2()
 
 function CorrectSignal()
 {
-    root -x -l -b -q TaskV1/CorrectSignalV2.C\+\(\"$1\"\,\"$2\"\,\"$3\"\,\"$4\"\,\"$5\"\,\"$6\"\,\"$ENERGY\"\,\"\"\,\"$ESTIMATEPILEUP\"\,kFALSE\,$MODE\)
+    root -x -l -b -q TaskV1/CorrectSignalV2.C\+\(\"$1\"\,\"$2\"\,\"$3\"\,\"$4\"\,\"$5\"\,\"$6\"\,\"$ENERGY\"\,\"\"\,\"$ESTIMATEPILEUP\"\,kFALSE\,$MODE\,-1\,$USEEXTACC\)
 
 }
 
@@ -322,6 +323,11 @@ fi
 if [[ "$1" == *-*ToyOff* ]]; then
     DISABLETOYMC=1
     echo "toy MC switched off"
+fi
+
+if [[ "$1" == *-*ExtAcc* ]]; then
+    USEEXTACC="kTRUE"
+    echo "will use acceptance from kinematics tree for correction"
 fi
 
 
@@ -1492,10 +1498,10 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]; 
                         fi
                     fi
                 fi
-                if [ "$SUFFIX" == "pdf" ]; then
-                    rm -f $CUTSELECTION/$ENERGY/$SUFFIX/ExtractSignal/ExtractSignal_all.pdf
-                    pdfunite $CUTSELECTION/$ENERGY/$SUFFIX/ExtractSignal/*.pdf $CUTSELECTION/$ENERGY/$SUFFIX/ExtractSignal/*/*.pdf $CUTSELECTION/$ENERGY/$SUFFIX/ExtractSignal/ExtractSignal_all.pdf
-                fi
+               if [ "$SUFFIX" == "pdf" ]; then
+                   rm -f $CUTSELECTION/$ENERGY/$SUFFIX/ExtractSignal/ExtractSignal_all.pdf
+                   pdfunite $CUTSELECTION/$ENERGY/$SUFFIX/ExtractSignal/*.pdf $CUTSELECTION/$ENERGY/$SUFFIX/ExtractSignal/*/*.pdf $CUTSELECTION/$ENERGY/$SUFFIX/ExtractSignal/ExtractSignal_all.pdf
+               fi
             fi
 
             PI0DATARAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0_data_GammaConvV1WithoutCorrection_*$CUTSELECTION*.root`
@@ -1594,10 +1600,10 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]; 
                     CorrectSignal $ETAPRIMEMCRAWFILE $ETAPRIMEMCCORRFILE $CUTSELECTION $SUFFIX EtaPrime kTRUE $ESTIMATEPILEUP $DIRECTPHOTON
                 fi
             fi
-            if [ "$SUFFIX" == "pdf" ]; then
-                rm -f $CUTSELECTION/$ENERGY/$SUFFIX/CorrectSignalV2/CorrectSignal_all.pdf
-                pdfunite $CUTSELECTION/$ENERGY/$SUFFIX/CorrectSignalV2/*.pdf $CUTSELECTION/$ENERGY/$SUFFIX/CorrectSignalV2/CorrectSignal_all.pdf
-            fi
+           if [ "$SUFFIX" == "pdf" ]; then
+               rm -f $CUTSELECTION/$ENERGY/$SUFFIX/CorrectSignalV2/CorrectSignal_all.pdf
+               pdfunite $CUTSELECTION/$ENERGY/$SUFFIX/CorrectSignalV2/*.pdf $CUTSELECTION/$ENERGY/$SUFFIX/CorrectSignalV2/CorrectSignal_all.pdf
+           fi
 
         fi
         NORMALCUTS=`expr $NORMALCUTS + 1`

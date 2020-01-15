@@ -457,7 +457,7 @@ void CompareDifferentDirectoriesMerged( TString FolderList          = "",
             if(i == 0){
                 DrawAutoGammaMesonHistos( histoCorrectedYieldCut[i],
                                         "", "#it{p}_{T} (GeV/#it{c})", "#frac{1}{2#pi #it{N}_{ev.}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)",
-                                        kTRUE, 5., 5e-10,kTRUE,
+                                        kTRUE, 5., 5e-14,kTRUE,
                                         kFALSE, 0.0, 0.030,
                                         kFALSE, 0., 10.);
                 DrawGammaSetMarker(histoCorrectedYieldCut[i], 20, 1., color[0], color[0]);

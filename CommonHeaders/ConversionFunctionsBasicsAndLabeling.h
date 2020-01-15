@@ -6076,12 +6076,18 @@
                 triggerRejec    = 7884;
                 if(mode == 2) triggerRejec    = 7884;
             }
-        } else  if (energy.Contains("pPb_8TeV") ){
+        }else  if (energy.Contains("pPb_8TeV") ){
             cout << "Trigger used: " << trigger << endl;
-            if (!strTrigger.CompareTo("8e")){  // EG2
+            if (!strTrigger.CompareTo("85")){  // EG2
+                triggerRejec    = 447;
+                if(mode == 2) triggerRejec    = 462;
+            } else if (!strTrigger.CompareTo("83")){  // EG1
+                triggerRejec    = 1529;
+                if(mode == 2) triggerRejec    = 1576;
+            }else if (!strTrigger.CompareTo("8e")){  // EG2+DG2
                 triggerRejec    = 280;
                 if(mode == 2) triggerRejec    = 289;
-            } else if (!strTrigger.CompareTo("8d")){  // EG1
+            } else if (!strTrigger.CompareTo("8d")){  // EG1+DG1
                 triggerRejec    = 950;
                 if(mode == 2) triggerRejec    = 1003;
             } else if (!strTrigger.CompareTo("9c")){  // EJ2

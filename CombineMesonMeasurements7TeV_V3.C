@@ -197,14 +197,14 @@ fileNameEMCAL2="";
 
     //location of alternative EMCal measurement
     Int_t iEviEMCal = 8;
-    if(!useDanielmeas){
-      nameMeasGlobal[2] = "EMCal high pT";
-      nameMeasGlobal[8] = "EMCal";
-      iEviEMCal = 2;
-    }else{
+    // if(!useDanielmeas){
       nameMeasGlobal[2] = "EMCal";
-      nameMeasGlobal[8] = "EMCal high pT";
-    }
+      // nameMeasGlobal[8] = "EMCal";
+    //   iEviEMCal = 2;
+    // }else{
+    //   nameMeasGlobal[2] = "EMCal";
+    //   nameMeasGlobal[8] = "EMCal high pT";
+    // }
 
     Color_t colorDet[11];
     Color_t colorDetMC[11];
@@ -324,7 +324,7 @@ fileNameEMCAL2="";
     Double_t maxXSectionPi0 = 9e12;
 
     Double_t minPtEta = 0.33;
-    Double_t maxPtEta = 18.0;
+    Double_t maxPtEta = 45.0;
     Double_t minXSectionEta = 1e2;
     Double_t maxXSectionEta = 2e11;
 
@@ -585,7 +585,7 @@ fileNameEMCAL2="";
     // ************************** Combination of different measurements **************************************
     // *******************************************************************************************************
 
-    Int_t nBinsPi0 = 43;
+    Int_t nBinsPi0 = 41;
     Double_t xPtLimits[44]                      =  { 0.0, 0.3, 0.4, 0.5, 0.6,
                                                      0.7, 0.8, 0.9, 1.0, 1.1,
                                                      1.2, 1.3, 1.4, 1.5, 1.6,
@@ -594,42 +594,63 @@ fileNameEMCAL2="";
                                                      3.0, 3.2, 3.4, 3.6, 3.8,
                                                      4.0, 4.5, 5.0, 5.5,
                                                      6.0, 7.0, 8.0, 9.0,
-                                                     10.0, 11.0, 12.0, 13.0, 14.0,
-                                                     16.0, 18.0, 20.0, 25.0
+                                                     10.0, 11.0, 12.0, 14.0,
+                                                     16.0, 20.0, 25.0
                                                     };
+    // Double_t xPtLimits[44]                      =  { 0.0, 0.3, 0.4, 0.5, 0.6,
+    //                                                  0.7, 0.8, 0.9, 1.0, 1.1,
+    //                                                  1.2, 1.3, 1.4, 1.5, 1.6,
+    //                                                  1.7, 1.8, 2.0,
+    //                                                  2.2, 2.4, 2.6, 2.8,
+    //                                                  3.0, 3.2, 3.4, 3.6, 3.8,
+    //                                                  4.0, 4.5, 5.0, 5.5,
+    //                                                  6.0, 7.0, 8.0, 9.0,
+    //                                                  10.0, 11.0, 12.0, 13.0, 14.0,
+    //                                                  16.0, 18.0, 20.0, 25.0
+    //                                                 };
 
-    Int_t nBinsEta = 17;
+    Int_t nBinsEta = 22;
     Double_t xPtLimitsEta[49]                   =  { 0.0, 0.4, 0.6, 0.8, 1.0,
                                                      1.4, 1.8, 2.2, 2.6, 3.0,
                                                      3.5, 4.0, 5.0, 6.0, 8.0,
-                                                     10.0, 12.0, 14.0, 15.0, 16.0 ,
-                                                     18.0, 20.0, 25.0, 35.0
+                                                     10.0, 12.0, 14.0, 20.0, 25.0, 30.0, 40.
                                                    };
     Double_t xPtLimitsEtaToPi0[49]              =  { 0.0, 0.4, 0.6, 0.8, 1.0,
                                                      1.4, 1.8, 2.2, 2.6, 3.0,
                                                      3.5, 4.0, 5.0, 6.0, 8.0,
-                                                     10.0, 12.0, 14.0, 15.0, 16.0,
-                                                     18.0, 20.0, 25.0, 35.0
+                                                     10.0, 12.0, 14.0, 20.0, 25.0, 30.0, 40.
                                                    };
-    if(!useDanielmeas){
-      // with Evi
-      nBinsEta = 24;
-      Double_t xPtLimitsEta_Evi[49]              =  { 0.0, 0.4, 0.6, 0.8, 1.0,
-                                                      1.4, 1.8, 2.2, 2.6, 3.0,
-                                                      3.5, 4.0, 5.0, 6.0, 8.0,
-                                                      10.0, 12.0, 13.0, 14.0, 15.0,
-                                                      16.0 ,18.0, 20.0, 25.0, 35.0
-                                                    };
-      for(Int_t i=0; i<=nBinsEta; i++) xPtLimitsEta[i] = xPtLimitsEta_Evi[i];
+    // Double_t xPtLimitsEta[49]                   =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    //                                                  1.4, 1.8, 2.2, 2.6, 3.0,
+    //                                                  3.5, 4.0, 5.0, 6.0, 8.0,
+    //                                                  10.0, 12.0, 14.0, 15.0, 16.0 ,
+    //                                                  18.0, 20.0, 25.0, 35.0
+    //                                                };
+    // Double_t xPtLimitsEtaToPi0[49]              =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    //                                                  1.4, 1.8, 2.2, 2.6, 3.0,
+    //                                                  3.5, 4.0, 5.0, 6.0, 8.0,
+    //                                                  10.0, 12.0, 14.0, 15.0, 16.0,
+    //                                                  18.0, 20.0, 25.0, 35.0
+    //                                                };
+    // if(!useDanielmeas){
+    //   // with Evi
+    //   nBinsEta = 24;
+    //   Double_t xPtLimitsEta_Evi[49]              =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    //                                                   1.4, 1.8, 2.2, 2.6, 3.0,
+    //                                                   3.5, 4.0, 5.0, 6.0, 8.0,
+    //                                                   10.0, 12.0, 13.0, 14.0, 15.0,
+    //                                                   16.0 ,18.0, 20.0, 25.0, 35.0
+    //                                                 };
+    //   for(Int_t i=0; i<=nBinsEta; i++) xPtLimitsEta[i] = xPtLimitsEta_Evi[i];
 
-      Double_t xPtLimitsEtaToPi0_Evi[49]         =  { 0.0, 0.4, 0.6, 0.8, 1.0,
-                                                      1.4, 1.8, 2.2, 2.6, 3.0,
-                                                      3.5, 4.0, 5.0, 6.0, 8.0,
-                                                      10.0, 12.0, 13.0, 14.0, 15.0,
-                                                      16.0, 18.0, 20.0, 25.0
-                                                    };
-      for(Int_t i=0; i<nBinsEta; i++) xPtLimitsEtaToPi0[i] = xPtLimitsEtaToPi0_Evi[i];
-    }
+    //   Double_t xPtLimitsEtaToPi0_Evi[49]         =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    //                                                   1.4, 1.8, 2.2, 2.6, 3.0,
+    //                                                   3.5, 4.0, 5.0, 6.0, 8.0,
+    //                                                   10.0, 12.0, 13.0, 14.0, 15.0,
+    //                                                   16.0, 18.0, 20.0, 25.0
+    //                                                 };
+    //   for(Int_t i=0; i<nBinsEta; i++) xPtLimitsEtaToPi0[i] = xPtLimitsEtaToPi0_Evi[i];
+    // }
 
     // *******************************************************************************************************
     // ************************** Combination of different measurements **************************************
@@ -678,14 +699,14 @@ fileNameEMCAL2="";
 
     // Definition of offsets for stat & sys see output of function in shell, make sure pt bins match
     //                                            PCM,PHOS,EMC,PCMPHOS,PCMEMC,        EMC
-    Int_t offSets[11]                           =  {0,    8,  1,     2,     0, 0,0,0,   6,0,0};
-    Int_t offSetsSys[11]                        =  {1,    8, 11,     3,     6, 0,0,0,   6,0,0};
-    if(!useDanielmeas){
-      offSets[2]    = 6;
-      offSetsSys[2] = 6;
-      offSets[8]    = 1;
-      offSetsSys[8] = 11;
-    }
+    Int_t offSets[11]                           =  {0,    8,  3,     2,     0, 0,0,0,   6,0,0};
+    Int_t offSetsSys[11]                        =  {1,    8,  13,     3,     6, 0,0,0,   6,0,0};
+    // if(!useDanielmeas){
+    //   offSets[2]    = 6;
+    //   offSetsSys[2] = 6;
+    //   offSets[8]    = 1;
+    //   offSetsSys[8] = 11;
+    // }
 
     Int_t offSetPi0Shifting[11]     = { 0,  0,  0,  0,  0,
                                         0,  0,  0,  0,  0,
@@ -697,12 +718,12 @@ fileNameEMCAL2="";
     //                                            PCM,PHOS,EMC,PCMPHOS,PCMEMC,         EMC
     Int_t offSetsEta[11]                        =  {0,    4,  1,     2,      1, 0,0,0,   4,0,0};
     Int_t offSetsSysEta[11]                     =  {1,    4,  7,     3,      4, 0,0,0,   9,0,0};
-    if(!useDanielmeas){
-      offSetsEta[2]    = 4;
-      offSetsSysEta[2] = 9;
-      offSetsEta[8]    = 1;
-      offSetsSysEta[8] = 7;
-    }
+    // if(!useDanielmeas){
+    //   offSetsEta[2]    = 4;
+    //   offSetsSysEta[2] = 9;
+    //   offSetsEta[8]    = 1;
+    //   offSetsSysEta[8] = 7;
+    // }
 
     Int_t offSetEtaShifting[11]     = { 0,  0,  0,  0,  0,
                                         0,  0,  0,  0,  0,
@@ -714,12 +735,12 @@ fileNameEMCAL2="";
     //                                            PCM,PHOS,EMC,PCMPHOS,PCMEMC,         EMC
     Int_t offSetsEtaToPi0[11]                   =  {0,    4,  1,     2,      1, 0,0,0,   4,0,0};
     Int_t offSetsSysEtaToPi0[11]                =  {1,    4,  7,     3,      4, 0,0,0,   9,0,0};
-    if(!useDanielmeas){
-      offSetsEtaToPi0[2]    = 4;
-      offSetsSysEtaToPi0[2] = 9;
-      offSetsEtaToPi0[8]    = 1;
-      offSetsSysEtaToPi0[8] = 7;
-    }
+    // if(!useDanielmeas){
+    //   offSetsEtaToPi0[2]    = 4;
+    //   offSetsSysEtaToPi0[2] = 9;
+    //   offSetsEtaToPi0[8]    = 1;
+    //   offSetsSysEtaToPi0[8] = 7;
+    // }
 
     //**********************************************************************************************************************
     //**********************************************************************************************************************
@@ -777,7 +798,6 @@ fileNameEMCAL2="";
 
     //return;
     if(doOutput) graphCombPi0InvXSectionStat->Print();
-
     TGraphAsymmErrors* graphCombEtaInvXSectionStat= NULL;
     TGraphAsymmErrors* graphCombEtaInvXSectionSys = NULL;
     TGraphAsymmErrors* graphCombEtaInvXSectionTot = CombinePtPointsSpectraFullCorrMat( statErrorCollectionEta, sysErrorCollectionEta,
@@ -789,6 +809,7 @@ fileNameEMCAL2="";
                                                                                          );
     //return;
     if(doOutput) graphCombEtaInvXSectionStat->Print();
+  // return;
 
 
     TGraphAsymmErrors* graphCombEtaToPi0Stat= NULL;
@@ -4619,7 +4640,7 @@ fileNameEMCAL2="";
     // ************************* Saving of final results ********************************************************************
     // **********************************************************************************************************************
 
-       TString nameOutputCommonFile    = Form("CombinedResultsPaperPP7TeV_%s.root", dateForOutput.Data());
+       TString nameOutputCommonFile    = Form("%s/CombinedResultsPaperPP7TeV_%s.root",outputDir.Data(), dateForOutput.Data());
        TFile fCombResults(nameOutputCommonFile.Data(), "RECREATE");
 
        fCombResults.mkdir("Pi07TeV");

@@ -1209,7 +1209,7 @@
                 } else if (mode == 3){
                     return 11;
                 } else if (mode == 4 || mode == 12  || mode == 15){
-                    return 10;
+                    return 13;
                 } else if (mode == 5){
                     return 10;
                 } else {
@@ -4501,13 +4501,13 @@
                 fBinsClusterPt[iPt] = fBinsClusterpPb5TeVPt[iPt];
             }
 
-        } else if( energy.Contains("7TeV") == kTRUE ||  energy.CompareTo("900GeV") == 0){
+        } else if( energy.CompareTo("900GeV") == 0){
             fNBinsClusterPt       = fNBinsCluster7TeVPt;
             for(Int_t iPt=0;iPt<=fNBinsClusterPt;iPt++){
                 fBinsClusterPt[iPt] = fBinsCluster7TeVPt[iPt];
             }
-        } else if( energy.BeginsWith("8TeV") || energy.Contains("pPb_8TeV") ){
-            if(modi == 2 || modi == 4 || modi == 14  || modi == 15){
+        } else if( energy.Contains("7TeV") == kTRUE ||  energy.BeginsWith("8TeV") || energy.Contains("pPb_8TeV") ){
+            if(modi == 2 || modi == 4 || modi == 14  || modi == 15 || (modi==10 && energy.Contains("pPb_8TeV")) ){
                 fNBinsClusterPt       = fNBinsCluster8TeVPt;
                 for(Int_t iPt=0;iPt<=fNBinsClusterPt;iPt++){
                     fBinsClusterPt[iPt] = fBinsCluster8TeVPt[iPt];
@@ -4652,16 +4652,16 @@
         } else if( energy.Contains("pPb_8TeV")) {
             if (trigger.CompareTo("52") == 0 || trigger.CompareTo("57") == 0){
                 triggerSetTemp = 1;    // L0
-            } else if ( trigger.CompareTo("85") == 0  || trigger.CompareTo("8e") == 0   || trigger.CompareTo("9b") == 0 ){
+            } else if ( trigger.CompareTo("85") == 0  || trigger.CompareTo("8e") == 0   || trigger.CompareTo("9b") == 0  || trigger.CompareTo("8b") == 0 ){
                 triggerSetTemp = 2; //L1 G2 (lower threshold)
-            } else if ( trigger.CompareTo("83") == 0 || trigger.CompareTo("8d") == 0  || trigger.CompareTo("9c") == 0    ){
+            } else if ( trigger.CompareTo("83") == 0 || trigger.CompareTo("8d") == 0  || trigger.CompareTo("9c") == 0  || trigger.CompareTo("89") == 0    ){
                 triggerSetTemp = 3; //L1 G1 (lower threshold)
             } else if ( trigger.CompareTo("62") == 0    ){
                 triggerSetTemp = 4; //PHOS PHI7
-            } else if ( trigger.CompareTo("89") == 0    ){
-                triggerSetTemp = 5; //L1 DMC G1
-            } else if ( trigger.CompareTo("8b") == 0    ){
-                triggerSetTemp = 6; //L1 DMC G2
+            // } else if ( trigger.CompareTo("89") == 0    ){
+            //     triggerSetTemp = 5; //L1 DMC G1
+            // } else if ( trigger.CompareTo("8b") == 0    ){
+            //     triggerSetTemp = 6; //L1 DMC G2
             } else {
                 triggerSetTemp = 0;    // L0
             }
@@ -5791,6 +5791,9 @@
                     optionBGSmoothingVar2       = "noSmoothing";
                     nIterBGFit                  = 7;
                     fMaxYFracBGOverIntHist      = 20;
+                    if(modi == 2){
+                        nIterBGFit                  = 9;
+                    }
                 }
             //*********************************************************************************************
             //********************************** Pi0 for PbPb 2.76TeV**************************************
@@ -6883,6 +6886,7 @@
             //********************************** Eta for pPb 8TeV**************************************
             //*********************************************************************************************
             } else if( energy.Contains("pPb_8TeV") || energy.CompareTo("8TeVRef")==0  ) {
+                Bool_t referenceBin = (energy.CompareTo("8TeVRef")==0) ? kTRUE : kFALSE;
                 fStartPtBin                 = GetStartBin("Eta", energy, modi, specialTrigg);
                 Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Eta", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis );
                 if (fNBinsPt > maxPtBinAvail) {
@@ -6903,17 +6907,19 @@
                                 fNRebin[i] = fBinsEtapPb8TeVPtRebin[i];
                             }
                         } else if ( modi == 2 ){
-                            if(specialTrigg == 2){
+                            if(referenceBin ? specialTrigg == 1 : specialTrigg == 2){
                                 fNRebin[i] = fBinsEtapPb8TeVPCMEMCTrigger1PtRebin[i];
-                            } else if(specialTrigg == 3){
+                            } else if(referenceBin ? specialTrigg == 2 : specialTrigg == 3){
                                 fNRebin[i] = fBinsEtapPb8TeVPCMEMCTrigger2PtRebin[i];
+                                if(!setPi0.CompareTo("Pi0EtaBinning"))
+                                    fNRebin[i] = fBinsPi0EtaBinningpPb8TeVPCMEMCTrigger2PtRebin[i];
                             } else {
                                 fNRebin[i] = fBinsEtapPb8TeVPCMEMCPtRebin[i];
                             }
                         } else if ( modi == 4 ) {
-                            if(specialTrigg == 2){
+                            if(referenceBin ? specialTrigg == 1 : specialTrigg == 2){
                                 fNRebin[i] = fBinsEtapPb8TeVEMCTrigger1PtRebin[i];
-                            } else if(specialTrigg == 3){
+                            } else if(referenceBin ? specialTrigg == 2 : specialTrigg == 3){
                                 fNRebin[i] = fBinsEtapPb8TeVEMCTrigger2PtRebin[i];
                             } else {
                                 if(!setPi0.CompareTo("Pi0EtaBinning"))

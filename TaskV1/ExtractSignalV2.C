@@ -69,7 +69,8 @@ void ExtractSignalV2(
     Int_t mode                      = 9,
     Bool_t UseTHnSparse             = kTRUE,
     Int_t triggerSet                = -1,
-    TString optionCorrFrameworkDir  = ""
+    TString optionCorrFrameworkDir  = "",
+    Bool_t useExtAccept             = kFALSE
 ) {
     gROOT->Reset();
 
@@ -386,7 +387,6 @@ void ExtractSignalV2(
     //***************************** Get Main folder for cut ************************************************
     //******************************************************************************************************
     HistosGammaConversion       = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
-
     // couldn't find main folder for cut
     if(HistosGammaConversion == NULL){
         //******************************************************************************************************
@@ -830,7 +830,7 @@ void ExtractSignalV2(
     cout << (TDatabasePDG::Instance())->GetParticle(fMesonId) << endl;
     fMesonMassExpect                            = (TDatabasePDG::Instance())->GetParticle(fMesonId)->Mass();
     // calculate number of events for normalization
-    if (fEnergyFlag.Contains("PbPb")){// || fEnergyFlag.Contains("pPb")){
+    if (fEnergyFlag.Contains("PbPb")|| fEnergyFlag.Contains("pPb")){
         fNEvents        = fEventQuality->GetBinContent(1);
     } else {
         fNEvents        = GetNEvents(fEventQuality);
@@ -2701,6 +2701,13 @@ void ExtractSignalV2(
 
         // Calculation of meson acceptance with possible weighted input
         CalculateMesonAcceptance();
+        if(useExtAccept){
+            if(LoadMesonAcceptance(fDeltaPt)){
+                cout << "loaded external acceptance sucessfully" << endl;
+            } else {
+                cout << "failed to load external acceptance" << endl; return;
+            }
+        }
         // Calculation of meson acceptance without weights for input
         if (fHistoMCMesonPtWithinAcceptanceWOWeights) CalculateMesonAcceptanceWOWeights();
         if (fHistoMCMesonPtWithinAcceptanceWOEvtWeights) CalculateMesonAcceptanceWOEvtWeights();
@@ -6821,6 +6828,116 @@ void FillMCSecondaryHistAndCalculateAcceptance(TH2D* mcSecInputSourcePt, TH2D* m
 
 
 //****************************************************************************
+//************ Loading of external Meson Acceptance Histogram name ***********
+//****************************************************************************
+TString GetCorrectAcceptanceHistoName() {
+    TString addString = "09_";
+    if(fGammaCutSelection.Length() && fGammaCutSelection[1]=='d') addString = "08_";
+
+    switch (fMode){
+            case 0:
+                return Form("%sPCM",addString.Data());
+            // case 1:
+                // return Form("%sPCM-#gamma^{*}#gamma";
+            case 2:
+                if(fClusterCutSelection.BeginsWith("1")){
+                    if(fClusterCutSelection[4]=='a')
+                        return Form("%sPCMEMCR1",addString.Data());
+                    else
+                        return Form("%sPCMEMC",addString.Data());
+                }else if(fClusterCutSelection.BeginsWith("3"))
+                    return Form("%sPCMDMC",addString.Data());
+                else if(fClusterCutSelection.BeginsWith("4"))
+                    return Form("%sPCMEDC",addString.Data());
+            case 3:
+                if(fClusterCutSelection.BeginsWith("24444"))
+                    return Form("%sPCMPHOS",addString.Data());
+                else if(fClusterCutSelection.BeginsWith("24466"))
+                    return Form("%sPCMPHOSR2",addString.Data());
+            case 4:
+                if(fClusterCutSelection.BeginsWith("1"))
+                    if(fClusterCutSelection[4]=='a')
+                        return Form("%sEMCR1",addString.Data());
+                    else
+                        return Form("%sEMC",addString.Data());
+                else if(fClusterCutSelection.BeginsWith("3"))
+                    return "DMC";
+                else if(fClusterCutSelection.BeginsWith("4"))
+                    return "EDC";
+            case 5: case -5:
+                if(fClusterCutSelection.BeginsWith("24444"))
+                    return "PHOS";
+                else if(fClusterCutSelection.BeginsWith("24466"))
+                    return "PHOSR2";
+            // case 6:
+            //     return "EMC-#gamma^{*}#gamma";
+            // case 7:
+            //     return "PHOS-#gamma^{*}#gamma";
+            case 10:
+                if(fClusterCutSelection.BeginsWith("1"))
+                    return "mEMC";
+                else if(fClusterCutSelection.BeginsWith("3"))
+                    return "mDMC";
+                else if(fClusterCutSelection.BeginsWith("4"))
+                    return "mEDC";
+            case 11:
+                return "mPHOS";
+            case 12:
+                return "DMC";
+            case 13:
+                return Form("%sPCMDMC",addString.Data());
+            case 14:
+                return Form("%sPCMEDC",addString.Data());
+            case 15:
+                return "EDC";
+            default:
+                return "undefined";
+
+        }
+    return "undefined";
+}
+
+
+//****************************************************************************
+//************** Loading of external Meson Acceptance ************************
+//****************************************************************************
+Bool_t LoadMesonAcceptance( TH1D * fDeltaPtFill) {
+    TH1D* histoGeneratedExtMeson    = NULL;
+    TH1D* histoInAcceptanceExtMeson = NULL;
+    TString mesonStringLoad = fPrefix;
+    if(mesonStringLoad.Contains("Pi0EtaBinning")) mesonStringLoad = "Pi0";
+    cout << "loading external acceptance" << endl;
+    TString extAccFileName = Form("ExternalInput/KinematicAcceptance/ExternalAcceptance%s.root",mesonStringLoad.Data());
+    TFile* extAccFile =  new TFile(extAccFileName.Data());
+    if (!extAccFile->IsZombie()){
+        TString acceptancehistoName = GetCorrectAcceptanceHistoName();
+        histoGeneratedExtMeson    = (TH1D*)extAccFile->Get(Form("histo%sGen_%s",mesonStringLoad.Data(),acceptancehistoName.Data()));
+        histoInAcceptanceExtMeson = (TH1D*)extAccFile->Get(Form("histo%sInAcc_%s",mesonStringLoad.Data(),acceptancehistoName.Data()));
+        if(!histoGeneratedExtMeson || !histoInAcceptanceExtMeson) return kFALSE;
+        histoInAcceptanceExtMeson->Sumw2();
+        histoGeneratedExtMeson->Sumw2();
+        histoGeneratedExtMeson      = (TH1D*)histoGeneratedExtMeson->Rebin(fNBinsPt,"",fBinsPt); // Proper bins in Pt
+        histoInAcceptanceExtMeson   = (TH1D*)histoInAcceptanceExtMeson->Rebin(fNBinsPt,"",fBinsPt); // Proper bins in Pt
+        histoGeneratedExtMeson->Divide(fDeltaPtFill);
+        histoInAcceptanceExtMeson->Divide(fDeltaPtFill);
+
+        fHistoMCMesonAcceptExternalPt = new TH1D("fMCMesonAccepExternalPt","",fNBinsPt,fBinsPt);
+        fHistoMCMesonAcceptExternalPt->Sumw2();
+        fHistoMCMesonAcceptExternalPt->Divide(histoInAcceptanceExtMeson,histoGeneratedExtMeson,1.,1.,"B");
+
+        fHistoMCMesonAcceptExternalPt->DrawCopy();
+        fFileDataLog << endl << "Loading of external Acceptance " << acceptancehistoName.Data() << endl;
+        for ( Int_t i = 1; i < fHistoMCMesonAcceptExternalPt->GetNbinsX()+1 ; i++){
+            fFileDataLog << "Bin " << i << "\t"<< fHistoMCMesonAcceptExternalPt->GetBinCenter(i)<< "\t" << fHistoMCMesonAcceptExternalPt->GetBinContent(i) << "\t" << fHistoMCMesonAcceptExternalPt->GetBinError(i) <<endl;
+        }
+        return kTRUE;
+    } else {
+        cout << "Did not find requested Acceptance input root file " << extAccFileName.Data() << endl;
+        return kFALSE;
+    }
+}
+
+//****************************************************************************
 //***************** Calculation of Meson Acceptance **************************
 //****************************************************************************
 void CalculateMesonAcceptance() {
@@ -7202,7 +7319,13 @@ void SaveCorrectionHistos(TString cutID, TString prefix3){
     if (fEventQuality)          fEventQuality->Write();
 
     // write acceptance
-    if (fHistoMCMesonAcceptPt)  fHistoMCMesonAcceptPt->Write();
+    if(fHistoMCMesonAcceptExternalPt){
+        cout << "saving external acceptance" << endl;
+        if (fHistoMCMesonAcceptPt)  fHistoMCMesonAcceptPt->Write("fMCMesonAccepStandardPt");
+        if (fHistoMCMesonAcceptExternalPt)  fHistoMCMesonAcceptExternalPt->Write("fMCMesonAccepPt");
+    } else {
+        if (fHistoMCMesonAcceptPt)  fHistoMCMesonAcceptPt->Write("fMCMesonAccepPt");
+    }
     // write input spectra with weights
     if (fHistoMCMesonPt1){
         fHistoMCMesonPt1->SetName("MC_Meson_genPt");
@@ -7227,13 +7350,21 @@ void SaveCorrectionHistos(TString cutID, TString prefix3){
 
     // write acceptances & input spectra w/o particle weights
     if (fHistoMCMesonPtWithinAcceptanceWOWeights){
-        fHistoMCMesonAcceptPtWOWeights->Write();
+        if(fHistoMCMesonAcceptExternalPt){
+            fHistoMCMesonAcceptExternalPt->Write("fMCMesonAccepPtWOWeights");
+        } else {
+            fHistoMCMesonAcceptPtWOWeights->Write();
+        }
         fHistoMCMesonPt1WOWeights->SetName("MC_Meson_genPt_properBinning_WOWeights");
         fHistoMCMesonPt1WOWeights->Write(); // Proper bins in Pt
     }
     // write acceptances & input spectra w/o event weights
     if (fHistoMCMesonPtWithinAcceptanceWOEvtWeights){
-        fHistoMCMesonAcceptPtWOEvtWeights->Write();
+        if(fHistoMCMesonAcceptExternalPt){
+            fHistoMCMesonAcceptExternalPt->Write("fMCMesonAccepPtWOEvtWeights");
+        } else {
+            fHistoMCMesonAcceptPtWOEvtWeights->Write();
+        }
         fHistoMCMesonPt1WOEvtWeights->SetName("MC_Meson_genPt_properBinning_WOEvtWeights");
         fHistoMCMesonPt1WOEvtWeights->Write(); // Proper bins in Pt
     }

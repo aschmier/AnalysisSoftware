@@ -132,7 +132,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     cout<<"=========================="<<endl;
 
     // Definition of necessary histogram arrays
-    const Int_t ConstNumberOfCuts = 10;
+    const Int_t ConstNumberOfCuts = 22;
     TString FileNameCorrected[ConstNumberOfCuts];
     TString FileNameUnCorrected[ConstNumberOfCuts];
 
@@ -350,7 +350,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 histoRatioRawYieldCut[i]->DrawCopy("same,e1,p");
             }
         }
-        DrawGammaLines(0., maxPt,1., 1.,0.1);
+        DrawGammaLines(0., maxPt,1., 1.,1);
 
         canvasRawYieldMeson->Update();
         canvasRawYieldMeson->SaveAs(Form("%s/%s_%s_RAWYield.%s",outputDir.Data(),meson.Data(),prefix2.Data(),suffix.Data()));
@@ -436,7 +436,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                   histoRatioCorrectedYieldCut[i]->DrawCopy("same,e1,p");
               }
           }
-          DrawGammaLines(0., maxPt,1., 1.,0.1);
+          DrawGammaLines(0., maxPt,1., 1.,1);
 
       canvasCorrectedYieldMeson->Update();
       canvasCorrectedYieldMeson->SaveAs(Form("%s/%s_%s_CorrectedYield.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
@@ -522,7 +522,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                   histoRatioCorrectedYieldWOSecCut[i]->DrawCopy("same,e1,p");
               }
           }
-          DrawGammaLines(0., maxPt,1., 1.,0.1);
+          DrawGammaLines(0., maxPt,1., 1.,1);
 
       canvasCorrectedYieldWOSecMeson->Update();
       canvasCorrectedYieldWOSecMeson->SaveAs(Form("%s/%s_%s_CorrectedYieldWOSec.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
@@ -540,11 +540,11 @@ void CompareDifferentDirectories(   TString FolderList              = "",
       TCanvas* canvasTrueEffiMeson = new TCanvas("canvasTrueEffiMeson","",1350,1500);  // gives the page size
       DrawGammaCanvasSettings( canvasTrueEffiMeson,  0.13, 0.02, 0.02, 0.09);
       // Define upper panel
-      TPad* padTrueEffi = new TPad("padTrueEffi", "", 0., 0.25, 1., 1.,-1, -1, -2);
+      TPad* padTrueEffi = new TPad("padTrueEffi", "", 0., 0.4, 1., 1.,-1, -1, -2);
       DrawGammaPadSettings( padTrueEffi, 0.12, 0.02, 0.04, 0.);
       padTrueEffi->Draw();
       // Define lower panel
-      TPad* padTrueEffiRatios = new TPad("padTrueEffiRatios", "", 0., 0., 1., 0.25,-1, -1, -2);
+      TPad* padTrueEffiRatios = new TPad("padTrueEffiRatios", "", 0., 0., 1., 0.4,-1, -1, -2);
       DrawGammaPadSettings( padTrueEffiRatios, 0.12, 0.02, 0.0, 0.2);
       padTrueEffiRatios->Draw();
 
@@ -613,7 +613,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                       minYRatio = 0.9;
                       maxYRatio = 1.09;
                   }
-                SetStyleHistoTH1ForGraphs(histoRatioTrueEffiCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
+                SetStyleHistoTH1ForGraphs(histoRatioTrueEffiCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.05, 0.07, 0.05, 0.07, 0.75, 0.5, 510,505);
                 DrawGammaSetMarker(histoRatioTrueEffiCut[i], 20, 1.,color[0],color[0]);
                 histoRatioTrueEffiCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
                 histoRatioTrueEffiCut[i]->DrawCopy("p,e1");
@@ -625,12 +625,12 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 }
                 histoRatioTrueEffiCut[i]->DrawCopy("same,e1,p");
             }
-            DrawGammaLines(0., maxPt,1., 1.,0.1);
-            DrawGammaLines(0., maxPt, 1.1, 1.1, 0.1, kGray+1, 7);
-            DrawGammaLines(0., maxPt, 0.9, 0.9, 0.1, kGray+1, 7);
+            DrawGammaLines(0., maxPt,1., 1.,1);
+            DrawGammaLines(0., maxPt, 1.1, 1.1, 1, kGray+1, 7);
+            DrawGammaLines(0., maxPt, 0.9, 0.9, 1, kGray+1, 7);
             if (cutVariationName.Contains("Weighting")){
-              DrawGammaLines(0., maxPt, 1.05, 1.05, 0.1, kGray+1, 9);
-              DrawGammaLines(0., maxPt, 0.95, 0.95, 0.1, kGray+1, 9);
+              DrawGammaLines(0., maxPt, 1.05, 1.05, 1, kGray+1, 9);
+              DrawGammaLines(0., maxPt, 0.95, 0.95, 1, kGray+1, 9);
             }
         }
 
@@ -673,6 +673,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 Double_t minY = 0.0001;
                 Double_t maxY = 1;
                 if (isEDC && mode == 4) maxY = 0.6;
+                if (isEDC && mode == 2) maxY = 0.9;
                 DrawGammaSetMarker(histoAcceptanceCut[i], 20, 1., color[0], color[0]);
                 DrawAutoGammaMesonHistos( histoAcceptanceCut[i],
                                         "", "#it{p}_{T} (GeV/#it{c})", Form("A_{%s}",textMeson.Data()),
@@ -720,7 +721,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 }
                 histoRatioAcceptanceCut[i]->DrawCopy("same,e1,p");
             }
-            DrawGammaLines(0., maxPt,1., 1.,0.1);
+            DrawGammaLines(0., maxPt,1., 1.,1);
         }
 
       canvasAcceptanceMeson->Update();
@@ -799,7 +800,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             }
             histoRatioMassCut[i]->DrawCopy("same,e1,p");
         }
-        DrawGammaLines(0., maxPt,1., 1.,0.1);
+        DrawGammaLines(0., maxPt,1., 1.,1);
     }
 
     canvasMassMeson->Update();
@@ -873,7 +874,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             }
             histoRatioWidthCut[i]->DrawCopy("same,e1,p");
         }
-        DrawGammaLines(0., maxPt,1., 1.,0.1);
+        DrawGammaLines(0., maxPt,1., 1.,1);
     }
 
     canvasWidthMeson->Update();
@@ -950,7 +951,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 }
                 histoRatioSBCut[i]->DrawCopy("same,e1,p");
             }
-            DrawGammaLines(0., maxPt,1., 1.,0.1);
+            DrawGammaLines(0., maxPt,1., 1.,1);
         }
 
         canvasSBMeson->Update();
@@ -1025,7 +1026,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
               }
               histoRatioClusterE[i]->DrawCopy("same,e1,p");
             }
-            DrawGammaLines(0., maxPt,1., 1.,0.1);
+            DrawGammaLines(0., maxPt,1., 1.,1);
           }
 
           canvasClusEMeson->Update();

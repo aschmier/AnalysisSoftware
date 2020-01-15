@@ -202,11 +202,7 @@ void ExtractSignalMergedMesonV2(    TString meson                   = "",
         return;
     }
     TList *HistosGammaConversion    = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
-    if(fIsMC && file.Contains("_Sys") && fEnergyFlag.Contains("8TeV")){
-        fCutSelectionRead.Replace(3, 2,"10");
-        cout << "loading inputs using cutnumber: " << fCutSelectionRead.Data() << endl;
-        HistosGammaConversion    = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
-    }
+
     if(HistosGammaConversion == NULL){
         //******************************************************************************************************
         //Check whether MC would contain a different time cut as timing cuts aren't implemented for EMC in MC **

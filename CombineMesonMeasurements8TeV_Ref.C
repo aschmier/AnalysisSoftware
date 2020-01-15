@@ -148,7 +148,7 @@ void CombineMesonMeasurements8TeV_Ref(      TString fileNamePCM         = "",
     Double_t mesonMassExpectPi0                 = TDatabasePDG::Instance()->GetParticle(111)->Mass();
     Double_t mesonMassExpectEta                 = TDatabasePDG::Instance()->GetParticle(221)->Mass();
 
-    Width_t  widthLinesBoxes                    = 2;
+    Width_t  widthLinesBoxes                    = 1;
     Width_t  widthCommonFit                     = 2;
 
     // Definition of colors, styles and markers sizes
@@ -2255,13 +2255,13 @@ cout << __LINE__ << endl;
         DrawGammaSetMarkerTGraphAsym(graphRatioPi0PCMEMCALCombFitStat_WOXErr, markerStyleDet[4] ,markerSizeDet[4]*0.5, colorDet[4], colorDet[4]);
 
         graphRatioPi0PCMCombFitSys->Draw("E2same");
-        graphRatioPi0PHOSCombFitSys->Draw("E2same");
+        // graphRatioPi0PHOSCombFitSys->Draw("E2same");
         graphRatioPi0EMCALCombFitSys->Draw("E2same");
        graphRatioPi0EMCALMergedCombFitSys->Draw("E2same");
         graphRatioPi0PCMEMCALCombFitSys->Draw("E2same");
 
         graphRatioPi0PCMCombFitStat_WOXErr->Draw("p,same,z");
-        graphRatioPi0PHOSCombFitStat_WOXErr->Draw("p,same,z");
+        // graphRatioPi0PHOSCombFitStat_WOXErr->Draw("p,same,z");
         graphRatioPi0EMCALCombFitStat_WOXErr->Draw("p,same,z");
        graphRatioPi0EMCALMergedCombFitStat->Draw("p,same,z");
         graphRatioPi0PCMEMCALCombFitStat_WOXErr->Draw("p,same,z");
@@ -6859,7 +6859,7 @@ canvasEtatoPi0combo->SaveAs(Form("%s/EtaToPi0_Combined_withExtension_TheoryFit.%
     canvasCompYieldPPInd->SetLogx();
 
     TH2F * histo2DCompCombinedRatio2;
-    histo2DCompCombinedRatio2       = new TH2F("histo2DCompCombinedRatio2","histo2DCompCombinedRatio2",1000,0.23,70.,1000,0.1,4.    );
+    histo2DCompCombinedRatio2       = new TH2F("histo2DCompCombinedRatio2","histo2DCompCombinedRatio2",1000,0.23,200.,1000,0.1,4.    );
     SetStyleHistoTH2ForGraphs(histo2DCompCombinedRatio2, "#it{p}_{T} (GeV/#it{c})","#pi^{0}/#pi^{#pm}", 0.85*textsizeLabelsPP, textsizeLabelsPP,
                               0.85*textsizeLabelsPP,textsizeLabelsPP, 0.9, 0.95, 510, 505);
     histo2DCompCombinedRatio2->GetYaxis()->SetNoExponent(kTRUE);

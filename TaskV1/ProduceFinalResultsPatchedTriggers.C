@@ -249,7 +249,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             nameCorrectedYield                          = "CorrectedYieldTrueEff";
             nameEfficiency                              = "TrueMesonEffiPt";
         }
-    } else if ( (mode == 2 || mode == 3) && !(optionEnergy.BeginsWith("8TeV") || optionEnergy.CompareTo("pPb_5.023TeV")==0|| optionEnergy.CompareTo("pPb_8TeV")==0)){
+    } else if ( (mode == 2 || mode == 3) && !(optionEnergy.BeginsWith("8TeV") || optionEnergy.CompareTo("pPb_5.023TeV")==0)){
         cout << "using rec quantities for PCM-EMC/PCM-PHOS" << endl;
         nameMassMC                                      = "histoMassMesonRecMC";
         nameWidthMC                                     = "histoFWHMMesonRecMC";
@@ -649,6 +649,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
     TH1D*   histoMCRawClusterPt     [MaxNumberOfFiles];
     TH1D*   histoMCRatioRawClusterPt[MaxNumberOfFiles];
+    Double_t scaleFactorMC   [MaxNumberOfFiles];
     TString rapidityRange                                   = "";
     Double_t deltaRapid             [MaxNumberOfFiles];
 
@@ -995,8 +996,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     TF1* pol0_MC                            = new TF1("pol0_MC","[0]",minPt[i],maxPt[i]); //
                     histoMCRatioRawClusterPt[i]->Fit(pol0_MC,"QNRMEX0+","",minPt[i],maxPt[i]);
 
-                    Double_t scaleFactorMC                    = triggRejecFac[i][trigSteps[i][0]]/pol0_MC->GetParameter(0);
-                    histoMCRatioRawClusterPt[i]->Scale(scaleFactorMC);
+                    scaleFactorMC[i]                    = triggRejecFac[i][trigSteps[i][0]]/pol0_MC->GetParameter(0);
+                    histoMCRatioRawClusterPt[i]->Scale(scaleFactorMC[i]);
 
                     cout << "data: "<<triggRejecFac[i][trigSteps[i][0]] << "\t MC: " << pol0_MC->GetParameter(0) << "\t scale factor: " << scaleFactorMC<< endl;
                 }
@@ -1469,7 +1470,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     DrawGammaSetMarker(histoMCRatioRawClusterPt[i], markerTriggMC[i], sizeTrigg[i], colorTriggShade[i]+2, colorTriggShade[i]+2);
                     histoMCRatioRawClusterPt[i]->DrawCopy("e1,same");
 
-                    legendTriggRejectSingle->AddEntry(histoMCRatioRawClusterPt[i],"   scaled MC","p");
+                    legendTriggRejectSingle->AddEntry(histoMCRatioRawClusterPt[i],Form("   scaled MC ( x %5.3f )",scaleFactorMC[i]),"p");
                     legendTriggRejectSingle->Draw();
 
                     histo2DTriggRejectLinear->Draw("same,axis");
@@ -1765,9 +1766,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         maxEffiPi0      = 20e-1;
         minEffiPi0      = 1e-2;
         if(optionEnergy.Contains("8TeV")){
-            canvasEffi->SetLogy(0);
+            canvasEffi->SetLogy(1);
             minEffiPi0  = 0.1;
-            maxEffiPi0  = 4;
+            maxEffiPi0  = 6;
         }
         lowfit[1]   = 12.0;  lowfit[2]   = 12.0;
         highfit[1]   = 50.0;
@@ -1835,67 +1836,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
     for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
         // the part below allows for fitting of the pi0 efficieny and subsequent re-correction of the spectrum with the fit
-        if(optionEnergy.Contains("8TeV")){
-            if (i==0){
-                fiteffi[i]= new TF1(Form("effifit%d",i),"pol5",lowfit[i],highfit[i]);
-                if(mode==0 && optionEnergy.Contains("pPb_8TeV")){
-                    fiteffi[i]= new TF1(Form("effifit%d",i),"pol4",lowfit[i],highfit[i]);
-                }
-            } else if(i==1){
-                fiteffi[i]= new TF1(Form("effifit%d",i),"pol5",lowfit[i],highfit[i]);
-                if(mode==2 && optionEnergy.Contains("8TeV")){
-                    fiteffi[i]= new TF1(Form("effifit%d",i),"pol5",lowfit[i],highfit[i]);
-                }
-                if(mode==3 && optionEnergy.Contains("pPb_8TeV")){
-                    fiteffi[i]= new TF1(Form("effifit%d",i),"pol0",lowfit[i],highfit[i]);
-                }
-            } else if (i==2){
-                fiteffi[i]= new TF1(Form("effifit%d",i),"pol5",lowfit[i],highfit[i]);
-            } else {
-                fiteffi[i]= new TF1(Form("effifit%d",i),"pol5",lowfit[i],highfit[i]);
-            }
-            histoEfficiencyPi0[i]->Fit(fiteffi[i],"QNRME+","",lowfit[i],highfit[i]);
-            fiteffi[i]->SetLineColor(colorTrigg[i]);
-            if(i>0){
-                fiteffi[i]->Draw("same");
-                if(mode==10 && optionEnergy.Contains("8TeV")){
-                    // histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
-                    // histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
-                } else if(mode==3){
-                    if (optionEnergy.Contains("pPb_8TeV")){
-                        histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
-                        histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
-                    }
-                } else if(mode==4){
-                    if(optionEnergy.Contains("8TeVRef")){
-                        histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
-                        if(i==2)    histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i-1]);
-                        else        histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
-                    } else if (optionEnergy.Contains("pPb_8TeV")){
-                        // histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
-                        // // histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
-                        // if(i==2)    histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i-1]);
-                        // else        histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
-                    }
-                } else if(mode==5){
-                    if (optionEnergy.Contains("pPb_8TeV")){
-                        histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
-                        histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
-                    }
-                } else if(mode==2){
-                    if(optionEnergy.Contains("8TeVRef")){
-                        histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
-                        if(i==2)
-                            histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i-1]);
-                        else
-                            histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
-                    } else if(optionEnergy.Contains("pPb_8TeV")){
-                        // histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoEfficiencyPi0[i],1,1,"");
-                        // histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fiteffi[i]);
-                    }
-                }
-            }
-        }
         DrawGammaSetMarker(histoEfficiencyPi0[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
         histoEfficiencyPi0[i]->DrawCopy("e1,same");
         legendEffiPi0->AddEntry(histoEfficiencyPi0[i],triggerNameLabel[i].Data(),"p");
@@ -2101,6 +2041,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     } else if (mode == 2){
         minAccPi0       = 0.15;
         maxAccPi0       = 0.95;
+        // maxAccPi0       = 0.28;
         if(optionEnergy.BeginsWith("8TeV"))
             minAccPi0       = 0.18;
     } else if (mode == 3){
@@ -2115,8 +2056,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             minAccPi0 = 0.25;
             maxAccPi0 = 0.45;
         } else if(optionEnergy.Contains("pPb_8TeV")){
-            minAccPi0 = 0.21;
-            maxAccPi0 = 0.45;
+            minAccPi0 = 0.11;
+            maxAccPi0 = 0.88;
         }
     } else if (mode == 5){
         minAccPi0       = 0.;
@@ -2156,14 +2097,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             DrawGammaSetMarker(histoAcceptancePi0[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
             histoAcceptancePi0[i]->DrawCopy("e1,same");
             legendAccPi0->AddEntry(histoAcceptancePi0[i],triggerNameLabel[i].Data(),"p");
-            // if(mode==10 && optionEnergy.Contains("8TeV")){
-            //     TF1* fitConstAcceptance = new TF1(Form("accfit%d",i),"pol0",ptFromSpecPi0[i][0],ptFromSpecPi0[i][1]);
-            //     histoAcceptancePi0[i]->Fit(fitConstAcceptance,"QNRME+","",ptFromSpecPi0[i][0],ptFromSpecPi0[i][1]);
-            //     fitConstAcceptance->SetLineColor(colorTrigg[i]);
-            //     fitConstAcceptance->Draw("same");
-            //     histoCorrectedYieldPi0[i]->Multiply(histoCorrectedYieldPi0[i],histoAcceptancePi0[i],1,1,"");
-            //     histoCorrectedYieldPi0[i]= CalculateHistoRatioToFit(histoCorrectedYieldPi0[i],fitConstAcceptance);
-            // }
         }
         legendAccPi0->Draw();
 
@@ -2668,6 +2601,13 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         for(Int_t set=0;set<MaxNumberOfFiles;set++) offSetsPi0[set]= 0;
     Int_t offSetsPi0Sys[MaxNumberOfFiles];
         for(Int_t set=0;set<MaxNumberOfFiles;set++) offSetsPi0Sys[set]= 0;
+    if(optionEnergy.CompareTo("7TeV")==0){
+      if(mode == 2){
+        offSetsPi0[3] = 27; //EMC7
+      }else if(mode == 4){
+        // offSetsPi0[3] = 0; //EMC7
+      }
+    }
     if(optionEnergy.CompareTo("8TeV")==0){
       if(mode == 2){
         offSetsPi0[1] = 3; //INT7
@@ -3108,6 +3048,14 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         }
 
     }
+        if (optionEnergy.CompareTo("7TeV")==0){
+            if(mode == 2){
+                offSetsPi0Sys[3]+=27;
+            }
+            if (mode == 4 ){
+                offSetsPi0Sys[3]+=0;
+            }
+        }
         if (optionEnergy.CompareTo("8TeV")==0){
             if(mode == 2){
                 offSetsPi0Sys[1]+=3;
@@ -5050,58 +4998,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         legendEffiEta->SetNColumns(2);
         TF1* fiteffiEta[MaxNumberOfFiles] = {NULL};
         for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
-            // the following code block allows for fitting of efficienies and is by default turned off
-            if(optionEnergy.Contains("8TeV")){
-                if(i==0){
-                    fiteffiEta[i]= new TF1(Form("effifit%d",i),"pol4",lowfitEta[i],highfitEta[i]);
-                } else if(i==1){
-                    fiteffiEta[i]= new TF1(Form("effifit%d",i),"pol4",lowfitEta[i],highfitEta[i]);
-                    // if(mode==4){
-                    //     fiteffiEta[i]= new TF1(Form("specialeffifit%d",i),   "( [0] + [1] * TMath::Log(x) ) / ( 1 + ( [2] * TMath::Exp( ( x - [3] ) / [4] ) ) )",   0.35, 220);
-                    //     Double_t startParams[5]= {0.965782, 0.017567, 0.0907133, 119.679, 79.7096};
-                    //     fiteffiEta[i]->SetParameters(startParams);
-                    // }
-                } else if (i==2){
-                    fiteffiEta[i]= new TF1(Form("effifit%d",i),"pol4",lowfitEta[i],highfitEta[i]);
-                } else {
-                    fiteffiEta[i]= new TF1(Form("effifit%d",i),"pol4",lowfitEta[i],highfitEta[i]);
-                }
-                histoEfficiencyEta[i]->Fit(fiteffiEta[i],"QNRME+","",lowfitEta[i],highfitEta[i]);
-                fiteffiEta[i]->SetLineColor(colorTrigg[i]);
-                fiteffiEta[i]->Draw("same");
-
-                if(mode==0 && optionEnergy.Contains("8TeVRef")){
-                    histoCorrectedYieldEta[i]->Multiply(histoCorrectedYieldEta[i],histoEfficiencyEta[i],1,1,"");
-                    histoCorrectedYieldEta[i]= CalculateHistoRatioToFit(histoCorrectedYieldEta[i],fiteffiEta[i]);
-                }
-                if(mode==2 && optionEnergy.Contains("8TeV") && i!=0){
-                    histoCorrectedYieldEta[i]->Multiply(histoCorrectedYieldEta[i],histoEfficiencyEta[i],1,1,"");
-                    if(i==2 && optionEnergy.Contains("pPb_8TeV"))
-                        histoCorrectedYieldEta[i]= CalculateHistoRatioToFit(histoCorrectedYieldEta[i],fiteffiEta[i]);
-                    else
-                        histoCorrectedYieldEta[i]= CalculateHistoRatioToFit(histoCorrectedYieldEta[i],fiteffiEta[i]);
-                }
-                if(mode==4){
-                    if(optionEnergy.Contains("8TeVRef") && i!=0){
-                        histoCorrectedYieldEta[i]->Multiply(histoCorrectedYieldEta[i],histoEfficiencyEta[i],1,1,"");
-                        if(i==2)
-                            histoCorrectedYieldEta[i]= CalculateHistoRatioToFit(histoCorrectedYieldEta[i],fiteffiEta[i-1]);
-                        else
-                            histoCorrectedYieldEta[i]= CalculateHistoRatioToFit(histoCorrectedYieldEta[i],fiteffiEta[i]);
-                    } else if( optionEnergy.Contains("pPb_8TeV") && i==0){
-                        histoCorrectedYieldEta[i]->Multiply(histoCorrectedYieldEta[i],histoEfficiencyEta[i],1,1,"");
-                        // if(i==2)
-                        //     histoCorrectedYieldEta[i]= CalculateHistoRatioToFit(histoCorrectedYieldEta[i],fiteffiEta[i-1]);
-                        // else
-                            histoCorrectedYieldEta[i]= CalculateHistoRatioToFit(histoCorrectedYieldEta[i],fiteffiEta[i]);
-                    }
-                }
-                if(mode==10 && optionEnergy.Contains("pPb_8TeV")&& i!=0){
-                    histoCorrectedYieldEta[i]->Multiply(histoCorrectedYieldEta[i],histoEfficiencyEta[i],1,1,"");
-                    histoCorrectedYieldEta[i]= CalculateHistoRatioToFit(histoCorrectedYieldEta[i],fiteffiEta[i]);
-                    // if(optionEnergy.Contains("pPb_8TeV") && i>0)histoCorrectedYieldEta[i]->Scale(1.3);
-                }
-            }
             DrawGammaSetMarker(histoEfficiencyEta[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
             histoEfficiencyEta[i]->DrawCopy("e1,same");
             legendEffiEta->AddEntry(histoEfficiencyEta[i],triggerNameLabel[i].Data(),"p");
@@ -5197,8 +5093,13 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxAccEta       = 1.05;
             minAccEta       = 0.5;
         } else if (mode == 2){
-            minAccEta   = 0.2;
-            maxAccEta   = 0.61;
+            minAccEta   = 0.0;
+            maxAccEta   = 1.00;
+            if (optionEnergy.Contains("pPb_8TeV") ){
+                minAccEta = 0.21;
+                maxAccEta = 0.3;
+                // maxAccEta = 0.92;
+            }
         } else if (mode == 3){
             minAccEta       = 0.;
             maxAccEta       = 0.1;
@@ -5211,7 +5112,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             }
             if (optionEnergy.Contains("pPb_8TeV") ){
                 minAccEta = 0.08;
-                maxAccEta = 0.65;
+                maxAccEta = 0.81;
             }
         } else if (mode == 5){
             minAccEta       = 0.;
@@ -7239,6 +7140,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
 
             }
+            if (optionEnergy.CompareTo("7TeV")==0 && (mode == 4)){
+                offSetsEtaToPi0Sys[3]+=2; //EMC7
+            }
             if (optionEnergy.CompareTo("8TeV")==0 && (mode == 4 || mode == 2)){
                 offSetsEtaToPi0Sys[4]+=3; //EGA
             }
@@ -7247,10 +7151,16 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 offSetsEtaToPi0Sys[3]+=-2; //EMC7
                 offSetsEtaToPi0Sys[4]+=-2; //EGA
             }
-            if (optionEnergy.BeginsWith("pPb_8TeV") && (mode == 4 || mode == 2)){
-                offSetsEtaToPi0Sys[1]+=-1; //INT7
-                offSetsEtaToPi0Sys[4]+=-1; //EMC7
-                offSetsEtaToPi0Sys[5]+=-2; //EGA
+            if (optionEnergy.BeginsWith("pPb_8TeV") ){
+                if(mode == 2){
+                    offSetsEtaToPi0Sys[1]+=-1; //INT7
+                    offSetsEtaToPi0Sys[4]+=-2; //EMC7
+                    offSetsEtaToPi0Sys[5]+=-2; //EGA
+                } else if(mode == 4 ){
+                    offSetsEtaToPi0Sys[1]+=-1; //INT7
+                    offSetsEtaToPi0Sys[4]+=-1; //EMC7
+                    offSetsEtaToPi0Sys[5]+=-2; //EGA
+                }
             }
             TString nameWeightsLogFileEtaToPi0                  = Form("%s/weightsEtaToPi0_%s.dat",outputDir.Data(),isMC.Data());
             TGraphAsymmErrors* graphEtaToPi0WeightedAverageTot  = NULL;
