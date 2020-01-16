@@ -5,7 +5,7 @@
 
 # Version: V5.5
 echo  -e "\e[36m+++++++++++++++++++++++++++++++++++++\e[0m"
-echo "DownScript.sh Version: V5.5"
+echo "DownScript.sh Version: V6.0"
 sleep 2
 
 # Author: Adrian Mechler (mechler@ikf.uni-frankfurt.de)
@@ -47,7 +47,9 @@ MergeTrainsOutname=""
 OutName=""
 Search=".root"
 OptRunlistName=list
+OptIsJJ=0
 OptRunlistNameSet=0
+OptNoRunlist=0
 OptAllRunlists=0
 UseMerge=0
 MergeTrains=0
@@ -358,12 +360,8 @@ function InitilaizeChild(){
 
 	# get one globalvariables.C to get information about the child
 	GlobalVariablesPath="$OUTPUTDIR/.$child/$GlobalVariablesFile"
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-	then
-		GetFile "$AlienDir$child/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog
-	else
-		GetFile "$AlienDir$child/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog #&> /dev/null
-	fi
+	GetFile "$AlienDir$child/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
+	echo;
 
 	ChildName=`grep "periodName =" "$GlobalVariablesPath" | awk -F "= " '{print $2}' | awk -F ";" '{print $1}' | awk -F "\"" '{print $2}'`
 	if [[ $ChildName = "" ]]; then ChildName=`grep "periodName =" "$GlobalVariablesPath" | awk -F "=" '{print $2}' | awk -F ";" '{print $1}' | awk -F "\"" '{print $2}'`; fi
@@ -373,6 +371,10 @@ function InitilaizeChild(){
 	if [[ $Usechildsareperiods = 1 ]]; then
 		ChildName=`grep "export ALIEN_JDL_child_${childID}_LPMPRODUCTIONTAG" $envFile | cut -d "'" -f 2`
 		# ChildName=`echo $(head -n 1 $PathtoRuns) | awk -F "/" '{print $7}' ` | tee -a $LogFile
+		if [[ $ChildName = "" ]]; then
+			ChildName=`grep "export TEST_DIR_child_${childID}=" $envFile | cut -d "'" -f 2 | cut -d "/" -f 5`
+
+		fi
 		echo -e "\e[33m|->\e[0m Changed periodName = $ChildName" | tee -a $LogFile
 	fi
 
@@ -435,12 +437,7 @@ function InitilaizeTrain(){
 	done
 	# cat $List
 	echo -e "\e[33m|->\e[0m $Childeone" | tee -a $LogFile
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-	then
-		GetFile $AlienDir$Childeone/env.sh $envFile $envFile.downlog
-	else
-		GetFile $AlienDir$Childeone/env.sh $envFile $envFile.downlog &> /dev/null
-	fi
+	GetFile $AlienDir$Childeone/env.sh $envFile $envFile.downlog 1; echo
 	PERIODNAME=`grep "PERIOD_NAME=" $envFile | awk -F "=" '{print $2}' | awk -F ";" '{print $1}'`
 	echo "PERIODNAME = $PERIODNAME" | tee -a $LogFile
 	NCHilds=`grep "CHILD_DATASETS=" $envFile | awk -F "=" '{print $2}' | awk -F ";" '{print $1}'`
@@ -448,12 +445,7 @@ function InitilaizeTrain(){
 	echo
 
 	lego_train_mergePath="$OUTPUTDIR/.lego_train_merge.C"
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-	then
-		GetFile $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog
-	else
-		GetFile $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog &> /dev/null
-	fi
+	GetFile $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog 1; echo
 	grep "TString outputFiles" "$lego_train_mergePath"  | awk -F "\"" '{print $2}' > $FilenamesinTrain.tmp
 	sed -i 's/,/\n/g' $FilenamesinTrain.tmp
 	sed -i 's/ //g' $FilenamesinTrain.tmp
@@ -502,11 +494,15 @@ function InitilaizeRunlist(){
 	done
 	printf "\n $NumberOfRuns Runs found \n" | tee -a $LogFile
 	Dirout=$OUTPUTDIR/$RunlistName/$ChildName
-	Dirin=$AlienDir$child/merge_runlist_$RunlistID
+	if [[ $OptNoRunlist = 0 ]]; then
+		Dirin=$AlienDir$child/merge_runlist_$RunlistID
+	else
+		Dirin=$AlienDir$child/merge
+	fi
 	DirMerged=$OUTPUTDIR/$RunlistName
 	mkdir -p $DirMerged
 	mkdir -p $Dirout
-	if [[ $NumberOfRuns = 0 ]]; then
+	if [[ $NumberOfRuns = 0 ]] ; then
 		echo  -e "\e[33mWARNING:  No runs in Runlist\e[0m: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
 		return 1
 	fi
@@ -572,7 +568,11 @@ function InitilaizeRunlist(){
 		if [[ $newfiles = 1 ]] || [ ! -f $FileList ]; then
 			for Search in `cat $FilenamesinTrain`
 			do
-				cmd="alien_ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+				if [[ $OptNoRunlist = 0 ]]; then
+					cmd="alien_ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+				else
+					cmd="alien_ls $AlienDir$child/merge/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+				fi
 				eval $cmd
 				usecmd $cmd
 				AddToList $FileList.tmp $FileList
@@ -654,6 +654,13 @@ function ParseSettings(){
 		elif [[ $setting = "-childsareperiods" ]]
 		then
 			Usechildsareperiods=1
+		elif [[ $setting = "-IsJJ" ]]
+		then
+			OptIsJJ=1
+			OptNoRunlist=1
+		elif [[ $setting = "-NoRL" ]]
+		then
+			OptNoRunlist=1
 		elif [[ $setting = "-uSR_"* ]]
 		then
 			useSpecificRunlist=1
@@ -837,6 +844,17 @@ function Parsehtml(){
 						fi
 						echo -e "\e[33m|->\e[0m childID = $childID" | tee -a $LogFile
 					fi
+					if [[ $OptNoRunlist = 1 ]]; then
+						RunlistName="default"
+						RunlistID=1
+						foundRunlists=1
+						RunlistOnTrainpage="$FrameworkDir/DownloadAndDataPrep/runlistsOnTrainpage/runNumbers$ChildName-$RunlistName.txt"
+						LIST_RunlistName+=($RunlistName)
+						LIST_RunlistID+=($RunlistID)
+						LIST_foundRunlists+=($foundRunlists)
+						LIST_RunlistOnTrainpage+=($RunlistOnTrainpage)
+						FindAllRunsAndAddToList $RunlistOnTrainpage
+					fi
 					foundchild=1
 				fi
 				lookchildID=0
@@ -861,6 +879,7 @@ function Parsehtml(){
 				if [[ $debug = 2 ]]; then
 					printf "($line)" | tee -a $LogFile
 				fi
+				# echo $RunlistOnTrainpage
 				if [[ $line = *"<"* ]]
 				then
 					readRuns=0
@@ -954,12 +973,14 @@ function Parsehtml(){
 				do
 					if [[ "$RunlistName" = "$Searchedrunlist" ]] || [[ "$OptRunlistName" = "useSpecificRunlist_"* ]]
 					then
-						LIST_RunlistName+=($RunlistName)
-						LIST_RunlistID+=($RunlistID)
-						LIST_foundRunlists+=($foundRunlists)
-						LIST_RunlistOnTrainpage+=($RunlistOnTrainpage)
-						printf "$Searchedrunlist found \n" | tee -a $LogFile
-						# break
+						if [[ $OptNoRunlist = 0 ]]; then
+							LIST_RunlistName+=($RunlistName)
+							LIST_RunlistID+=($RunlistID)
+							LIST_foundRunlists+=($foundRunlists)
+							LIST_RunlistOnTrainpage+=($RunlistOnTrainpage)
+							printf "$Searchedrunlist found \n" | tee -a $LogFile
+							# break
+						fi
 					fi
 				done
 			fi
@@ -1272,6 +1293,36 @@ function FindPathsAndAddToList(){
 		new_rm $2.tmp
 	done
 }
+function FindAllRunsAndAddToList(){
+	cmd="alien_ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
+	if [[ $OptIsJJ = 1 ]]; then
+		cmd="alien_ls /alice/$Type/$Year/$ChildName/1 1> tmprunfolder.txt"
+	fi
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+	then
+		echo $cmd | tee -a $LogFile
+	fi
+	eval $cmd
+	tmpcouuntnew=0
+	if [[ `grep "does not exist" tmprunfolder.txt | wc -l` > 0 ]] && [[ $? = "0" ]]; then
+		cmd="alien_ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
+	fi
+	while [[ ! $? = "0" ]] ; do
+		if [[ $tmpcouuntnew > 10 ]]; then break; fi
+		((tmpcouuntnew++))
+		eval $cmd
+		printf "."
+		sleep 1
+		if [[ `grep "does not exist" tmprunfolder.txt | wc -l` > 0 ]] && [[ $? = "0" ]]; then
+			cmd="alien_ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
+		fi
+	done
+
+
+	# cat tmprunfolder.txt
+	AddToList tmprunfolder.txt $1
+	new_rm tmprunfolder.txt
+}
 function GetChilds(){
 	cmd="alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2 &> $1"
 	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
@@ -1290,7 +1341,15 @@ function GetChilds(){
 }
 # Fuction to check if file is there and download it if not
 function GetFile(){
+
+	debugtmp=0
+	if [ "$#" == "4" ]; then
+		debugtmp=$4
+	fi
 	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+		debugtmp=1
+	fi
+	if [[ $debugtmp = 1 ]]; then
 		echo -e "\e[33mGetFile(): \e[0m alien:/$1  file:/$2" | tee -a $LogFile
 	fi
 
