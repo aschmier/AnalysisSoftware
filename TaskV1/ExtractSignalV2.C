@@ -6857,9 +6857,9 @@ TString GetCorrectAcceptanceHistoName() {
             case 4:
                 if(fClusterCutSelection.BeginsWith("1"))
                     if(fClusterCutSelection[4]=='a')
-                        return Form("%sEMCR1",addString.Data());
+                        return "EMCR1";
                     else
-                        return Form("%sEMC",addString.Data());
+                        return "EMC";
                 else if(fClusterCutSelection.BeginsWith("3"))
                     return "DMC";
                 else if(fClusterCutSelection.BeginsWith("4"))
