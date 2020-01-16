@@ -89,6 +89,7 @@ void CorrectYield(TH1D* histoCorrectedYield,TH1D* histoEffiPt, TH1D* histoAccept
     }else{
         cout << "Branching Ratio not found, will be scaled with 1!" << endl;
 	}
+	cout << " I scaled with " << branchingRatio << endl;
      histoCorrectedYield->Scale(1./branchingRatio);
 }
 
@@ -1443,14 +1444,19 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	DrawGammaSetMarker(histoUnCorrectedYieldDrawing, 20, 0.5, kBlack, kBlack);                             
 	histoUnCorrectedYieldDrawing->DrawCopy("e1");   
 
+	TH1D* histoUnCorrectedYieldDrawingBackFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
+	histoUnCorrectedYieldDrawingBackFit->Scale(1./nEvt);
+
+	    histoUnCorrectedYieldDrawingBackFit->SetLineWidth(1.);
+	DrawGammaSetMarker(histoUnCorrectedYieldDrawingBackFit, 20, 0.5, kRed, kRed);                             
+	histoUnCorrectedYieldDrawingBackFit->DrawCopy("e1same");   
+
 	canvasRAWYield->Update();
 
 	canvasRAWYield->SaveAs(Form("%s/%s_%s_RAWYieldPt_%s.%s",outputDir.Data(),nameMeson.Data(),prefix2.Data(),fCutSelection.Data(),suffix.Data()));
 	delete canvasRAWYield;
 
 	// Scale backFit uncorrected yield
-	TH1D* histoUnCorrectedYieldDrawingBackFit = (TH1D*)histoUnCorrectedYieldBackFit->Clone();
-	histoUnCorrectedYieldDrawingBackFit->Scale(1./nEvt);
 
     //
     // ─── CORRECTED YIELDS NORM EFFI ─────────────────────────────────────────────────

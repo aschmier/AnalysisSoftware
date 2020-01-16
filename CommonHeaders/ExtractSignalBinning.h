@@ -4340,7 +4340,8 @@
                 } else if(mode == 45 || mode == 65){ //PHOS-PHOS
                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPHOS"<<endl;
                     maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPHOS, binning, 23 );
-        } else if (energy.CompareTo("5TeV") == 0){
+                }
+            } else if (energy.CompareTo("5TeV") == 0){
                 if(mode == 40 || mode == 60){
                     maxNBins    = 13;
                     binningMax  = 13;

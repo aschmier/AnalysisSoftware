@@ -3210,6 +3210,8 @@
                                 mass                        = fMesonMassLeft[iPt];
                             if (nameOfPlot.Contains("True"))
                                 mass                        = fMesonTrueMass[iPt];
+                            if (nameOfPlot.Contains("BackFit"))
+                                mass                        =fMesonMassBackFit_SubPiZero[iPt];
                         } else{
                             // use array given by user
                             mass = MassArray[iPt];

@@ -225,13 +225,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     } else{
         printf("ERROR: MainDir not found!");
         return;
-    }
+    } 
 
     TList *TopDir =(TList*)f->Get(nameMainDir.Data());
     if(TopDir == NULL){
         cout<<"ERROR: TopDir not Found"<<endl;
         return;
-    }
+    } 
 
     TList *HistosGammaConversion = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
 
@@ -2718,6 +2718,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     namePadSub                  = "MesonPadSubtractedBackFit";
     PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassBackFitPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement,fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit_SubPiZero,fThesis);
 
+    // Comparison of backfit and exent mixing only
+    nameMesonSub                = Form("%s/%s_%s_MesonSubtractedComparison_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
+    nameCanvasSub               = "MesonCanvasSubtractedBackFit";
+    namePadSub                  = "MesonPadSubtractedBackFit";
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_SubPiZero, fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero, fFitSignalInvMassBackFitPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement,kTRUE,fDecayChannel, fDetectionProcess, fCollisionSystem,"event mixing",kTRUE,"Fit","back fit subtracted",kFALSE,fMesonMassBackFit_SubPiZero,fThesis);
+
+
     // Meson Subtracted backfit (pz of pi0 is fixed) (NOTE: isMC is always disabled because no true histos exist)
     nameMesonSub                = Form("%s/%s_%s_MesonSubtractedBackFit_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasSubtractedBackFit";
@@ -3032,10 +3039,10 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
         RooRealVar nsig("nsig","#signal events",200,0.,1E6);
         RooRealVar nbkg("nbkg","#background events",800,0.,1E6);
         RooAddPdf model("model","g+a",RooArgList(signalModel,bkgpoly),RooArgList(nsig,nbkg));
- 
+  
         // Import data
         RooDataHist data("data","data",mes,RooFit::Import(*fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i])) ;
-
+ 
         // --- Perform extended ML fit of composite PDF to toy data ---
         model.fitTo(data,RooFit::Extended());
 
@@ -3056,7 +3063,7 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
            if(currContent<minContent) minContent = currContent;
            if(currContent>maxContent) maxContent = currContent;      
     }
-
+ 
     // Instead of fitting excluding peak region, fit pol2 with Gaussian
     TF1* FitPol2Gauss = NULL;
     TF1* FitPol2Only = NULL;
@@ -3073,7 +3080,7 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
         FitPol2Only = RooFitBckOnly;
     }
 
-
+ 
     // Set Amplitude ranger
     Float_t amplitude = maxContent-minContent; // rough estimate of amplitude max-min in peak range
 
@@ -3098,19 +3105,19 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     }
 
     // set start value for width
-    if(fTotalBackFitMode==3)      FitPol2Gauss->SetParameter(5,fMesonWidthExpect);
-    else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(4,fMesonWidthExpect);
+    if(fTotalBackFitMode==3)      FitPol2Gauss->SetParameter(5,0.06);
+    else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(4,0.06);
     if(fIsMC){
-        if(fTotalBackFitMode==3)  FitPol2Gauss->SetParameter(5,fMesonWidthExpectMC);
-        else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(4,fMesonWidthExpectMC);
+        if(fTotalBackFitMode==3)  FitPol2Gauss->SetParameter(5,0.06);
+        else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(4,0.06);
     }
 
     // set ranges for width fitting
-    if(fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(5,fMesonWidthRange[0],fMesonWidthRange[1]);
-    else if(fTotalBackFitMode==2) FitPol2Gauss->SetParLimits(4,fMesonWidthRange[0],fMesonWidthRange[1]);
+    if(fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(5,0.005,0.030);
+    else if(fTotalBackFitMode==2) FitPol2Gauss->SetParLimits(4,0.005,0.030);
     if(fIsMC){
-        if(fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(5,fMesonWidthRangeMC[0],fMesonWidthRangeMC[1]);
-        else if(fTotalBackFitMode==2) FitPol2Gauss->SetParLimits(4,fMesonWidthRangeMC[0],fMesonWidthRangeMC[1]);
+        if(fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(5,0.005,0.030);
+        else if(fTotalBackFitMode==2) FitPol2Gauss->SetParLimits(4,0.005,0.030);
     }
 
     TFitResultPtr resultBckFitTotal;
@@ -3277,7 +3284,7 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
               // For testing
-              //fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,TMath::Sqrt(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx)));
+            //  fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,TMath::Sqrt(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx)));
 
           }
           // Clone histo for error band
@@ -3322,7 +3329,7 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
               
               // For testing
               //fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,TMath::Sqrt(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx)));
-
+ 
           }
           // Clone histo for error band
           fHistoBckFitConfidence_FixedPzPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_FixedPzPiZero_%i",i));

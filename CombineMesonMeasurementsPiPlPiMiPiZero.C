@@ -629,16 +629,11 @@ void CombineMesonMeasurementsPiPlPiMiPiZero(      TString fileNamePCM     = "",
 
     // Int_t nBinsOmega = 15;
     Int_t nBinsOmega = 17;
-    Double_t xPtLimits[18]                      =  {0,1,1.4,1.6, 1.8, 2.0,3.0,4,5.,6.,8.
-                                                    ,10,12,14,16,18,20,22};
-
-    // For testing only
     // Double_t xPtLimits[18]                      =  {0,1,1.4,1.6, 1.8, 2.0,3.0,4,5.,6.,8.
-    //                                                 ,10,15,22,26,28,30,32};
-    // Double_t xPtLimits[13]                      =  {0,1,1.4,1.6, 1.8, 2.0,3.0,4,5.,6.,8.
-    //                                                 ,10,14};
-    // Double_t xPtLimits[16]                      =  {0,1,1.4,1.6, 1.8, 2.0, 2.5,3.0,3.5,4,5.,6.
-    //                                                 ,10,14,90,100};
+    //                                                 ,10,12,14,16,18,20,22};
+
+    Double_t xPtLimits[18]                      =  {0,1,1.4,1.6, 1.8, 2.0,3.0,4,5.,6.,8.
+                                                    ,10,12,14,17,18,20,22};
 
     Int_t nBinsEta = 16;
     Double_t xPtLimitsEta[16]                   =  { 0.0,1., 1.2,1.4, 1.5, 2.0, 2.5, 3.0,
@@ -660,12 +655,12 @@ void CombineMesonMeasurementsPiPlPiMiPiZero(      TString fileNamePCM     = "",
     //       - extendable to other energies
     //       - offsets have to be determined manually, see cout's in shell from combination function
 
-
+ 
 
     // Definition of offsets for stat & sys see output of function in shell, make sure pt bins match
     //                                            PCM,PHOS,EMC,PCMPHOS,PCMEMC,        EMC
     Int_t offSets[11]                           =  {0,    5,  1,     0,     0, 0,0,0,   6,0,0};
-    Int_t offSetsSys[11]                        =  {5,    5, 7,     5,     6, 0,0,0,   6,0,0};
+    Int_t offSetsSys[11]                        =  {5,    5, 6,     5,     6, 0,0,0,   6,0,0};
 
 
     // needed for later binshifting
@@ -695,9 +690,6 @@ void CombineMesonMeasurementsPiPlPiMiPiZero(      TString fileNamePCM     = "",
     // CHANGE BACK!!!!!
     Int_t offSetsOmegaToPi0[11]                           =  {0,    5,  1,     0,     0, 0,0,0,   6,0,0};
     Int_t offSetsSysOmegaToPi0[11]                        =  {5,    5, 6,     5,     6, 0,0,0,   6,0,0};
-
-    //Int_t offSetsOmegaToPi0[11]                           =  {0,    2,  3,     0,     2, 0,0,0,   6,0,0};
-    //Int_t offSetsSysOmegaToPi0[11]                        =  {6,    6, 8,     5,     8, 0,0,0,   6,0,0};
 
     //**********************************************************************************************************************
     //**********************************************************************************************************************
@@ -1052,7 +1044,6 @@ void CombineMesonMeasurementsPiPlPiMiPiZero(      TString fileNamePCM     = "",
             }
         }
     
-
         //**********************************************************************************************************************
         //******************************************* Plotting weights for Eta  ************************************************
         //**********************************************************************************************************************
@@ -1321,7 +1312,6 @@ void CombineMesonMeasurementsPiPlPiMiPiZero(      TString fileNamePCM     = "",
                 sysErrorRelCollectionOmegaToPi0[availableMeasOmegaToPi0[i]]->Draw("p,same,e1");
                 legendRelSysErrOmegaToPi0->AddEntry(sysErrorRelCollectionOmegaToPi0[availableMeasOmegaToPi0[i]],nameMeasGlobal[availableMeasOmegaToPi0[i]],"p");
             }
-            cout << "lol" << endl;
             legendRelSysErrOmegaToPi0->Draw();
 
             TLatex *labelRelSysErrEnergyOmegaToPi0            = new TLatex(0.15,0.89,collisionSystem7TeV.Data());
@@ -1439,18 +1429,12 @@ void CombineMesonMeasurementsPiPlPiMiPiZero(      TString fileNamePCM     = "",
     // levy
     TF1* fitInvXSectionOmega              = FitObject("l","fitInvXSectionOmega","Omega",graphCombOmegaInvXSectionTot,2.,22.5,paramGraph,"QNRMEX0+");
     if(bWCorrection.Contains("X")){
-        //TF1* fitTsallisOmegaPtMult        = FitObject("tmpt","TsallisMultWithPtOmega7TeV","Omega",graphCombOmegaInvXSectionTot,2.,22.5,paramGraph,"QNRMEX0+");
         TF1* fitTsallisOmegaPtMult        = FitObject("tmpt","TsallisMultWithPtOmega7TeV","Omega");
-        //TF1* fitTsallisOmegaPtMult = new TF1("TsallisMultWithPtOmega7TeV","x*fitInvXSectionOmega",2.,22.5);
-        //fitTsallisOmegaPtMult->SetParameters(fitInvXSectionOmega->GetParameter(0),fitInvXSectionOmega->GetParameter(1), fitInvXSectionOmega->GetParameter(2)) ; // standard parameter optimize if necessary
         fitTsallisOmegaPtMult->SetParameters(paramGraph[0],paramGraph[1], paramGraph[2]) ; // standard parameter optimize if necessary
         fitTsallisOmegaPtMult->SetRange(2.,22.5);
-        //return;
 
-        //fitTsallisOmegaPtMult = (TF1*) fitInvXSectionOmega->Clone("TsallisMultWithPtOmega7TeV");
         cout << "Graph before shifting" << endl;
         graphCombOmegaInvXSectionTot->Print();
-        //return;
         graphCombOmegaInvXSectionTot      = ApplyXshift(graphCombOmegaInvXSectionTot, fitTsallisOmegaPtMult, "Omega", kTRUE);
 
         cout << "comb" << endl;
@@ -1553,7 +1537,6 @@ void CombineMesonMeasurementsPiPlPiMiPiZero(      TString fileNamePCM     = "",
         delete canvasDummy2;
     }
     graphCombOmegaInvXSectionStat->Print();
-    cout << "test" << endl;
     TGraphAsymmErrors* graphCombOmegaInvXSectionStat_WOXErr = (TGraphAsymmErrors*) graphCombOmegaInvXSectionStat->Clone("graphCombOmegaInvXSectionStatA_WOXErr");
     ProduceGraphAsymmWithoutXErrors(graphCombOmegaInvXSectionStat_WOXErr);
     TGraphAsymmErrors* graphOmegaInvXSectionStat_WOXErr[10];
@@ -1564,7 +1547,6 @@ void CombineMesonMeasurementsPiPlPiMiPiZero(      TString fileNamePCM     = "",
         ProduceGraphAsymmWithoutXErrors(graphOmegaInvXSectionStat_WOXErr[i]);
       }
     }
-    cout << "test 3" << endl;
 
     // *************************************************************************************************************
     // redo fitting after binshifts

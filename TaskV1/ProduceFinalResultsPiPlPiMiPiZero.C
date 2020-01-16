@@ -188,7 +188,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
 
     Size_t textSizeSpectra          = 0.04;
     Int_t textSizePixelSpectra      = textSizeSpectra*1000;
-    const Int_t MaxNumberOfFiles    = 13;
+    const Int_t MaxNumberOfFiles    = 12;
 
     Color_t colorTrigg      [12]    = { kBlack, kBlack, kBlack, kBlack, kBlack,
                                         kBlack, kBlack, kBlack, kBlack, kBlack,

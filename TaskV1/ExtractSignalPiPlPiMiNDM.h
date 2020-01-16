@@ -810,7 +810,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         fMesonId                  = 223;
 
         // what function is used to fit total background (alternative to event mixing)
-        fTotalBackFitMode = 1; // pol2 only
+        fTotalBackFitMode = 3; // pol2 only
 
         // set medium pt range (currently for all modes the same)
         if(mode == 40 || mode == 41 || mode == 42 || mode == 44 || mode == 45){
@@ -888,8 +888,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
         } else if (mode == 44 || mode == 64){
-            fBGFitRange[0]                = 0.86;
-            fBGFitRange[1]                = 0.90;
+            fBGFitRange[0]                = 0.88;
+            fBGFitRange[1]                = 0.97;
             fBGFitRange_SubPiZero[0]      = fBGFitRange[0]; //
             fBGFitRange_SubPiZero[1]      = fBGFitRange[1];
             fBGFitRange_FixedPzPiZero[0]  = fBGFitRange[0];
@@ -945,10 +945,10 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fMesonIntDeltaRangeNarrow[0]= -0.02;
             fMesonIntDeltaRangeNarrow[1]= 0.02;
         } else if(mode == 44 || mode == 64){
-            fMesonIntDeltaRange[0]      = -0.055;
-            fMesonIntDeltaRange[1]      =  0.055;
-            fMesonIntDeltaRangeWide[0]  = -0.07;
-            fMesonIntDeltaRangeWide[1]  = 0.07;
+            fMesonIntDeltaRange[0]      = -0.065;
+            fMesonIntDeltaRange[1]      =  0.065;
+            fMesonIntDeltaRangeWide[0]  = -0.08;
+            fMesonIntDeltaRangeWide[1]  = 0.08;
             fMesonIntDeltaRangeNarrow[0]= -0.04;
             fMesonIntDeltaRangeNarrow[1]= 0.04;
         } else if( mode == 45 || mode == 65){
@@ -1008,8 +1008,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
          // Set meson fit range
          if(mode == 40 || mode == 60){
-             fMesonFitRange[0]                 = 0.66;
-             fMesonFitRange[1]                 = 0.87;
+             fMesonFitRange[0]                 = 0.59;
+             fMesonFitRange[1]                 = 0.99;
 
              fMesonFitRange_SubPiZero[0]       = fMesonFitRange[0];
              fMesonFitRange_SubPiZero[1]       = fMesonFitRange[1];
@@ -1035,8 +1035,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonFitRange_FixedPzPiZero[0]   = fMesonFitRange[0];
              fMesonFitRange_FixedPzPiZero[1]   = fMesonFitRange[1];
          } else if (mode == 44 || mode == 64){
-             fMesonFitRange[0]                 = 0.59;
-             fMesonFitRange[1]                 = 0.99;
+             fMesonFitRange[0]                 = 0.65;
+             fMesonFitRange[1]                 = 0.87;
 
              fMesonFitRange_SubPiZero[0]       = fMesonFitRange[0];
              fMesonFitRange_SubPiZero[1]       = fMesonFitRange[1];
