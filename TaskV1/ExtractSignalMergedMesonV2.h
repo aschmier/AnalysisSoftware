@@ -142,6 +142,8 @@
     void FillExoticsM02HistosArray( TH2F* );                                                                    // Fill M02 histograms for excluded exotics 
     void IntegrateHistoInvMass(TH1D*, Double_t* );                                                              // Integrate invariant mass histogram
     void IntegrateHistoM02(TH1D*, Double_t* );                                                                  // Integrate M02 histogram
+    Bool_t LoadMesonAcceptance(TH1D*);                                                                            // Calculation of meson acceptance
+    TString GetCorrectAcceptanceHistoName();                                                                            // Calculation of meson acceptance
     void CalculateMesonAcceptance();                                                                            // Calculation of meson acceptance
     TH1D* CalculateMesonEfficiency(TH1D*, TH1D*,TString);                                                       // Calculation of meson efficiencies 
     TH1D* CalculateMesonEfficiencySec(TH1D*, TH1D*,TString);                                                    // Calculation of meson efficiencies 
@@ -366,6 +368,7 @@
     //****************************************************************************
     TH1D*       fDeltaPt                                                    = NULL;
     TH1D*       fHistoMCAcceptancePt                                        = NULL;
+    TH1D*       fHistoMCMesonAcceptExternalPt                                        = NULL;
     TH1D*       fHistoTrueEffiMerged                                        = NULL;
     TH1D*       fHistoTrueEffiPrimMeson                                     = NULL;
     TH1D*       fHistoTruePurityMerged                                      = NULL;
@@ -451,7 +454,7 @@
     TH1D*       fHistoTrueYieldSecPi0M02[4]                                 = { NULL, NULL, NULL, NULL};    
     TH1D*       fHistoTruePi0SecFrac[4]                                     = { NULL, NULL, NULL, NULL};
     TH1D*       fHistoTrueEffiSecPi0[4]                                     = { NULL, NULL, NULL, NULL};
-
+    Bool_t      fuseExtAccept                                               = kFALSE;
     //****************************************************************************
     //******************* Secondary correction histograms ************************
     //****************************************************************************

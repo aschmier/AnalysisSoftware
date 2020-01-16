@@ -64,8 +64,9 @@ void ExtractSignalMergedMesonV2(    TString meson                   = "",
                                     Int_t   mode                    = 10,
                                     Bool_t  kJJGammaTriggMC         = 0,
                                     Int_t   triggerSet              = -1,
-                                    TString optionCorrFrameworkDir  = ""
-                                ) {
+                                    TString optionCorrFrameworkDir  = "",
+                                    Bool_t useExtAccept             = kFALSE
+                              ) {
     gROOT->Reset();
 
     //*****************************************************************************************************************
@@ -101,7 +102,7 @@ void ExtractSignalMergedMesonV2(    TString meson                   = "",
     fEnergyFlag                     = optionEnergy;
     fPrefix                         = meson;
     fPeriodFlag                     = optionPeriod;
-
+    fuseExtAccept                   = useExtAccept;
     TString outputDir               = Form("%s/%s/%s/ExtractSignalMergedMeson",cutSelection.Data(),optionEnergy.Data(),suffix.Data());
     gSystem->Exec("mkdir -p "+outputDir);
 
@@ -1693,6 +1694,13 @@ void ExtractSignalMergedMesonV2(    TString meson                   = "",
 
     if (fIsMC){
         CalculateMesonAcceptance();
+        if(fuseExtAccept){
+            if(LoadMesonAcceptance(fDeltaPt)){
+                cout << "loaded external acceptance sucessfully" << endl;
+            } else {
+                cout << "failed to load external acceptance" << endl; return;
+            }
+        }
 
         TString fNameHistoEffi      = "TrueMesonEffiMergedPt";
         cout << fNameHistoEffi.Data() << endl;
@@ -2947,6 +2955,53 @@ void IntegrateHistoM02(TH1D * fHistoDummy, Double_t * fMesonIntRangeInt){
     }
 }
 
+
+//****************************************************************************
+//************** Loading of external Meson Acceptance ************************
+//****************************************************************************
+Bool_t LoadMesonAcceptance( TH1D * fDeltaPtFill) {
+    TH1D* histoGeneratedExtMeson    = NULL;
+    TH1D* histoInAcceptanceExtMeson = NULL;
+    TString mesonStringLoad = fPrefix;
+    if(mesonStringLoad.Contains("Pi0EtaBinning")) mesonStringLoad = "Pi0";
+    cout << "loading external acceptance" << endl;
+    TString extAccFileName = Form("ExternalInput/KinematicAcceptance/ExternalAcceptance%s.root",mesonStringLoad.Data());
+    TFile* extAccFile =  new TFile(extAccFileName.Data());
+    if (!extAccFile->IsZombie()){
+        TString acceptancehistoName= "mEMC";
+        if(fClusterCutSelection.BeginsWith("3"))
+            acceptancehistoName= "mDMC";
+        else if(fClusterCutSelection.BeginsWith("4"))
+            acceptancehistoName= "mEDC";
+        else if(fClusterCutSelection.BeginsWith("2"))
+            acceptancehistoName= "mPHOS";
+        histoGeneratedExtMeson    = (TH1D*)extAccFile->Get(Form("histo%sGen_%s",mesonStringLoad.Data(),acceptancehistoName.Data()));
+        histoInAcceptanceExtMeson = (TH1D*)extAccFile->Get(Form("histo%sInAcc_%s",mesonStringLoad.Data(),acceptancehistoName.Data()));
+        if(!histoGeneratedExtMeson || !histoInAcceptanceExtMeson) return kFALSE;
+        histoInAcceptanceExtMeson->Sumw2();
+        histoGeneratedExtMeson->Sumw2();
+        histoGeneratedExtMeson      = (TH1D*)histoGeneratedExtMeson->Rebin(fNBinsPt,"",fBinsPt); // Proper bins in Pt
+        histoInAcceptanceExtMeson   = (TH1D*)histoInAcceptanceExtMeson->Rebin(fNBinsPt,"",fBinsPt); // Proper bins in Pt
+        histoGeneratedExtMeson->Divide(fDeltaPtFill);
+        histoInAcceptanceExtMeson->Divide(fDeltaPtFill);
+
+        fHistoMCMesonAcceptExternalPt = new TH1D("fMCMesonAccepExternalPt","",fNBinsPt,fBinsPt);
+        fHistoMCMesonAcceptExternalPt->Sumw2();
+        fHistoMCMesonAcceptExternalPt->Divide(histoInAcceptanceExtMeson,histoGeneratedExtMeson,1.,1.,"B");
+
+        fHistoMCMesonAcceptExternalPt->DrawCopy();
+        fFileDataLog << endl << "Loading of external Acceptance " << acceptancehistoName.Data() << endl;
+        for ( Int_t i = 1; i < fHistoMCMesonAcceptExternalPt->GetNbinsX()+1 ; i++){
+            fFileDataLog << "Bin " << i << "\t"<< fHistoMCMesonAcceptExternalPt->GetBinCenter(i)<< "\t" << fHistoMCMesonAcceptExternalPt->GetBinContent(i) << "\t" << fHistoMCMesonAcceptExternalPt->GetBinError(i) <<endl;
+        }
+        return kTRUE;
+    } else {
+        cout << "Did not find requested Acceptance input root file " << extAccFileName.Data() << endl;
+        return kFALSE;
+    }
+}
+
+
 //****************************************************************************
 //***************** Calculation of Meson Acceptance **************************
 //****************************************************************************
@@ -3215,8 +3270,12 @@ void SaveCorrectionHistos(TString fCutID, TString fPrefix3){
         if (fHistoMCMesonWithinAccepPt)             fHistoMCMesonWithinAccepPt->Write("MC_Meson_WithinAccept");
         if (fHistoMCMesonWithinAccepPtRebin)        fHistoMCMesonWithinAccepPtRebin->Write("MC_Meson_WithinAccept_Rebin");
         if (fHistoMCMesonPtWOWeights)               fHistoMCMesonPtWOWeights->Write("MC_Meson_WOWeights");
-        if (fHistoMCAcceptancePt)                   fHistoMCAcceptancePt->Write("AcceptancePt");
-
+        if (fuseExtAccept){
+            if (fHistoMCAcceptancePt)                   fHistoMCAcceptancePt->Write("AcceptanceStandardPt");
+            if (fHistoMCMesonAcceptExternalPt)          fHistoMCMesonAcceptExternalPt->Write("AcceptancePt");
+        } else {
+            if (fHistoMCAcceptancePt)                   fHistoMCAcceptancePt->Write("AcceptancePt");
+        }
         if (fHistoTrueEffiMerged)                   fHistoTrueEffiMerged->Write("TrueEfficiencyMergedPt");
         if (fHistoTrueEffiPrimMeson)                fHistoTrueEffiPrimMeson->Write("TrueEfficiencyPrimMesonPt");
         if (fHistoTruePurityMerged)                 fHistoTruePurityMerged->Write("TruePurityMergedPt");
@@ -3481,6 +3540,7 @@ void Delete(){
         if (fHistoTrueYieldPrimPi0M02)                          delete fHistoTrueYieldPrimPi0M02;
 
         if (fHistoMCAcceptancePt)                               delete fHistoMCAcceptancePt;
+        if (fHistoMCMesonAcceptExternalPt)                      delete fHistoMCMesonAcceptExternalPt;
         if (fHistoTruePurityMerged)                             delete fHistoTruePurityMerged;
         if (fHistoTruePi0PurityMerged)                          delete fHistoTruePi0PurityMerged;
         if (fHistoTrueEtaPurityMerged)                          delete fHistoTrueEtaPurityMerged;

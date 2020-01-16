@@ -1695,15 +1695,15 @@ echo ""
                 echo "CutSelection is $CUTSELECTION";
                 if [ $DOPI0 -eq 1 ]; then
                     if [ -f $DATAROOTFILE ]; then
-                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Pi0\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kFALSE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,$MODE\,0\,-1\,\"$CORRFSETTING\"\)
+                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Pi0\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kFALSE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,$MODE\,0\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
                     fi
                     PI0DATARAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0_data_GammaMergedWithoutCorrection_*.root`
                     if [ $MCFILE -eq 1 ]; then
-                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Pi0\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,$MODE\,0\,-1\,\"$CORRFSETTING\"\)
+                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Pi0\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,$MODE\,0\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
                         PI0MCRAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaMergedWithoutCorrection_*$CUTSELECTION*.root`
                         PI0MCCORRFILE=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaMergedCorrectionHistos_*$CUTSELECTION*.root`
                         if [ $MERGINGMC -eq 1 ]; then
-                            root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Pi0\"\,\"$MCROOTFILEGJ\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,$MODE\,1\,-1\,\"$CORRFSETTING\"\)
+                            root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Pi0\"\,\"$MCROOTFILEGJ\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,$MODE\,1\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
                             PI0MCCORRFILEJJG=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaMergedCorrectionHistosJJGammaTrigg_*.root`
                             root -b -x -q -l TaskV1/MergeCorrFactorsJJandJJGammaTrigMergedCluster.C\+\(\"$CUTSELECTION\"\,\"Pi0\"\,\"$SUFFIX\"\,\"$ENERGY\"\,\"$PI0MCCORRFILE\"\,\"$CUTSELECTION/$ENERGY/Pi0_MC_GammaMergedCorrectionHistosJJ_$CUTSELECTION.root\"\,\"$PI0MCCORRFILEJJG\"\)
 
@@ -1717,15 +1717,15 @@ echo ""
 
                 if [ $DOETA -eq 1 ]; then
                     if [ -f $DATAROOTFILE ]; then
-                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Eta\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kFALSE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,0\,-1\,\"$CORRFSETTING\"\)
+                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Eta\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kFALSE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,0\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
                     fi
                     ETADATARAWFILE=`ls $CUTSELECTION/$ENERGY/Eta_data_GammaMergedWithoutCorrection_*.root`
                     if [ $MCFILE -eq 1 ]; then
-                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Eta\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,0\,-1\,\"$CORRFSETTING\"\)
+                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Eta\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,0\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
                         ETAMCRAWFILE=`ls $CUTSELECTION/$ENERGY/Eta_MC_GammaMergedWithoutCorrection_*$CUTSELECTION*.root`
                         ETAMCCORRFILE=`ls $CUTSELECTION/$ENERGY/Eta_MC_GammaMergedCorrectionHistos_*$CUTSELECTION*.root`
                         if [ $MERGINGMC -eq 1 ]; then
-                            root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Eta\"\,\"$MCROOTFILEGJ\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,1\,-1\,\"$CORRFSETTING\"\)
+                            root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Eta\"\,\"$MCROOTFILEGJ\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,1\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
                         fi
                         root -b -x -q -l TaskV1/CompareShapeMergedClusterQuantities.C\+\(\"$ETADATARAWFILE\"\,\"$ETAMCRAWFILE\"\,\"$CUTSELECTION\"\,\"Eta\"\,\"$SUFFIX\"\,\"$ENERGY\"\,$BINSPTETA\,$MODE\)
                     fi
@@ -1745,18 +1745,18 @@ echo ""
 
             if [ $DOPI0 -eq 1 ]; then
                 if [ -f $PI0DATARAWFILE ] && [ -f $PI0MCCORRFILE ]; then
-                      root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$PI0DATARAWFILE\"\,\"$PI0MCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Pi0\"\,kFALSE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\)
+                      root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$PI0DATARAWFILE\"\,\"$PI0MCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Pi0\"\,kFALSE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\,$USEEXTACC\)
                 fi
                 if [ -f $PI0MCRAWFILE ] && [ -f $PI0MCCORRFILE ]; then
-                    root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$PI0MCRAWFILE\"\,\"$PI0MCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Pi0\"\,kTRUE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\)
+                    root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$PI0MCRAWFILE\"\,\"$PI0MCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Pi0\"\,kTRUE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\,$USEEXTACC\)
                 fi
             fi
             if [ $DOETA -eq 1 ]; then
                 if [ -f $ETADATARAWFILE ] && [ -f $ETAMCCORRFILE ]; then
-                    root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$ETADATARAWFILE\"\,\"$ETAMCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Eta\"\,kFALSE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\)
+                    root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$ETADATARAWFILE\"\,\"$ETAMCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Eta\"\,kFALSE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\,$USEEXTACC\)
                 fi
                 if [ -f $ETAMCRAWFILE ] && [ -f $ETAMCCORRFILE ]; then
-                    root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$ETAMCRAWFILE\"\,\"$ETAMCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Eta\"\,kTRUE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\)
+                    root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$ETAMCRAWFILE\"\,\"$ETAMCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Eta\"\,kTRUE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\,$USEEXTACC\)
                 fi
             fi
         fi

@@ -122,6 +122,7 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
                                 TString optionEnergy            = "", 
                                 TString optionPeriod            = "",
                                 Int_t mode                      = 10, 
+                                Bool_t useExtAccept             = kFALSE,
                                 TString fileNameTheory          = "ExternalInput/Theory/TheoryCompilationPP.root"
                             ){  
     
@@ -435,7 +436,11 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
     TH1D* histoMesonPurityPt                    = (TH1D*)fileCorrections->Get(namePurity.Data());
 
     TH1D *histoAcceptance                       = (TH1D*)fileCorrections->Get("AcceptancePt");
-    
+    TH1D *histoAcceptanceStandard               = NULL;
+    if(useExtAccept){
+        histoAcceptanceStandard                 = (TH1D*)fileCorrections->Get("AcceptanceStandardPt");
+    }
+
     // read pt distribution for different NLM bins (0-10, single NLM bins, 11 (>3), 12 (all))
     TH1D* histoMCPtInNLMBins[13]                = { NULL, NULL, NULL, NULL, NULL,
                                                     NULL, NULL, NULL, NULL, NULL,
@@ -919,6 +924,10 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
         histoAcceptance->GetYaxis()->SetTitleOffset(0.85);        
         DrawGammaSetMarker(histoAcceptance, 20, 1.5, kAzure-6, kAzure-6);
         histoAcceptance->DrawCopy("e1"); 
+        if(useExtAccept){
+            DrawGammaSetMarker(histoAcceptanceStandard, 24, 1.5, kSpring-6, kSpring-6);
+            histoAcceptanceStandard->DrawCopy("e1,same"); 
+        }
 
         PutProcessLabelAndEnergyOnPlot(0.95, 0.25, 28, collisionSystem.Data(), fNLMString.Data(), fDetectionProcess.Data(), 43, 0.03, "", 1, 1.25, 31);
 
@@ -2403,6 +2412,7 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
     if (histoUnCorrectedYield)              histoUnCorrectedYield->Write();
 
     if (histoAcceptance)                    histoAcceptance->Write();
+    if (histoAcceptance)                    histoAcceptance->Write("fHistoMCAcceptancePt");
     if (histoTrueEffiPrimMesonPt)           histoTrueEffiPrimMesonPt->Write("PrimaryMesonEfficiency");
     if (histoMesonPurityPt)                 histoMesonPurityPt->Write("MesonPurity");
     if (histoEventQuality)                  histoEventQuality->Write();
