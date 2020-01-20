@@ -5241,11 +5241,14 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
     fFitReco->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1.15);
     if( fPrefix.CompareTo("Eta") ==0) {
       if(fEnergyFlag.Contains("13TeV") ){
-	if(fMode == 0 ) {
-	  if( ptBin < 3){
-	    fFitReco->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1);
-	  }
-	}
+        if(fMode == 0 ) {
+          if( ptBin < 3){
+            fFitReco->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1);
+          }
+        }
+        if (fMode == 5){
+            fFitReco->SetParLimits(1,fMesonMassExpect*0.95,fMesonMassExpect*1.1);
+        }
       }
     }
 
@@ -6307,7 +6310,7 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
     fFitRecoPre->SetParLimits(1,fMesonMassRange[0],fMesonMassRange[1]);
     if (fMode == 2 || fMode == 13 ){
         fFitRecoPre->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1.2);
-    } else if(  fMode == 4 || fMode == 12 || fMode==14){
+    } else if(  fMode == 4 || fMode == 12 || fMode==14 || fMode == 5){
         if ( fEnergyFlag.BeginsWith("8TeV") )
             fFitRecoPre->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1.3);
         else if ( fEnergyFlag.Contains("PbPb") )
@@ -6366,7 +6369,7 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
 
     fFitReco->SetNpx(10000);
 
-    if ( !(fMode == 2 || fMode == 13 || fMode == 4 || fMode == 12 || fMode==14))
+    if ( !(fMode == 2 || fMode == 13 || fMode == 4 || fMode == 12 || fMode==14 || fMode == 5))
         fFitReco->SetParLimits(1,fMesonMassRange[0],fMesonMassRange[1]);
     else if (fMode == 2 || fMode == 13 )
         fFitReco->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1.2);
