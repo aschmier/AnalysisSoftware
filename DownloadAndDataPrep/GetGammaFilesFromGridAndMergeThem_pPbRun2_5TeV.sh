@@ -264,13 +264,16 @@ if [ $3 = "AODSKIMMB" ]; then
 #     LHC13fData="715" #skim MB
     TRAINDIR=20200106-EMCSysJJGT
     LHC13beData="";
-    LHC13bcData="729"
+#     LHC13bcData="729"
+    LHC13bcData="756"
     LHC13bData="child_1"
     LHC13cData="child_2"
-    LHC13deData="730" #skim MB
+#     LHC13deData="730" #skim MB
+    LHC13deData="750" #skim MB
     LHC13dData="child_1"
     LHC13eData="child_2"
-    LHC13fData="731" #skim MB
+#     LHC13fData="731" #skim MB
+    LHC13fData="755" #skim MB
 
     
 elif [ $3 = "AODSKIMEMC7" ]; then
@@ -328,12 +331,18 @@ elif [ $3 = "AODSKIMEGAJE" ]; then
 #     LHC13fData="684" #skim EGA
     
     TRAINDIR=20200106-EMCSysJJGT
-    LHC13beData="738" #skim EGA
+#     LHC13beData="738" #skim EGA
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+#     LHC13dData="child_3"
+#     LHC13eData="child_4"
+#     LHC13fData="740" #skim EGA
+    LHC13beData="753" #skim EGA
     LHC13bData="child_1"
     LHC13cData="child_2"
     LHC13dData="child_3"
     LHC13eData="child_4"
-    LHC13fData="740" #skim EGA
+    LHC13fData="754" #skim EGA
     
 elif [ $3 = "AODSKIMPHI7" ]; then
 #     TRAINDIR=20190831-EMCNonLin
@@ -474,8 +483,9 @@ else
 #     LHC17g6a2MC="877";
 #     LHC17g6a3MC="878";
 
-#     TRAINDIR=20200106-EMCSysJJGT
+    TRAINDIR=20200106-EMCSysJJGT
 #     LHC16qtData="737";
+#     LHC16qtData="752";
 #     LHC16qDataFast="child_1";
 #     LHC16tDataFast="child_2";
 #     LHC16qData="child_3";
@@ -493,16 +503,24 @@ else
 #     LHC17g6a2MC="901";
 #     LHC17g6a3MC="902";
 #     LHC18j5MC="952"
+#     LHC18j5MC="1009"
 #     LHC18j5_1MC="child_1"
 #     LHC18j5_2MC="child_2"
 #     LHC18j5_3MC="child_3"
 #     LHC18f3MCMoth="951";
+#     LHC18f3MCMoth="1008";
 #     LHC18f3MC1="child_2";
 #     LHC18f3MC2="child_4";
 #     LHC18f3MCFast1="child_1";
 #     LHC18f3MCFast2="child_3";
+    LHC16c3aMC1="1012";
+    LHC16c3aMC2="1011";
+    LHC16c3bMC1="1014";
+    LHC16c3bMC2="1013";
+    LHC17g6a2MC="1015";
+    LHC17g6a3MC="1016";
     
-    TRAINDIR=20200106-PCMEMCSysJJGT
+#     TRAINDIR=20200106-PCMEMCSysJJGT
 #     #EG1 - 1
 #     LHC16c3aMC1="907";
 #     LHC16c3aMC2="903";
@@ -539,13 +557,40 @@ else
 #     LHC17g6a2MC="943";
 #     LHC17g6a3MC="947";
 #     #EG2 - 2
-    LHC16c3aMC1="932";
-    LHC16c3aMC2="928";
-    LHC16c3bMC1="940";
-    LHC16c3bMC2="936";
-    LHC17g6a2MC="944";
-    LHC17g6a3MC="948";
-    
+#     LHC16c3aMC1="932";
+#     LHC16c3aMC2="928";
+#     LHC16c3bMC1="940";
+#     LHC16c3bMC2="936";
+#     LHC17g6a2MC="944";
+#     LHC17g6a3MC="948";
+#     #EG2 - 2
+#     LHC16c3aMC1="933";
+#     LHC16c3aMC2="929";
+#     LHC16c3bMC1="941";
+#     LHC16c3bMC2="937";
+#     LHC17g6a2MC="945";
+#     LHC17g6a3MC="949";
+
+#     LHC18j5MC="996"
+#     LHC18j5MC="997"
+#     LHC18j5MC="998"
+#     LHC18j5_1MC="child_1"
+#     LHC18j5_2MC="child_2"
+#     LHC18j5_3MC="child_3"
+#     LHC18f3MCMoth="992";
+#     LHC18f3MCMoth="993";
+#     LHC18f3MCMoth="994";
+#     LHC18f3MC1="child_2";
+#     LHC18f3MC2="child_4";
+#     LHC18f3MCFast1="child_1";
+#     LHC18f3MCFast2="child_3";
+
+#     TRAINDIR=20200118-EMCSingleRunUnskimmed
+#     LHC13dData="757"
+#     LHC13eData="758"
+#     LHC13fData="759" #skim PHI7
+
+
 fi
 
 
@@ -558,7 +603,28 @@ mkdir -p $OUTPUTDIR/CutSelections
 mkdir -p $OUTPUTDIR/SinglePeriods
 
 # finding run1 data paths
-if [ "$LHC13beData" == "" ]; then
+if [ "$LHC13beData" == "" ] && [ $3 = "AOD" ]; then
+  FindCorrectTrainDirectory $LHC13bData $OUTPUTDIRData $ALIENDIRData 
+  HAVELHC13b=$tempBool
+  LHC13bData=$tempDir
+  OUTPUTDIR_LHC13b=$tempPath
+  echo "13b: $HAVELHC13b $LHC13bData $OUTPUTDIR_LHC13b"
+  FindCorrectTrainDirectory $LHC13cData $OUTPUTDIRData $ALIENDIRData 
+  HAVELHC13c=$tempBool
+  LHC13cData=$tempDir
+  OUTPUTDIR_LHC13c=$tempPath
+  echo "13c: $HAVELHC13c $LHC13cData $OUTPUTDIR_LHC13c"
+  FindCorrectTrainDirectory $LHC13dData $OUTPUTDIRData $ALIENDIRData 
+  HAVELHC13d=$tempBool
+  LHC13dData=$tempDir
+  OUTPUTDIR_LHC13d=$tempPath
+  echo "13d: $HAVELHC13d $LHC13dData $OUTPUTDIR_LHC13d"
+  FindCorrectTrainDirectory $LHC13eData $OUTPUTDIRData $ALIENDIRData 
+  HAVELHC13e=$tempBool
+  LHC13eData=$tempDir
+  OUTPUTDIR_LHC13e=$tempPath
+  echo "13e: $HAVELHC13e $LHC13eData $OUTPUTDIR_LHC13e"
+elif [ "$LHC13beData" == "" ]; then
   FindCorrectTrainDirectory $LHC13bData $OUTPUTDIRData $ALIENDIRData $LHC13bcData
   HAVELHC13b=$tempBool
   LHC13bData=$tempDir

@@ -564,7 +564,7 @@ function CopyFileIfNonExisitentDiffList()
         cp $1/$3/GammaConvCalo_$fileNumber.root $1/GammaConvCalo-$3\_$fileNumber.root
     done;
     rm -f fileNumbers2.txt
-    GetFileNumberListCalo $1/$3 $4 fileNumbers2.txt 1
+    GetFileNumberListCalo $1/$3 $4 fileNumbers2.ftxt 1
     for fileNumber in `cat fileNumbers2.txt`; do
         cp $1/$3/GammaCalo_$fileNumber.root $1/GammaCalo-$3\_$fileNumber.root
     done;

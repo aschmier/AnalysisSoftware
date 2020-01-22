@@ -182,7 +182,7 @@ void ExtractSignalV2(
     TString fMesonCutSelectionRead  = fMesonCutSelection.Data();
     TString fClusterCutSelectionRead= fClusterCutSelection.Data();
     TString addSigString = "";
-    if (addSig || file.Contains("LHC17g6a2") || file.Contains("LHC17g6a3") ) {
+    if (addSig  ) { //|| file.Contains("LHC17g6a2") || file.Contains("LHC17g6a3")
         addSigString = "AddSig";
         if(directphotonPlots.CompareTo("directPhoton")==0){
             cout << "running added Signal for photons, be careful" << endl;
@@ -6835,65 +6835,66 @@ TString GetCorrectAcceptanceHistoName() {
     if(fGammaCutSelection.Length() && fGammaCutSelection[1]=='d') addString = "08_";
 
     switch (fMode){
-            case 0:
-                return Form("%sPCM",addString.Data());
-            // case 1:
-                // return Form("%sPCM-#gamma^{*}#gamma";
-            case 2:
-                if(fClusterCutSelection.BeginsWith("1")){
-                    if(fClusterCutSelection[4]=='a')
-                        return Form("%sPCMEMCR1",addString.Data());
-                    else
-                        return Form("%sPCMEMC",addString.Data());
-                }else if(fClusterCutSelection.BeginsWith("3"))
-                    return Form("%sPCMDMC",addString.Data());
-                else if(fClusterCutSelection.BeginsWith("4"))
-                    return Form("%sPCMEDC",addString.Data());
-            case 3:
-                if(fClusterCutSelection.BeginsWith("24444"))
-                    return Form("%sPCMPHOS",addString.Data());
-                else if(fClusterCutSelection.BeginsWith("24466"))
-                    return Form("%sPCMPHOSR2",addString.Data());
-            case 4:
-                if(fClusterCutSelection.BeginsWith("1"))
-                    if(fClusterCutSelection[4]=='a')
-                        return "EMCR1";
-                    else
-                        return "EMC";
-                else if(fClusterCutSelection.BeginsWith("3"))
-                    return "DMC";
-                else if(fClusterCutSelection.BeginsWith("4"))
-                    return "EDC";
-            case 5: case -5:
-                if(fClusterCutSelection.BeginsWith("24444"))
-                    return "PHOS";
-                else if(fClusterCutSelection.BeginsWith("24466"))
-                    return "PHOSR2";
-            // case 6:
-            //     return "EMC-#gamma^{*}#gamma";
-            // case 7:
-            //     return "PHOS-#gamma^{*}#gamma";
-            case 10:
-                if(fClusterCutSelection.BeginsWith("1"))
-                    return "mEMC";
-                else if(fClusterCutSelection.BeginsWith("3"))
-                    return "mDMC";
-                else if(fClusterCutSelection.BeginsWith("4"))
-                    return "mEDC";
-            case 11:
-                return "mPHOS";
-            case 12:
-                return "DMC";
-            case 13:
+        case 0:
+            return Form("%sPCM",addString.Data());
+        // case 1:
+            // return Form("%sPCM-#gamma^{*}#gamma";
+        case 2:
+            if(fClusterCutSelection.BeginsWith("1")){
+                if(fClusterCutSelection[4]=='a')
+                    return Form("%sPCMEMCR1",addString.Data());
+                else
+                    return Form("%sPCMEMC",addString.Data());
+            }else if(fClusterCutSelection.BeginsWith("3"))
                 return Form("%sPCMDMC",addString.Data());
-            case 14:
+            else if(fClusterCutSelection.BeginsWith("4"))
                 return Form("%sPCMEDC",addString.Data());
-            case 15:
+        case 3:
+            if(fClusterCutSelection.BeginsWith("24444"))
+                return Form("%sPCMPHOS",addString.Data());
+            else if(fClusterCutSelection.BeginsWith("24466"))
+                return Form("%sPCMPHOSR2",addString.Data());
+        case 4:
+            if(fClusterCutSelection.BeginsWith("1"))
+                if(fClusterCutSelection[4]=='a')
+                    return "EMCR1";
+                else
+                    return "EMC";
+            else if(fClusterCutSelection.BeginsWith("3"))
+                return "DMC";
+            else if(fClusterCutSelection.BeginsWith("4"))
                 return "EDC";
-            default:
-                return "undefined";
+        case 5: case -5:
+            if(fClusterCutSelection.BeginsWith("24444"))
+                return "PHOS";
+            else if(fClusterCutSelection.BeginsWith("24466"))
+                return "PHOSR2";
+        // case 6:
+        //     return "EMC-#gamma^{*}#gamma";
+        // case 7:
+        //     return "PHOS-#gamma^{*}#gamma";
+        case 10:
+            if(fClusterCutSelection.BeginsWith("1"))
+                return "mEMC";
+            else if(fClusterCutSelection.BeginsWith("3"))
+                return "mDMC";
+            else if(fClusterCutSelection.BeginsWith("4"))
+                return "mEDC";
+        case 11:
+            return "mPHOS";
+        case 12:
+            return "DMC";
+        case 13:
+        case 13:
+            return Form("%sPCMDMC",addString.Data());
+        case 14:
+            return Form("%sPCMEDC",addString.Data());
+        case 15:
+            return "EDC";
+        default:
+            return "undefined";
 
-        }
+    }
     return "undefined";
 }
 
@@ -6911,6 +6912,7 @@ Bool_t LoadMesonAcceptance( TH1D * fDeltaPtFill) {
     TFile* extAccFile =  new TFile(extAccFileName.Data());
     if (!extAccFile->IsZombie()){
         TString acceptancehistoName = GetCorrectAcceptanceHistoName();
+        cout << "trying to find: " << Form("histo%sGen_%s",mesonStringLoad.Data(),acceptancehistoName.Data()) << "\t" << Form("histo%sInAcc_%s",mesonStringLoad.Data(),acceptancehistoName.Data()) << endl;
         histoGeneratedExtMeson    = (TH1D*)extAccFile->Get(Form("histo%sGen_%s",mesonStringLoad.Data(),acceptancehistoName.Data()));
         histoInAcceptanceExtMeson = (TH1D*)extAccFile->Get(Form("histo%sInAcc_%s",mesonStringLoad.Data(),acceptancehistoName.Data()));
         if(!histoGeneratedExtMeson || !histoInAcceptanceExtMeson) return kFALSE;

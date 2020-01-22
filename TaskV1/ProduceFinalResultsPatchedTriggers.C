@@ -2061,7 +2061,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         } else if(optionEnergy.Contains("5TeV2017")){
             minAccPi0 = 0.25;
             maxAccPi0 = 0.45;
-        } else if(optionEnergy.Contains("pPb_8TeV")){
+        } else if( optionEnergy.Contains("pPb_5.023TeV") ){
+            minAccPi0 = 0.11;
+            maxAccPi0 = 0.45;
+        } else if(optionEnergy.Contains("pPb_8TeV") ){
             minAccPi0 = 0.11;
             maxAccPi0 = 0.88;
         }
@@ -2074,8 +2077,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         if(optionEnergy.Contains("pPb_8TeV")){
             minAccPi0       = 0.40;
             maxAccPi0       = 0.55;
-        }
-        if(optionEnergy.Contains("8TeVRef")){
+        } else if(optionEnergy.Contains("8TeVRef")){
             minAccPi0       = 0.20;
             maxAccPi0       = 0.35;
         }
@@ -2624,7 +2626,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         offSetsPi0[3] = 0; //EMC7
         offSetsPi0[4] = 4; //EGA
       }
-    } if(optionEnergy.CompareTo("8TeVRef")==0){
+    } else if(optionEnergy.CompareTo("8TeVRef")==0){
       if(mode == 2){
         offSetsPi0[1] = 3; //INT7
         offSetsPi0[3] = 0; //EMC7
@@ -5132,9 +5134,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             if (optionEnergy.Contains("5TeV2017") ){
                 minAccEta = 0.15;
                 maxAccEta = 0.95;
-            }
-            if (optionEnergy.Contains("pPb_8TeV") ){
-                minAccEta = 0.08;
+            } else if ( optionEnergy.Contains("pPb_5.023TeV")){
+                minAccEta = 0.05;
+                maxAccEta = 0.45;
+            } else if (optionEnergy.Contains("pPb_8TeV") ){
+                minAccEta = 0.05;
                 maxAccEta = 0.81;
             }
         } else if (mode == 5){
@@ -5564,7 +5568,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                   cout << "WARNING: could not find detailed systematics file " << sysFileEtaDet << ", skipping... " << endl;
                   sysAvailSingleEta[i] = kFALSE;
                 }else{
-                 f= ifstream fileSysErrDetailedEta;
+                  ifstream fileSysErrDetailedEta;
                   fileSysErrDetailedEta.open(sysFileEtaDet,ios_base::in);
                   if(fileSysErrDetailedEta.is_open())
                       sysAvailSingleEta[i] = kTRUE;
