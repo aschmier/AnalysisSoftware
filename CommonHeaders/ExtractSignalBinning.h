@@ -2919,8 +2919,11 @@
                                     maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 } else {
                                     //------------------------------------Std PCM-PHOS Binning
-                                    cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeVPCMPHOSTrigINT7Pt"<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMPHOSTrigINT7Pt, binning, 82 );
+                                    cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeV_CombinedBinning"<<endl;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_CombinedBinning, binning, 138 );
+                                    //------------------------------------Std PCM-PHOS Binning until 2019
+                                    //cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeVPCMPHOSTrigINT7Pt"<<endl;
+                                    //maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMPHOSTrigINT7Pt, binning, 82 );
                                     //------------------------------------DPG2019 PCM-PHOS Binning
                                     //cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeVPCMPHOSTrigINT7Pt_DPG2019"<<endl;
                                     //maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMPHOSTrigINT7Pt_DPG2019, binning, 29 );
@@ -2955,8 +2958,11 @@
                                 maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
                             } else {
                                 //------------------------------------Std PHOS-PHOS Binning
-                                cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeVPHOSTrigINT7Pt"<<endl;
-                                maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPHOSTrigINT7Pt, binning, 82 );
+                                cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeV_CombinedBinning"<<endl;
+                                maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_CombinedBinning, binning, 138 );
+                                //------------------------------------Std PHOS-PHOS Binning until 2019
+                                //cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeVPHOSTrigINT7Pt"<<endl;
+                                //maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPHOSTrigINT7Pt, binning, 82 );
                                 //------------------------------------DPG2019 PHOS-PHOS Binning
                                 //cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeVPHOSTrigINT7Pt"<<endl;
                                 //maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPHOSTrigINT7Pt, binning, 29 );
@@ -3761,9 +3767,12 @@
                             //------------------------------------Std PCM-PHOS Binning
                             //cout<<"; Used Binning: "<<"fBinsEta13TeVPCMPHOSTrigINT7Pt"<<endl;
                             //maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMPHOSTrigINT7Pt, binning );
+                            //------------------------------------PCM Binning, for Combination of Measurements before 2019
+                            //cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeVPCMTrigINT7Pt"<<endl;
+                            //maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7Pt, binning, 49 );
                             //------------------------------------PCM Binning, for Combination of Measurements
-                            cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeVPCMTrigINT7Pt"<<endl;
-                            maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7Pt, binning, 49 );
+                            cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_CombinedBinning"<<endl;
+                            maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_CombinedBinning, binning, 70 );
                         }
                         break;
                     case 4:
@@ -3795,11 +3804,14 @@
                             maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 18 );
                         } else {
                             //------------------------------------Std PHOS-PHOS Binning
-                            cout<<"; Used Binning: "<<"fBinsEta13TeVPHOSTrigINT7Pt"<<endl;
-                            maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPHOSTrigINT7Pt, binning, 49 );
-                            //------------------------------------PCM Binning, for Combination of Measurements
+                            //cout<<"; Used Binning: "<<"fBinsEta13TeVPHOSTrigINT7Pt"<<endl;
+                            //maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPHOSTrigINT7Pt, binning, 49 );
+                            //------------------------------------PCM Binning, for Combination of Measurements before 2019
                             //cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeVPCMTrigINT7Pt"<<endl;
                             //maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7Pt, binning, 40 );
+                            //------------------------------------PCM Binning, for Combination of Measurements
+                            cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_CombinedBinning"<<endl;
+                            maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_CombinedBinning, binning, 70 );
                         }
                         break;
                     case 40:
@@ -5424,11 +5436,13 @@
                                     fNRebin[i]      = fBinsPi013TeVPCMTrigINT7RBinsPtRebin[i];
                                 } else {
                                     //------------------------------------Std PCMPHOS Rebin
-                                    fNRebin[i]=fBinsPi013TeVPCMPHOSTrigINT7PtRebin[i];
+                                    //fNRebin[i]=fBinsPi013TeVPCMPHOSTrigINT7PtRebin[i];
                                     //------------------------------------DPG2019 PCMPHOS Rebin
                                     //fNRebin[i]=fBinsPi013TeVPCMPHOSTrigINT7PtRebin_DPG2019[i];
-                                    //------------------------------------PCM Rebin, for Combination of Measurements
+                                    //------------------------------------PCM Rebin, for Combination of Measurements before 2019
                                     //fNRebin[i]      = fBinsPi013TeVPCMTrigINT7PtRebin[i];
+                                    //------------------------------------PCM Rebin, for Combination of Measurements
+                                    fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning[i];
                                 }
                             } else if( modi == 4){
                                 if (specialTrigg == 0 || specialTrigg == 4 || specialTrigg == 5){
@@ -5450,11 +5464,13 @@
                                             fNRebin[i]      = fBinsPi013TeVPCMTrigINT7RBinsPtRebin[i];
                                         } else {
                                             //------------------------------------Std PHOS Rebin
-                                            fNRebin[i]=fBinsPi013TeVPHOSTrigINT7PtRebin[i];
+                                            //fNRebin[i]=fBinsPi013TeVPHOSTrigINT7PtRebin[i];
                                             //------------------------------------DPG2019 PHOS Rebin
                                             //fNRebin[i]=fBinsPi013TeVPHOSTrigINT7PtRebin_DPG2019[i];
-                                            //------------------------------------PCM Rebin, for Combination of Measurements
+                                            //------------------------------------PCM Rebin, for Combination of Measurements before 2019
                                             //fNRebin[i]      = fBinsPi013TeVPCMTrigINT7PtRebin[i];
+                                            //------------------------------------PCM Rebin, for Combination of Measurements
+                                            fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning[i];
                                         }
                                     break;
                                 }
@@ -6571,14 +6587,17 @@
                                         CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin,fNRebin);
                                     } else {
                                         //------------------------------------Std PCMPHOS Rebin
-                                        cout<<"Use Rebin Vector: fBinsEta13TeVPCMPHOSTrigINT7PtRebin"<<endl;
-                                        CopyVectorToArray(fBinsEta13TeVPCMPHOSTrigINT7PtRebin,fNRebin);
+                                        //cout<<"Use Rebin Vector: fBinsEta13TeVPCMPHOSTrigINT7PtRebin"<<endl;
+                                        //CopyVectorToArray(fBinsEta13TeVPCMPHOSTrigINT7PtRebin,fNRebin);
                                         //------------------------------------DPG2019 PCMPHOS Rebin
                                         //cout<<"Use Rebin Vector: fBinsEta13TeVPCMPHOSTrigINT7PtRebin_DPG2019"<<endl;
                                         //CopyVectorToArray(fBinsEta13TeVPCMPHOSTrigINT7PtRebin_DPG2019,fNRebin);
-                                        //------------------------------------PCM Rebin, for Combination of Measurements
+                                        //------------------------------------PCM Rebin, for Combination of Measurements before 2019
                                         //cout<<"Use Rebin Vector: fBinsEta13TeVPCMTrigINT7PtRebin"<<endl;
                                         //CopyVectorToArray(fBinsEta13TeVPCMTrigINT7PtRebin,fNRebin);
+                                        //------------------------------------PCM Rebin, for Combination of Measurements
+                                        cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning"<<endl;
+                                        CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning,fNRebin);
                                     }
                                     break;
                                 }
@@ -6604,14 +6623,17 @@
                                 CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin, fNRebin);
                             } else {
                                 //------------------------------------Std PHOS Rebin
-                                cout<<"Use Rebin Vector: fBinsEta13TeVPHOSTrigINT7PtRebin"<<endl;
-                                CopyVectorToArray(fBinsEta13TeVPHOSTrigINT7PtRebin, fNRebin);
+                                //cout<<"Use Rebin Vector: fBinsEta13TeVPHOSTrigINT7PtRebin"<<endl;
+                                //CopyVectorToArray(fBinsEta13TeVPHOSTrigINT7PtRebin, fNRebin);
                                 //------------------------------------DPG2019 PHOS Rebin
                                 //cout<<"Use Rebin Vector: fBinsEta13TeVPHOSTrigINT7PtRebin_DPG2019"<<endl;
                                 //CopyVectorToArray(fBinsEta13TeVPHOSTrigINT7PtRebin_DPG2019, fNRebin);
-                                //------------------------------------PCM Rebin, for Combination of Measurements
+                                //------------------------------------PCM Rebin, for Combination of Measurements before 2019
                                 //cout<<"Use Rebin Vector: fBinsEta13TeVPCMTrigINT7PtRebin"<<endl;
                                 //CopyVectorToArray(fBinsEta13TeVPCMTrigINT7PtRebin, fNRebin);
+                                //------------------------------------PCM Rebin, for Combination of Measurements
+                                cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning"<<endl;
+                                CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning, fNRebin);
                             }
                             break;
                             }
@@ -6655,13 +6677,15 @@
                                         CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin,fNRebin);
                                     } else {
                                         //------------------------------------Std PCMPHOS Rebin
-                                        cout<<"Use Rebin Vector: fBinsEta13TeVPCMPHOSTrigINT7PtRebin"<<endl;
-                                        CopyVectorToArray(fBinsEta13TeVPCMPHOSTrigINT7PtRebin,fNRebin);
+                                        //cout<<"Use Rebin Vector: fBinsEta13TeVPCMPHOSTrigINT7PtRebin"<<endl;
+                                        //CopyVectorToArray(fBinsEta13TeVPCMPHOSTrigINT7PtRebin,fNRebin);
                                         //------------------------------------DPG2019 PCMPHOS Rebin
                                         //cout<<"Use Rebin Vector: fBinsEta13TeVPCMPHOSTrigINT7PtRebin_DPG2019"<<endl;
                                         //CopyVectorToArray(fBinsEta13TeVPCMPHOSTrigINT7PtRebin_DPG2019,fNRebin);
-                                        //------------------------------------PCM Rebin, for Combination of Measurements
+                                        //------------------------------------PCM Rebin, for Combination of Measurements before 2019
                                         //CopyVectorToArray(fBinsPi0EtaBinning13TeVPCMPHOSTrigINT7PtRebin,fNRebin);
+                                        //------------------------------------PCM Rebin, for Combination of Measurements
+                                        CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning,fNRebin);
                                     }
                                     break;
                                 }
@@ -6694,9 +6718,12 @@
                                 //------------------------------------DPG2019 PHOS Rebin
                                 //cout<<"Use Rebin Vector: fBinsEta13TeVPHOSTrigINT7PtRebin_DPG2019"<<endl;
                                 //CopyVectorToArray(fBinsEta13TeVPHOSTrigINT7PtRebin_DPG2019, fNRebin);
+                                //------------------------------------PCM Rebin, for Combination of Measurements before 2019
+                                //cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning"<<endl;
+                                //CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning, fNRebin);
                                 //------------------------------------PCM Rebin, for Combination of Measurements
-                                //cout<<"Use Rebin Vector: fBinsEta13TeVPCMTrigINT7PtRebin"<<endl;
-                                //CopyVectorToArray(fBinsEta13TeVPCMTrigINT7PtRebin, fNRebin);
+                                cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning"<<endl;
+                                CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning, fNRebin);
                             }
                             break;
                         }
