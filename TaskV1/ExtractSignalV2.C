@@ -4987,7 +4987,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                         fMesonWidthRange[0]         = 0.001;
                         fMesonWidthRange[1]         = 0.009;
                     }
-                } else  if ( fEnergyFlag.Contains("5TeV2017")){
+                } else  if ( fEnergyFlag.BeginsWith("5TeV")){
                     if ((ptBin < 3)){
                         mesonAmplitudeMin = mesonAmplitude*60./100.;
                         mesonAmplitudeMax = mesonAmplitude*105./100.;
@@ -5055,7 +5055,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                         fMesonFitRange[0] = 0.08;
                         fMesonFitRange[1] = 0.29;
                     }
-                } else if( fEnergyFlag.Contains("5TeV2017")  ){
+                } else if( fEnergyFlag.BeginsWith("5TeV")  ){
                     mesonAmplitudeMin = mesonAmplitude*10./100.;
                     mesonAmplitudeMax = mesonAmplitude*400./100.;
                     if(fBinsPt[ptBin] >= 10) {
@@ -5120,7 +5120,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                     if(ptBin > 2)  mesonAmplitudeMin = mesonAmplitude*85./100.;
                     mesonAmplitudeMax = mesonAmplitude*115./100.;
                     if(ptBin < 3) mesonAmplitudeMax = mesonAmplitude*100/100.;
-                } else if ( fEnergyFlag.Contains("5TeV2017") ){
+                } else if ( fEnergyFlag.BeginsWith("5TeV") ){
                     mesonAmplitudeMin = mesonAmplitude*80./100.;
                     mesonAmplitudeMax = mesonAmplitude*120./100.;
                     fMesonLambdaTail            = 0.011;
@@ -5166,7 +5166,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                 fMesonLambdaTail            = 0.012;
                 fMesonLambdaTailRange[0]    = 0.012;
                 fMesonLambdaTailRange[1]    = 0.012;
-                if(fMode == 5 && fEnergyFlag.Contains("5TeV2017")){
+                if(fMode == 5 && fEnergyFlag.BeginsWith("5TeV")){
                       fMesonLambdaTail            = 0.006;
                       fMesonLambdaTailRange[0]    = 0.006;
                       fMesonLambdaTailRange[1]    = 0.006;
@@ -5208,7 +5208,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
     fFitReco= NULL;
     TString trigger = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
     //for pp5TeV triggers, enable exponential tail also on right side of the peak for improving the fit quality
-    if( (fPrefix.Contains("Pi0")) && fEnergyFlag.Contains("5TeV2017") && (trigger.CompareTo("a1") == 0 || trigger.CompareTo("a2") == 0)){
+    if( (fPrefix.Contains("Pi0")) && fEnergyFlag.BeginsWith("5TeV") && (trigger.CompareTo("a1") == 0 || trigger.CompareTo("a2") == 0)){
       fFitReco = new TF1("GaussExpLinear","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp(-(x-[1])/[6])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)",fMesonFitRange[0],fMesonFitRange[1]);
     } else if( (fPrefix.CompareTo("Pi0") ==0 || fPrefix.CompareTo("Pi0EtaBinning")==0) && fEnergyFlag.Contains("pPb_8TeV") && (trigger.CompareTo("8d") == 0) && (fMode == 4)){
       fFitReco = new TF1("GaussExpLinear","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp(-(x-[1])/[6])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)",fMesonFitRange[0],fMesonFitRange[1]);
@@ -5294,7 +5294,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
         } else if ( fEnergyFlag.Contains("PbPb") || fEnergyFlag.Contains("XeXe") ){
             if (fMode == 4 || fMode == 12 )
                 fFitReco->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1.5);
-        } else if( fMode == 4 && fEnergyFlag.Contains("5TeV2017") ){
+        } else if( fMode == 4 && fEnergyFlag.BeginsWith("5TeV") ){
           TString trigger = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
           if(trigger.CompareTo("a1") == 0 || trigger.CompareTo("a2") == 0){
             fFitReco->SetParLimits(1,fMesonMassExpect*0.8,fMesonMassExpect*2.0);
@@ -6884,7 +6884,6 @@ TString GetCorrectAcceptanceHistoName() {
             return "mPHOS";
         case 12:
             return "DMC";
-        case 13:
         case 13:
             return Form("%sPCMDMC",addString.Data());
         case 14:

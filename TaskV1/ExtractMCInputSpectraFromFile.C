@@ -843,7 +843,7 @@ void ExtractMCInputSpectraFromFile( TString file                    = "",
       TFile* fileDataInput          = new TFile(nameExternalInput.Data());
       TH1D* fHistoChargedPionData   = NULL;
       TH1D* fHistoChargedKaonData   = NULL;
-      if (optionEnergy.CompareTo("2.76TeV") == 0 || optionEnergy.CompareTo("7TeV") == 0 || optionEnergy.BeginsWith("8TeV")|| optionEnergy.CompareTo("13TeV") == 0 || optionEnergy.Contains("5TeV") ){
+      if (optionEnergy.CompareTo("2.76TeV") == 0 || optionEnergy.CompareTo("7TeV") == 0 || optionEnergy.BeginsWith("8TeV")|| optionEnergy.CompareTo("13TeV") == 0 || optionEnergy.BeginsWith("5TeV") ){
         TString opt = "QNRMEI";
         fHistoChargedPionData       = (TH1D*)fileDataInput->Get("histoChargedPionSpecPubStat2760GeV");
         if( optionEnergy.CompareTo("7TeV") == 0 ) fHistoChargedPionData       = (TH1D*)fileDataInput->Get("histoChargedPionSpecPubStat7TeV");
@@ -851,7 +851,7 @@ void ExtractMCInputSpectraFromFile( TString file                    = "",
           opt = "QNRME";
           fHistoChargedPionData       = (TH1D*)fileDataInput->Get(Form("histPion8_%s",optionEnergy.Data()));
         }
-        if( optionEnergy.Contains("5TeV") ){
+        if( optionEnergy.BeginsWith("5TeV") ){
             opt = "QNRME";
             TList *folderSummedPion = (TList*)fileDataInput->Get("Summed_Pion");
             fHistoChargedPionData       = (TH1D*)folderSummedPion->FindObject("hSpectraSummedPion_pp_Combined_MB");
@@ -879,7 +879,7 @@ void ExtractMCInputSpectraFromFile( TString file                    = "",
         fHistoChargedKaonData       = (TH1D*)fileDataInput->Get("histoChargedKaonSpecPubStat2760GeV");
         if( optionEnergy.CompareTo("7TeV") == 0 ) fHistoChargedKaonData       = (TH1D*)fileDataInput->Get("histoChargedKaonSpecPubStat7TeV");
         if( optionEnergy.BeginsWith("8TeV") ) fHistoChargedKaonData       = (TH1D*)fileDataInput->Get(Form("histKaon8_%s",optionEnergy.Data()));
-        if( optionEnergy.Contains("5TeV") ){
+        if( optionEnergy.BeginsWith("5TeV") ){
             opt = "QNRME";
             TList *folderSummedKaon = (TList*)fileDataInput->Get("Summed_Kaon");
             fHistoChargedKaonData       = (TH1D*)folderSummedKaon->FindObject("hSpectraSummedKaon_pp_Combined_MB");

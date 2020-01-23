@@ -504,21 +504,23 @@ else
 #     LHC17g6a3MC="902";
 #     LHC18j5MC="952"
 #     LHC18j5MC="1009"
+#     LHC18j5MC="1010"
 #     LHC18j5_1MC="child_1"
 #     LHC18j5_2MC="child_2"
 #     LHC18j5_3MC="child_3"
 #     LHC18f3MCMoth="951";
 #     LHC18f3MCMoth="1008";
-#     LHC18f3MC1="child_2";
-#     LHC18f3MC2="child_4";
-#     LHC18f3MCFast1="child_1";
-#     LHC18f3MCFast2="child_3";
-    LHC16c3aMC1="1012";
-    LHC16c3aMC2="1011";
-    LHC16c3bMC1="1014";
-    LHC16c3bMC2="1013";
-    LHC17g6a2MC="1015";
-    LHC17g6a3MC="1016";
+    LHC18f3MCMoth="1000";
+    LHC18f3MC1="child_2";
+    LHC18f3MC2="child_4";
+    LHC18f3MCFast1="child_1";
+    LHC18f3MCFast2="child_3";
+#     LHC16c3aMC1="1012";
+#     LHC16c3aMC2="1011";
+#     LHC16c3bMC1="1014";
+#     LHC16c3bMC2="1013";
+#     LHC17g6a2MC="1015";
+#     LHC17g6a3MC="1016";
     
 #     TRAINDIR=20200106-PCMEMCSysJJGT
 #     #EG1 - 1

@@ -2877,7 +2877,7 @@
             }
         }
 
-        if (!energy.CompareTo("5TeV") || !energy.CompareTo("5.023TeV") || !energy.CompareTo("5.02TeV") || energy.Contains("5TeV2017")){
+        if (energy.BeginsWith("5TeV") || !energy.CompareTo("5.023TeV") || !energy.CompareTo("5.02TeV") ){
             if (!generator.CompareTo("")){
                 return kOrange+1;
             } else if (!generator.CompareTo("LHC16h8a")) {
@@ -3459,7 +3459,7 @@
                 return 30;
             }
         }
-        if (!energy.CompareTo("5TeV") || !energy.CompareTo("5.023TeV") || !energy.CompareTo("5.02TeV") || energy.Contains("5TeV2017")){
+        if (energy.BeginsWith("5TeV") || !energy.CompareTo("5.023TeV") || !energy.CompareTo("5.02TeV") ){
             if (!generator.CompareTo("") || generator.Contains("Pythia8")){
                 return 34;
             } else if(generator.Contains("LHC16h8a")){
@@ -3867,7 +3867,7 @@
             }
         }
 
-        if (!energy.CompareTo("5TeV") || !energy.CompareTo("5.023TeV") || !energy.CompareTo("5.02TeV") || energy.Contains("5TeV2017")){
+        if (energy.BeginsWith("5TeV") || !energy.CompareTo("5.023TeV") || !energy.CompareTo("5.02TeV")){
             if (!generator.CompareTo("")){
                 return 2;
             } else {

@@ -105,8 +105,8 @@ void ComputeCorrelationFactors(
         centralityForOutput         = "MB";        
     else if (energy.Contains("5TeV2017Ref1"))
         centralityForOutput         = centralityForOutput+"Ref1";
-    else if (energy.Contains("5TeV2017Ref2"))
-        centralityForOutput         = centralityForOutput+"Ref2";
+    else if (energy.Contains("5TeVRefpPb"))
+        centralityForOutput         = centralityForOutput+"RefpPb";
     else if (energy.CompareTo("pPb_5.023TeVCent") == 0)
         centralityForOutput         = centralityForOutput+"Cent";
     TString collisionSystem         = ReturnFullCollisionsSystem(energy);
@@ -304,7 +304,7 @@ void ComputeCorrelationFactors(
           minCorrYaxis = 0.2;
           maxCorrYaxis = 0.82;
         }
-    } else if (combMode.CompareTo("triggers") == 0 && (energy.CompareTo("2.76TeV") == 0  || energy.Contains("5TeV2017") )&& ( mode == 2 || mode == 4 || mode == 5) ){
+    } else if (combMode.CompareTo("triggers") == 0 && (energy.CompareTo("2.76TeV") == 0  || energy.BeginsWith("5TeV") )&& ( mode == 2 || mode == 4 || mode == 5) ){
         minCorrYaxis            = 0.15;
     }
     Double_t maxPt              = 0;

@@ -829,6 +829,9 @@ do
     elif [ $answer = "5TeV2017Ref1" ]; then
         ENERGY="5TeV2017Ref1";
         EXTINPUTFILE="ExternalInput/IdentifiedCharged/ChargedIdentifiedSpectraPP_2016_08_14.root";
+    elif [ $answer = "5TeVRefpPb" ]; then
+        ENERGY="5TeVRefpPb";
+        EXTINPUTFILE="ExternalInput/IdentifiedCharged/ChargedIdentifiedSpectraPP_2016_08_14.root";
     elif [ $answer = "7TeV" ] || [ $answer = "7" ]; then
         ENERGY="7TeV";
         EXTINPUTFILE="ExternalInput/IdentifiedCharged/ChargedIdentifiedSpectraPP_2016_08_14.root";
@@ -987,7 +990,7 @@ do
             if [ $MODE -lt 10 ] || [ $MODE -gt 11 ] ; then
                 AskForTHnSparseOption
             fi
-        elif [ $ENERGY = "5TeV2017" ] || [ $ENERGY = "5TeVSpecial" ] || [ $ENERGY = "5TeV2017Ref1" ]; then
+        elif [ $ENERGY = "5TeV2017" ] || [ $ENERGY = "5TeVSpecial" ] || [ $ENERGY = "5TeV2017Ref1" ] || [ $ENERGY = "5TeVRefpPb" ]; then
             GiveBinning5TeV2017
             AskForMinBiasEffiOnly
             if [ $MODE -lt 10 ] || [ $MODE -gt 11 ] ; then

@@ -1133,7 +1133,7 @@
             return Form("pp #rightarrow %s (#rightarrow #gamma#gamma #rightarrow e^{+}e^{-}e^{+}e^{-}) + X @ 8 TeV ",textProcessOpt.Data());
         } else if(fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0){
             return Form("pp #rightarrow %s (#rightarrow #gamma#gamma #rightarrow e^{+}e^{-}e^{+}e^{-}) + X @ 13 TeV ",textProcessOpt.Data());
-        } else if(fEnergyFlagOpt.CompareTo("5TeV") == 0 || fEnergyFlagOpt.Contains("5TeV2017")  || fEnergyFlagOpt.CompareTo("5TeVSpecial") == 0 ){
+        } else if(fEnergyFlagOpt.BeginsWith("5TeV")){
             return Form("pp #rightarrow %s (#rightarrow #gamma#gamma #rightarrow e^{+}e^{-}e^{+}e^{-}) + X @ 5.02 TeV ",textProcessOpt.Data());
         } else if( fEnergyFlagOpt.CompareTo("900GeV") == 0) {
             return  Form("pp #rightarrow %s (#rightarrow #gamma#gamma #rightarrow e^{+}e^{-}e^{+}e^{-}) + X @ 900 GeV ",textProcessOpt.Data());
@@ -1195,9 +1195,7 @@
             return  "pp, #sqrt{#it{s}} = 13TeV (low B)";
         } else if( fEnergyFlagOpt.CompareTo("13TeVRBins") == 0) {
             return  "pp, #sqrt{#it{s}} = 13TeV (RBins)";
-        } else if( fEnergyFlagOpt.CompareTo("5TeV") == 0 || fEnergyFlagOpt.CompareTo("5.023TeV") == 0 || fEnergyFlagOpt.CompareTo("5.02TeV") == 0 ) {
-            return  "pp, #sqrt{#it{s}} = 5.02 TeV";
-        } else if( fEnergyFlagOpt.Contains("5TeV2017") || fEnergyFlagOpt.CompareTo("5TeVSpecial") == 0) {
+        } else if( fEnergyFlagOpt.BeginsWith("5TeV") ) {
             return  "pp, #sqrt{#it{s}} = 5.02 TeV";
         } else if( fEnergyFlagOpt.CompareTo("900GeV") == 0) {
             return  "pp, #sqrt{#it{s}} = 900 GeV";
@@ -1229,7 +1227,7 @@
             return 8000;
         } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 ) {
             return 13000;
-        } else if( fEnergyFlagOpt.CompareTo("5TeV") == 0 || fEnergyFlagOpt.Contains("5TeV2017") || fEnergyFlagOpt.CompareTo("5TeVSpecial") == 0  ) {
+        } else if( fEnergyFlagOpt.BeginsWith("5TeV") ) {
             return 5020;
         } else if( fEnergyFlagOpt.CompareTo("2.76TeV") == 0) {
             return 2760;
@@ -1257,7 +1255,7 @@
     TString ReturnCollisionEnergyOutputString( TString fEnergyFlagOpt){
         if(fEnergyFlagOpt.CompareTo("7TeV") == 0){
             return  "pp7TeV";
-        } else if( fEnergyFlagOpt.CompareTo("5TeV") == 0 || fEnergyFlagOpt.CompareTo("5.023TeV") == 0|| fEnergyFlagOpt.CompareTo("5.02TeV") == 0 || fEnergyFlagOpt.Contains("5TeV2017") || fEnergyFlagOpt.CompareTo("5TeVSpecial") == 0 ) {
+        } else if( fEnergyFlagOpt.BeginsWith("5TeV") ) {
             return  "pp5020GeV";
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return  "pp8TeV";
@@ -1289,7 +1287,7 @@
     TString ReturnCollisionEnergyStringForTheory( TString fEnergyFlagOpt){
         if(fEnergyFlagOpt.CompareTo("7TeV") == 0){
             return  "7TeV";
-        } else if( fEnergyFlagOpt.CompareTo("5TeV") == 0 || fEnergyFlagOpt.Contains("5TeV2017") || fEnergyFlagOpt.CompareTo("5TeVSpecial") == 0 ) {
+        } else if( fEnergyFlagOpt.BeginsWith("5TeV") ) {
             return  "5TeV";
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return  "8TeV";
@@ -2556,7 +2554,7 @@
         } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBins") == 0  ) {
             cout << "Caution: no correct K0 Scaling factor for 13TeV available yet" << endl;
             return  1./1. -1.;
-         } else if( fEnergyFlagOpt.CompareTo("5TeV") == 0 || fEnergyFlagOpt.Contains("5TeV2017")  || fEnergyFlagOpt.CompareTo("5TeVSpecial") == 0 ) {
+        } else if( fEnergyFlagOpt.BeginsWith("5TeV") ) {
             cout << "Same as 7 TeV K0 scaling factor" << endl;
             return  1./1. - 1; //1./0.75 -1.;
         } else if( fEnergyFlagOpt.CompareTo("2.76TeV") == 0) {
@@ -5985,7 +5983,7 @@
                 xSectionInt = xSection2760GeV;
                 cout << "V0OR xSection taken: \t" << xSectionInt << endl;
             }
-        } else if( energy.CompareTo("5TeV") == 0 || energy.CompareTo("5.02TeV") == 0 || energy.CompareTo("5.023TeV") == 0 || energy.CompareTo("5023GeV") == 0 || energy.Contains("5TeV2017") || energy.CompareTo("5TeVSpecial") == 0){
+        } else if( energy.BeginsWith("5TeV") || energy.CompareTo("5.02TeV") == 0 || energy.CompareTo("5.023TeV") == 0 || energy.CompareTo("5023GeV") == 0 ) {
             if (selTrig == 1){
                 xSectionInt = xSection5023GeVV0AND;
                 cout << "V0AND xSection taken: \t" << xSectionInt << endl;
@@ -6199,7 +6197,7 @@
             } else if (trigger == 83){  // EG1
                 triggerRejec    = 7217;
             }
-        } else  if (energy.Contains("5TeV2017") ){
+        } else  if (energy.BeginsWith("5TeV") ){
             cout << "Trigger used: " << strTrigger.Data() << endl;
             if (!strTrigger.CompareTo("a1")){  // EMC7
                 triggerRejec    = 2464;
