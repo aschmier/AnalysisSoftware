@@ -6211,7 +6211,7 @@
             } else if (trigger == 81){  // EGA
                 triggerRejec    = 15075;
             }
-        } else  if (energy.Contains("pPb_5TeV") ){
+        } else  if (energy.Contains("pPb_5.023TeV") ){
             cout << "Trigger used: " << trigger << endl;
             if (!strTrigger.CompareTo("85")){  // EG2
                 triggerRejec    = 1971;
