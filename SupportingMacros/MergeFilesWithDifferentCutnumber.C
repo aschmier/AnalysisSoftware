@@ -60,11 +60,11 @@ void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
     // Read cuts from CutSelection file
     ifstream in(fileNameConfig.Data());
     cout<<"Available Cuts:"<<endl;
-    TString fileName1[20];
-    TString fileName2[20];
-    TString cutNumber1[20];
-    TString cutNumber2[20];
-    TString cutNumberOut[20];
+    TString fileName1[40];
+    TString fileName2[40];
+    TString cutNumber1[40];
+    TString cutNumber2[40];
+    TString cutNumberOut[40];
     Int_t Number = 0;
     while(!in.eof() ){
         in >> fileName1[Number] >> cutNumber1[Number] >> fileName2[Number] >> cutNumber2[Number] >> cutNumberOut[Number];
@@ -75,9 +75,9 @@ void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
     cout << " " << endl;
 
     // read trees
-    TFile* filesIn1[20] = {NULL};
-    TTree *treeCopyPhotonInter1[20]   = {NULL};        
-    TTree *treeCopyMesonInter1[20]   = {NULL};        
+    TFile* filesIn1[40] = {NULL};
+    TTree *treeCopyPhotonInter1[40]   = {NULL};        
+    TTree *treeCopyMesonInter1[40]   = {NULL};        
     for (Int_t i = 0; i < Number-1; i++){
         filesIn1[i] = new TFile(fileName1[i].Data());
         treeCopyPhotonInter1[i] = (TTree*)filesIn1[i]->Get(Form("%s Photon DCA tree",cutNumber1[i].Data() ));
@@ -96,7 +96,7 @@ void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
     TFile *fileInter1        = new TFile("buffer1.root","RECREATE");
     TList *listInter1        = new TList();
     listInter1->SetName(listNameOutMain.Data());
-    TList *listToCopyInter1[20]   = {NULL};        
+    TList *listToCopyInter1[40]   = {NULL};        
     
     for (Int_t i = 0; i < Number-1; i++){
         cout << "reading config " << i << endl;
@@ -146,9 +146,9 @@ void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
     fileInter1->Close();
 
 
-    TFile* filesIn2[20] = {NULL};
-    TTree *treeCopyPhotonInter2[20]   = {NULL};        
-    TTree *treeCopyMesonInter2[20]   = {NULL};        
+    TFile* filesIn2[40] = {NULL};
+    TTree *treeCopyPhotonInter2[40]   = {NULL};        
+    TTree *treeCopyMesonInter2[40]   = {NULL};        
     for (Int_t i = 0; i < Number-1; i++){
         filesIn2[i] = new TFile(fileName2[i].Data());
         treeCopyPhotonInter2[i] = (TTree*)filesIn2[i]->Get(Form("%s Photon DCA tree",cutNumber2[i].Data() ));
@@ -166,7 +166,7 @@ void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
     TFile *fileInter2        = new TFile("buffer2.root","RECREATE");
     TList *listInter2        = new TList();
     listInter2->SetName(listNameOutMain.Data());
-    TList *listToCopyInter2[20]   = {NULL};        
+    TList *listToCopyInter2[40]   = {NULL};        
     for (Int_t i = 0; i < Number-1; i++){
         cout << "reading config " << i << endl;
         TString autoDetectedMainDir1     = AutoDetectMainTList(mode , filesIn2[i]);

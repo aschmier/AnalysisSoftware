@@ -66,7 +66,8 @@ void CombineMesonMeasurementspPb5TeVCentV2(   TString fileNamePCM             = 
                                               TString fileNamePHOS            = "",
                                               TString fileNamePCMEMCAL        = "",
                                               TString fileNamePCMPHOS         = "",
-                                              TString fileNameDalitz         = "",
+                                              TString fileNameDalitz          = "",
+                                              TString fileNameMEMC            = "",
                                               TString suffix                  = "eps",
                                               Bool_t isMC                     = kFALSE,
                                               TString bWCorrection            = "X",
@@ -173,6 +174,7 @@ void CombineMesonMeasurementspPb5TeVCentV2(   TString fileNamePCM             = 
     if (fileNamePHOS.CompareTo("")!=0 )         gSystem->Exec(Form("cp %s %s/InputPHOS.root", fileNamePHOS.Data(), outputDirFile.Data()));
     if (fileNameEMCAL.CompareTo("")!=0 )        gSystem->Exec(Form("cp %s %s/InputEMCAL.root", fileNameEMCAL.Data(), outputDirFile.Data()));
     if (fileNameDalitz.CompareTo("")!=0 )       gSystem->Exec(Form("cp %s %s/InputDalitz.root", fileNameDalitz.Data(), outputDirFile.Data()));
+    if (fileNameMEMC.CompareTo("")!=0 )       gSystem->Exec(Form("cp %s %s/InputMEMC.root", fileNameMEMC.Data(), outputDirFile.Data()));
     if (fileNameInterpolation.CompareTo("")!=0 )gSystem->Exec(Form("cp %s %s/InputInterpolation.root", fileNameInterpolation.Data(), outputDirFile.Data()));
     if (fileNameCorrFactors.CompareTo("")!=0 )  gSystem->Exec(Form("cp %s %s/InputCorrFactors.root", fileNameCorrFactors.Data(), outputDirFile.Data()));
     if (fileNameTheory.CompareTo("")!= 0)       gSystem->Exec(Form("cp %s %s/InputTheory.root", fileNameTheory.Data(), outputDirFile.Data()));
@@ -475,7 +477,8 @@ void CombineMesonMeasurementspPb5TeVCentV2(   TString fileNamePCM             = 
     if (fileNamePCMPHOS.CompareTo("")!=0)   fileNamesMethod[3]    = fileNamePCMPHOS;
     if (fileNamePCMEMCAL.CompareTo("")!=0)  fileNamesMethod[4]    = fileNamePCMEMCAL;
     if (fileNameDalitz.CompareTo("")!=0)    fileNamesMethod[5]    = fileNameDalitz;
-
+    if (fileNameMEMC.CompareTo("")!=0)      fileNamesMethod[11]   = fileNameMEMC;
+    
     for (Int_t cent = 0; cent < maxCent; cent++){
 
         if (nameConfigFileRpPbErr[cent].CompareTo("") != 0){

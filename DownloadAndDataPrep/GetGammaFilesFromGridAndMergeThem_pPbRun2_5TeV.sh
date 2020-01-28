@@ -483,7 +483,7 @@ else
 #     LHC17g6a2MC="877";
 #     LHC17g6a3MC="878";
 
-    TRAINDIR=20200106-EMCSysJJGT
+#     TRAINDIR=20200106-EMCSysJJGT
 #     LHC16qtData="737";
 #     LHC16qtData="752";
 #     LHC16qDataFast="child_1";
@@ -510,11 +510,11 @@ else
 #     LHC18j5_3MC="child_3"
 #     LHC18f3MCMoth="951";
 #     LHC18f3MCMoth="1008";
-    LHC18f3MCMoth="1000";
-    LHC18f3MC1="child_2";
-    LHC18f3MC2="child_4";
-    LHC18f3MCFast1="child_1";
-    LHC18f3MCFast2="child_3";
+#     LHC18f3MCMoth="1000";
+#     LHC18f3MC1="child_2";
+#     LHC18f3MC2="child_4";
+#     LHC18f3MCFast1="child_1";
+#     LHC18f3MCFast2="child_3";
 #     LHC16c3aMC1="1012";
 #     LHC16c3aMC2="1011";
 #     LHC16c3bMC1="1014";
@@ -522,7 +522,7 @@ else
 #     LHC17g6a2MC="1015";
 #     LHC17g6a3MC="1016";
     
-#     TRAINDIR=20200106-PCMEMCSysJJGT
+    TRAINDIR=20200106-PCMEMCSysJJGT
 #     #EG1 - 1
 #     LHC16c3aMC1="907";
 #     LHC16c3aMC2="903";
@@ -565,13 +565,27 @@ else
 #     LHC16c3bMC2="936";
 #     LHC17g6a2MC="944";
 #     LHC17g6a3MC="948";
-#     #EG2 - 2
+#     #EG2 - 3
 #     LHC16c3aMC1="933";
 #     LHC16c3aMC2="929";
 #     LHC16c3bMC1="941";
 #     LHC16c3bMC2="937";
 #     LHC17g6a2MC="945";
 #     LHC17g6a3MC="949";
+#     #EG2 - 4 + INT7 - 4 
+    LHC16c3aMC1="934";
+    LHC16c3aMC2="930";
+    LHC16c3bMC1="942";
+    LHC16c3bMC2="938";
+    LHC17g6a2MC="946";
+    LHC17g6a3MC="950";
+#     #INT - 1
+#     LHC16c3aMC1="977";
+#     LHC16c3aMC2="974";
+#     LHC16c3bMC1="983";
+#     LHC16c3bMC2="980";
+#     LHC17g6a2MC="986";
+#     LHC17g6a3MC="989";
 
 #     LHC18j5MC="996"
 #     LHC18j5MC="997"
@@ -588,9 +602,9 @@ else
 #     LHC18f3MCFast2="child_3";
 
 #     TRAINDIR=20200118-EMCSingleRunUnskimmed
-#     LHC13dData="757"
-#     LHC13eData="758"
-#     LHC13fData="759" #skim PHI7
+#     LHC13dData="762"
+#     LHC13eData="763"
+#     LHC13fData="759"
 
 
 fi
