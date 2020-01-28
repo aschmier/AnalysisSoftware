@@ -146,7 +146,7 @@ void CalculateReference (   TString configFile                  = "",
     TString outputDir       = Form("%s/%s/CalculateReference",suffix.Data(),dateForOutput.Data());
     TString outputDirPlots  = Form("%s/%s/CalculateReference/%s%s_%s",suffix.Data(), dateForOutput.Data(), modeName.Data(), addLabel.Data(), meson.Data());
     gSystem->Exec("mkdir -p "+outputDirPlots);
-    Int_t exampleBin        = 7;
+    Int_t exampleBin        = 10;
     Double_t dummyScaleFac  = 1;
 
     //*************************************************************************************************
@@ -757,8 +757,9 @@ void CalculateReference (   TString configFile                  = "",
         cout << "Example bin data" << exampleBin << "\t" << graphCombReb[0]->GetN() << endl;
         if (exampleBin >= graphCombReb[0]->GetN() )
             exampleBin  = graphCombReb[0]->GetN()-1;
+            cout << __LINE__<<endl;
         PlotInterpolationSinglePtBin(graphPtvsSqrts[exampleBin], gPtvsEnergiesSystem[exampleBin], fPowerlawSystem[exampleBin], fPowerlawSystemSystMC[exampleBin], graphFinalEnergyComb1, exampleBin, Form("%s/%s_%s_CombUnCorr_Pt_vs_Sqrts_SinglePtBin.%s",outputDirPlots.Data(),meson.Data(),modeName.Data(), suffix.Data()));
-
+        cout << "plotted example bin" << endl;
     } else {
         cout << "ERROR: NULL pointer - returning..." << endl;
         cout << graphAlpha << endl;
@@ -982,18 +983,18 @@ void CalculateReference (   TString configFile                  = "",
 
         TLegend* legendRelErr       = GetAndSetLegend2(0.1, 0.94-(0.035*nErrors), 0.3, 0.94, 32);
 
-        DrawGammaSetMarkerTGraph(graphStatRel, 20, 1.4, kRed+2, kRed+2);
+        DrawGammaSetMarkerTGraph(graphStatRel, 20, 1, kRed+2, kRed+2);
         graphStatRel->Draw("p,same,z");
         legendRelErr->AddEntry(graphStatRel,"stat Err","p");
-        DrawGammaSetMarkerTGraph(graphSystUncorrRel, 21, 1.4, kBlue+2, kBlue+2);
+        DrawGammaSetMarkerTGraph(graphSystUncorrRel, 21, 1, kBlue+2, kBlue+2);
         graphSystUncorrRel->Draw("p,same,z");
         legendRelErr->AddEntry(graphSystUncorrRel,"uncorr syst Err","p");
-        DrawGammaSetMarkerTGraph(graphSystFullRel, 24, 1.4, kGreen+2, kGreen+2);
+        DrawGammaSetMarkerTGraph(graphSystFullRel, 24, 1, kGreen+2, kGreen+2);
         graphSystFullRel->Draw("p,same,z");
         legendRelErr->AddEntry(graphSystFullRel,"full syst Err","p");
 
         if (graphSystInterRel){
-            DrawGammaSetMarkerTGraph(graphSystInterRel, 25, 1.4, 807, 807);
+            DrawGammaSetMarkerTGraph(graphSystInterRel, 25, 1, 807, 807);
             graphSystInterRel->Draw("p,same,z,c");
             legendRelErr->AddEntry(graphSystInterRel,"interpolation syst Err","p");
         }
@@ -1093,6 +1094,7 @@ void CalculateReference (   TString configFile                  = "",
         graphSystUncorrRel->Write(Form("graphRelUnCorrSystErr%s_%s_%s%s", modeName.Data(), meson.Data(), finalEnergy.Data(), addLabel.Data()), TObject::kOverwrite);
         graphSystFullRel->Write(Form("graphRelSystErr%s_%s_%s%s", modeName.Data(), meson.Data(), finalEnergy.Data(), addLabel.Data()), TObject::kOverwrite);
         if (graphSystInterRel) graphSystInterRel->Write(Form("graphRelInterpolSystErr%s_%s_%s%s", modeName.Data(), meson.Data(), finalEnergy.Data(), addLabel.Data()), TObject::kOverwrite);
+        if (fitFinal) fitFinal->Write(Form("fitCombSpectrum%s_%s_%s%s", modeName.Data(), meson.Data(), finalEnergy.Data(), addLabel.Data()), TObject::kOverwrite);
 
     fOutput->Write();
     fOutput->Close();
@@ -1445,7 +1447,6 @@ void PlotInterpolationSinglePtBin( TGraphErrors* gPtvSqrts,
         gPtvsEnergies->GetYaxis()->SetLabelOffset(0.0);
         gPtvsEnergies->GetXaxis()->SetTitleOffset(1.1);
         gPtvsEnergies->GetYaxis()->SetTitleOffset(1.1);
-
         gPtvsEnergies->Draw("ap");
         gPtvSqrts->Draw("same, p");
         fPowerlaw->SetLineColor(kBlue);
@@ -1485,12 +1486,12 @@ void PlotAlphavsPt(TGraphErrors* gAlpha, TGraphErrors* gAlphaSyst, TGraphErrors*
     SetStyleTGraphErrorsForGraphs(gAlpha,"#it{p}_{T} (GeV/#it{c})","#alpha", 0.04,0.04, 0.04,0.04, 1.,1., 512, 512);
     DrawGammaSetMarkerTGraphErr(gAlpha,21,1.5, kBlue+2 , kBlue+2);
     gAlpha->Draw("ap");
-    DrawGammaSetMarkerTGraphErr(gAlphaSyst, 25, 1.5, kBlue+2 , kBlue+2, 1.4, kTRUE, kBlue-9);
+    DrawGammaSetMarkerTGraphErr(gAlphaSyst, 25, 1.5, kBlue+2 , kBlue+2, 1, kTRUE, kBlue-9);
     gAlphaSyst->Draw("same,3");
 
     if (gAlphaMC){
         nlabels++;
-        DrawGammaSetMarkerTGraphErr(gAlphaMC,21,1.5, kRed+2 , kRed+2,1.4, kTRUE, kRed-2);
+        DrawGammaSetMarkerTGraphErr(gAlphaMC,21,1.5, kRed+2 , kRed+2,1, kTRUE, kRed-2);
 //         gAlphaMC->SetFillStyle(3144);
         gAlphaMC->Draw("same,3");
     }
@@ -1628,10 +1629,10 @@ void PlotWithFit(TCanvas* canvas, TCanvas* canvasRatio,
     canvas->cd();
     hist->DrawCopy();
 
-    DrawGammaSetMarkerTGraphAsym(graph, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1.4, kTRUE);
+    DrawGammaSetMarkerTGraphAsym(graph, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1, kTRUE);
     graph->Draw("pEsame");
     if(graphRebin){
-        DrawGammaSetMarkerTGraphAsym(graphRebin, GetDefaultMarkerStyle(energyCur.Data(),"MC", ""), GetDefaultMarkerSize(energyCur.Data(),"MC", ""), kGray+1, kGray+1, 1.4, kTRUE);
+        DrawGammaSetMarkerTGraphAsym(graphRebin, GetDefaultMarkerStyle(energyCur.Data(),"MC", ""), GetDefaultMarkerSize(energyCur.Data(),"MC", ""), kGray+1, kGray+1, 1, kTRUE);
         graphRebin->Draw("pEsame");
     }
 
@@ -1657,11 +1658,11 @@ void PlotWithFit(TCanvas* canvas, TCanvas* canvasRatio,
 
         TLegend* legendRatio                = GetAndSetLegend2(0.13, 0.12, 0.3, 0.12+(0.035*2), 32, 1, "", 43, 0.2);
 
-        DrawGammaSetMarkerTGraphAsym(graphRatio, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1.4, kTRUE);
+        DrawGammaSetMarkerTGraphAsym(graphRatio, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1, kTRUE);
         graphRatio->Draw("pEsame");
         legendRatio->AddEntry(graphRatio, "measured", "p");
 
-        DrawGammaSetMarkerTGraphAsym(graphRebinRatio, GetDefaultMarkerStyle(energyCur.Data(),"MC", ""), GetDefaultMarkerSize(energyCur.Data(),"MC", ""), kGray+1, kGray+1, 1.4, kTRUE);
+        DrawGammaSetMarkerTGraphAsym(graphRebinRatio, GetDefaultMarkerStyle(energyCur.Data(),"MC", ""), GetDefaultMarkerSize(energyCur.Data(),"MC", ""), kGray+1, kGray+1, 1, kTRUE);
         graphRebinRatio->Draw("pEsame");
         DrawGammaLines(hist->GetXaxis()->GetBinCenter(1), hist->GetXaxis()->GetBinCenter(hist->GetNbinsX()) , 1.0, 1.0,0.1, kGray, 1);
         legendRatio->AddEntry(graphRebinRatio, "calc. reb.", "p");
@@ -1678,7 +1679,7 @@ void PlotWithFit(TCanvas* canvas, TCanvas* canvasRatio,
 
         TGraphAsymmErrors* graphRatio       = CalculateGraphErrRatioToFit (graph, fit);
 
-        DrawGammaSetMarkerTGraphAsym(graphRatio, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1.4, kTRUE);
+        DrawGammaSetMarkerTGraphAsym(graphRatio, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1, kTRUE);
         graphRatio->Draw("pEsame");
         DrawGammaLines(hist->GetXaxis()->GetBinCenter(1), hist->GetXaxis()->GetBinCenter(hist->GetNbinsX()) , 1.0, 1.0,0.1, kGray, 1);
         labelEnergy->Draw();
@@ -1702,10 +1703,10 @@ void PlotWithFit(TCanvas* canvas, TCanvas* canvasRatio,
     canvas->Clear();
     hist->DrawCopy();
 
-    DrawGammaSetMarkerTGraphErr(graph, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1.4, kTRUE);
+    DrawGammaSetMarkerTGraphErr(graph, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1, kTRUE);
     graph->Draw("pEsame");
     if(graphRebin){
-        DrawGammaSetMarkerTGraphErr(graphRebin, GetDefaultMarkerStyle(energyCur.Data(),"MC", ""), GetDefaultMarkerSize(energyCur.Data(),"MC", ""), kGray+1, kGray+1, 1.4, kTRUE);
+        DrawGammaSetMarkerTGraphErr(graphRebin, GetDefaultMarkerStyle(energyCur.Data(),"MC", ""), GetDefaultMarkerSize(energyCur.Data(),"MC", ""), kGray+1, kGray+1, 1, kTRUE);
         graphRebin->Draw("pEsame");
     }
 
@@ -1730,11 +1731,11 @@ void PlotWithFit(TCanvas* canvas, TCanvas* canvasRatio,
         TGraphErrors* graphRebinRatio   = CalculateGraphErrRatioToFit (graphRebin, fit);
         TLegend* legendRatio            = GetAndSetLegend2(0.18, 0.12, 0.3, 0.12+(0.035*2), 32, 1, "", 43, 0.2);
 
-        DrawGammaSetMarkerTGraphErr(graphRatio, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1.4, kTRUE);
+        DrawGammaSetMarkerTGraphErr(graphRatio, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1, kTRUE);
         graphRatio->Draw("pEsame");
         legendRatio->AddEntry(graphRatio, "measured", "p");
 
-        DrawGammaSetMarkerTGraphErr(graphRebinRatio, GetDefaultMarkerStyle(energyCur.Data(),"MC", ""), GetDefaultMarkerSize(energyCur.Data(),"MC", ""), kGray+1, kGray+1, 1.4, kTRUE);
+        DrawGammaSetMarkerTGraphErr(graphRebinRatio, GetDefaultMarkerStyle(energyCur.Data(),"MC", ""), GetDefaultMarkerSize(energyCur.Data(),"MC", ""), kGray+1, kGray+1, 1, kTRUE);
         graphRebinRatio->Draw("pEsame");
         DrawGammaLines(hist->GetXaxis()->GetBinCenter(1), hist->GetXaxis()->GetBinCenter(hist->GetNbinsX()) , 1.0, 1.0,0.1, kGray, 1);
         legendRatio->AddEntry(graphRebinRatio, "calc. reb.", "p");
@@ -1751,7 +1752,7 @@ void PlotWithFit(TCanvas* canvas, TCanvas* canvasRatio,
 
         TGraphErrors* graphRatio        = CalculateGraphErrRatioToFit (graph, fit);
 
-        DrawGammaSetMarkerTGraphErr(graphRatio, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1.4, kTRUE);
+        DrawGammaSetMarkerTGraphErr(graphRatio, GetDefaultMarkerStyle(energyCur.Data(),"", ""), GetDefaultMarkerSize(energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), GetColorDefaultColor( energyCur.Data(),"", ""), 1, kTRUE);
         graphRatio->Draw("pEsame");
         DrawGammaLines(hist->GetXaxis()->GetBinCenter(1), hist->GetXaxis()->GetBinCenter(hist->GetNbinsX()) , 1.0, 1.0,0.1, kGray, 1);
 
@@ -1787,7 +1788,7 @@ void PlotGraphsOfAllEnergies( TCanvas* canvas,
     TLegend* legendEnergies     = GetAndSetLegend2(0.18, 0.12, 0.55, 0.12+(0.035*nDataSets), 0.035, 2, "", 42, 0.2);
     for (Int_t i = 0; i< nDataSets; i++){
         cout << energies[i].Data() << endl;
-        DrawGammaSetMarkerTGraphAsym(graphs[i], GetDefaultMarkerStyle(energies[i].Data(),"", ""), GetDefaultMarkerSize(energies[i].Data(),"", ""), GetColorDefaultColor( energies[i].Data(),"", ""), GetColorDefaultColor( energies[i].Data(),"", ""), 1.4, kTRUE);
+        DrawGammaSetMarkerTGraphAsym(graphs[i], GetDefaultMarkerStyle(energies[i].Data(),"", ""), GetDefaultMarkerSize(energies[i].Data(),"", ""), GetColorDefaultColor( energies[i].Data(),"", ""), GetColorDefaultColor( energies[i].Data(),"", ""), 1, kTRUE);
         graphs[i]->Draw("pEsame");
         fits[i]->SetLineColor(GetColorDefaultColor( energies[i].Data(),"", ""));
         fits[i]->Draw("same");

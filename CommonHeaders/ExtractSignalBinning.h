@@ -3143,7 +3143,7 @@
                         maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCDalitzPt,binning,22);
                         break;
                     case 10:
-                        maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVmEMCPt,binning, 31);
+                        maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVmEMCPt,binning, 27);
                         break;
                     case 20:
                         if ( !centrality.CompareTo("0-100%")){
@@ -3190,7 +3190,7 @@
                         maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCDalitzPt,binning,22);
                         break;
                     case 10:
-                        maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVmEMCPt,binning,31);
+                        maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVmEMCPt,binning,27);
                         break;
 
                 }
@@ -4757,9 +4757,9 @@
         } else if( energy.Contains("pPb_8TeV")) {
             if (trigger.CompareTo("52") == 0 || trigger.CompareTo("57") == 0){
                 triggerSetTemp = 1;    // L0
-            } else if ( trigger.CompareTo("85") == 0  || trigger.CompareTo("8e") == 0   || trigger.CompareTo("9b") == 0  || trigger.CompareTo("8b") == 0 ){
+            } else if ( trigger.CompareTo("85") == 0  || trigger.CompareTo("8e") == 0   || trigger.CompareTo("9b") == 0  || trigger.CompareTo("8b") == 0 || trigger.CompareTo("8g") == 0 ){
                 triggerSetTemp = 2; //L1 G2 (lower threshold)
-            } else if ( trigger.CompareTo("83") == 0 || trigger.CompareTo("8d") == 0  || trigger.CompareTo("9c") == 0  || trigger.CompareTo("89") == 0    ){
+            } else if ( trigger.CompareTo("83") == 0 || trigger.CompareTo("8d") == 0  || trigger.CompareTo("9c") == 0  || trigger.CompareTo("89") == 0   || trigger.CompareTo("8f") == 0    ){
                 triggerSetTemp = 3; //L1 G1 (lower threshold)
             } else if ( trigger.CompareTo("62") == 0    ){
                 triggerSetTemp = 4; //PHOS PHI7

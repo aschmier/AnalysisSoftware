@@ -281,7 +281,7 @@ void ExtractSignalMergedMesonV2(    TString meson                   = "",
 
     fNumberOfGoodESDTracks              = (TH1D*)ESDContainer->FindObject("GoodESDTracks");
     fEventQuality                       = (TH1D*)ESDContainer->FindObject("NEvents");
-    if (fEnergyFlag.Contains("PbPb") || fEnergyFlag.Contains("pPb") ){
+    if (fEnergyFlag.Contains("PbPb") ){//|| fEnergyFlag.Contains("pPb") ){
         fNEvents                        = fEventQuality->GetBinContent(1);
     } else {
         fNEvents                        =  GetNEvents(fEventQuality);

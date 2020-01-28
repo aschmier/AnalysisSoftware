@@ -272,6 +272,7 @@ void  CalculateGammaToPi0V4(    TString nameFileGamma       = "",
 
         if (!fEnergy.CompareTo("900GeV") || !fEnergy.CompareTo("2.76TeV")|| !fEnergy.CompareTo("7TeV") || fEnergy.BeginsWith("8TeV") || !fEnergy.CompareTo("13TeV") ||
             fEnergy.BeginsWith("5TeV")  ||
+            !fEnergy.CompareTo("pPb_8TeV") ||
             !fEnergy.CompareTo("pPb_5.023TeV") || !fEnergy.CompareTo("pPb_5.023TeVCent") || !fEnergy.CompareTo("pPb_5.023TeVRun2") ||
             !fEnergy.CompareTo("PbPb_2.76TeV")){
                 cocktailPi0                         = (TH1D* )cocktailFile->Get("Pi0_Pt");

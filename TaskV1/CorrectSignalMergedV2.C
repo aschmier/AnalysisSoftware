@@ -270,7 +270,7 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
     }  
     
     Float_t nEvt                                = 0;
-    if (kCollisionSystem > 0){
+    if (kCollisionSystem == 1){
         nEvt                                    = histoEventQuality->GetBinContent(1);
     } else {
         nEvt                                    = GetNEvents(histoEventQuality);

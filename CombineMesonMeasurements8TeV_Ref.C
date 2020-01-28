@@ -2255,13 +2255,13 @@ cout << __LINE__ << endl;
         DrawGammaSetMarkerTGraphAsym(graphRatioPi0PCMEMCALCombFitStat_WOXErr, markerStyleDet[4] ,markerSizeDet[4]*0.5, colorDet[4], colorDet[4]);
 
         graphRatioPi0PCMCombFitSys->Draw("E2same");
-        // graphRatioPi0PHOSCombFitSys->Draw("E2same");
+        graphRatioPi0PHOSCombFitSys->Draw("E2same");
         graphRatioPi0EMCALCombFitSys->Draw("E2same");
        graphRatioPi0EMCALMergedCombFitSys->Draw("E2same");
         graphRatioPi0PCMEMCALCombFitSys->Draw("E2same");
 
         graphRatioPi0PCMCombFitStat_WOXErr->Draw("p,same,z");
-        // graphRatioPi0PHOSCombFitStat_WOXErr->Draw("p,same,z");
+        graphRatioPi0PHOSCombFitStat_WOXErr->Draw("p,same,z");
         graphRatioPi0EMCALCombFitStat_WOXErr->Draw("p,same,z");
        graphRatioPi0EMCALMergedCombFitStat->Draw("p,same,z");
         graphRatioPi0PCMEMCALCombFitStat_WOXErr->Draw("p,same,z");

@@ -285,6 +285,11 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     Double_t xsection =0;
     Double_t xsectionReference =0;
     Double_t nuclOverlap = 0;
+    if(optionEnergy.Contains("pPb_5.023TeV")){
+        xsection = 2.095;
+        xsectionReference = ReturnCorrectXSection("5TeV",1);
+        nuclOverlap = GetTAAFromName("","pPb_5.023TeV");
+    }
     if(optionEnergy.Contains("pPb_8TeV")){
         xsection = 2.095;
         xsectionReference = ReturnCorrectXSection("8TeV",1);
@@ -299,6 +304,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
         return;
     }
     Double_t scalingToNSD                       = 0.97;
+    if(optionEnergy.Contains("pPb_8TeV")) scalingToNSD  = 0.983;
     if (!isNSD)
         scalingToNSD                            = 1;
 
@@ -483,6 +489,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             if(optionEnergy.CompareTo("pPb_8TeV")==0){
                 funcTCMFitShiftPi0 = (TF1*)fileBinShift->Get("Pi0pPb8TeV/TwoComponentModelFitPi0");
                 funcTCMFitShiftEta = (TF1*)fileBinShift->Get("EtapPb8TeV/TwoComponentModelFitEta");
+                cout << "loaded binshift fits for pPb part!" << endl;
             }
             if(!funcTCMFitShiftPi0){cout << "pPb shift fit not found" << endl; return;}
             if(!funcTCMFitShiftEta && mode!=10){cout << "pPb shift fit for Eta not found" << endl; return;}
@@ -495,6 +502,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             if(optionEnergy.CompareTo("pPb_8TeV")==0){
                 funcTCMFitShiftPi0Ref = (TF1*)fileBinShiftRef->Get("Pi08TeV/TwoComponentModelFitPi0");
                 funcTCMFitShiftEtaRef = (TF1*)fileBinShiftRef->Get("Eta8TeV/TwoComponentModelFitEta");
+                cout << "loaded binshift fits for reference!" << endl;
             }
             if(!funcTCMFitShiftPi0Ref){cout << "pp shift fit not found" << endl; return;}
             if(!funcTCMFitShiftEtaRef && mode!=10){cout << "pp shift fit for Eta not found" << endl; return;}
