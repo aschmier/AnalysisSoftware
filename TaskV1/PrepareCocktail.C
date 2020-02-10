@@ -2283,6 +2283,7 @@ TList* GetCocktailInputList(TString energy, TString centrality) {
     TString                         fEnergy                     = "";
     if (energy.Contains("9"))       fEnergy                     = "0.9TeV";
     else if (energy.Contains("2.")) fEnergy                     = "2.76TeV";
+    else if (energy.Contains("5.")) fEnergy                     = "5.02TeV";
     else if (energy.Contains("5"))  fEnergy                     = "5TeV";
     else if (energy.Contains("7"))  fEnergy                     = "7TeV";
     else if (energy.Contains("8"))  fEnergy                     = "8TeV";
