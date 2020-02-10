@@ -345,10 +345,11 @@
 
         TString mT                      = Form("TMath::Sqrt(x*x + %f * %f - %f * %f)",mass,mass,massBase,massBase);
         TString pTovermT                = Form("x/TMath::Sqrt(x*x + %f * %f - %f * %f)",mass,mass,massBase,massBase);
-        TString mTScaledFormula         = paramPi0Formula.ReplaceAll("exp", "placeholder");
-        TString dummyFormula            = mTScaledFormula.ReplaceAll("x",mT.Data() );
-        mTScaledFormula                 = dummyFormula.ReplaceAll("placeholder","exp");
-        //cout << "output parametrization in mT: " << mTScaledFormula.Data() << endl;
+        paramPi0Formula                 = paramPi0Formula.ReplaceAll("exp", "TMath::Exp");
+        TString mTScaledFormula         = paramPi0Formula.ReplaceAll("Exp", "placeholder");
+        TString dummyFormula            = mTScaledFormula.ReplaceAll("x",mT.Data());
+        mTScaledFormula                 = dummyFormula.ReplaceAll("placeholder","Exp");
+        // cout << "output parametrization in mT: " << mTScaledFormula.Data() << endl;
 
         Double_t paramEvaluated         = param->Eval(5.)/param->Eval(TMath::Sqrt(25. + mass*mass - massBase*massBase));
         if (doAdditionalScaling)
