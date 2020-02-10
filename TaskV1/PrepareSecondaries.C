@@ -749,7 +749,8 @@ void PrepareSecondaries(    TString     meson                       = "",
                 }
             }
         } else {
-            cout << "Pi0 param missing, can't calculate histoRatioPi0FromXToPi0Param." << endl;
+            cout << "Pi0 param missing, can't calculate histoRatioPi0FromXToPi0Param. Have disabled reading it from file?" << endl;
+            cout << "disableParamPlotting = " << disableParamPlotting << endl;
             for (Int_t i=0; i<nMotherParticleToAnalyse; i++)
                 histoRatioPi0FromXToPi0Param[i]                 = NULL;
         }
@@ -1428,7 +1429,8 @@ TList* GetCocktailInputList(TString energy, TString centrality) {
     // get list of cocktail input objects in file
     TString                         fEnergy                     = "";
     if (energy.Contains("9"))       fEnergy                     = "0.9TeV";
-    else if (energy.Contains("2."))  fEnergy                     = "2.76TeV";
+    else if (energy.Contains("2.")) fEnergy                     = "2.76TeV";
+    else if (energy.Contains("5.")) fEnergy                     = "5.02TeV";
     else if (energy.Contains("5"))  fEnergy                     = "5TeV";
     else if (energy.Contains("7"))  fEnergy                     = "7TeV";
     else if (energy.Contains("8"))  fEnergy                     = "8TeV";
