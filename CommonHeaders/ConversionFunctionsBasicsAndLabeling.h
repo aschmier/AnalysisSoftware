@@ -630,7 +630,17 @@
         //
         //     eventCutNumber      = objstrEvent->GetString();
         //     gammaCutNumber      = objstrGamma->GetString();
-        }
+    } else if (type == 14){ // EDC-PHOS
+        objstrEvent         = (TObjString*)arr->At(pos);
+        objstrGamma         = (TObjString*)arr->At(1+pos);
+        objstrCluster       = (TObjString*)arr->At(2+pos);
+        objstrMeson         = (TObjString*)arr->At(3+pos);
+
+        eventCutNumber      = objstrEvent->GetString();
+        gammaCutNumber      = objstrGamma->GetString();
+        clusterCutNumber    = objstrCluster->GetString();
+        mesonCutNumber      = objstrMeson->GetString();
+    }
 
         cout << cutSel.Data() << "\t" << eventCutNumber.Data() << "\t" << gammaCutNumber.Data() << "\t" <<  clusterCutNumber.Data() << "\t" <<electronCutNumber.Data() << "\t" << mesonCutNumber.Data() << endl;
         return;
@@ -3218,7 +3228,7 @@
                 return "00100";
             } else {
                 if (centralityCutNumberStart.CompareTo("0") == 0){
-                    if (centralityCutNumberEnd.CompareTo("1") == 0) 
+                    if (centralityCutNumberEnd.CompareTo("1") == 0)
                         return Form("000%i", CutNumberToInteger(centralityCutNumberEnd)*5);
                     else
                         return Form("00%i", CutNumberToInteger(centralityCutNumberEnd)*5);
@@ -6085,7 +6095,7 @@
                 case 13: case 43:
                     return "#gamma's rec. with PCM, DCal";
                 case 14:
-                    return "#gamma's rec. with PCM, EMCal + DCal";
+                    return "#gamma's rec. with EDC, PHOS";
                 case 15:
                     return "#gamma's rec. with DCal + EMCal";
                 case 20: case 21: case 22: case 23:

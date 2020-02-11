@@ -695,6 +695,7 @@ do
         11 (PHOS-merged)
         12 (DCal-DCal)
         13 (PCM-DCal)
+        14 (EDC-PHOS)
         and add 100 for heavy mesons (e.g. 102 for PCM-EMCAL)"
     read answer
     # Set heavy meson configuration
@@ -769,6 +770,11 @@ do
         echo -e "--> You are analysing PCM-DCAL output\n";
         MODE=$answer
         ADVMESONQA=""#"AdvancedMesonQA"
+        CORRECT=1
+    elif [ $answer = "14" ]; then
+        echo -e "--> You are analysing EDC-PHOS output\n";
+        MODE=$answer
+        # ADVMESONQA=""#"AdvancedMesonQA"
         CORRECT=1
     else
         echo -e "--> Command \"$answer\" not found. Please try again.\n"
@@ -946,7 +952,7 @@ do
     #######################################################################################################
     # Set TNSPARSE off for Calo modes by default
     #######################################################################################################
-    if [ $MODE = 2 ] || [ $MODE = 3 ] || [ $MODE = 4 ] || [ $MODE = 5 ] || [ $MODE = 10 ] || [ $MODE = 11 ] || [ $MODE = 12 ] || [ $MODE = 13 ]; then
+    if [ $MODE = 2 ] || [ $MODE = 3 ] || [ $MODE = 4 ] || [ $MODE = 5 ] || [ $MODE = 10 ] || [ $MODE = 11 ] || [ $MODE = 12 ] || [ $MODE = 13 ] || [ $MODE = 14 ]; then
         USETHNSPARSE=0
         ADVMESONQA="AdvancedMesonQA"
         #######################################################################################################
@@ -976,7 +982,7 @@ do
             GiveBinning900GeV
         elif [ $ENERGY = "2.76TeV" ]; then
             # hack to run dir gamma in parallel if wanted
-            if [ $MODE -eq 4 ]  || [ $MODE -eq 12 ] ; then
+            if [ $MODE -eq 4 ]  || [ $MODE -eq 12 ]  || [ $MODE = 14 ]; then
                 DIRECTPHOTON="No"
             else
                 DIRECTPHOTON="Gamma"
@@ -1065,7 +1071,7 @@ if [ $MODE -eq 0 ] || [ $MODE -eq 9 ] ; then
 fi
 
 echo "Checking if mode $MODE is standard mode...";
-if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]; then
+if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  || [ $MODE = 14 ]; then
     echo -e "--> I went into standard modes\n";
     if [ $ONLYCORRECTION -eq 0 ];  then
         # echo "Extraction will be done using modified Gaussian.";

@@ -5130,7 +5130,7 @@
         TObjArray* arr;
         TIter next(file->GetListOfKeys());
         while ( (key=(TKey*)next()) ){
-            // cout << Form("-> found TopDir: %s",key->GetName());
+            // cout << Form("-> found TopDir: %s",key->GetName()) << endl;
             mainDir = key->GetName();
             arr = mainDir.Tokenize("_");
             if( mesonName.Length() && mainDir.BeginsWith(nominalMainDir) ) { // if heavy meson analysis
@@ -5148,6 +5148,7 @@
                             return mainDir;
                     }
                 }else{
+                    // cout << Form("-> start is: %s, nominal %s",start.Data(), nominalMainDir.Data()) << endl;
                     if (start.EqualTo(nominalMainDir))
                         return mainDir;
                 }
@@ -5186,7 +5187,7 @@
             nominalMainDir         = "GammaConvV1";
         else if( mode == 1 )
             nominalMainDir         = "GammaConvDalitzV1";
-        else if (mode == 2 || mode == 3 || mode == 13 || mode == 14)
+        else if (mode == 2 || mode == 3 || mode == 13 )
             nominalMainDir         = "GammaConvCalo";
         else if (mode == 4 || mode == 12 || mode == 5 || mode == 15)
             nominalMainDir         = "GammaCalo";
@@ -5194,6 +5195,8 @@
             nominalMainDir         = "GammaConvDalitzCalo";
         else if (mode == 10 || mode == 11 )
             nominalMainDir         = "GammaCaloMerged";
+        else if( mode == 14 )
+            nominalMainDir         = "GammaCaloMix";
         else if (mode == 30 )
             nominalMainDir         = "GammaConvV1";
         else if (mode == 40 || mode == 41 || mode == 42 || mode == 43|| mode == 44 || mode == 45 ||
