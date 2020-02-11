@@ -48,12 +48,12 @@ then
 					MergeRuns=0
 
 					tmp=`grep $filename $AvailibleFiles | wc -l`
+					# completlymerged="$Dirout/${filename%%.root}.completlymerged"
 					if [[ $tmp > 0 ]]; then
 						printf "\e[33m|-> Found files:\e[0m $RunlistName $ChildName $filename" | tee -a $LogFile
 						outFile="$Dirout/$filename"
 						inFile="$Dirin/$filename"
 						downlogFile="$Dirout/${filename%%.root}.downlog"
-						# completlymerged="$Dirout/${filename%%.root}.completlymerged"
 
 						if [[ $UseOnlyrunwise = 0 ]]; then
 							GetFile $inFile $outFile $downlogFile
@@ -68,7 +68,7 @@ then
 						fi
 					else
 						if [[ $UseOnlyrunwise = 0 ]]; then
-							# if [[ ! -f $completlymerged ]]; then
+							# if [[ ! -f $completlymerged ]] || [[ $newfiles = 1 ]]; then
 								MergeRuns=1
 								echo  -e "\e[33mWARNING: File $filename not found\e[0m, trying to merge from runwise output: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
 							# else
@@ -78,6 +78,11 @@ then
 					fi
 
 					echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
+					if [[ $DoSoftDown = 1 ]]; then
+						printf "\e[33m|-> Merging file:\e[0m $RunlistName $ChildName $filename " | tee -a $LogFile
+						doMergeFiles $filename $Dirout $Dirin $DirMerged
+						continue
+					fi
 
 
 					if [[ $forcemerge = 1 ]]; then
@@ -89,20 +94,24 @@ then
 					fi
 					if [[ $Userunwise = 1 ]] || [[ $MergeRuns = 1 ]]; then
 						# Download all runs
-						tmpruncount=0
-						for runName in `cat $Runlist`
-						do
-							((tmpruncount++))
-							maxpthardbins=1
-							if [[ $OptIsJJ = 1 ]]; then
-								maxpthardbins=20
-							fi
-							for (( pthardbin = 1; pthardbin <= $maxpthardbins; pthardbin++ )); do
+						AllPathList="$OUTPUTDIR/.$child/.AllPathList_$filename.txt"
+						if [[ ! -f $AllPathList ]] || [[  `grep "$Search" $AllPathList | wc -l` < 1 ]]; then
+							newfiles=1
+							FindPathsAndAddToList "/alice/$Type/$Year/$ChildName/" $AllPathList $filename
+						fi
+						if [[ $OptIsJJ = 1 ]]; then
+							DiroutTmp=$Dirout
+						fi
+						for (( pthardbin = $minpthardbins; pthardbin <= $maxpthardbins; pthardbin++ )); do
+							tmpruncount=0
+							for runName in `cat $Runlist`; do
+								((tmpruncount++))
 								merginghigher=0
 
 								# look for availible Files
 								if [[ $OptIsJJ = 1 ]]; then
-									runDir=$OUTPUTDIR/.$child/$runName/$pthardbin
+									runDir=$OUTPUTDIR/.$child/$pthardbin/$runName
+									Dirout=$OUTPUTDIR/.$child/$pthardbin
 								else
 									runDir=$OUTPUTDIR/.$child/$runName
 								fi
@@ -115,12 +124,22 @@ then
 								mkdir -p $OUTPUTDIR/.$child
 								mkdir -p $runDir
 
-								if [[ -d $runDir ]] && [[ ! -L $OUTPUTDIR/$RunlistName/$ChildName/$runName ]] ; then
-									cmd="ln -sf $runDir $OUTPUTDIR/$RunlistName/$ChildName/."
-									# echo $cmd | tee -a $LogFile
-									usecmd $cmd
-									eval $cmd
+								if [[ $OptIsJJ = 1 ]]; then
+									if [[ -d $Dirout ]] && [[ ! -L $OUTPUTDIR/$RunlistName/$ChildName/$runName ]] ; then
+										cmd="ln -sf $Dirout $OUTPUTDIR/$RunlistName/$ChildName/."
+										# echo $cmd | tee -a $LogFile
+										usecmd $cmd
+										eval $cmd
+									fi
+								else
+									if [[ -d $runDir ]] && [[ ! -L $OUTPUTDIR/$RunlistName/$ChildName/$runName ]] ; then
+										cmd="ln -sf $runDir $OUTPUTDIR/$RunlistName/$ChildName/."
+										# echo $cmd | tee -a $LogFile
+										usecmd $cmd
+										eval $cmd
+									fi
 								fi
+
 								# echo "001 $cmd" | tee -a $LogFile
 
 								if [[ ! -f $RunPathList ]]; then
@@ -132,21 +151,19 @@ then
 								if [[ $newfiles = 1 ]]; then
 									if [[ $Type = "sim" ]]; then
 										if [[ $OptIsJJ = 1 ]]; then
-											FindPathsAndAddToList "/alice/$Type/$Year/$ChildName/$pthardbin/$runName/" $RunPathList
+											GrapPathsAndAddToList "/alice/$Type/$Year/$ChildName/$pthardbin/$runName/" $RunPathList $AllPathList
 										else
-											FindPathsAndAddToList "/alice/$Type/$Year/$ChildName/$runName/" $RunPathList
+											GrapPathsAndAddToList "/alice/$Type/$Year/$ChildName/$runName/" $RunPathList $AllPathList
 										fi
 									else
-										FindPathsAndAddToList "/alice/$Type/$Year/$ChildName/000$runName/" $RunPathList
+										GrapPathsAndAddToList "/alice/$Type/$Year/$ChildName/000$runName/" $RunPathList $AllPathList
 									fi
 									# grep _$childID/AnalysisResults.root  > $RunPathList.tmp
 								fi
 								if [ ! -f $RunPathList ]; then
 									if [[ $OptIsJJ = 1 ]]; then
-										if [[ $pthardbin = 1 ]]; then
-											printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$filename \n " | tee -a $LogFile
-										fi
-										echo -e "\t\e[31mError\e[0m pThardbin $pthardbin, run $runName  wasn't found!" | tee -a $ErrorLog | tee -a $LogFile
+										# printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$filename \n " | tee -a $LogFile
+										echo -e "\t\e[31mError\e[0m pThardbin $pthardbin, Run\t$tmpruncount/$NumberOfRuns\t$runName  wasn't found!" | tee -a $ErrorLog | tee -a $LogFile
 									else
 										echo -e "\t\e[31mError\e[0m Run $runName wasn't found!" | tee -a $ErrorLog | tee -a $LogFile
 									fi
@@ -155,7 +172,7 @@ then
 								arrypos2=0
 								isfirsttmp=1
 								Search=$filename
-								UseMerge=$MergeRuns
+								# UseMerge=$MergeRuns
 								((arrypos2++))
 								if [[ $OptIsJJ = 1 ]]; then
 									runoutFile="$runDir/$Search"
@@ -164,25 +181,16 @@ then
 									runoutFile=$runDir/$Search
 									rundownlogFile=$runDir/.${Search%%.root}.downlog
 								fi
-								if [[ $isfirsttmp = 1 ]] && [[ $pthardbin = 1 ]]; then
-									isfirsttmp=0
-									printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$Search " | tee -a $LogFile
-									if [[ $OptIsJJ = 1 ]]; then
-										printf "\t(20 pthardbins) \n\t $pthardbin/$maxpthardbins\t"| tee -a $LogFile
-									fi
-								else
-									if [[ $OptIsJJ = 1 ]]; then
-										printf "\t $pthardbin/$maxpthardbins\t"| tee -a $LogFile
-									else
-										printf "\t\t\t\t\t$Search " | tee -a $LogFile
-									fi
+								if [[ $OptIsJJ = 1 ]]; then
+									printf "\t $pthardbin/$maxpthardbins "| tee -a $LogFile
 								fi
+								printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$Search " | tee -a $LogFile
 								if [[ `grep "_$childID/$Search" $RunPathList | wc -c` -gt 0 ]]; then
 									for runinFile in `grep "_$childID/$Search" $RunPathList`
 									do
 										# printf "\t$runoutFile" | tee -a $LogFile
 										GetFile $runinFile $runoutFile $rundownlogFile
-										if [[ $UseMerge = 1 ]]
+										if [[ $MergeRuns = 1 ]]
 										then
 											doMergeFiles $Search $runDir ${runinFile/%%$Search} $Dirout
 										else
@@ -223,16 +231,31 @@ then
 										doMergeFiles $Search $subrunDir ${subruninFile/%%$Search} $runDir
 									done
 									echo -e "\t\t\e[33m|->\e[0m merge from higher stages.. done" #| tee -a $WARNINGLog | tee -a $LogFile
-									if [[ $UseMerge = 1 ]]
+									if [[ $MergeRuns = 1 ]]
 									then
-										echo -e "\t\t\e[33m|->\e[0m merging run " #| tee -a $WARNINGLog | tee -a $LogFile
+										printf "\t\t\e[33m|->\e[0m merging run " #| tee -a $WARNINGLog | tee -a $LogFile
+										if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+										then
+											echo "doMergeFiles $Search $runDir ${runinFile/%%$Search} $Dirout" | tee -a $LogFile
+										fi
 										doMergeFiles $Search $runDir ${runinFile/%%$Search} $Dirout
 									fi
 								fi
 							done
+							if [[ $OptIsJJ = 1 ]] ; then
+								if [[ $MergeRuns = 1 ]]; then
+									printf "\t\t\e[33m|->\e[0m merging pT hardbin " #| tee -a $WARNINGLog | tee -a $LogFile
+									if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+									then
+										echo "doMergeFiles $Search $Dirout 0 $DiroutTmp" | tee -a $LogFile
+									fi
+									doMergeFiles $Search $Dirout "0" $DiroutTmp
+								fi
+								Dirout=$DiroutTmp
+							fi
 						done
 					fi
-					if [[ $UseMerge = 1 ]] && [[ $MergeRuns = 1 ]]; then
+					if [[ $UseMerge = 1 ]] ; then
 						# touch $completlymerged
 						printf "\e[33m|-> Merging file:\e[0m $RunlistName $ChildName $filename " | tee -a $LogFile
 						doMergeFiles $filename $Dirout $Dirin $DirMerged

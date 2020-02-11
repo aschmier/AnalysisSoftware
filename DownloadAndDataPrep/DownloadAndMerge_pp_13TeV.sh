@@ -1,5 +1,5 @@
 #! /bin/bash
-echo "Starting GetGammaConvCaloFilesFromGridAndMergeThem_pp_13TeV..."
+echo "Starting DownloadAndMerge for pp 13TeV..."
 echo;
 
 thisuser=`echo ${USER}`
@@ -11,30 +11,14 @@ then
         rm Error.log
     fi
 
-    #################   MC   #############################
-    ### LHC16 MC
-    bash DownScript.sh 2187 -Name_JJLHC16MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods -IsJJ -totalLog $1
-    ### LHC17 MC
-    bash DownScript.sh 2188 -Name_JJLHC17MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods -IsJJ -totalLog $1
-    ### LHC18 MC
-    bash DownScript.sh 2189 -Name_JJLHC18MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods -IsJJ -totalLog $1
-    #################   Data   #############################
-    # ### LHC16 Data
-    bash DownScript.sh 1193 -Name_SkimLHC16Data_v6 GA_pp_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods  -RL_listPCMEDC -totalLog $1
-    # ### LHC17 Data
-    bash DownScript.sh 1194 -Name_SkimLHC17Data_v6 GA_pp_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods  -RL_listPCMEDC -totalLog $1
+
     # ### LHC18 Data
-    bash DownScript.sh 1195 -Name_SkimLHC18Data_v6 GA_pp_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods  -RL_listDPGIncTPC -totalLog $1
-    ##################   merging   #############################
-    ### Data 16 + 17 + 18s
-    bash DownScript.sh 1193 1194 1195 -Name_SkimData_pp13TeV_16_17_18_v6 GA_pp_AOD ?_GammaConvCalo -mergechilds -mergetrains -childsareperiods  -RL_listPCMEDC -noDown -totalLog $1
-    ### MC 16 + 17 + 18
-    bash DownScript.sh 2187 2188 2189 -Name_JJMC_pp13TeV_16_17_18_v6 GA_pp_MC_AOD ?_GammaConvCalo -mergechilds -mergetrains -childsareperiods -RL_listPCMEDC -noDown -totalLog $1
+    # bash DownScript.sh 1203 -Name_LHC18Data_CaloMix GA_pp_AOD ?_GammaCaloMix_1 -mergechilds -childsareperiods  -RL_listDPGCalo -totalLog $1
 
 #####                 new Trains v6
-#####                 with recalib and MBW
-#####                 including QA
-##################   Data   #############################
+# #####                 with recalib and MBW
+# #####                 including QA
+# ##################   Data   #############################
 # ### LHC16 Data
 # bash DownScript.sh 1181 -Name_LHC16Data_v6 GA_pp_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods  -RL_listPCMEDC -totalLog $1
 # ### LHC17 Data
@@ -48,30 +32,30 @@ then
 # bash DownScript.sh 2146 2147 -Name_LHC17MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_20 -mergechilds -mergetrains -childsareperiods  -RL_listPCMEDC -totalLog $1
 # ### LHC18 MC
 # bash DownScript.sh 2148 2149 -Name_LHC18MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_20 -mergechilds -mergetrains -childsareperiods  -RL_listDPCIncAccTPC -totalLog $1
-# ##################   merging   #############################
-# ### Data 16 + 17 + 18
+# # ##################   merging   #############################
+# # ### Data 16 + 17 + 18
 # bash DownScript.sh 1181 1182 1183 -Name_Data_pp13TeV_16_17_18_v6 GA_pp_AOD ?_GammaConvCalo -mergechilds -mergetrains -childsareperiods  -RL_listPCMEDC -noDown -totalLog $1
-# ### MC 16 + 17 + 18
+# # ### MC 16 + 17 + 18
 # bash DownScript.sh 2139 2144 2145 2146 2147 2148 2149 -Name_MC_pp13TeV_16_17_18_v6 GA_pp_MC_AOD ?_GammaConvCalo -mergechilds -mergetrains -childsareperiods -RL_listPCMEDC -noDown -totalLog $1
 # ################    QA   #############################
-# ## LHC16 Data
+# ### LHC16 Data
 # bash DownScript.sh 1181 -Name_LHC16Data_v6 GA_pp_AOD ?_GammaConvCalo_2002 -onlyrunwise -mergechilds -childsareperiods  -RL_listPCMEDC -totalLog $1
 # ### LHC17 Data
 # bash DownScript.sh 1182 -Name_LHC17Data_v6 GA_pp_AOD ?_GammaConvCalo_2002 -onlyrunwise -mergechilds -childsareperiods  -RL_listPCMEDC -totalLog $1
-# ### LHC18 Data
+# ### LHC18 Datas
 # bash DownScript.sh 1183 -Name_LHC18Data_v6 GA_pp_AOD ?_GammaConvCalo_2002 -onlyrunwise -mergechilds -childsareperiods  -RL_listDPGIncTPC -totalLog $1
-# ### LHC16 MC
+# # ### LHC16 MC
 # bash DownScript.sh 2139 2144 2145 -Name_LHC16MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_2002 -onlyrunwise -mergeruns -mergechilds -mergetrains -childsareperiods  -RL_listPCMEDC -totalLog $1
 # ### LHC17 MC
 # bash DownScript.sh 2146 2147 -Name_LHC17MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_2002 -onlyrunwise -mergeruns -mergechilds -mergetrains -childsareperiods  -RL_listPCMEDC -totalLog $1
 # ### LHC18 MC
 # bash DownScript.sh 2148 2149 -Name_LHC18MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_2002 -onlyrunwise -mergeruns -mergechilds -mergetrains -childsareperiods  -RL_listDPCIncAccTPC -totalLog $1
-##################    Photon QA   #############################
-# ### LHC16 Data 938
+# ##################    Photon QA   #############################
+# ## LHC16 Data 938
 # bash DownScript.sh 1181 -Name_LHC16Data_PhotonQA3 GA_pp_AOD ?_AnalysisResults -onlyrunwise -childsareperiods  -RL_listDPGIncTPC -RL_listDPGIncAcc -totalLog $1
-# ### LHC17 Data 939
+# ## LHC17 Data 939
 # bash DownScript.sh 1182 -Name_LHC17Data_PhotonQA3 GA_pp_AOD ?_AnalysisResults -onlyrunwise -childsareperiods  -RL_listDPGIncTPC -totalLog $1
-# ### LHC18 Data 940
+# ## LHC18 Data 940
 # bash DownScript.sh 1183 -Name_LHC18Data_PhotonQA3 GA_pp_AOD ?_AnalysisResults -onlyrunwise -childsareperiods  -RL_listDPGIncTPC -totalLog $1
 # ### LHC16 MC
 # bash DownScript.sh 2139 2144 2145 -Name_LHC16MC_PhotonQA3 GA_pp_MC_AOD ?_AnalysisResults -onlyrunwise -mergeruns -childsareperiods  -RL_listDPGIncAccTPC -totalLog $1
@@ -79,6 +63,32 @@ then
 # bash DownScript.sh 2146 2147 -Name_LHC17MC_PhotonQA3 GA_pp_MC_AOD ?_AnalysisResults -onlyrunwise -mergeruns -childsareperiods  -RL_listDPGIncTPC -totalLog $1
 # ### LHC18 MC
 # bash DownScript.sh 2148 2149 -Name_LHC18MC_PhotonQA3 GA_pp_MC_AOD ?_AnalysisResults -onlyrunwise -mergeruns -childsareperiods  -RL_listDPCIncAccTPC -totalLog $1
+
+###############   MC   #############################
+### LHC16 MC
+bash DownScript.sh 2187 -Name_JJLHC16MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_2003 -mergechilds -childsareperiods -IsJJ -runwise -totalLog $1
+bash DownScript.sh 2187 -Name_JJLHC16MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods -IsJJ -totalLog $1
+### LHC17 MC
+bash DownScript.sh 2188 -Name_JJLHC17MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_2003 -mergechilds -childsareperiods -IsJJ -runwise -totalLog $1
+bash DownScript.sh 2188 -Name_JJLHC17MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods -IsJJ -totalLog $1
+# LHC18 MC
+bash DownScript.sh 2189 -Name_JJLHC18MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_2003 -mergechilds -childsareperiods -IsJJ -runwise -totalLog $1
+bash DownScript.sh 2189 -Name_JJLHC18MC_v6 GA_pp_MC_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods -IsJJ -totalLog $1
+# #################   Data   #############################
+# # ### LHC16 Data
+# # bash DownScript.sh 1193 -Name_SkimLHC16Data_v6 GA_pp_AOD ?_GammaConvCalo_2003 -mergechilds -childsareperiods  -RL_listDPGEDCtrigger -totalLog $1
+# bash DownScript.sh 1193 -Name_SkimLHC16Data_v6 GA_pp_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods  -RL_listPCMEDC -totalLog $1
+# # ### LHC17 Data
+# # bash DownScript.sh 1194 -Name_SkimLHC17Data_v6 GA_pp_AOD ?_GammaConvCalo_2003 -mergechilds -childsareperiods  -RL_listDPGEDCtrigger -totalLog $1
+# bash DownScript.sh 1194 -Name_SkimLHC17Data_v6 GA_pp_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods  -RL_listPCMEDC -totalLog $1
+# # ### LHC18 Data
+# # bash DownScript.sh 1195 -Name_SkimLHC18Data_v6 GA_pp_AOD ?_GammaConvCalo_2003 -mergechilds -childsareperiods  -RL_listEDC_trigger -totalLog $1
+# bash DownScript.sh 1195 -Name_SkimLHC18Data_v6 GA_pp_AOD ?_GammaConvCalo_20 -mergechilds -childsareperiods  -RL_listDPGIncTPC -totalLog $1
+##################   merging   #############################
+### Data 16 + 17 + 18s
+# bash DownScript.sh 1193 1194 1195 -Name_SkimData_pp13TeV_16_17_18_v6 GA_pp_AOD ?_GammaConvCalo -mergechilds -mergetrains -childsareperiods  -RL_listDPGEDCtrigger -noDown -totalLog $1
+### MC 16 + 17 + 18
+bash DownScript.sh 2187 2188 2189 -Name_JJMC_pp13TeV_16_17_18_v6 GA_pp_MC_AOD ?_GammaConvCalo -mergechilds -mergetrains -childsareperiods  -RL_default -noDown -totalLog $1
 
 
     #######################################################

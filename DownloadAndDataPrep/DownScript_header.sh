@@ -113,6 +113,8 @@ Dirout=""
 Dirin="0"
 DirMerged=""
 
+maxpthardbins=1
+minpthardbins=1
 
 ######################### functions
 function new_rm(){
@@ -132,9 +134,6 @@ function GetWebpage(){
 	then
 		echo -e "\e[33mGetWebpage(): \e[0m\t$1\t$2\t$3" | tee -a $LogFile
 	fi
-	certpath="$3"
-	Webpage="$2"
-
 	# we download the html to grep needed information from there
 	if [ -f $1 ]
 	then # Check if older than one day (or not)
@@ -142,8 +141,8 @@ function GetWebpage(){
 		if [[ `cat $1 | wc -l` -lt 100 ]]
 		then
 			new_rm $1
-			echo -e "\e[33m|-> \e[0mDownloading new one: ${Webpage}" | tee -a $LogFile
-			cmd="curl '${Webpage}' --key $certpath/$key -k --cert $certpath/$clientca &> $1"
+			echo -e "\e[33m|-> \e[0mDownloading new one: ${2}" | tee -a $LogFile
+			cmd="curl '${2}' --key $3/$key -k --cert $3/$clientca &> $1"
 			eval $cmd
 			usecmd $cmd
 			touch "$1";
@@ -153,8 +152,8 @@ function GetWebpage(){
 			if [ "$(( $(date +"%s") - $(stat -c "%Y" $1) ))" -gt "604800" ]  # 86400 = 1 Day
 			then
 				echo -e "\e[33m|-> \e[0mFile $1 exists. \e[33m|-> \e[0mbut is older then 7 Days! download new one from alien:/$1" | tee -a $LogFile
-				# cmd="curl -s '${Webpage}' --key $certpath/$key --cacert $certpath/$cacert --cert $certpath/$clientca &> $1"
-				cmd="curl '${Webpage}' --key $certpath/$key -k --cert $certpath/$clientca &> $1"
+				# cmd="curl -s '${2}' --key $3/$key --cacert $3/$cacert --cert $3/$clientca &> $1"
+				cmd="curl '${2}' --key $3/$key -k --cert $3/$clientca &> $1"
 				eval $cmd
 				usecmd $cmd
 				touch "$1";
@@ -164,9 +163,9 @@ function GetWebpage(){
 		fi
 		# echo -e "\e[33m|-> \e[0mFile $1 exists." | tee -a $LogFile
 	else
-		echo -e "\e[33m|-> \e[0mDownloading ${Webpage}" | tee -a $LogFile
-		# cmd="curl '${Webpage}' --key $certpath/$key --cacert $certpath/$cacert --cert $certpath/$clientca &> $1"
-		cmd="curl '${Webpage}' --key $certpath/$key -k --cert $certpath/$clientca &> $1"
+		echo -e "\e[33m|-> \e[0mDownloading ${2}" | tee -a $LogFile
+		# cmd="curl '${Webpage}' --key $3/$key --cacert $3/$cacert --cert $3/$clientca &> $1"
+		cmd="curl '${2}' --key $3/$key -k --cert $3/$clientca &> $1"
 		usecmd $cmd
 		eval $cmd
 		touch "$1";
@@ -331,13 +330,12 @@ function Finish(){
 	new_rm $lockfile
 }
 function InitilaizeChild(){
-	child=$1
 	echo
 	echo  -e "\e[35m=====================================\e[0m" | tee -a $LogFile
 	echo
-	echo -e "\e[35m $child \e[0m" | tee -a $LogFile
+	echo -e "\e[35m $1 \e[0m" | tee -a $LogFile
 
-	childID=${child##*child_}
+	childID=${1##*child_}
 
 	foundperiod=0
 	foundchild=0
@@ -356,11 +354,11 @@ function InitilaizeChild(){
 	unset LIST_RunlistOnTrainpage
 
 	# prepare directory
-	mkdir -p "$OUTPUTDIR/.$child"
+	mkdir -p "$OUTPUTDIR/.$1"
 
 	# get one globalvariables.C to get information about the child
-	GlobalVariablesPath="$OUTPUTDIR/.$child/$GlobalVariablesFile"
-	GetFile "$AlienDir$child/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
+	GlobalVariablesPath="$OUTPUTDIR/.$1/$GlobalVariablesFile"
+	GetFile "$AlienDir$1/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
 	echo;
 
 	ChildName=`grep "periodName =" "$GlobalVariablesPath" | awk -F "= " '{print $2}' | awk -F ";" '{print $1}' | awk -F "\"" '{print $2}'`
@@ -378,6 +376,13 @@ function InitilaizeChild(){
 		echo -e "\e[33m|->\e[0m Changed periodName = $ChildName" | tee -a $LogFile
 	fi
 
+	Type='data'
+	if (( `echo -n ${ChildName#LHC*} | wc -c` > 3 )); then
+		Type='sim'
+	fi
+	Year="20${ChildName:3:2}"
+	echo -e "\e[33m|->\e[0m Type: $Type; Year: $Year" | tee -a $LogFile
+
 
 }
 function InitilaizeTrain(){
@@ -391,7 +396,7 @@ function InitilaizeTrain(){
 
 
 	OUTPUTDIR=$BASEDIR/$OutName
-	List="ListGrid.txt"
+	List="$OUTPUTDIR/ListGrid.txt"
 	GlobalVariablesFile="globalvariables.C"
 	envFile="$OUTPUTDIR/.env.sh"
 	FilenamesinTrain=$OUTPUTDIR/.FilenamesinTrain.txt
@@ -461,6 +466,7 @@ function InitilaizeTrain(){
 	new_rm $FilenamesinTrain.tmp2
 
 	# Loop over all childs
+	unset LIST_child
 	for child in `sort ${List}`;
 	do
 		LIST_child+=($child)
@@ -469,8 +475,6 @@ function InitilaizeTrain(){
 }
 function InitilaizeRunlist(){
 	arrypos=$1
-	Type=""
-	Year=""
 	useSpecificRunlist=0
 	SearchSpecificRunlist=""
 	# RunlistName=""
@@ -506,11 +510,7 @@ function InitilaizeRunlist(){
 		echo  -e "\e[33mWARNING:  No runs in Runlist\e[0m: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
 		return 1
 	fi
-	Type='data'
-	if (( `echo -n ${ChildName#LHC*} | wc -c` > 3 )); then
-		Type='sim'
-	fi
-	Year="20${ChildName:3:2}"
+
 	if [[ "$OptRunlistName" = "useSpecificRunlist_"* ]]; then
 		if [[ ! $RunlistID = "1" ]]; then return 1; fi
 		useSpecificRunlist=1
@@ -658,6 +658,20 @@ function ParseSettings(){
 		then
 			OptIsJJ=1
 			OptNoRunlist=1
+			maxpthardbins=20
+		elif [[ $setting = "-IsJJ_"* ]]
+		then
+			OptIsJJ=1
+			OptNoRunlist=1
+			minpthardbins=1
+			maxpthardbins=${setting#*-IsJJ_}
+			echo "selecting pthardbins: 1 - $maxpthardbins"
+		elif [[ $setting = "-pThard_"* ]]
+		then
+			pthardbintmp=${setting#*-pThard_}
+			maxpthardbins=${pthardbintmp#*_}
+			minpthardbins=${pthardbintmp%_*}
+			echo "selecting pthardbins: $minpthardbins - $maxpthardbins"
 		elif [[ $setting = "-NoRL" ]]
 		then
 			OptNoRunlist=1
@@ -688,12 +702,15 @@ function ParseSettings(){
 		elif [[ $setting = "-noDown" ]]
 		then
 			DoDown=0
-		elif [[ $setting = "-debug" ]]
+		elif [[ $setting = "-debug1" ]]
 		then
 			debug=1
-		elif [[ $setting = "-debugmore" ]]
+		elif [[ $setting = "-debugmore" ]] ||  [[ $setting = "-debug2" ]]
 		then
 			debug=2
+		elif [[ $setting = "-debugsoft" ]] ||  [[ $setting = "-debug3" ]]
+		then
+			debug=3
 		elif [[ $setting = "-newfiles" ]]
 		then
 			newfiles=1
@@ -775,6 +792,9 @@ function ParseSettings(){
 		then
 			echo -e "\e[33m|-> \e[0m Childs are periods" | tee -a $LogFile
 		fi
+	fi
+	if [[ $OptIsJJ = 1 ]]; then
+		echo -e "\e[33m|-> \e[0m Processing JJMC " | tee -a $LogFile
 	fi
 	echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
 	# echo -e "\e[33mIs this Setup correct?\e[0m (y/n)" | tee -a $LogFile
@@ -1039,10 +1059,10 @@ function doMergeTrainsPeriods(){
 				do
 					filename=${filenametmp#*/$RunlistName/*/}
 					printf "\t\t\t\e[33m|-> \e[0m $filename" | tee -a $LogFile
-					Dirout=$BASEDIR/$singletrainDir/$RunlistName/$Periodname/
+					Dirout2=$BASEDIR/$singletrainDir/$RunlistName/$Periodname/
 					Dirin="0"
 					DirMerged=${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/
-					doMergeFiles $filename $Dirout $Dirin $DirMerged "Periods"
+					doMergeFiles $filename $Dirout2 $Dirin $DirMerged "Periods"
 				done
 			done
 			# fi
@@ -1063,7 +1083,7 @@ function doMergeTrainsRuns(){
 			echo  -e "\t\e[36m|-> \e[0m $RunlistName" | tee -a $LogFile
 
 			# look for availible periods
-			periodList="${BASEDIR}/${MergeTrainsOutname}/$RunlistName/.periodList.txt"
+			periodList="${BASEDIR}/${singletrainDir}/$RunlistName/.periodList.txt"
 			if [[ -f $periodList ]]; then new_rm $periodList; fi
 			cmd="ls $BASEDIR/$singletrainDir/$RunlistName/ | grep 'LHC' >>  $periodList"
 			eval $cmd
@@ -1076,6 +1096,9 @@ function doMergeTrainsRuns(){
 				PeriodnameWOextra=${Periodname2%_extra*}
 				echo  -e "\t\t\e[36m|-> \e[0m $Periodname \n" | tee -a $LogFile
 
+				mkdir -p ${BASEDIR}/${MergeTrainsOutname}
+				mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName
+				mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra
 
 				# look for availible periods
 				Runlist="${BASEDIR}/${MergeTrainsOutname}/$RunlistName/.$Periodname-Runlist.txt"
@@ -1089,9 +1112,6 @@ function doMergeTrainsRuns(){
 					runname2=${runnametmp#*$Periodname/}
 					runname=${runname2%/*}
 					printf "\t\t\t\e[36m|-> \e[0m $runname \n" | tee -a $LogFile
-					mkdir -p ${BASEDIR}/${MergeTrainsOutname}
-					mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName
-					mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra
 					mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/$runname
 					# look for availible Files
 					FileList="${BASEDIR}/${MergeTrainsOutname}/$RunlistName/.FileList.txt"
@@ -1106,10 +1126,10 @@ function doMergeTrainsRuns(){
 					do
 						filename=${filenametmp#*/$runname/}
 						printf "\t\t\t\t\e[33m|-> \e[0m $filename" | tee -a $LogFile
-						Dirout=$BASEDIR/$singletrainDir/$RunlistName/$Periodname/$runname/
+						Dirout2=$BASEDIR/$singletrainDir/$RunlistName/$Periodname/$runname/
 						Dirin="0"
 						DirMerged=${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/$runname/
-						doMergeFiles $filename $Dirout $Dirin $DirMerged "Runs"
+						doMergeFiles $filename $Dirout2 $Dirin $DirMerged "Runs"
 					done
 				done
 				echo;
@@ -1149,7 +1169,7 @@ function doMergeTrains(){
 				fi
 				filename=${filenametmp#*/$RunlistName/*/}
 				printf "\t\t\e[33m|-> \e[0m $filename" | tee -a $LogFile
-				Dirout=$BASEDIR/$singletrainDir/$RunlistName
+				Dirout2=$BASEDIR/$singletrainDir/$RunlistName
 				Dirin="0"
 				mkdir -p ${BASEDIR}/${MergeTrainsOutname}
 				mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName
@@ -1158,40 +1178,41 @@ function doMergeTrains(){
 					redomerging=1
 				fi
 				if [[ $redomerging = 1 ]]; then
-					new_rm $Dirout/.${filename%%.root}.merged
+					new_rm $Dirout2/.${filename%%.root}.merged
 				fi
-				doMergeFiles $filename $Dirout $Dirin $DirMerged $MergeTrainsOutname
+				doMergeFiles $filename $Dirout2 $Dirin $DirMerged $MergeTrainsOutname
 			done
 		done
 	done
 }
 function doMergeFiles() {
-	filename=$1
-	Dirout=$2
-	Dirin=$3
-	DirMerged=$4
-	outFile="$Dirout/$filename"
-	inFile="$Dirin/$filename"
-	downlogFile="$Dirout/${filename%%.root}.downlog"
-	mergedFile=$DirMerged/$filename
-	if [ "$#" == "5" ]; then
-		alreadyMerged="$Dirout/.${filename%%.root}_$5.merged"
-	else
-		alreadyMerged="$Dirout/.${filename%%.root}.merged"
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+		echo -e "\e[33mdoMergeFiles(): \e[0m from:$2/$1  to:$4/$1" | tee -a $LogFile
 	fi
-	logFile=$Dirout/.${filename%%.root}.log
+	downlogFile="$2/${1%%.root}.downlog"
+	mergedFile=$4/$1
+	if [ "$#" == "5" ]; then
+		alreadyMerged="$2/.${1%%.root}_$5.merged"
+	else
+		alreadyMerged="$2/.${1%%.root}.merged"
+	fi
+	logFile=$2/.${1%%.root}.log
 	new_rm $logFile
 	new_rm $mergedFile.tmp
 	if [[ -f $alreadyMerged ]]
 	then
-		printf "\e[33m|-> \e[0m already merged\n" | tee -a $LogFile
-		return
+		for filesalreadymerged in `cat $alreadyMerged`; do
+			if [[ $filesalreadymerged = $mergedFile ]]; then
+				printf "\e[33m|-> \e[0m already merged\n" | tee -a $LogFile
+				return
+			fi
+		done
 	fi
-	if [[ ! -f $outFile ]]
+	if [[ ! -f $2/$1 ]]
 	then
 		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
 		then
-			echo -e "\t\e[31m|->\e[0m File missing $outFile  "  | tee -a $ErrorLog | tee -a $LogFile
+			echo -e "\t\e[31m|->\e[0m File missing $2/$1  "  | tee -a $ErrorLog | tee -a $LogFile
 		else
 			echo -e "\t\e[31m|->\e[0m File missing "  | tee -a $ErrorLog | tee -a $LogFile
 		fi
@@ -1201,12 +1222,13 @@ function doMergeFiles() {
 	then
 		echo -e "\e[33m|->\e[0m Copy: is first" | tee -a $LogFile
 		echo "Copyed to $mergedFile" > $logFile | tee -a $LogFile
-		cp $outFile $mergedFile
-		touch $alreadyMerged
+		cp $2/$1 $mergedFile
+		# touch $alreadyMerged
+		echo $mergedFile >> $alreadyMerged
 		return
 	fi
 	printf "\e[33m|->\e[0m merging Files \n"  #(log: $logFile)" | tee -a $LogFile
-	hadd -k $mergedFile.tmp $mergedFile $outFile  &> $logFile
+	hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile
 	exitstatus=$?
 	if [[ ! "$exitstatus" = "0" ]]; then
 		printf "  \e[33m|->\e[0m Retry with download" | tee -a $LogFile
@@ -1219,24 +1241,25 @@ function doMergeFiles() {
 		fi
 		printf "${tmp} " | tee -a $LogFile
 		new_rm $mergedFile.tmp
-		if [[ ! $Dirin -eq "0"  ]]; then
-			new_rm $outFile
-			GetFile $inFile $outFile $downlogFile
+		if [[ ! $3 -eq "0"  ]]; then
+			new_rm $2/$1
+			GetFile $3/$1 $2/$1 $downlogFile
 		fi
-		printf "  \e[33m|->\e[0m mergeing " | tee -a $LogFile
-		hadd -k $mergedFile.tmp $mergedFile $outFile  &> $logFile
+		printf "  \e[33m|->\e[0m merging " | tee -a $LogFile
+		hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile
 		exitstatus=$?
 		((tmp++))
 	done
 	if [[ ! "$exitstatus" = "0" ]]
 	then
-		echo -e "\e[31mError\e[0m $outFile not merged correctly" | tee -a $ErrorLog | tee -a $LogFile
+		echo -e "\e[31mError\e[0m $2/$1 not merged correctly" | tee -a $ErrorLog | tee -a $LogFile
 		cat $logFile >> $ErrorLog
 		new_rm $mergedFile.tmp
 	else
 		new_rm $mergedFile
 		mv $mergedFile.tmp $mergedFile
-		touch $alreadyMerged
+		# touch $alreadyMerged
+		echo $mergedFile >> $alreadyMerged
 	fi
 }
 function SeachFilesOnAlienAndAddToList(){
@@ -1269,59 +1292,63 @@ function SeachFilesOnAlienAndAddToList(){
 	done
 }
 function FindPathsAndAddToList(){
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-	then
-		echo "FindPathsAndAddToList:" | tee -a $LogFile
-	fi
-	for Search in `cat $FilenamesinTrain`
-	do
-		cmd="alien_find $1 $Search  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
-		eval $cmd
-		tmpcouuntnew=0
-		if [[ ! "$?" = "0" ]]; then
-			printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
-		fi
-		while [[ ! $? = "0" ]]; do
-			if [[ $tmpcouuntnew > 10 ]]; then break; fi
-			printf "${tmpcouuntnew} " | tee -a $LogFile
-			# printf "." | tee -a $LogFile
-			((tmpcouuntnew++))
-			eval $cmd
-		done
-		usecmd $cmd
-		AddToList $2.tmp $2
-		new_rm $2.tmp
-	done
-}
-function FindAllRunsAndAddToList(){
-	cmd="alien_ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
-	if [[ $OptIsJJ = 1 ]]; then
-		cmd="alien_ls /alice/$Type/$Year/$ChildName/1 1> tmprunfolder.txt"
-	fi
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-	then
-		echo $cmd | tee -a $LogFile
-	fi
+	echo  -e "\e[36m--  FindPathsAndAddToList \e[0m" | tee -a $LogFile
+	cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
 	eval $cmd
 	tmpcouuntnew=0
-	if [[ `grep "does not exist" tmprunfolder.txt | wc -l` > 0 ]] && [[ $? = "0" ]]; then
-		cmd="alien_ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
+	if [[ ! "$?" = "0" ]]; then
+		printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
 	fi
-	while [[ ! $? = "0" ]] ; do
+	while [[ ! $? = "0" ]]; do
 		if [[ $tmpcouuntnew > 10 ]]; then break; fi
+		printf "${tmpcouuntnew} " | tee -a $LogFile
+		# printf "." | tee -a $LogFile
 		((tmpcouuntnew++))
 		eval $cmd
-		printf "."
-		sleep 1
-		if [[ `grep "does not exist" tmprunfolder.txt | wc -l` > 0 ]] && [[ $? = "0" ]]; then
-			cmd="alien_ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
+	done
+	usecmd $cmd
+	AddToList $2.tmp $2
+	new_rm $2.tmp
+}
+function GrapPathsAndAddToList(){
+	grep $1 $3 > $2.tmp
+	AddToList $2.tmp $2
+	new_rm $2.tmp
+}
+function FindAllRunsAndAddToList(){
+	maxtmp=1
+	if [[ $OptIsJJ = 1 ]]; then
+		maxtmp=21
+	fi
+
+	for (( i = 1; i < $maxtmp; i++ )); do
+		cmd="alien_ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
+		if [[ $OptIsJJ = 1 ]]; then
+			cmd="alien_ls /alice/$Type/$Year/$ChildName/$i 1> tmprunfolder.txt"
+		fi
+		# echo "/alice/$Type/$Year/$ChildName/$i"
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+		then
+			echo $cmd | tee -a $LogFile
+		fi
+		eval $cmd
+		tmpcouuntnew=0
+		while [[ ! $? = "0" ]] ; do
+			if [[ $tmpcouuntnew > 10 ]]; then break; fi
+			((tmpcouuntnew++))
+			eval $cmd
+			printf "."
+			sleep 1
+		done
+
+
+		if [[ `grep "does not exist" tmprunfolder.txt | wc -l` < 1 ]] ; then
+			# cat tmprunfolder.txt
+			AddToList tmprunfolder.txt $1
+			new_rm tmprunfolder.txt
+			break
 		fi
 	done
-
-
-	# cat tmprunfolder.txt
-	AddToList tmprunfolder.txt $1
-	new_rm tmprunfolder.txt
 }
 function GetChilds(){
 	cmd="alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2 &> $1"
@@ -1346,10 +1373,10 @@ function GetFile(){
 	if [ "$#" == "4" ]; then
 		debugtmp=$4
 	fi
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]] ; then
 		debugtmp=1
 	fi
-	if [[ $debugtmp = 1 ]]; then
+	if [[ $debugtmp = 1 ]] || [[ $debug = 3 ]]; then
 		echo -e "\e[33mGetFile(): \e[0m alien:/$1  file:/$2" | tee -a $LogFile
 	fi
 
