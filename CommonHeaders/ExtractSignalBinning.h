@@ -1179,7 +1179,7 @@
                         case 85:
                             if (centrality.CompareTo("0-100%") == 0)
                                 return 16;
-                            else 
+                            else
                                 return 10;
                             break;
                         case 81:
@@ -1409,7 +1409,7 @@
                     if(trigger == 52){
                         scaleFac        = 2.;
                         return 2;
-                    } else {                
+                    } else {
                         scaleFac        = 2.;
                         return 7;
                     }
@@ -2389,7 +2389,7 @@
                 } else if (mode == 44 || mode == 64){
                     if(specialTrigg == 0 || specialTrigg == 1){ // EMC7 in LHC11
                         startPtBin     = 3;
-                    
+
                     } else if (specialTrigg == -1){
                         startPtBin     = 5;
                     } else{
@@ -2491,7 +2491,7 @@
                 if ( mode == 0){
                     startPtBin = 1;
                 }
-                
+
             }
         } else if ( meson.CompareTo("Rho") == 0 || meson.CompareTo("K0Star") == 0){
             startPtBin     = 1;
@@ -3076,7 +3076,7 @@
                         cout << SpecialTrigger << "\t" << centrality.Data() << "\t" << energy.Data() << endl;
                         switch (SpecialTrigger){
                             case 0: // INT7 trigger
-                                if ( centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0) 
+                                if ( centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCPt,binning,53);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCCentPt,binning, 38);
@@ -4011,7 +4011,7 @@
                             default:
                                 if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigPt,binning, 39);
-                                else 
+                                else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigCentPt,binning, 20);
                                 break;
                         }
@@ -4404,7 +4404,7 @@
                     }
                 }
 
-            } 
+            }
         } else if (meson.CompareTo("Gamma") == 0){
             if (energy.CompareTo("2.76TeV") == 0){
                 if (mode == 0 || mode == 2){
@@ -5401,19 +5401,19 @@
                                 if (specialTrigg == 0 || specialTrigg == 4 ){
                                     // fNRebin[i]      = fBinsPi013TeVPCMTrigINT7PtRebin[i];
                                     fNRebin[i]      = fBinsPi013TeVPCMEMCTrigINT7PtRebin[i];
-                                } else if (specialTrigg==3|| specialTrigg == 5){
+                                } else if (specialTrigg==3){
                                     fNRebin[i]      = fBinsPi013TeVPCMEMCTrigEG2PtRebin[i];
-                                } else if (specialTrigg==2){
+                                } else if (specialTrigg==2 || specialTrigg == 5){
                                     fNRebin[i]      = fBinsPi013TeVPCMEMCTrigEG1PtRebin[i];
                                 }
                             } else if( modi == 14 ){
                                 // fNRebin[i]      = fBinsPi013TeV_PCMEMC_Rebin_CombinedBinning[i];
-                                if (specialTrigg == 0 || specialTrigg == 4 || specialTrigg == 5){
+                                if (specialTrigg == 0 || specialTrigg == 4 ){
                                     // fNRebin[i]      = fBinsPi013TeVPCMTrigINT7PtRebin[i];
                                     fNRebin[i]      = fBinsPi013TeVEDCPHOSTrigINT7PtRebin[i];
                                 } else if (specialTrigg==3){
                                     fNRebin[i]      = fBinsPi013TeVPCMEMCTrigEG2PtRebin[i];
-                                } else if (specialTrigg==2){
+                                } else if (specialTrigg==2 || specialTrigg == 5){
                                     fNRebin[i]      = fBinsPi013TeVPCMEMCTrigEG1PtRebin[i];
                                 }
                             } else if (modi == 3){ //PCM-PHOS
@@ -6636,10 +6636,10 @@
                         case 2:
                             switch(specialTrigg) {
                                 case 0: CopyVectorToArray(fBinsPi0Eta13TeVPCMEMCTrigINT7PtRebin,fNRebin); break;
-                                case 4:
-                                case 5: CopyVectorToArray(fBinsPi0Eta13TeVPCMEMCTrigEG1PtRebin,fNRebin); break;
                                 case 2: CopyVectorToArray(fBinsPi0Eta13TeVPCMEMCTrigEG1PtRebin, fNRebin); break;
                                 case 3: CopyVectorToArray(fBinsPi0Eta13TeVPCMEMCTrigEG2PtRebin, fNRebin); break;
+                                case 4:
+                                case 5: CopyVectorToArray(fBinsPi0Eta13TeVPCMEMCTrigEG1PtRebin,fNRebin); break;
                                 default: CopyVectorToArray(fBinsPi0Eta13TeVPCMEMCTrigINT7PtRebin, fNRebin); break;
                             }
                             break;
@@ -7403,7 +7403,7 @@
                             if (setPi0.CompareTo("Omega") == 0){
                                 fNRebin[i] = fBinsOmegaPiPlPiMiPiZero7TevPtRebinPHOS[i];
                             } else{
-                                fNRebin[i] = fBinsPi0OmegaBinning7TevPtRebinPHOS[i]; 
+                                fNRebin[i] = fBinsPi0OmegaBinning7TevPtRebinPHOS[i];
                             }
                         } else {
                             if (setPi0.CompareTo("Omega") == 0){
@@ -7446,7 +7446,7 @@
                     cout << "**************************************************************************************************************************************" << endl;
                     fNBinsPt    = maxPtBinAvail;
                 }
-                GetOptimumNColumnsAndRows(fNBinsPt, fStartPtBin, fColumn, fRow);                
+                GetOptimumNColumnsAndRows(fNBinsPt, fStartPtBin, fColumn, fRow);
                 for (Int_t i = 0; i < fNBinsPt; i++) {
                     switch(modi){
                       case 40: case 60: fNRebin[i] = fBinsOmegaPiPlPiMiPiZero5TevPtRebinPCM[i]; break;
