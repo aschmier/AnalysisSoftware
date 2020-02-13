@@ -2646,11 +2646,8 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             histoTrueEffiPt[k]->Sumw2();
             // histoRatioEffWOWeightingEffCFPol1[k]->Sumw2();
             if (scaleTrueEffiWithFit){
-<<<<<<< 05ab2706a1bdcb24af9d1e80cf89c6d6de5f23c5
-                if(!optionEnergy.CompareTo("900GeV") || !optionEnergy.CompareTo("XeXe_5.44TeV")|| !optionEnergy.CompareTo("pPb_5.023TeVRun2") || (!optionEnergy.CompareTo("pPb_5.023TeVCent") && mode == 0) || (optionEnergy.BeginsWith("8TeV") && mode == 0) || (!optionEnergy.CompareTo("pPb_8TeV") && mode == 0)|| (!optionEnergy.CompareTo("pPb_8TeV") && mode == 5))
-=======
-                if(!optionEnergy.CompareTo("900GeV") || !optionEnergy.CompareTo("XeXe_5.44TeV")|| !optionEnergy.CompareTo("pPb_5.023TeVRun2") || (!optionEnergy.CompareTo("pPb_5.023TeVCent") && mode == 0) || (!optionEnergy.CompareTo("8TeV") && mode == 0) || (!optionEnergy.CompareTo("pPb_8TeV") && mode == 0) || (mode==5 && (optionEnergy.Contains("5TeV2017")||optionEnergy.Contains("PbPb_5.02TeV") )))
->>>>>>> Changes to PHOS handling for pp and PbPb 5TeV
+                if(!optionEnergy.CompareTo("900GeV") || !optionEnergy.CompareTo("XeXe_5.44TeV")|| !optionEnergy.CompareTo("pPb_5.023TeVRun2") || (!optionEnergy.CompareTo("pPb_5.023TeVCent") && mode == 0) || (!optionEnergy.CompareTo("8TeV") && mode == 0) || (!optionEnergy.CompareTo("pPb_8TeV") && mode == 0)|| (!optionEnergy.CompareTo("pPb_8TeV") && mode == 5) ||
+                  (mode==5 && (optionEnergy.Contains("5TeV2017")||optionEnergy.Contains("PbPb_5.02TeV") )))
                     histoTrueEffiPt[k]->Multiply(histoTrueEffiPt[k],histoRatioEffWOWeightingEffCFPol0[k]);
                 else
                     histoTrueEffiPt[k]->Multiply(histoTrueEffiPt[k],histoRatioEffWOWeightingEffCFPol1[k]);
