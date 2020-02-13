@@ -1007,6 +1007,7 @@ void ExtractSignalV2(
         }
 
         if(optionOtherResBckAsStd > -1){ // non-standard remaining background
+          cout << "Using non-standard remaining background:" << optionOtherResBckAsStd << endl;
             Int_t x = optionOtherResBckAsStd;
             fFitSignalInvMassPtBinStd[iPt]              = fFitSignalWithOtherBGInvMassPtBin[x][iPt];  // total fit function
             fFitBckInvMassPtBinStd[iPt]                 = fFitBckOtherInvMassPtBin[x][iPt];           // remaining BG fit function
@@ -4997,8 +4998,8 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                     fMesonWidthRange[0]         = 0.001;
                     fMesonWidthRange[1]         = 0.009;
                     fMesonLambdaTail            = 0.005;
-                    fMesonLambdaTailRange[0]    = 0.005;
-                    fMesonLambdaTailRange[1]    = 0.005;
+                    fMesonLambdaTailRange[0]    = 0.003;
+                    fMesonLambdaTailRange[1]    = 0.007;
                 }
             } else if (fMode == 2 || fMode == 13 ) {                // PCM-EMC, PCM-DMC
                 TString trigger = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);

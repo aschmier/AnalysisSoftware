@@ -334,8 +334,8 @@
                     return 7;
                 }
             } else if (energy.CompareTo("5TeV") == 0 || energy.Contains("5TeV2017") || energy.CompareTo("5TeVSpecial") == 0) {
-                if ( mode == 1 )
-                    return 5;
+                if ( mode == 0 || mode == 1 )
+                    return 3;
                 if ( mode == 2 )
                     return 9;
                 if ( mode == 4  || mode == 5){
@@ -802,8 +802,8 @@
                   scaleFac    = 1;
                   return 20;
                 } else if (mode == 3 ||  mode == 5){
-                    scaleFac    = 1;
-                    return 15;
+                    scaleFac    = 20;
+                    return 5;
                 } else if (mode == 4 || mode == 12 ){
                     scaleFac    = 1;
                     return 23;

@@ -376,6 +376,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TString fCent           = "";
     TString fCentOutput     = "";
     TString centEstimator   = "";
+    TString fCentpp     = "MB";
+    if(optionEnergy.Contains("5TeV2017Ref1")) fCentpp = "MBPbPbRef";
     TString fSphericityCut                      = "";
     TString fMultiplicityCut                    = "";
     // put correct color setting for different triggers
@@ -476,18 +478,23 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
               if(fSphericityCut.CompareTo("h05") == 0){
                 fCentOutput = "S0005";
                 centEstimator = "S0005";
+                fCentpp = "SP0005";
               } else if(fSphericityCut.CompareTo("h5a") == 0){
                 fCentOutput = "S0510";
                 centEstimator = "S0510";
+                fCentpp = "SP0510";
               } else if(fSphericityCut.CompareTo("h0a") == 0){
                 fCentOutput = "S0010";
                 centEstimator = "S0010";
+                fCentpp = "SP0010";
               } else if(fSphericityCut.CompareTo("h03") == 0){
                 fCentOutput = "S0003";
                 centEstimator = "S0003";
+                fCentpp = "SP0003";
               } else if(fSphericityCut.CompareTo("h7a") == 0){
                 fCentOutput = "S0710";
                 centEstimator = "S0710";
+                fCentpp = "SP0710";
               }
             }
             fMultiplicityCut = fEventCutSelection(0,1);
@@ -496,33 +503,43 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
               if(fMultiplicityCut.CompareTo("m01") == 0){
                 fCentOutput = "V0M_0_1";
                 centEstimator = "V0M_0_1";
+                fCentpp = "CNT0001";
               } else if(fMultiplicityCut.CompareTo("m02") == 0){
                 fCentOutput = "V0M_0_2";
                 centEstimator = "V0M_0_2";
+                fCentpp = "CNT0002";
               } else if(fMultiplicityCut.CompareTo("m15") == 0){
                 fCentOutput = "V0M_1_5";
                 centEstimator = "V0M_1_5";
+                fCentpp = "CNT0105";
               } else if(fMultiplicityCut.CompareTo("m05") == 0){
                 fCentOutput = "V0M_0_5";
                 centEstimator = "V0M_0_5";
+                fCentpp = "CNT0005";
               } else if(fMultiplicityCut.CompareTo("m5k") == 0){
                 fCentOutput = "V0M_5_20";
                 centEstimator = "V0M_5_20";
+                fCentpp = "CNT0520";
               } else if(fMultiplicityCut.CompareTo("n24") == 0){
                 fCentOutput = "V0M_20_40";
                 centEstimator = "V0M_20_40";
+                fCentpp = "CNT2040";
               } else if(fMultiplicityCut.CompareTo("n26") == 0){
                 fCentOutput = "V0M_20_60";
                 centEstimator = "V0M_20_60";
+                fCentpp = "CNT2060";
               } else if(fMultiplicityCut.CompareTo("n47") == 0){
                 fCentOutput = "V0M_40_70";
                 centEstimator = "V0M_40_70";
+                fCentpp = "CNT4070";
               } else if(fMultiplicityCut.CompareTo("n6a") == 0){
                 fCentOutput = "V0M_60_100";
                 centEstimator = "V0M_60_100";
+                fCentpp = "CNT6000";
               } else if(fMultiplicityCut.CompareTo("n7a") == 0){
                 fCentOutput = "V0M_70_100";
                 centEstimator = "V0M_70_100";
+                fCentpp = "CNT7000";
               } else if(fMultiplicityCut.CompareTo("o01") == 0){
                 fCentOutput = "SPD_0_1";
                 centEstimator = "SPD_0_1";
@@ -727,6 +744,14 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             fitBinShiftEta                              = (TF1*)fileFitsBinShift->Get("Eta5TeV/TsallisFitEta");
             fitBinShiftEtaTCM                           = (TF1*)fileFitsBinShift->Get("Eta5TeV/TwoComponentModelFitEta");
         }
+        if(!fitBinShiftPi0 || optionEnergy.Contains("5TeV2017")){
+            fitBinShiftPi0                              = (TF1*)fileFitsBinShift->Get(Form("Pi05TeV%s/TsallisFitPi0",fCentpp.Data()));
+            fitBinShiftPi0TCM                           = (TF1*)fileFitsBinShift->Get(Form("Pi05TeV%s/TwoComponentModelFitPi0",fCentpp.Data()));
+        }
+        if(!fitBinShiftEta || optionEnergy.Contains("5TeV2017")){
+            fitBinShiftEta                              = (TF1*)fileFitsBinShift->Get(Form("Eta5TeV%s/TsallisFitEta",fCentpp.Data()));
+            fitBinShiftEtaTCM                           = (TF1*)fileFitsBinShift->Get(Form("Eta5TeV%s/TwoComponentModelFitEta",fCentpp.Data()));
+        }
         if( optionEnergy.CompareTo("pPb_5.023TeV")==0){
             fitBinShiftPi0                              = (TF1*)fileFitsBinShift->Get("TwoComponentModelFitPi0");
             fitBinShiftPi0TCM                           = (TF1*)fileFitsBinShift->Get("TwoComponentModelFitPi0");
@@ -736,6 +761,14 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             fitBinShiftPi0                              = (TF1*)fileFitsBinShift->Get("Pi0pPb8TeV/TwoComponentModelFitPi0");
             fitBinShiftPi0TCM                           = (TF1*)fileFitsBinShift->Get("Pi0pPb8TeV/TwoComponentModelFitPi0");
             fitBinShiftEta                              = (TF1*)fileFitsBinShift->Get("EtapPb8TeV/TwoComponentModelFitEta");
+        }
+        if(!fitBinShiftPi0 || optionEnergy.Contains("PbPb_5.02TeV")){
+            fitBinShiftPi0                              = (TF1*)fileFitsBinShift->Get(Form("Pi0PbPb5TeV_%s_V0M/TsallisFitPi0",fCent.Data()));
+            fitBinShiftPi0TCM                           = (TF1*)fileFitsBinShift->Get(Form("Pi0PbPb5TeV_%s_V0M/TwoComponentModelFitPi0",fCent.Data()));
+        }
+        if(!fitBinShiftEta || optionEnergy.Contains("PbPb_5.02TeV")){
+            fitBinShiftEta                              = (TF1*)fileFitsBinShift->Get(Form("EtaPbPb5TeV_%s_V0M/TsallisFitEta",fCent.Data()));
+            fitBinShiftEtaTCM                           = (TF1*)fileFitsBinShift->Get(Form("EtaPbPb5TeV_%s_V0M/TwoComponentModelFitEta",fCent.Data()));
         }
         cout << fitBinShiftPi0 << " - " << fitBinShiftEta << endl;
         cout << "fits for shifting found " << endl;
