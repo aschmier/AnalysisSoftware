@@ -835,11 +835,10 @@
             // set remaining background standard function
             if(mode == 0 && (fEnergyFlag.CompareTo("PbPb_5.02TeV") == 0 || fEnergyFlag.Contains("8TeV"))){
               optionOtherResBckAsStd      = 0;                           // use pol2 fit for remaining BG for Pi0
-             }
+            }
             // if(mode == 2 && (fEnergyFlag.Contains("8TeV"))){
             //   optionOtherResBckAsStd      = 0;                           // use pol2 fit for remaining BG for Pi0
             //  }
-            }
             if(mode == 0 && fEnergyFlag.Contains("5TeV2017")){
               optionOtherResBckAsStd      = 0;                           // use pol2 fit for remaining BG for Pi0
             }
