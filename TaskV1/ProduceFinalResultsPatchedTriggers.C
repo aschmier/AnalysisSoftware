@@ -182,7 +182,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxPtGlobalCluster          = 200;
         } else if (mode == 5){
             doLinesTriggerMimicking  = kTRUE;
-            maxPtGlobalCluster          = 6.5;
+            maxPtGlobalCluster          = 30.;
         }
     } else if (optionEnergy.Contains("pPb_8TeV") || optionEnergy.Contains("pPb_5.023TeV")){
       if(mode==2 || mode==4 || mode==3 || mode==5){
@@ -245,6 +245,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         nameMassMC                                      = "histoMassMesonRecMC";
         nameWidthMC                                     = "histoFWHMMesonRecMC";
         if (optionEnergy.CompareTo("PbPb_2.76TeV")==0 ){
+            nameMassMC                                  = "histoTrueMassMeson";
+            nameWidthMC                                 = "histoTrueFWHMMeson";
+            nameCorrectedYield                          = "CorrectedYieldTrueEff";
+            nameEfficiency                              = "TrueMesonEffiPt";
+        }
+        if(mode == 5 && (optionEnergy.Contains("13TeV") )){
             nameMassMC                                  = "histoTrueMassMeson";
             nameWidthMC                                 = "histoTrueFWHMMeson";
             nameCorrectedYield                          = "CorrectedYieldTrueEff";
@@ -1072,6 +1078,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
         Double_t minTriggReject = 0.1;
         Double_t maxTriggReject = 4200;
+        Int_t Binning_TriggerReject_X=1000;
+        Int_t Binning_TriggerReject_Y=10000;
         if (optionEnergy.CompareTo("2.76TeV") == 0){
             maxTriggReject = 8200;
         } else if (optionEnergy.CompareTo("pPb_5.023TeV") == 0){
@@ -1099,7 +1107,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxTriggReject = 5200;
 
         TH2F * histo2DTriggReject;
-        histo2DTriggReject = new TH2F("histo2DTriggReject","histo2DTriggReject",1000,0., maxPtGlobalCluster,10000,minTriggReject, maxTriggReject);
+        histo2DTriggReject = new TH2F("histo2DTriggReject","histo2DTriggReject", Binning_TriggerReject_X,0., maxPtGlobalCluster, Binning_TriggerReject_Y,minTriggReject, maxTriggReject);
         SetStyleHistoTH2ForGraphs(histo2DTriggReject, "#it{p}_{T} (GeV/#it{c})","#it{RF}", //"#frac{N_{clus,trig A}/N_{Evt, trig A}}{N_{clus,trig B}/N_{Evt,trig B}}",
                                 0.85*textSizeSpectra2,textSizeSpectra2, 0.85*textSizeSpectra2,textSizeSpectra2, 0.85,0.85);
         histo2DTriggReject->DrawCopy();
