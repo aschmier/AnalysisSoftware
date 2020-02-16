@@ -102,7 +102,7 @@ void MakePhotonQAPlots_Extended(
 
     // definition of kinds in photon QA tree
     const Int_t nPossibleKinds                = 19;
-    TString nameKind[nPossibleKinds]          = {"true #gamma conv.", "", "", "", "", "", "", "", "", "", "e-e", "#pi-#pi", "#pi-p", "e-#pi", "", "", "e-p", "", "#pi-K"};
+    TString nameKind[nPossibleKinds]          = {"true #gamma conv.", "", "", "", "", "", "", "", "", "", "e^{#pm}e^{#pm}", "#pi^{#pm}#pi^{#pm}", "#pi-p", "e^{#pm}#pi^{#pm}", "", "", "e-p", "", "#pi^{#pm}K^{#pm}"};
     TString nameForFileName[nPossibleKinds]   = {"true", "", "", "", "", "", "", "", "", "", "ee", "pipi", "pip", "epi", "", "", "ep", "", "piK"};
     Bool_t includeKind[nPossibleKinds]        = {kTRUE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kTRUE, kTRUE, kTRUE, kTRUE, kFALSE, kFALSE, kTRUE, kFALSE, kTRUE};
     for (Int_t i=0; i<nPossibleKinds; i++) {
@@ -239,7 +239,34 @@ void MakePhotonQAPlots_Extended(
         histoTrueGammaChi2PsiPair           = (TH2D*)histoTrueGammaChi2PsiPairPt->Project3D("yx");
     }
 
+    //********************************************************************************
+    //*            labels                                                            *
+    //********************************************************************************
+
     TLatex* labelpTrange;
+    Int_t textSizeLabelsPixel                   = 1200*0.04;
+    TExec *ex1 = NULL;
+    TExec *ex2 = NULL;
+
+    TLatex *labelEnergy                  = new TLatex(0.95,0.90,Form("%s, %s",labelALICEforPlots.Data(),collisionSystem.Data()));
+    SetStyleTLatex( labelEnergy, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
+
+    // data, MC rec. or MC true
+    TLatex *labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC rec.)" : "#gamma candidates (data)");
+    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
+    TLatex *labelProcessTrue                 = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC true)" : "#gamma candidates (data)");
+    SetStyleTLatex( labelProcessTrue, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
+
+    // color label for true gamma->ee
+    TLatex *labelColor                  = new TLatex(0.12,0.90, isMC ? "#gamma rec. from e^{+}e^{-} (color)" : "");
+    SetStyleTLatex( labelColor, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
+
+    // BAW label for contamination defined for each plot separately
+    TLatex *labelBW;
+
+    //********************************************************************************
+    //*            plots                                                             *
+    //********************************************************************************
 
     //    ____ _______
     //   / __ \__   __|
@@ -248,7 +275,7 @@ void MakePhotonQAPlots_Extended(
     //  | |__| | | |
     //   \___\_\ |_|
 
-    Int_t textSizeLabelsPixel                   = 1200*0.04;
+
 
     TCanvas* canvasQtPlots = new TCanvas("canvasQtPlots","",200,10,1350,1200);  // gives the page size
     DrawGammaCanvasSettings( canvasQtPlots, 0.08, 0.02, 0.02, 0.09);
@@ -260,8 +287,7 @@ void MakePhotonQAPlots_Extended(
     histo2DQtDummy->GetZaxis()->SetRangeUser(6,6e2);
     canvasQtPlots->cd();
     histo2DQtDummy->Draw("copy");
-    TExec *ex1 = NULL;
-    TExec *ex2 = NULL;
+
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
@@ -316,17 +342,11 @@ void MakePhotonQAPlots_Extended(
         legendQtPlotFits->AddEntry(funcPtDepQtCut[k], Form("#it{q}_{T}^{max} = %0.3f#it{p}_{T}, #it{q}_{T}^{max} = %0.3f",funcParamQtPt[k][0],funcParamQtPt[k][1] ),"l");
     }
     legendQtPlotFits->Draw();
-    TLatex *labelColor                  = new TLatex(0.12,0.90, isMC ? "#gamma rec. from e^{+}e^{-} (color)" : "");
-    SetStyleTLatex( labelColor, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelColor->Draw();
-    TLatex *labelBW                     = new TLatex(0.12,0.86, isMC ? "#gamma rec. from e^{#pm}#pi^{#pm}/#pi^{+}#pi^{-} (BAW)" : "");
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_epi].Data(),nameKind[kind_pipi].Data()) : "");
     SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelBW->Draw();
-    TLatex *labelEnergy                  = new TLatex(0.95,0.90,Form("%s, %s",labelALICEforPlots.Data(),collisionSystem.Data()));
-    SetStyleTLatex( labelEnergy, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    TLatex *labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC rec.)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelProcess->Draw();
     histo2DQtDummy->Draw("axis,same");
     canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
@@ -371,7 +391,7 @@ void MakePhotonQAPlots_Extended(
     legendQtPlotFits  = GetAndSetLegend2(0.67, 0.14, 0.95, 0.14+(0.035*1*1.35), 0.85*textSizeLabelsPixel);
     legendQtPlotFits->AddEntry(funcOldCutDummy, "#it{q}_{T}^{max} = 0.05","l");
     legendQtPlotFits->Draw();
-    labelBW                     = new TLatex(0.12,0.86,"#gamma rec. from #pi^{+}#pi^{-} (BAW)");
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s (BAW)", nameKind[kind_pipi].Data()) : "");
     SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelBW->Draw();
     labelColor->Draw();
@@ -404,7 +424,7 @@ void MakePhotonQAPlots_Extended(
     legendQtPlotFits  = GetAndSetLegend2(0.67, 0.14, 0.95, 0.14+(0.035*1*1.35), 0.85*textSizeLabelsPixel);
     legendQtPlotFits->AddEntry(funcOldCutDummy, "#it{q}_{T}^{max} = 0.05","l");
     legendQtPlotFits->Draw();
-    labelBW                     = new TLatex(0.12,0.86,isMC ? "#gamma rec. from e^{#pm}#pi^{#pm}/#pi^{+}#pi^{-} (BAW)" : "");
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_epi].Data(),nameKind[kind_pipi].Data()) : "");
     SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelBW->Draw();
     labelColor->Draw();
@@ -426,8 +446,6 @@ void MakePhotonQAPlots_Extended(
     legendQtPlotFits->AddEntry(funcOldCutDummy, "#it{q}_{T}^{max} = 0.05","l");
     legendQtPlotFits->Draw();
     labelEnergy->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC rec.)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelProcess->Draw();
     histo2DQtDummy->Draw("axis,same");
     canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_AllRec_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
@@ -456,11 +474,7 @@ void MakePhotonQAPlots_Extended(
     ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaAlphaPt->Draw("col,same");
-    labelEnergy                  = new TLatex(0.95,0.90,Form("%s, %s",labelALICEforPlots.Data(),collisionSystem.Data()));
-    SetStyleTLatex( labelEnergy, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC rec.)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelProcess->Draw();
     histo2DAlphaDummy->Draw("axis,same");
     canvasAsymPlots->SaveAs(Form("%s/Alpha_vs_Pt_AllRec_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
@@ -475,13 +489,9 @@ void MakePhotonQAPlots_Extended(
         ex1->Draw();
         histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
     }
-    labelColor                  = new TLatex(0.12,0.90, isMC ? "#gamma rec. from e^{+}e^{-} (color)" : "");
-    SetStyleTLatex( labelColor, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelColor->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC true)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DAlphaDummy->Draw("axis,same");
     if (isMC)
         canvasAsymPlots->SaveAs(Form("%s/Alpha_vs_Pt_trueGamma_woCuts.%s",outputDir.Data(),suffix.Data()));
@@ -507,11 +517,11 @@ void MakePhotonQAPlots_Extended(
         histoTrueMCKindAlphaPt[kind_epi]->Draw("col,same");
     }
     labelColor->Draw();
-    labelBW                     = new TLatex(0.12,0.86,isMC ? "#gamma rec. from e^{#pm}#pi^{#pm}/#pi^{+}#pi^{-} (BAW)" : "");
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_epi].Data(),nameKind[kind_pipi].Data()) : "");
     SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelBW->Draw();
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DAlphaDummy->Draw("axis,same");
     if (isMC)
         canvasAsymPlots->SaveAs(Form("%s/Alpha_vs_Pt_trueGammaAndCombPlus_woCuts.%s",outputDir.Data(),suffix.Data()));
@@ -577,9 +587,11 @@ void MakePhotonQAPlots_Extended(
     SetStyleTLatex( labelHighpTSignal, 0.95*textSizeLabelsPixel,4,kBlue+2,43,kTRUE,31);
     labelHighpTSignal->Draw();
     labelColor->Draw();
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_epi].Data(),nameKind[kind_pipi].Data()) : "");
+    SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelBW->Draw();
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DAlphaDummy->Draw("axis,same");
     canvasAsymPlots->SaveAs(Form("%s/Alpha_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
@@ -610,11 +622,7 @@ void MakePhotonQAPlots_Extended(
     ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaChi2Pt->Draw("col,same");
-    labelEnergy                  = new TLatex(0.95,0.90,Form("%s, %s",labelALICEforPlots.Data(),collisionSystem.Data()));
-    SetStyleTLatex( labelEnergy, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC rec.)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelProcess->Draw();
     histo2DChi2Dummy->Draw("axis,same");
     canvasChi2Plots->SaveAs(Form("%s/Chi2_vs_Pt_AllRec_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
@@ -629,13 +637,9 @@ void MakePhotonQAPlots_Extended(
         ex1->Draw();
         histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
     }
-    labelColor                  = new TLatex(0.12,0.90, isMC ? "#gamma rec. from e^{+}e^{-} (color)" : "");
-    SetStyleTLatex( labelColor, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelColor->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC true)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DChi2Dummy->Draw("axis,same");
     if (isMC)
         canvasChi2Plots->SaveAs(Form("%s/Chi2_vs_Pt_trueGamma_woCuts.%s",outputDir.Data(),suffix.Data()));
@@ -661,11 +665,11 @@ void MakePhotonQAPlots_Extended(
         //histoTrueMCKindChi2Pt[kind_epi]->Draw("col,same");
     }
     labelColor->Draw();
-    labelBW                     = new TLatex(0.12,0.86,"#gamma rec. from #pi^{+}#pi^{-} (BAW)");
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s (BAW)", nameKind[kind_pipi].Data()) : "");
     SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelBW->Draw();
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DChi2Dummy->Draw("axis,same");
     if (isMC)
         canvasChi2Plots->SaveAs(Form("%s/Chi2_vs_Pt_trueGammaAndCombPlus_woCuts.%s",outputDir.Data(),suffix.Data()));
@@ -725,9 +729,11 @@ void MakePhotonQAPlots_Extended(
     // SetStyleTLatex( labelHighpTSignal, 0.95*textSizeLabelsPixel,4,kBlue+2,43,kTRUE,31);
     // labelHighpTSignal->Draw();
     labelColor->Draw();
+    // labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_epi].Data(),nameKind[kind_pipi].Data()) : "");
+    // SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     // labelBW->Draw();
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DChi2Dummy->Draw("axis,same");
     canvasChi2Plots->SaveAs(Form("%s/Chi2_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
@@ -758,11 +764,7 @@ void MakePhotonQAPlots_Extended(
     ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaPsiPairPt->Draw("col,same");
-    labelEnergy                  = new TLatex(0.95,0.90,Form("%s, %s",labelALICEforPlots.Data(),collisionSystem.Data()));
-    SetStyleTLatex( labelEnergy, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC rec.)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelProcess->Draw();
     histo2DPsiPairDummy->Draw("axis,same");
     canvasPsiPairPlots->SaveAs(Form("%s/PsiPair_vs_Pt_AllRec_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
@@ -777,13 +779,9 @@ void MakePhotonQAPlots_Extended(
         ex1->Draw();
         histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
     }
-    labelColor                  = new TLatex(0.12,0.90, isMC ? "#gamma rec. from e^{+}e^{-} (color)" : "");
-    SetStyleTLatex( labelColor, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelColor->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC true)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DPsiPairDummy->Draw("axis,same");
     if (isMC)
         canvasPsiPairPlots->SaveAs(Form("%s/PsiPair_vs_Pt_trueGamma_woCuts.%s",outputDir.Data(),suffix.Data()));
@@ -809,11 +807,11 @@ void MakePhotonQAPlots_Extended(
         //histoTrueMCKindPsiPairPt[kind_epi]->Draw("col,same");
     }
     labelColor->Draw();
-    labelBW                     = new TLatex(0.12,0.86,"#gamma rec. from #pi^{+}#pi^{-} (BAW)");
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s (BAW)", nameKind[kind_pipi].Data()) : "");
     SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelBW->Draw();
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DPsiPairDummy->Draw("axis,same");
     if (isMC)
         canvasPsiPairPlots->SaveAs(Form("%s/PsiPair_vs_Pt_trueGammaAndCombPlus_woCuts.%s",outputDir.Data(),suffix.Data()));
@@ -876,9 +874,11 @@ void MakePhotonQAPlots_Extended(
     // SetStyleTLatex( labelHighpTSignal, 0.95*textSizeLabelsPixel,4,kBlue+2,43,kTRUE,31);
     // labelHighpTSignal->Draw();
     labelColor->Draw();
+    // labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_epi].Data(),nameKind[kind_pipi].Data()) : "");
+    // SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     // labelBW->Draw();
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DPsiPairDummy->Draw("axis,same");
     canvasPsiPairPlots->SaveAs(Form("%s/PsiPair_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
@@ -908,11 +908,7 @@ void MakePhotonQAPlots_Extended(
     ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaChi2PsiPair->Draw("col,same");
-    labelEnergy                  = new TLatex(0.95,0.90,Form("%s, %s",labelALICEforPlots.Data(),collisionSystem.Data()));
-    SetStyleTLatex( labelEnergy, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC rec.)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelProcess->Draw();
     histo2DChi2PsiPairDummy->Draw("axis,same");
     canvasChi2PsiPairPlots->SaveAs(Form("%s/Chi2PsiPair_vs_Pt_AllRec_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
@@ -942,13 +938,9 @@ void MakePhotonQAPlots_Extended(
         ex1->Draw();
         histoTrueGammaChi2PsiPair->Draw("col,same");
     }
-    labelColor                  = new TLatex(0.12,0.90, isMC ? "#gamma rec. from e^{+}e^{-} (color)" : "");
-    SetStyleTLatex( labelColor, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelColor->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC true)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DChi2PsiPairDummy->Draw("axis,same");
     if (isMC)
         canvasChi2PsiPairPlots->SaveAs(Form("%s/Chi2PsiPair_vs_Pt_trueGamma_woCuts.%s",outputDir.Data(),suffix.Data()));
@@ -964,7 +956,7 @@ void MakePhotonQAPlots_Extended(
         histoTrueMCKindChi2PsiPairPtSliced[kind_true][bin]->Draw("col,same");
         labelColor->Draw();
         labelEnergy->Draw();
-        labelProcess->Draw();
+        labelProcessTrue->Draw();
         labelpTrange    = new TLatex(0.95,0.82,Form("%2.1f < #it{p}_{T} < %2.1f GeV/#it{c}",projBinnin[bin],projBinnin[bin+1]));
         SetStyleTLatex( labelpTrange, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
         labelpTrange->Draw();
@@ -972,7 +964,7 @@ void MakePhotonQAPlots_Extended(
         canvasChi2PsiPairPlots->SaveAs(Form("%s/Chi2PsiPair/%dbin_Chi2PsiPair_vs_Pt_trueGamma.%s",outputDir.Data(),bin,suffix.Data()));
     }
 
-    labelBW                     = new TLatex(0.12,0.86,"#gamma rec. from e^{#pm}#pi^{#pm} (BAW)");
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s (BAW)", nameKind[kind_epi].Data()) : "");
     SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
 
     for(Int_t bin=0; bin<15; bin++){
@@ -991,7 +983,7 @@ void MakePhotonQAPlots_Extended(
         labelColor->Draw();
         labelBW->Draw();
         labelEnergy->Draw();
-        labelProcess->Draw();
+        labelProcessTrue->Draw();
         labelpTrange    = new TLatex(0.95,0.82,Form("%2.1f < #it{p}_{T} < %2.1f GeV/#it{c}",projBinnin[bin],projBinnin[bin+1]));
         SetStyleTLatex( labelpTrange, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
         labelpTrange->Draw();
@@ -1020,16 +1012,12 @@ void MakePhotonQAPlots_Extended(
         ex2->Draw();
         histoTrueMCKindChi2PsiPair[kind_epi]->Draw("col,same");
     }
-    labelColor                  = new TLatex(0.12,0.90, isMC ? "#gamma rec. from e^{+}e^{-} (color)" : "");
-    SetStyleTLatex( labelColor, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelColor->Draw();
-    labelBW                     = new TLatex(0.12,0.86,"#gamma rec. from e^{#pm}#pi^{#pm} (BAW)");
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s (BAW)", nameKind[kind_epi].Data()) : "");
     SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelBW->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC true)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DChi2PsiPairDummy->Draw("axis,same");
     if (isMC)
         canvasChi2PsiPairPlots->SaveAs(Form("%s/Chi2PsiPair_vs_Pt_trueGammaAndComb_woCuts.%s",outputDir.Data(),suffix.Data()));
@@ -1101,7 +1089,7 @@ void MakePhotonQAPlots_Extended(
     }
     legendChi2PsiPairPlotFits->Draw();
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DChi2PsiPairDummy->Draw("axis,same");
     canvasChi2PsiPairPlots->SaveAs(Form("%s/Chi2PsiPair_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
@@ -1120,7 +1108,7 @@ void MakePhotonQAPlots_Extended(
         }
         legendChi2PsiPairPlotFits->Draw();
         labelEnergy->Draw();
-        labelProcess->Draw();
+        labelProcessTrue->Draw();
         histo2DChi2PsiPairDummy->Draw("axis,same");
         canvasChi2PsiPairPlots->SaveAs(Form("%s/Chi2PsiPair_vs_Pt_trueGamma.%s",outputDir.Data(), suffix.Data()));
     }
@@ -1152,11 +1140,7 @@ void MakePhotonQAPlots_Extended(
     ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaAlphaQt->Draw("col,same");
-    labelEnergy                  = new TLatex(0.95,0.90,Form("%s, %s",labelALICEforPlots.Data(),collisionSystem.Data()));
-    SetStyleTLatex( labelEnergy, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC rec.)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelProcess->Draw();
     histo2DAlphaQtDummy->Draw("axis,same");
     canvasAlphaQtPlots->SaveAs(Form("%s/AlphaQt_vs_Pt_AllRec_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
@@ -1186,18 +1170,14 @@ void MakePhotonQAPlots_Extended(
         ex1->Draw();
         histoTrueMCKindAlphaQt[kind_true]->Draw("col,same");
     }
-    labelColor                  = new TLatex(0.12,0.90, isMC ? "#gamma rec. from e^{+}e^{-} (color)" : "");
-    SetStyleTLatex( labelColor, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     labelColor->Draw();
-    labelProcess                     = new TLatex(0.95,0.86,isMC ? "#gamma candidates (MC true)" : "#gamma candidates (data)");
-    SetStyleTLatex( labelProcess, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DAlphaQtDummy->Draw("axis,same");
     if (isMC)
         canvasAlphaQtPlots->SaveAs(Form("%s/AlphaQt_vs_Pt_trueGamma_woCuts.%s",outputDir.Data(),suffix.Data()));
 
-    labelBW                     = new TLatex(0.12,0.86,"#gamma rec. from e^{#pm}#pi^{#pm} (BAW)");
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s (BAW)", nameKind[kind_epi].Data()) : "");
     SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
 
     for(Int_t bin=0; bin<15; bin++){
@@ -1210,7 +1190,7 @@ void MakePhotonQAPlots_Extended(
         histoTrueMCKindAlphaQtPtSliced[kind_true][bin]->Draw("col,same");
         labelColor->Draw();
         labelEnergy->Draw();
-        labelProcess->Draw();
+        labelProcessTrue->Draw();
         labelpTrange    = new TLatex(0.95,0.82,Form("%2.1f < #it{p}_{T} < %2.1f GeV/#it{c}",projBinnin[bin],projBinnin[bin+1]));
         SetStyleTLatex( labelpTrange, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
         labelpTrange->Draw();
@@ -1231,7 +1211,7 @@ void MakePhotonQAPlots_Extended(
         ex2->Draw();
         histoTrueMCKindAlphaQtPtSliced[kind_epi][bin]->Draw("col,same");
         labelEnergy->Draw();
-        labelProcess->Draw();
+        labelProcessTrue->Draw();
         labelColor->Draw();
         labelBW->Draw();
         labelpTrange    = new TLatex(0.95,0.82,Form("%2.1f < #it{p}_{T} < %2.1f GeV/#it{c}",projBinnin[bin],projBinnin[bin+1]));
@@ -1292,9 +1272,11 @@ void MakePhotonQAPlots_Extended(
     // SetStyleTLatex( labelHighpTSignal, 0.95*textSizeLabelsPixel,4,kBlue+2,43,kTRUE,31);
     // labelHighpTSignal->Draw();
     // labelColor->Draw();
+    // labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_epi].Data(),nameKind[kind_pipi].Data()) : "");
+    // SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
     // labelBW->Draw();
     labelEnergy->Draw();
-    labelProcess->Draw();
+    labelProcessTrue->Draw();
     histo2DAlphaQtDummy->Draw("axis,same");
     canvasAlphaQtPlots->SaveAs(Form("%s/AlphaQt_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 }
