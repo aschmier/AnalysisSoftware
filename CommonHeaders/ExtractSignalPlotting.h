@@ -1525,6 +1525,8 @@
                                     Bool_t isVsPtConv                       = kFALSE
                                 ){
 
+        Int_t doDebugOutputLevel    =   1;
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<" "<<endl;}
         cout << "Trigger set: " << triggerSet << endl;
         cout << "fCollisionSystemDummy: " << fCollisionSystemDummy << endl;
         TString triggerStr2             = ReturnTriggerName(triggerSet,fCollisionSystemDummy);
@@ -1555,6 +1557,7 @@
 
         Double_t startPt                    = fRangeBinsPt[exampleBin];
         Double_t endPt                      = fRangeBinsPt[exampleBin+1];
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<"; startPt: "<<startPt<<"; endPt: "<<endPt<<endl;}
 
         Style_t markerStyleInvMassSGBG      = 0;
         Size_t markerSizeInvMassSGBG        = 0;
@@ -1614,6 +1617,7 @@
             histo1DInvMassDummy->GetYaxis()->SetLabelOffset(0.008);
             histo1DInvMassDummy->GetXaxis()->SetLabelOffset(0.005);
         } else { // omega
+          if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<"; Omega case"<<endl;}
           histo1DInvMassDummy             = new TH1F("histo1DInvMass2","histo1DInvMass2",11000,0.645,0.89);
           SetStyleHistoTH1ForGraphs(histo1DInvMassDummy, Form("#it{M}_{%s} (GeV/#it{c}^{2})",decayChannel.Data()),"Counts",0.85*textsizeLabelsInvMass, textsizeLabelsInvMass,
                                       0.85*textsizeLabelsInvMass, textsizeLabelsInvMass,0.88, 0.115/(textsizeFacInvMass*marginInvMass));
@@ -1627,6 +1631,7 @@
             ptLabel             =  "#it{p}_{T,#gamma_{conv}}";
 
         // Set range for fits and labels
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<";Set range for fits and labels"<<endl;}
         TLatex *labelInvMassPtRange;
         if(fMesonType.CompareTo("Pi0") == 0 || fMesonType.CompareTo("Pi0EtaBinning") == 0){
             labelInvMassPtRange = new TLatex(0.95,0.9, Form("#pi^{0}: %3.1f GeV/#it{c} < %s< %3.1f GeV/#it{c}",startPt,ptLabel.Data(),endPt));
@@ -1646,6 +1651,7 @@
             Double_t highBin  = 1.2;
             fitPi0InvMassSig->SetRange(lowBin,highBin);
         } else { // omega
+          if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<"; Omega"<<endl;}
           labelInvMassPtRange = new TLatex(0.95,0.9, Form("#omega: %3.1f GeV/#it{c} < %s< %3.1f GeV/#it{c}",startPt,ptLabel.Data(),endPt));
           fitPi0InvMassSig->SetRange(0.645,0.89);
           fitOmegaInvMassBG->SetRange(0.645,0.89);
@@ -1666,6 +1672,7 @@
         fitOmegaInvMassBGConfidence->SetFillColorAlpha(kGreen+2,0.4);
 
         // Start Drawing
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<"; Start Drawing"<<endl;}
         TLatex *labelALICE      = NULL;
         if(fPlottingType.CompareTo("wip")==0){
             labelALICE      = new TLatex(0.135,0.9,"ALICE work in progress");
@@ -1751,6 +1758,7 @@
         legendInvMass2->Draw();
         histo1DInvMassDummy->Draw("AXIS,same");
 
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<"; Save"<<endl;}
         if(titleInvMassSignalWithBG.Contains("SubPiZero")){
           canvasInvMassSamplePlot->SaveAs(Form("%s/%s_%s_InvMassBinBckFit_SubPiZero_%s_%s.%s",outputDir.Data(),fMesonType.Data(),fSimulation.Data(), methodStrOut.Data(), triggerStr2.Data(),  suffix.Data()));
         } else if(titleInvMassSignalWithBG.Contains("FixedPzPiZero")){
