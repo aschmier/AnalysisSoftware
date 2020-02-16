@@ -2462,7 +2462,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             ((mode == 2 || mode == 3 || mode == 4) && optionEnergy.Contains("pPb_8TeV"))
         )
         scaleTrueEffiWithFit        = kFALSE;
-    if (mode == 5 && ( optionEnergy.Contains("5TeV2017") || optionEnergy.Contains("PbPb_5.02TeV") )) scaleTrueEffiWithFit        = kTRUE;
+    if (mode == 5 && ( optionEnergy.Contains("5TeV2017") || optionEnergy.Contains("PbPb_5.02TeV") || optionEnergy.Contains("13TeV") )) scaleTrueEffiWithFit        = kTRUE;
 
     if ( ( mode == 4 || mode == 2 || mode == 3 ) && optionEnergy.CompareTo("pPb_5.023TeV") == 0 && centralityString.CompareTo("0-100%") != 0 && nameMeson.CompareTo("Eta") == 0){
         scaleTrueEffiWithFit        = kFALSE;
@@ -2647,7 +2647,8 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             // histoRatioEffWOWeightingEffCFPol1[k]->Sumw2();
             if (scaleTrueEffiWithFit){
                 if(!optionEnergy.CompareTo("900GeV") || !optionEnergy.CompareTo("XeXe_5.44TeV")|| !optionEnergy.CompareTo("pPb_5.023TeVRun2") || (!optionEnergy.CompareTo("pPb_5.023TeVCent") && mode == 0) || (!optionEnergy.CompareTo("8TeV") && mode == 0) || (!optionEnergy.CompareTo("pPb_8TeV") && mode == 0)|| (!optionEnergy.CompareTo("pPb_8TeV") && mode == 5) ||
-                  (mode==5 && (optionEnergy.Contains("5TeV2017")||optionEnergy.Contains("PbPb_5.02TeV") )))
+                  (mode==5 && (optionEnergy.Contains("5TeV2017")||optionEnergy.Contains("PbPb_5.02TeV") ))||
+                  (mode==5 && (optionEnergy.Contains("13TeV") )))
                     histoTrueEffiPt[k]->Multiply(histoTrueEffiPt[k],histoRatioEffWOWeightingEffCFPol0[k]);
                 else
                     histoTrueEffiPt[k]->Multiply(histoTrueEffiPt[k],histoRatioEffWOWeightingEffCFPol1[k]);
