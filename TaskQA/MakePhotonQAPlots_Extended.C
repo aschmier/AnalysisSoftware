@@ -102,7 +102,7 @@ void MakePhotonQAPlots_Extended(
 
     // definition of kinds in photon QA tree
     const Int_t nPossibleKinds                = 19;
-    TString nameKind[nPossibleKinds]          = {"true #gamma conv.", "", "", "", "", "", "", "", "", "", "e^{#pm}e^{#pm}", "#pi^{#pm}#pi^{#pm}", "#pi-p", "e^{#pm}#pi^{#pm}", "", "", "e-p", "", "#pi^{#pm}K^{#pm}"};
+    TString nameKind[nPossibleKinds]          = {"true #gamma conv.", "", "", "", "", "", "", "", "", "", "e^{#pm}e^{#pm}", "#pi^{#pm}#pi^{#pm}", "#pi^{#pm}p", "e^{#pm}#pi^{#pm}", "", "", "e^{#pm}p", "", "#pi^{#pm}K^{#pm}"};
     TString nameForFileName[nPossibleKinds]   = {"true", "", "", "", "", "", "", "", "", "", "ee", "pipi", "pip", "epi", "", "", "ep", "", "piK"};
     Bool_t includeKind[nPossibleKinds]        = {kTRUE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kTRUE, kTRUE, kTRUE, kTRUE, kFALSE, kFALSE, kTRUE, kFALSE, kTRUE};
     for (Int_t i=0; i<nPossibleKinds; i++) {
@@ -114,6 +114,8 @@ void MakePhotonQAPlots_Extended(
     //Int_t kind_ee   = 10;
     Int_t kind_pipi = 11;
     Int_t kind_epi  = 13;
+    Int_t kind_pip  = 12;
+    Int_t kind_ep   = 16;
 
     //********************************************************************************
     //*            File definition/ loading                                          *
@@ -164,6 +166,7 @@ void MakePhotonQAPlots_Extended(
         1.0, 1.5, 2.0, 3.0, 4.0,
         6.0, 10., 15., 20., 30.,
         50.};
+    // data/MC histograms
     TH3F* histoGammaAlphaQtPt                   = NULL;
     TH3F* histoGammaAlphaQtPtCopy               = NULL;
     TH3F* histoGammaChi2PsiPairPt               = NULL;
@@ -177,13 +180,13 @@ void MakePhotonQAPlots_Extended(
     TH2D* histoGammaChi2PsiPair                 = NULL;
     TH2D* histoGammaChi2PsiPairPtSliced[15]     = {NULL};
     TH2D* histoGammaChi2Pt                      = NULL;
-
+    // true MC histograms
     TH3F* histoTrueMCKindChi2PsiPairPt[20]      = {NULL};
     TH3F* histoTrueMCKindChi2PsiPairPtCopy[20]  = {NULL};
     TH3F* histoTrueMCKindAlphaQtPt[20]          = {NULL};
     TH3F* histoTrueMCKindAlphaQtPtCopy[20]      = {NULL};
     TH3F* histoTrueGammaChi2PsiPairPt           = NULL;
-
+    // projections
     TH2D* histoTrueMCKindQtPt[20]               = {NULL};
     TH2D* histoTrueMCKindAlphaPt[20]            = {NULL};
     TH2D* histoTrueMCKindPsiPairPt[20]          = {NULL};
@@ -288,6 +291,7 @@ void MakePhotonQAPlots_Extended(
     canvasQtPlots->cd();
     histo2DQtDummy->Draw("copy");
 
+    // plot true, pi-pi, e-pi, cuts
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
@@ -351,6 +355,7 @@ void MakePhotonQAPlots_Extended(
     histo2DQtDummy->Draw("axis,same");
     canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
+    // plot true, cuts
     histo2DQtDummy->Draw("copy");
     if (isMC){
         // draw true gamma->ee
@@ -372,8 +377,42 @@ void MakePhotonQAPlots_Extended(
     if (isMC)
         canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_trueGamma_woCuts.%s",outputDir.Data(),suffix.Data()));
 
+    // plot true, e-p, pi-p, cuts
+    histo2DQtDummy->Draw("copy");
+    if (isMC){
+        // draw true gamma->ee
+        histoTrueMCKindQtPt[kind_true]->Draw("col,same");
+        ex1 = new TExec("ex1","PalColor();");
+        ex1->Draw();
+        histoTrueMCKindQtPt[kind_true]->Draw("col,same");
+        // draw e-p combinatorics
+        histoTrueMCKindQtPt[kind_ep]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindQtPt[kind_ep]->Draw("col,same");
+        // draw pi-p combinatorics
+        histoTrueMCKindQtPt[kind_pip]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindQtPt[kind_pip]->Draw("col,same");
+    }
+    DrawGammaLines(0.05, 0.05, 0.04, 8, 3, kGreen-8, 9);
+    legendQtPlotFits->Draw();
+    for (Int_t k = 0; k< 4; k++){
+        funcPtDepQtCut[k]->Draw("same");
+        DrawGammaLines(funcParamQtPt[k][1], funcParamQtPt[k][1], funcParamQtPt[k][1]/funcParamQtPt[k][0], 8, 2, colorQtFunc[k+1], styleQtFunc[k+1]);
+    }
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_ep].Data(),nameKind[kind_pip].Data()) : "");
+    SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
+    labelBW->Draw();
+    labelColor->Draw();
+    labelEnergy->Draw();
+    labelProcessTrue->Draw();
+    histo2DQtDummy->Draw("axis,same");
+    if (isMC)
+        canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
 
-
+    // plot true, pi-pi
     histo2DQtDummy->Draw("copy");
     if (isMC){
         // draw true gamma->ee
@@ -401,7 +440,7 @@ void MakePhotonQAPlots_Extended(
     if (isMC)
         canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_trueGammaAndComb_woCuts.%s",outputDir.Data(),suffix.Data()));
 
-
+    // plot true, pi-pi, e-pi
     histo2DQtDummy->Draw("copy");
     if (isMC){
         // draw true gamma->ee
@@ -434,8 +473,7 @@ void MakePhotonQAPlots_Extended(
     if (isMC)
         canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_trueGammaAndCombPlus_woCuts.%s",outputDir.Data(),suffix.Data()));
 
-
-
+    // plot all rec
     histo2DQtDummy->Draw("copy");
     histoGammaQtPt->Draw("col,same");
     ex1 = new TExec("ex1","PalColor();");
@@ -595,7 +633,38 @@ void MakePhotonQAPlots_Extended(
     histo2DAlphaDummy->Draw("axis,same");
     canvasAsymPlots->SaveAs(Form("%s/Alpha_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
-
+    // true and proton contamination
+        histo2DAlphaDummy->Draw("copy");
+    if (isMC){
+        // draw true gamma->ee
+        histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
+        ex1 = new TExec("ex1","PalColor();");
+        ex1->Draw();
+        histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
+        // draw e-p combinatorics
+        histoTrueMCKindAlphaPt[kind_ep]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindAlphaPt[kind_ep]->Draw("col,same");
+        // draw pi-p combinatorics
+        histoTrueMCKindAlphaPt[kind_pip]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindAlphaPt[kind_pip]->Draw("col,same");
+    }
+    DrawGammaLines(-0.95, -0.95, 0.04, 50, 3, kGreen+3, 9);
+    DrawGammaLines( 0.95,  0.95, 0.04, 50, 3, kGreen+3, 9);
+    DrawGammaSetMarkerTF1( funcOldCutDummy, 9, 3, kGreen+3);
+    legendAlphaPlotFits->Draw();
+    labelColor->Draw();
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_ep].Data(),nameKind[kind_pip].Data()) : "");
+    SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
+    labelBW->Draw();
+    labelEnergy->Draw();
+    labelProcessTrue->Draw();
+    histo2DAlphaDummy->Draw("axis,same");
+    if (isMC)
+        canvasAsymPlots->SaveAs(Form("%s/Alpha_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
 
 
     //    _____ _    _ _____ ___
@@ -674,7 +743,6 @@ void MakePhotonQAPlots_Extended(
     if (isMC)
         canvasChi2Plots->SaveAs(Form("%s/Chi2_vs_Pt_trueGammaAndCombPlus_woCuts.%s",outputDir.Data(),suffix.Data()));
 
-
     // TRUE GAMMAS AND COMBINATORIAL GAMMA CANDIDATES PLOT
     histo2DChi2Dummy->Draw("copy");
     // draw true gamma->ee
@@ -737,7 +805,37 @@ void MakePhotonQAPlots_Extended(
     histo2DChi2Dummy->Draw("axis,same");
     canvasChi2Plots->SaveAs(Form("%s/Chi2_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
-
+    // true, proton contamination, cuts
+        histo2DChi2Dummy->Draw("copy");
+    if (isMC){
+        // draw true gamma->ee
+        histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
+        ex1 = new TExec("ex1","PalColor();");
+        ex1->Draw();
+        histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
+        // draw e-p combinatorics
+        histoTrueMCKindChi2Pt[kind_ep]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindChi2Pt[kind_ep]->Draw("col,same");
+        // draw pi-p combinatorics
+        histoTrueMCKindChi2Pt[kind_pip]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindChi2Pt[kind_pip]->Draw("col,same");
+    }
+    DrawGammaLines( 30.,  30., 0.04, 15, 3, kMagenta+2, 9);
+    DrawGammaLines(40.,  40., 0.04, 15, 3, kMagenta+1, 7);
+    legendChi2PlotFits->Draw();
+    labelColor->Draw();
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_ep].Data(),nameKind[kind_pip].Data()) : "");
+    SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
+    labelBW->Draw();
+    labelEnergy->Draw();
+    labelProcessTrue->Draw();
+    histo2DChi2Dummy->Draw("axis,same");
+    if (isMC)
+        canvasChi2Plots->SaveAs(Form("%s/Chi2_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
 
     //   _____   _____ _____   _____        _____ _____
     //  |  __ \ / ____|_   _| |  __ \ /\   |_   _|  __ \
@@ -882,7 +980,39 @@ void MakePhotonQAPlots_Extended(
     histo2DPsiPairDummy->Draw("axis,same");
     canvasPsiPairPlots->SaveAs(Form("%s/PsiPair_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
-
+    // true and proton contamination
+    histo2DPsiPairDummy->Draw("copy");
+    if (isMC){
+        // draw true gamma->ee
+        histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
+        ex1 = new TExec("ex1","PalColor();");
+        ex1->Draw();
+        histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
+        // draw e-p combinatorics
+        histoTrueMCKindPsiPairPt[kind_ep]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindPsiPairPt[kind_ep]->Draw("col,same");
+        // draw pi-p combinatorics
+        histoTrueMCKindPsiPairPt[kind_pip]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindPsiPairPt[kind_pip]->Draw("col,same");
+    }
+    DrawGammaLines( 0.1,  0.1, 0.04, 15, 3, kMagenta+2, 9);
+    DrawGammaLines( -0.1,  -0.1, 0.04, 15, 3, kMagenta+2, 9);
+    DrawGammaLines(0.15,  0.15, 0.04, 15, 3, kMagenta+1, 7);
+    DrawGammaLines(-0.15,  -0.15, 0.04, 15, 3, kMagenta+1, 7);
+    legendPsiPairPlotFits->Draw();
+    labelColor->Draw();
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)", nameKind[kind_ep].Data(),nameKind[kind_pip].Data()) : "");
+    SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
+    labelBW->Draw();
+    labelEnergy->Draw();
+    labelProcessTrue->Draw();
+    histo2DPsiPairDummy->Draw("axis,same");
+    if (isMC)
+        canvasPsiPairPlots->SaveAs(Form("%s/PsiPair_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
 
 
     //   _____   _____ _____   _____        _____ _____         _____ _    _ _____ ___
@@ -1093,6 +1223,47 @@ void MakePhotonQAPlots_Extended(
     histo2DChi2PsiPairDummy->Draw("axis,same");
     canvasChi2PsiPairPlots->SaveAs(Form("%s/Chi2PsiPair_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
+    // true and proton combinatorics
+    histo2DChi2PsiPairDummy->Draw("copy");
+    if (isMC){
+        // draw true gamma->ee
+        //histoTrueGammaChi2PsiPair->Draw("col,same");
+        histoTrueMCKindChi2PsiPair[kind_true]->Draw("col,same");
+        ex1 = new TExec("ex1","PalColor();");
+        ex1->Draw();
+        //histoTrueGammaChi2PsiPair->Draw("col,same");
+        histoTrueMCKindChi2PsiPair[kind_true]->Draw("col,same");
+        // draw e-p combinatorics
+        histoTrueMCKindChi2PsiPair[kind_ep]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindChi2PsiPair[kind_ep]->Draw("col,same");
+        // draw pi-p combinatorics
+        histoTrueMCKindChi2PsiPair[kind_pip]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindChi2PsiPair[kind_pip]->Draw("col,same");
+    }
+    for (Int_t k = 0; k< 2; k++){
+        funcChi2PsiPairTri[k*2]->Draw("same");
+        funcChi2PsiPairTri[k*2+1]->Draw("same");
+    }
+    for (Int_t k = 0; k< 3; k++){
+        funcChi2PsiPairExp[k*2]->Draw("same");
+        funcChi2PsiPairExp[k*2+1]->Draw("same");
+    }
+    legendChi2PsiPairPlotFits->Draw();
+    labelColor->Draw();
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)", nameKind[kind_ep].Data(),nameKind[kind_pip].Data()) : "");
+    SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
+    labelBW->Draw();
+    labelEnergy->Draw();
+    labelProcessTrue->Draw();
+    histo2DChi2PsiPairDummy->Draw("axis,same");
+    if (isMC)
+        canvasChi2PsiPairPlots->SaveAs(Form("%s/Chi2PsiPair_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
+
+
     // TRUE GAMMAS AND COMBINATORIAL GAMMA CANDIDATES PLOT
     histo2DChi2PsiPairDummy->Draw("copy");
     if (isMC){
@@ -1279,4 +1450,36 @@ void MakePhotonQAPlots_Extended(
     labelProcessTrue->Draw();
     histo2DAlphaQtDummy->Draw("axis,same");
     canvasAlphaQtPlots->SaveAs(Form("%s/AlphaQt_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
+
+    // true and proton contamination
+    histo2DAlphaQtDummy->Draw("copy");
+    if (isMC){
+        // draw e-p combinatorics
+        histoTrueMCKindAlphaQt[kind_ep]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindAlphaQt[kind_ep]->Draw("col,same");
+        // draw pi-p combinatorics
+        histoTrueMCKindAlphaQt[kind_pip]->Draw("col,same");
+        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
+        ex2->Draw();
+        histoTrueMCKindAlphaQt[kind_pip]->Draw("col,same");
+        // draw true gamma->ee
+        histoTrueMCKindAlphaQt[kind_true]->Draw("col,same");
+        ex1 = new TExec("ex1","PalColor();");
+        ex1->Draw();
+        histoTrueMCKindAlphaQt[kind_true]->Draw("col,same");
+    } else {
+        histoGammaAlphaQt->Draw("col,same");
+        ex1 = new TExec("ex1","PalColor();");
+        ex1->Draw();
+        histoGammaAlphaQt->Draw("col,same");
+    }
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)",nameKind[kind_ep].Data(),nameKind[kind_pip].Data()) : "");
+    SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
+    labelEnergy->Draw();
+    labelProcessTrue->Draw();
+    histo2DAlphaQtDummy->Draw("axis,same");
+    canvasAlphaQtPlots->SaveAs(Form("%s/AlphaQt_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
+
 }
