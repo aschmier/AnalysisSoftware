@@ -4642,10 +4642,14 @@
                                         TString mode            = ""
                                     ){
 
-        if ( variationName.Contains("BGEstimateIterations") || variationName.CompareTo("PileupDCA") == 0 || variationName.CompareTo("OOBPileupPi0") == 0)
+        if ( variationName.CompareTo("BGEstimateIterations")==0 || variationName.CompareTo("PileupDCA") == 0 || variationName.CompareTo("OOBPileupPi0") == 0)
             return 25;
-        if ( variationName.Contains("BGEstimate")  || variationName.CompareTo("Pileup") == 0 || variationName.CompareTo("pileup") == 0 || variationName.CompareTo("OOBPileupGamma") == 0  )
+        if ( variationName.Contains("BGEstimateIterations_pp") )
+            return 21;
+        if ( variationName.CompareTo("BGEstimate")==0  || variationName.CompareTo("Pileup") == 0 || variationName.CompareTo("pileup") == 0 || variationName.CompareTo("OOBPileupGamma") == 0  )
             return 24;
+        if ( variationName.Contains("BGEstimate_pp") )
+            return 20;
         if ( variationName.CompareTo("BG") == 0 )
             return 28;
         if ( variationName.Contains("Periods") )
@@ -4664,8 +4668,10 @@
             return 21;
         if ( variationName.CompareTo("PsiPair") == 0 )
             return 23;
-        if ( variationName.CompareTo("YieldExtraction") == 0 || variationName.CompareTo("YieldExtraction_pp") == 0 )
+        if ( variationName.CompareTo("YieldExtraction") == 0 )
             return 24;
+        if ( variationName.CompareTo("YieldExtraction_pp") == 0 )
+            return 20;
         if ( variationName.CompareTo("dEdxE") == 0 )
             return 21;
         if ( variationName.CompareTo("dEdxPi") == 0 )
@@ -4736,14 +4742,18 @@
     //**********************************************************************************
     TString GetSystematicsName  (  TString variationName = "" ){
 
-        if ( variationName.CompareTo("PileupDCA") == 0 || variationName.Contains("BGEstimateIterations") )
+        if ( variationName.CompareTo("PileupDCA") == 0 || variationName.CompareTo("BGEstimateIterations")==0 )
             return "OB pileup B";
+        if ( variationName.Contains("BGEstimateIterations_pp") )
+            return "OB pileup B pp";
         if ( variationName.CompareTo("OOBPileupGamma") == 0)
             return "OB pileup #gamma";
         if ( variationName.CompareTo("OOBPileupPi0") == 0)
             return "OB pileup #pi^{0}";
-        if ( variationName.Contains("BGEstimate") )
+        if ( variationName.CompareTo("BGEstimate") == 0 )
             return "OB pileup A";
+        if ( variationName.Contains("BGEstimate_pp") )
+            return "OB pileup A pp";
         if ( variationName.CompareTo("Pileup") == 0 || variationName.CompareTo("pileup") == 0 )
             return "IB pileup ";
         if ( variationName.CompareTo("BG") == 0 )
@@ -4764,8 +4774,10 @@
             return "MC smearing";
         if ( variationName.CompareTo("PsiPair") == 0 )
             return "#psi_{pair} #gamma";
-        if ( variationName.CompareTo("YieldExtraction") == 0 || variationName.CompareTo("YieldExtraction_pp") == 0 )
+        if ( variationName.CompareTo("YieldExtraction") == 0 )
             return "yield extraction";
+        if ( variationName.CompareTo("YieldExtraction_pp") == 0 )
+            return "yield extraction pp";
         if ( variationName.CompareTo("dEdxE") == 0 )
             return "dE/dx e-line";
         if ( variationName.CompareTo("dEdxPi") == 0 )

@@ -15,7 +15,7 @@ SINGLERUN=1
 SEPARATEON=0
 MERGEONSINGLEData=1
 MERGEONSINGLEMC=1
-MERGEONSINGLEMCJJ=0
+MERGEONSINGLEMCJJ=1
 CLEANUP=1
 CLEANUPMAYOR=$2
 jALIEN=1
@@ -262,19 +262,44 @@ if [ $3 = "AODSKIMMB" ]; then
 #     LHC13dData="child_1"
 #     LHC13eData="child_2"
 #     LHC13fData="715" #skim MB
-    TRAINDIR=20200106-EMCSysJJGT
+#     TRAINDIR=20200106-EMCSysJJGT
+#     LHC13beData="";
+# #     LHC13bcData="729"
+#     LHC13bcData="756"
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+# #     LHC13deData="730" #skim MB
+#     LHC13deData="750" #skim MB
+#     LHC13dData="child_1"
+#     LHC13eData="child_2"
+# #     LHC13fData="731" #skim MB
+#     LHC13fData="755" #skim MB
+
+#     TRAINDIR=20200130-RerunDataWOldTempCalib
+#     LHC13beData="";
+#     LHC13bcData="777"
+#     LHC13bcData="778"
+#     LHC13bcData="783"
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+#     LHC13deData="779" #skim MB
+#     LHC13deData="780" #skim MB
+#     LHC13deData="784" #skim MB
+#     LHC13dData="child_1"
+#     LHC13eData="child_2"
+#     LHC13fData="781" #skim MB
+#     LHC13fData="782" #skim MB
+#     LHC13fData="785" #skim MB
+#     LHC13fData="802" #skim MB
+    TRAINDIR=20200206-MixedEventUpdate
     LHC13beData="";
-#     LHC13bcData="729"
-    LHC13bcData="756"
+    LHC13bcData="805"
     LHC13bData="child_1"
     LHC13cData="child_2"
-#     LHC13deData="730" #skim MB
-    LHC13deData="750" #skim MB
+    LHC13deData="806" #skim MB
     LHC13dData="child_1"
     LHC13eData="child_2"
-#     LHC13fData="731" #skim MB
-    LHC13fData="755" #skim MB
-
+    LHC13fData="807" #skim MB
     
 elif [ $3 = "AODSKIMEMC7" ]; then
     TRAINDIR=20190831-EMCNonLin2
@@ -330,19 +355,40 @@ elif [ $3 = "AODSKIMEGAJE" ]; then
 #     LHC13fData="694" #skim EGA
 #     LHC13fData="684" #skim EGA
     
-    TRAINDIR=20200106-EMCSysJJGT
+#     TRAINDIR=20200106-EMCSysJJGT
 #     LHC13beData="738" #skim EGA
 #     LHC13bData="child_1"
 #     LHC13cData="child_2"
 #     LHC13dData="child_3"
 #     LHC13eData="child_4"
 #     LHC13fData="740" #skim EGA
-    LHC13beData="753" #skim EGA
+#     LHC13beData="753" #skim EGA
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+#     LHC13dData="child_3"
+#     LHC13eData="child_4"
+#     LHC13fData="754" #skim EGA
+    
+#     TRAINDIR=20200130-RerunDataWOldTempCalib
+#     LHC13beData="786" #skim EGA
+#     LHC13beData="788" #skim EGA
+#     LHC13beData="789" #skim EGA
+#     LHC13beData="789" #skim EGA
+#     LHC13bData="child_1"
+#     LHC13cData="child_2"
+#     LHC13dData="child_3"
+#     LHC13eData="child_4"
+#     LHC13fData="787" #skim EGA
+#     LHC13fData="791" #skim EGA
+#     LHC13fData="790" #skim EGA
+
+    TRAINDIR=20200206-MixedEventUpdate
+    LHC13beData="809" #skim EGA
     LHC13bData="child_1"
     LHC13cData="child_2"
     LHC13dData="child_3"
     LHC13eData="child_4"
-    LHC13fData="754" #skim EGA
+    LHC13fData="810" #skim EGA
     
 elif [ $3 = "AODSKIMPHI7" ]; then
 #     TRAINDIR=20190831-EMCNonLin
@@ -522,7 +568,7 @@ else
 #     LHC17g6a2MC="1015";
 #     LHC17g6a3MC="1016";
     
-    TRAINDIR=20200106-PCMEMCSysJJGT
+#     TRAINDIR=20200106-PCMEMCSysJJGT
 #     #EG1 - 1
 #     LHC16c3aMC1="907";
 #     LHC16c3aMC2="903";
@@ -573,12 +619,12 @@ else
 #     LHC17g6a2MC="945";
 #     LHC17g6a3MC="949";
 #     #EG2 - 4 + INT7 - 4 
-    LHC16c3aMC1="934";
-    LHC16c3aMC2="930";
-    LHC16c3bMC1="942";
-    LHC16c3bMC2="938";
-    LHC17g6a2MC="946";
-    LHC17g6a3MC="950";
+#     LHC16c3aMC1="934";
+#     LHC16c3aMC2="930";
+#     LHC16c3bMC1="942";
+#     LHC16c3bMC2="938";
+#     LHC17g6a2MC="946";
+#     LHC17g6a3MC="950";
 #     #INT - 1
 #     LHC16c3aMC1="977";
 #     LHC16c3aMC2="974";
@@ -606,6 +652,36 @@ else
 #     LHC13eData="763"
 #     LHC13fData="759"
 
+#     TRAINDIR=20200130-RerunDataWOldTempCalib
+#     LHC16qtData="772";
+#     LHC16qtData="773";
+#     LHC16qtData="792";
+#     LHC16qDataFast="child_1";
+#     LHC16tDataFast="child_2";
+#     LHC16qData="child_3";
+#     LHC16tData="child_4";
+
+    TRAINDIR=20200206-MixedEventUpdate
+#     LHC16c3aMC1="1035";
+#     LHC16c3aMC2="1034";
+#     LHC16c3bMC1="1037";
+#     LHC16c3bMC2="1036";
+#     LHC17g6a2MC="1038";
+#     LHC17g6a3MC="1039";
+#     LHC18j5MC="1041"
+#     LHC18j5_1MC="child_1"
+#     LHC18j5_2MC="child_2"
+#     LHC18j5_3MC="child_3"
+    LHC18f3MCMoth="1040";
+    LHC18f3MC1="child_2";
+    LHC18f3MC2="child_4";
+    LHC18f3MCFast1="child_1";
+    LHC18f3MCFast2="child_3";
+    LHC16qtData="808";
+    LHC16qDataFast="child_1";
+    LHC16tDataFast="child_2";
+    LHC16qData="child_3";
+    LHC16tData="child_4";
 
 fi
 

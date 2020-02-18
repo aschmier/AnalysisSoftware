@@ -40,7 +40,7 @@
 #include "CommonHeaders/ConversionFunctionsBasicsAndLabeling.h"
 #include "CommonHeaders/ConversionFunctions.h"
 
-void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          = "",
+void FinaliseSystematicErrorsConv_pp5TeV(   TString nameDataFileErrors          = "",
                                             TString energy                      = "",
                                             TString meson                       = "",
                                             Int_t numberOfPtBins                = 1 ,
@@ -49,7 +49,7 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
                                             TString additionalName              = "",
                                             TString additionalNameOutput        = "",
                                             TString suffix = "eps"
-                                     ){
+                                        ){
 
     StyleSettingsThesis();
     SetPlotStyle();
@@ -76,17 +76,17 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
     const Int_t nCuts                       = numberCutStudies;
     Double_t* ptBins                        = 0;
     Double_t* ptBinsErr                     = 0;
-    TString nameCutVariation[18];
-    TString nameCutVariationSC[18];
+    TString nameCutVariation[16];
+    TString nameCutVariationSC[16];
 
-    TString nameCutVariationSCCurrent[18]   = { "YieldExtraction"   ,"BGEstimate"   ,"dEdxE"    ,"dEdxPi"       ,"TPCCluster"   ,
+    TString nameCutVariationSCCurrent[16]   = { "YieldExtraction"   ,"BGEstimate"   ,"dEdxE"    ,"dEdxPi"       ,"TPCCluster"   ,
                                                 "SinglePt"          ,"Qt"           ,"Alpha"    ,"Chi2PsiPair"  ,"CosPoint"     ,
                                                 "BG"                ,"MCSmearing"   ,"BGEstimateIterations", "Efficiency"      ,"Eta"     ,
-                                                "YieldExtraction_pp", "BGEstimate_pp", "BGEstimateIterations_pp"
+                                                ""
                                               };
     Color_t color[20];
     Color_t markerStyle[20];
-    for (Int_t k =0; k<18; k++ ){
+    for (Int_t k =0; k<16; k++ ){
         cout << "variation: " << nameCutVariationSCCurrent[k].Data() << endl;
         color[k]                            = GetColorSystematics( nameCutVariationSCCurrent[k] );
         markerStyle[k]                      = GetMarkerStyleSystematics( nameCutVariationSCCurrent[k] );
@@ -106,54 +106,59 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
         color[1]                            = GetColorSystematics( "YieldExtractionPi0" );
         markerStyle[1]                      = GetMarkerStyleSystematics( "YieldExtractionPi0" );
     }
+    if (meson.CompareTo("Pi0Ratio") == 0){
+        nameCutVariation[0]                 = "Yield extraction pPb";
+        nameCutVariation[1]                 = "Yield extraction pp";
+        nameCutVariationSC[1]               = "YieldExtraction";
+        color[1]                            = GetColorSystematics( "YieldExtractionPi0" );
+        markerStyle[1]                      = GetMarkerStyleSystematics( "YieldExtractionPi0" );
+    }
 
     // ***************************************************************************************************
     // ******************************** Booleans for smoothing *******************************************
     // ***************************************************************************************************
-    Bool_t bsmooth[18]                      = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
-                                                0, 0, 0, 0, 0,  0, 0, 0 };
-    Bool_t bsmoothMBPi05TeV[18]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
-                                                1, 1, 0, 1, 0,  0, 0, 0 };
-    Bool_t bsmoothMBEta5TeV[18]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
-                                                1, 1, 0, 1, 0,  0, 0, 0 };
-    Bool_t bsmoothMBEtaToPi05TeV[18]        = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
-                                                1, 1, 0, 1, 0,  0, 0, 0 };
-    Bool_t bsmoothMBPi0Ratio5TeV[18]        = { 0, 0, 0, 0, 0,  1, 0, 0, 0, 0,
-                                                0, 1, 0, 1, 1,  0, 0, 0 };
-    Bool_t bsmoothMBEtaRatio5TeV[18]        = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
-                                                0, 1, 0, 1, 1,  0, 0, 0 };
-    Bool_t bsmoothCentPi05TeV[18]           = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 0,
-                                                1, 1, 0, 1, 0,  0, 0, 0 };
-    Bool_t bsmoothCentEta5TeV[18]           = { 0, 0, 0, 0, 1,  1, 1, 1, 1, 1,
-                                                1, 1, 0, 1, 0,  0, 0, 0 };
-    Bool_t bsmoothCentEtaToPi05TeV[18]      = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
-                                                1, 1, 0, 1, 0,  0, 0, 0 };
-    Bool_t notContainedInFile[18]           = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,      
-                                                0, 1, 0, 1, 1,  0, 0, 0 };
-    Bool_t nonZero[18]                      = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,      
-                                                0, 0, 0, 0, 0,  0, 0, 0 };
-
+    Bool_t bsmooth[16]                      = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,
+                                                0, 0, 0, 0, 0,  0 };
+    Bool_t bsmoothMBPi05TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+                                                1, 1, 0, 0, 0,  0 };
+    Bool_t bsmoothMBEta5TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+                                                1, 1, 0, 0, 0,  0 };
+    Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+                                                1, 1, 0, 0, 0,  0 };
+//     Bool_t bsmoothMBPi05TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+//                                                 1, 1, 0, 1, 0,  0 };
+//     Bool_t bsmoothMBEta5TeV[16]             = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+//                                                 1, 1, 0, 1, 0,  0 };
+//     Bool_t bsmoothMBEtaToPi05TeV[16]        = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+//                                                 1, 1, 0, 1, 0,  0 };
+    Bool_t bsmoothCentPi05TeV[16]           = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 0,
+                                                1, 1, 0, 1, 0,  0 };
+    Bool_t bsmoothCentEta5TeV[16]           = { 0, 0, 0, 0, 1,  1, 1, 1, 1, 1,
+                                                1, 1, 0, 1, 0,  0 };
+    Bool_t bsmoothCentEtaToPi05TeV[16]      = { 0, 0, 1, 1, 1,  1, 1, 1, 1, 1,
+                                                1, 1, 0, 1, 0,  0 };
+    Bool_t notContainedInFile[16]           = { 0, 0, 0, 0, 0,  0, 0, 0, 0, 0,      
+                                                0, 1, 0, 0, 0,  0 };
+//     if (meson.CompareTo("EtaToPi0")==0)
+//         notContainedInFile[1]               = 0;
+    
     for (Int_t i = 0; i < numberCutStudies; i++){
-        if (energy.CompareTo("pPb_5.023TeV") == 0 || energy.CompareTo("pPb_5.023TeVCent") == 0 ){
-            if ( (additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0)&& meson.CompareTo("Pi0")==0){
+//         if (energy.CompareTo("pPb_5.023TeV") == 0 || energy.CompareTo("pPb_5.023TeVCent") == 0 ){
+            if ( additionalNameOutput.CompareTo("") == 0 && meson.CompareTo("Pi0")==0){
                 bsmooth[i]                      = bsmoothMBPi05TeV[i];
-            } else if ((additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0) && meson.CompareTo("Eta")==0){
+            } else if ( additionalNameOutput.CompareTo("") == 0 && meson.CompareTo("Eta")==0){
                 bsmooth[i]                      = bsmoothMBEta5TeV[i];
-            } else if ((additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0) && meson.CompareTo("EtaToPi0")==0){
+            } else if ( additionalNameOutput.CompareTo("") == 0 && meson.CompareTo("EtaToPi0")==0){
                 bsmooth[i]                      = bsmoothMBEtaToPi05TeV[i];
-            } else if ( (additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0)&& meson.CompareTo("Pi0Ratio")==0){
-                bsmooth[i]                      = bsmoothMBPi0Ratio5TeV[i];
-            } else if ((additionalNameOutput.CompareTo("") == 0 || additionalNameOutput.CompareTo("00100") == 0) && meson.CompareTo("EtaRatio")==0){
-                bsmooth[i]                      = bsmoothMBEtaRatio5TeV[i];
-            // for multiplicity bins
-            } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("Pi0")==0){
-                bsmooth[i]                      = bsmoothCentPi05TeV[i];
-            } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("Eta")==0){
-                bsmooth[i]                      = bsmoothCentEta5TeV[i];
-            } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("EtaToPi0")==0){
-                bsmooth[i]                      = bsmoothCentEtaToPi05TeV[i];
+//             // for multiplicity bins
+//             } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("Pi0")==0){
+//                 bsmooth[i]                      = bsmoothCentPi05TeV[i];
+//             } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("Eta")==0){
+//                 bsmooth[i]                      = bsmoothCentEta5TeV[i];
+//             } else if (additionalNameOutput.CompareTo("") && meson.CompareTo("EtaToPi0")==0){
+//                 bsmooth[i]                      = bsmoothCentEtaToPi05TeV[i];
             }
-        }
+//         }
     }
 
     //****************************************************************************************************
@@ -228,49 +233,88 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
     for (Int_t i = 0; i < nCuts; i++){
         TGraphAsymmErrors* graphPosErrors   = NULL;
         TGraphAsymmErrors* graphNegErrors   = NULL;
-        TString nameGraphPos                = "";
-        TString nameGraphNeg                = "";
         if (notContainedInFile[i]){
-            if (meson.CompareTo("EtaToPi0") == 0){
-                nameGraphPos            = Form("Eta_SystErrorRelPos_%s_%s", "YieldExtraction", additionalName.Data() );
-                nameGraphNeg            = Form("Eta_SystErrorRelNeg_%s_%s", "YieldExtraction", additionalName.Data() );
-            } else {
-                nameGraphPos            = Form("%s_SystErrorRelPos_%s_%s", meson.Data(), "YieldExtraction", additionalName.Data() );
-                nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_%s", meson.Data(), "YieldExtraction", additionalName.Data() );                
-            }
-        } else if (nameCutVariationSC[i].Contains("BGEstimate") && i < 15){
+            cout << nameCutVariationSC[i] << endl;
+            TString nameGraphPos            = Form("%s_SystErrorRelPos_%s_%s", meson.Data(), "YieldExtraction",  additionalName.Data() );
+            TString nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_%s", meson.Data(), "YieldExtraction", additionalName.Data() );
             if (meson.CompareTo("EtaToPi0")==0){
-                nameGraphPos            = Form("Eta_SystErrorRel_%s_%s",nameCutVariationSC[i].Data() , additionalName.Data() );
-                nameGraphNeg            = Form("Eta_SystErrorRel_%s_%s",nameCutVariationSC[i].Data() , additionalName.Data() );
-            } else {
-                nameGraphPos            = Form("%s_SystErrorRel_%s_%s",meson.Data(),nameCutVariationSC[i].Data(), additionalName.Data() );
-                nameGraphNeg            = Form("%s_SystErrorRel_%s_%s",meson.Data(),nameCutVariationSC[i].Data(), additionalName.Data() );
+                nameGraphPos            = Form("%s_SystErrorRelPos_%s_%s", "Eta", "YieldExtraction",  additionalName.Data() );
+                nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_%s", "Eta", "YieldExtraction", additionalName.Data() );
             }
-        } else if ( nameCutVariationSC[i].Contains("YieldExtraction") && i < 15 ){
-            if (meson.CompareTo("EtaToPi0")==0 && i == 0){
-                nameGraphPos            = Form("Eta_SystErrorRelPos_%s_%s", "YieldExtraction", additionalName.Data() );
-                nameGraphNeg            = Form("Eta_SystErrorRelNeg_%s_%s", "YieldExtraction", additionalName.Data() );
-            } else if (meson.CompareTo("EtaToPi0")==0 && i == 1){
-                nameGraphPos            = Form("Pi0EtaBinning_SystErrorRelPos_%s_%s", "YieldExtraction", additionalName.Data() );
-                nameGraphNeg            = Form("Pi0EtaBinning_SystErrorRelNeg_%s_%s", "YieldExtraction", additionalName.Data() );
-            } else {
-                nameGraphPos            = Form("%s_SystErrorRelPos_%s_%s",meson.Data(), "YieldExtraction", additionalName.Data() );
-                nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_%s",meson.Data(), "YieldExtraction", additionalName.Data() );
+            cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << endl;
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
+        } else if ( nameCutVariationSC[i].Contains("BGEstimate") && meson.CompareTo("Pi0Ratio")  ){
+            TString nameGraphPos            = Form("%s_SystErrorRel_%s_%s",meson.Data(),nameCutVariationSC[i].Data(), additionalName.Data() );
+            TString nameGraphNeg            = Form("%s_SystErrorRel_%s_%s",meson.Data(),nameCutVariationSC[i].Data(), additionalName.Data() );
+            if (meson.CompareTo("EtaToPi0")==0){
+                nameGraphPos                = Form("Eta_SystErrorRel_%s_%s",nameCutVariationSC[i].Data() , additionalName.Data() );
+                nameGraphNeg                = Form("Eta_SystErrorRel_%s_%s",nameCutVariationSC[i].Data() , additionalName.Data() );
             }
-        } else if ( nameCutVariationSC[i].Contains("_pp") && !nameCutVariationSC[i].Contains("BGE") ){
-            nameGraphPos            = Form("%s_SystErrorRelPos_%s",meson.Data(), nameCutVariationSC[i].Data() );
-            nameGraphNeg            = Form("%s_SystErrorRelNeg_%s",meson.Data(), nameCutVariationSC[i].Data() );
-        } else if ( nameCutVariationSC[i].Contains("_pp") && nameCutVariationSC[i].Contains("BGE") ){
-            nameGraphPos            = Form("%s_SystErrorRel_%s",meson.Data(), nameCutVariationSC[i].Data() );
-            nameGraphNeg            = Form("%s_SystErrorRel_%s",meson.Data(), nameCutVariationSC[i].Data() );
+            cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << endl;
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());    
+        } else if ( nameCutVariationSC[i].CompareTo("YieldExtraction")==0 && meson.CompareTo("EtaToPi0")   ){
+            TString nameGraphPos            = Form("%s_SystErrorRelPos_%s_%s",meson.Data(), nameCutVariationSC[i].Data(), additionalName.Data() );
+            TString nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_%s",meson.Data(), nameCutVariationSC[i].Data(), additionalName.Data() );
+            cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << endl;
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
+
+        } else if ( nameCutVariationSC[i].CompareTo("YieldExtraction")==0 && !meson.CompareTo("EtaToPi0") &&  i == 0){
+            TString nameGraphPos            = Form("Eta_SystErrorRelPos_%s_%s",nameCutVariationSC[i].Data(), additionalName.Data() );
+            TString nameGraphNeg            = Form("Eta_SystErrorRelNeg_%s_%s",nameCutVariationSC[i].Data(), additionalName.Data() );
+            cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << endl;
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
+
+        } else if ( nameCutVariationSC[i].CompareTo("YieldExtractionPi0")==0 && !meson.CompareTo("EtaToPi0") &&  i == 1){
+            TString nameGraphPos            = Form("Pi0EtaBinning_SystErrorRelPos_%s_%s","YieldExtraction", additionalName.Data() );
+            TString nameGraphNeg            = Form("Pi0EtaBinning_SystErrorRelNeg_%s_%s","YieldExtraction", additionalName.Data() );
+            cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << endl;
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
+        } else if ( nameCutVariationSC[i].CompareTo("YieldExtraction")==0 &&  i == 0){
+            TString nameGraphPos            = Form("Eta_SystErrorRelPos_%s_%s",nameCutVariationSC[i].Data(), additionalName.Data() );
+            TString nameGraphNeg            = Form("Eta_SystErrorRelNeg_%s_%s",nameCutVariationSC[i].Data(), additionalName.Data() );
+            cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << endl;
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
+
+        } else if ( nameCutVariationSC[i].CompareTo("YieldExtractionPi0")==0 && i == 1){
+            TString nameGraphPos            = Form("Pi0EtaBinning_SystErrorRelPos_%s_%s","YieldExtraction", "pp" );
+            TString nameGraphNeg            = Form("Pi0EtaBinning_SystErrorRelNeg_%s_%s","YieldExtraction", "pp" );
+            cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << endl;
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
+
         } else {
-            nameGraphPos            = Form("%s_SystErrorRelPos_%s%s",meson.Data(),nameCutVariationSC[i].Data(), additionalName.Data() );
-            nameGraphNeg            = Form("%s_SystErrorRelNeg_%s%s",meson.Data(),nameCutVariationSC[i].Data(), additionalName.Data() );
+            TString nameGraphPos            = Form("%s_SystErrorRelPos_%s%s",meson.Data(),nameCutVariationSC[i].Data(), additionalName.Data() );
+            TString nameGraphNeg            = Form("%s_SystErrorRelNeg_%s%s",meson.Data(),nameCutVariationSC[i].Data(), additionalName.Data() );
+            cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << endl;
+            graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+            graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
+            if ( graphPosErrors == NULL ){
+                cout << "systematic wasn't contained, setting it to 0" << endl;
+                TString nameGraphPos            = Form("%s_SystErrorRelPos_%s_%s", meson.Data(),nameCutVariationSC[0].Data(), additionalName.Data() );
+                TString nameGraphNeg            = Form("%s_SystErrorRelNeg_%s_%s", meson.Data(),nameCutVariationSC[0].Data(), additionalName.Data() );
+                if (meson.CompareTo("EtaToPi0") == 0){
+                    nameGraphPos                = Form("Eta_SystErrorRelPos_%s_%s", nameCutVariationSC[0].Data(), additionalName.Data() );
+                    nameGraphNeg                = Form("Eta_SystErrorRelNeg_%s_%s", nameCutVariationSC[0].Data(), additionalName.Data() );
+                }
+                cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << endl;
+                graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
+                graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
+                for (Int_t k = 0; k< graphPosErrors->GetN(); k++){
+                    graphPosErrors->SetPoint(k, graphPosErrors->GetX()[k],0);
+                    graphPosErrors->SetPointEYhigh (k, 0);
+                    graphPosErrors->SetPointEYlow (k, 0);
+                    graphNegErrors->SetPoint(k, graphNegErrors->GetX()[k],0);
+                    graphNegErrors->SetPointEYhigh (k, 0);
+                    graphNegErrors->SetPointEYlow (k, 0);
+                }
+            }
         }
-        cout << "trying to read: " << nameGraphPos.Data() << "\t" << nameGraphNeg.Data() << "\t for variation: " << nameCutVariationSC[i].Data() << endl;
-        graphPosErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphPos.Data());
-        graphNegErrors                  = (TGraphAsymmErrors*)fileErrorInput->Get(nameGraphNeg.Data());
-        
         if (!graphPosErrors) cout << "positive graph, aborting" << endl;
         if (!graphNegErrors) cout << "negative graph, aborting" << endl;
         if (!graphNegErrors || !graphPosErrors)
@@ -320,15 +364,22 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
 
             // dEdxE - cutstudies nr 2
             if (nameCutVariationSC[i].CompareTo("dEdxE")==0 ){
-                for (Int_t k = 0; k < nPtBins; k++){
-                    if (meson.CompareTo("Pi0")==0){                    
-                        errorReset              = 0.15 + 0.05*ptBins[k];
+                if (meson.CompareTo("Pi0")==0){
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = 0.25 + 0.05*ptBins[k];
+//                         errorReset              = 0.5 + 6.51640e+00/pow(6.76502e+00,ptBins[k]);
                         errorsMeanCorr[i][k]    = errorReset;
-                    } else if (meson.CompareTo("Eta")==0 ){
-                        errorReset              = 13.5*pow(0.08,ptBins[k])+0.3;
+                    }
+                } else if (meson.CompareTo("Eta")==0 ){
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = errorsMean[i][k];
+                        errorReset              = 23.5*pow(0.01,ptBins[k])+0.4+0.05*ptBins[k];
                         errorsMeanCorr[i][k]    = errorReset;
-                    } else if (meson.CompareTo("EtaToPi0")==0){
-                        errorReset              = 13.5*pow(0.05,ptBins[k])+0.5;
+                    }
+                } else if (meson.CompareTo("EtaToPi0")==0){
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = errorsMean[i][k];
+                        errorReset              = 23.5*pow(0.01,ptBins[k])+0.4+0.05*ptBins[k];
                         errorsMeanCorr[i][k]    = errorReset;
                     }
                 }
@@ -337,13 +388,13 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             if (nameCutVariationSC[i].CompareTo("dEdxPi")==0 ){
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (meson.CompareTo("Pi0")==0){
-                        errorReset              = 0.25+pow(ptBins[k],2)*0.01+0.005*ptBins[k];
+                        errorReset              = 0.15+pow(ptBins[k],2)*0.02+0.005*ptBins[k];
                         errorsMeanCorr[i][k]    = errorReset;
                     } else if (meson.CompareTo("Eta")==0 ){
-                        errorReset              = 0.25+pow(ptBins[k],2)*0.02;
+                        errorReset              = 0.15+pow(ptBins[k],2)*0.025+0.005*ptBins[k];
                         errorsMeanCorr[i][k]    = errorReset;
                     } else if (meson.CompareTo("EtaToPi0")==0 ){
-                        errorReset              = 0.25+pow(ptBins[k],2)*0.02;
+                        errorReset              = 0.15+pow(ptBins[k],2)*0.025+0.005*ptBins[k];
                         errorsMeanCorr[i][k]    = errorReset;
                     }
                 }
@@ -362,14 +413,14 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             // SinglePt - cutstudies nr 5
             if (nameCutVariationSC[i].CompareTo("SinglePt")==0 ){
                 for (Int_t k = 0; k < nPtBins; k++){
-                    if (meson.CompareTo("Pi0")==0 || meson.CompareTo("Pi0Ratio") == 0 ){
-                        errorReset              = 0.3+pow(ptBins[k],2)*0.003;
+                    if (meson.CompareTo("Pi0")==0 ){
+                        errorReset              = 40*pow(0.0001,ptBins[k])+0.2+pow(ptBins[k],2)*0.003;
                         errorsMeanCorr[i][k]    = errorReset;
                     } else if (meson.CompareTo("Eta")==0 ){
-                        errorReset              = 40*pow(0.05,ptBins[k])+0.5+pow(ptBins[k],2)*0.0025;
+                        errorReset              = 20*pow(0.025,ptBins[k])+0.4+ptBins[k]*0.05;
                         errorsMeanCorr[i][k]    = errorReset;
                     } else if (meson.CompareTo("EtaToPi0")==0 ){
-                        errorReset              = 40*pow(0.05,ptBins[k])+0.5+pow(ptBins[k],2)*0.0025;
+                        errorReset              = 20*pow(0.025,ptBins[k])+0.4+ptBins[k]*0.05;
                         errorsMeanCorr[i][k]    = errorReset;
                     }
                 }
@@ -377,38 +428,37 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
 
             // Qt - cutstudies nr 6
             if (nameCutVariationSC[i].CompareTo("Qt")==0){
-                for (Int_t k = 0; k < nPtBins; k++){
-                    if (meson.CompareTo("Pi0")==0 ){
-                        errorReset              = 0.05+pow(ptBins[k],2)*0.01+ptBins[k]*0.02;
+                if (meson.CompareTo("Pi0")==0 ){
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = 13.5*pow(0.0005,ptBins[k]) + 0.05+pow(ptBins[k],2)*0.02+ptBins[k]*0.02;
                         errorsMeanCorr[i][k]    = errorReset;
-                    } else if ( meson.CompareTo("Eta")==0  ||  meson.CompareTo("EtaToPi0")==0  ){
-                        errorReset              = 0.3+pow(ptBins[k],2)*0.024+ptBins[k]*0.02+13.5*pow(0.05,ptBins[k]);
+                    }
+                } else if ( meson.CompareTo("Eta")==0  ||  meson.CompareTo("EtaToPi0")==0  ){
+                    for (Int_t k = 0; k < nPtBins; k++){
+                        errorReset              = 0.3+pow(ptBins[k],2)*0.034+ptBins[k]*0.02+10.5*pow(0.05,ptBins[k]);
                         errorsMeanCorr[i][k]    = errorReset;
                     }
                 }
             }
 
-
             // Alpha - cutstudies nr 7
             if (nameCutVariationSC[i].CompareTo("Alpha")==0){
                 minPt           = 0;
-                errorReset      = 0.3;
                 if (meson.CompareTo("EtaToPi0")==0  )
                     errorReset      = 0.45;
+                else if (meson.CompareTo("Eta")==0  )
+                    errorReset      = 0.45;
+                else 
+                    errorReset      = 0.15;
             }
 
             // Chi2/PsiPair - cutstudies nr 8
             if (nameCutVariationSC[i].CompareTo("Chi2PsiPair")==0 ){
                 for (Int_t k = 0; k < nPtBins; k++){
                     if ( meson.CompareTo("Pi0")==0){
-                        errorReset              = 0.3 + 13.5*pow(0.002,ptBins[k])+pow(ptBins[k],2)*0.005+ptBins[k]*0.01;
-//                         errorReset              = 2.4 + 15.5*pow(0.2,ptBins[k])+pow(ptBins[k],2)*0.005; //+ptBins[k]*0.02;
+                        errorReset              = 0.4 + 13.5*pow(0.002,ptBins[k])+pow(ptBins[k],2)*0.01+ptBins[k]*0.02;
                         errorsMeanCorr[i][k]    = errorReset;
-                    } else if (meson.CompareTo("Eta")==0 ){
-                        errorReset              = 0.4 + 50.5*pow(0.02,ptBins[k])+pow(ptBins[k],2)*0.015+ptBins[k]*0.02;
-//                         errorReset              = 3 + 15.5*pow(0.2,ptBins[k])+pow(ptBins[k],2)*0.005; //ptBins[k]*0.02
-                        errorsMeanCorr[i][k]    = errorReset;
-                    } else if ( meson.CompareTo("EtaToPi0")==0){
+                    } else if (meson.CompareTo("Eta")==0 || meson.CompareTo("EtaToPi0")==0){
                         errorReset              = 0.4 + 50.5*pow(0.02,ptBins[k])+pow(ptBins[k],2)*0.015+ptBins[k]*0.02;
                         errorsMeanCorr[i][k]    = errorReset;
                     }
@@ -462,16 +512,13 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
                 } else if ( meson.CompareTo("Eta")==0  ){
                     minPt           = 0;
                     errorReset      = 2.0;
-                } else if ( meson.CompareTo("Pi0Ratio")==0 || meson.CompareTo("EtaRatio")==0 ){
-                    minPt           = 0;
-                    errorReset      = 0;
                 }
             }
             // Eta - cutstudies nr 14
             if (nameCutVariationSC[i].CompareTo("Eta")==0  ){
                 if ( meson.Contains("Pi0") ){
                     minPt           = 0;
-                    errorReset      = 0.;
+                    errorReset      = 0.25;
                 } else if ( meson.CompareTo("Eta")==0  ){
                     minPt           = 0;
                     errorReset      = 3.0;
@@ -507,9 +554,6 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
             errorsPosCorrSummed[l]      = errorsPosCorrSummed[l]+pow(errorsPosCorr[i][l],2);
             errorsNegCorrSummed[l]      = errorsNegCorrSummed[l] +pow(errorsNegCorr[i][l],2);
             errorsMeanCorrSummed[l]     = errorsMeanCorrSummed[l]+ pow(errorsMeanCorr[i][l],2);
-        }
-        for (Int_t l = 0; l < nPtBins; l++){
-            if ( errorsMeanCorr[i][l] > 0 ) nonZero[l] = 1;
         }
         negativeErrors[i]           = new TGraphErrors(nPtBins,ptBins ,errorsNeg[i] ,ptBinsErr ,errorsNegErr[i] );
         meanErrors[i]               = new TGraphErrors(nPtBins,ptBins ,errorsMean[i] ,ptBinsErr ,errorsMeanErr[i] );
@@ -605,7 +649,6 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
     if (numberCutStudies> 7) legendMeanNew->SetNColumns(2);
 
     for(Int_t i = 0;i< numberCutStudies ;i++){
-        if (!nonZero[i]) continue;
         cout << i << "\t"<< additionalNameOutput.Data() << endl;
         DrawGammaSetMarkerTGraphErr(meanErrorsCorr[i], markerStyle[i], 1.,color[i],color[i]);
         meanErrorsCorr[i]->Draw("pX0,csame");
@@ -647,8 +690,7 @@ void FinaliseSystematicErrorsConv_pPbV2(    TString nameDataFileErrors          
     // ********************* Plot unsmoothed errors with fits ********************************************
     // ***************************************************************************************************
     for (Int_t cut =0 ; cut < numberCutStudies; cut++ ){
-        if (!nonZero[cut]) continue;
-        
+
         canvasNewSysErrMean->cd();
         histo2DNewSysErrMean->Draw();
             

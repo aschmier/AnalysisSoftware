@@ -1690,6 +1690,7 @@
                                         Style_t fillStyle,
                                         Color_t fillColor,
                                         Size_t markerSize){
+        if (!graph) return;
         graph->SetMarkerColor(lineColor);
         graph->SetLineColor(lineColor);
         graph->SetFillColor(fillColor);
@@ -1710,6 +1711,7 @@
                                         Color_t fillColor   = 0,
                                         Bool_t isHollow     = kFALSE
                                      ) {
+        if (!graph) return;
         graph->SetMarkerStyle(markerStyle);
         graph->SetMarkerSize(markerSize);
         graph->SetMarkerColor(markerColor);
@@ -1734,6 +1736,7 @@
                                 Style_t lineStyle,
                                 Size_t lineWidth,
                                 Color_t lineColor ) {
+        if (!fit1) return;
         fit1->SetLineColor(lineColor);
         fit1->SetLineStyle(lineStyle);
         fit1->SetLineWidth(lineWidth);
@@ -1761,6 +1764,7 @@
                         Width_t lineWidth,
                         Style_t lineStyle,
                         Color_t lineColor) {
+        if (!histo) return;
         histo->SetLineWidth(lineWidth);
         histo->SetLineStyle(lineStyle);
         histo->SetLineColor(lineColor);
@@ -1773,6 +1777,7 @@
                         Width_t lineWidth,
                         Style_t lineStyle,
                         Color_t lineColor) {
+        if (!fit) return;
         fit->SetRange(xRangeStart,xRangeEnd);
         fit->SetLineWidth(lineWidth);
         fit->SetLineStyle(lineStyle);

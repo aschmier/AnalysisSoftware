@@ -315,7 +315,6 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
                         if(ptBins[k]<4.5 && errorsMean[i][k] > 12.5){
                             errorReset                       = 12.5;
                             errorsMean[i][k]            = errorReset;
-                            errorsMeanCorr[i][k]        = errorReset;
                         }
                     }
                 }
@@ -326,7 +325,6 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
                     if(ptBins[k]> 18){
                         errorReset                      = 9;
                         errorsMean[i][k]                = errorReset;
-                        errorsMeanCorr[i][k]            = errorReset;
                     }
                 }
             }
@@ -351,7 +349,6 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
                             errorReset          = 0.7;
                     }
                     errorsMean[i][k]            = errorReset;
-                    errorsMeanCorr[i][k]        = errorReset;
                 }
             }
 
@@ -364,7 +361,6 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
                 for (Int_t k = 0;k < nPtBins;k++){
                     errorReset              = 140.5*pow(0.1,ptBins[k])+0.5;
                     errorsMean[i][k]        = errorReset;
-                    errorsMeanCorr[i][k]    = errorReset;
                 }
             }
             // manual smoothing for minimum number of cells in cluster errors - variation 3
@@ -389,7 +385,6 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
 //                         errorReset                   = 2.5+0.086*ptBins[k]+0.01*ptBins[k]*ptBins[k];
                     errorReset                  = TMath::Sqrt(errorReset*errorReset+0.95*0.95);//adding 0.95% error for timing cut
                     errorsMean[i][k]            = errorReset;
-                    errorsMeanCorr[i][k]        = errorReset;
                 }
             }
             // manual smoothing for cluster matching errors - variation 5
@@ -405,7 +400,6 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
 //                             errorReset               = errorReset*1.5;
                             errorReset          = 0.6+0.003*ptBins[k]*ptBins[k];
                         errorsMean[i][k]        = errorReset;
-                        errorsMeanCorr[i][k]    = errorReset;
                     }
             }
            // manual smoothing for cluster shape errors - variation 6
@@ -435,7 +429,6 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
                             errorReset = 400.5*pow(0.1,ptBins[k])+1.5+0.012*ptBins[k]+0.011*ptBins[k]*ptBins[k];
                     }
                   errorsMean[i][k]            = errorReset;
-                  errorsMeanCorr[i][k]        = errorReset;
                 }
             }
             // manual smoothing for Material infront of EMC - variation 7
@@ -471,7 +464,6 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
                     errorReset          = 4.18;
                 else 
                     errorReset          = 0.;
-
             }
             // manual smoothing for Efficiency uncertainties - variation 10
             if (nameCutVariationSC[i].CompareTo("Efficiency") == 0){
@@ -524,6 +516,7 @@ void FinaliseSystematicErrorsCalo_pPbV2(    const char* nameDataFileErrors  = ""
                 }
             } else {
                 for (Int_t k = 0; k < nPtBins; k++){
+                    errorsMeanCorr[i][k]        = errorsMeanErr[i][k];
                     errorsMeanErr[i][k]         = errorsMeanErr[i][k]*0.01;
                     errorsMeanErrCorr[i][k]     = errorsMeanCorr[i][k]*0.01;
                 }

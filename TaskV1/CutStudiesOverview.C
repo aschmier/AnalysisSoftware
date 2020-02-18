@@ -208,7 +208,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
     Bool_t             kSpecialTrigger                          = kFALSE;
 
     if (cutVariationName.CompareTo("SpecialTrigg") == 0){
-            kSpecialTrigger                                     = kTRUE;
+        kSpecialTrigger                                         = kTRUE;
     }
     for (Int_t i=0; i< NumberOfCuts; i++){
         // Define CutSelections

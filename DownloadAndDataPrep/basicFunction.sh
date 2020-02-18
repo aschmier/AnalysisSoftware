@@ -22,7 +22,9 @@ tempPath=""
 tempBool=1
 prefDownloadLocal="file:"
 prefDownloadGrid="alien:"
+DoForceMerge=0
 jALIEN=0
+DoStageDownload=0
 
 function FindCorrectTrainDirectory()
 {
@@ -54,14 +56,18 @@ function FindCorrectTrainDirectory()
                 echo "$folderName" >> listGrid.txt
             fi
           done
-          InterMediate=`head -n1 listGrid.txt`\_$1
+          InterMediate=`head -n1 listGrid.txt | cut -d "/" -f1`\_$1 
           InterMediate=${InterMediate/$1\_$1/$1}
           InterMediate=${InterMediate/child_1_$1/$1}
           InterMediateExists="$( cat listGrid.txt | grep -w "$InterMediate" )"
           tempDir="$InterMediate"
           rm listGrid.txt
       else
-          tempDir=`alien_ls $3 | grep $1\_2`
+          tempDir=`alien_ls $3 | grep $1\_2 | cut -d "/" -f1`
+#           if [ "$3" != "" ]; then
+#             echo `alien_ls $3 | grep $1\_2 | cut -d "/" -f1`
+#             echo $tempDir
+#           fi
       fi
       if [ "$tempDir" == "" ]; then
           tempBool=0;
@@ -226,14 +232,15 @@ function CopyRunwiseAndMergeAccordingToRunlistMC()
             nRunNumber=`wc -l runlists/runNumbers$1${11}.txt`
             echo $runNumbers
             nCurrRunCount=0
+            rm $3/copyFile.log
             for runNumber in $runNumbers; do
                 nCurrRunCount=$((nCurrRunCount+1))
                 echo -e "\n****************************************\n run $runNumber is $nCurrRunCount/$nRunNumber \n****************************************\n"
 
 #                 CopyFileIfNonExisitent $3/$runNumber "$7/$1/$runNumber/$5/$4" $8 "$7/$1/$runNumber/$5/$4/Stage_1/" kTRUE
-                CopyFileIfNonExisitent $3/$runNumber "$7/$1/$runNumber/$5/$4" $8 "$7/$1/$runNumber/$5/$4/" kTRUE bla.log
+                CopyFileIfNonExisitent $3/$runNumber "$7/$1/$runNumber/$5/$4" $8 "$7/$1/$runNumber/$5/$4/" kTRUE $3/copyFile.log
             done;
-            if [ $MERGEONSINGLEMC == 1 ] && [ ! -f $3/mergedAllCalo.txt ]; then
+            if  [ -f $3/copyFile.log ] || [ $MERGEONSINGLEMC == 1 ]; then
                 cd $currentDir
                 rm $3/${10}*.root*
                 echo runlists/runNumbers$1${11}.txt
@@ -371,8 +378,8 @@ function CopyFileIfNonExisitent()
             else
                 echo "prolems in this function: CopyFileIfNonExisitent"
                 rm -f locallog.txt
-                if [ "$4" != "none" ]; then
-                    if [ "$4" == "*Stage*" ]; then
+                if [ "$4" != "none" ] && [ $DoStageDownload == 1 ]; then
+                    if [ "$4" == "*Stage*" ] ; then
                         alien_ls -F $4/ | grep "/" > locallog.txt
                     else
                         alien_ls -F $4/ | grep "/" | grep -v "Stage" > locallog.txt
@@ -480,7 +487,7 @@ function CopyFileIfNonExisitentDiffList()
                 echo "copied correctly"
             else
                 rm -f locallog.txt
-                if [ "$5" != "none" ]; then
+                if [ "$5" != "none" ]  && [ $DoStageDownload == 1 ]; then
                     if [ "$5" == "*Stage*" ]; then
                         alien_ls -F $5/ | grep "/" > locallog.txt
                     else

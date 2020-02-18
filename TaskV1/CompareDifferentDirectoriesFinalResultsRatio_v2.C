@@ -111,9 +111,11 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
     TString optionPeriod        = "No",
     Int_t mode                  = 10,
     TString cutVariationName    = "NonLinearity",
-    TString triggerName1         = "INT7",
-    TString triggerName2         = "INT7",
-    Bool_t setFullPathInInputFile   = kFALSE
+    TString triggerName1        = "INT7",
+    TString triggerName2        = "INT7",
+    TString addOutput           = "0-100%",
+    Bool_t setFullPathInInputFile   = kFALSE,
+    Bool_t getNameAutomatically     = kFALSE
 ){
 
     // if (!(mode == 10 || mode == 11 )){
@@ -129,17 +131,19 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
     TString     cutNumber[2][50];
     TString     cutStringsName[50];
     Double_t    scaleFacDenom[50];
-
+    Bool_t isEDC = kFALSE;
+    
     // prepare nice plotting algorithms
     StyleSettingsThesis();
     SetPlotStyle();
 
+    TString cutVariationNameOut = "";
     if(triggerName1.CompareTo("") && triggerName2.CompareTo("")){
-        cutVariationName = Form("%s%s", cutVariationName.Data(),triggerName1.Data());
+        cutVariationNameOut = Form("%s%s", cutVariationName.Data(),triggerName1.Data());
     }
-
+    
     // Set output folder
-    TString outputDir = Form("CutStudies/%sOver%s/%s",optionEnergy[0].Data(),optionEnergy[1].Data(), cutVariationName.Data());
+    TString outputDir = Form("CutStudies/%sOver%s/%s",optionEnergy[0].Data(),optionEnergy[1].Data(), cutVariationNameOut.Data());
 
     TString outputDirRootFile = Form("CutStudies/%sOver%s",optionEnergy[0].Data(),optionEnergy[1].Data());
     gSystem->Exec("mkdir -p "+outputDir);
@@ -191,7 +195,9 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
     TString cutNr[2];
     Int_t Number = 0;
     while(!in.eof() ){
-        in >> folderName[0] >> cutNr[0] >> dirInFileName[0] >> folderName[1] >> cutNr[1] >> dirInFileName[1] >> scalingfactor >> cutName;
+        in >> folderName[0] >> cutNr[0] >> dirInFileName[0] >> folderName[1] >> cutNr[1] >> dirInFileName[1] >> scalingfactor ;
+        if (!getNameAutomatically) in >> cutName;
+        
         cutName.ReplaceAll("_"," ");
         filePathInput[0][Number] = folderName[0];
         filePathInput[1][Number] = folderName[1];
@@ -205,25 +211,12 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
         cout<< "\t" <<filePathInput[0][Number]<< "\t" << cutNumber[0][Number]<< "\t" << directoryInFile[0][Number]<< "\t"<< cutStringsName[Number] <<endl;
         cout<< "\t" <<filePathInput[1][Number]<< "\t" << cutNumber[1][Number]<< "\t" << directoryInFile[1][Number]<< "\t"<< scaleFacDenom[Number]<< "\t"<< cutStringsName[Number] <<endl;
         Number++;
+        cout << "I am here" << endl;
     }
     cout<<"=========================="<<endl;
 
     // Definition of necessary graphgram arrays
     const Int_t ConstNumberOfCuts = 20;
-
-    // TFile *fileResoCorr[2];
-    // if(cutVariationName.Contains("Resolution")){
-    //     if(optionEnergy1.CompareTo("pPb_8TeV"))
-    //         fileResoCorr[0] = new TFile("/media/nschmidt/local/ANALYSIS/pPb_8TeV_mEDC_Resolution/pPb8TeV/pdf/FractionsCheck/ToyMCOutput_Pi0_pPb8TeV.root");
-    //     if(optionEnergy2.CompareTo("8TeV"))
-    //         fileResoCorr[1] = new TFile("/media/nschmidt/local/ANALYSIS/pp_8TeV_mEMC_Resolution/pp8TeV/pdf/FractionsCheck/ToyMCOutput_Pi0_pp8TeV.root");
-    //     if (fileResoCorr[0]->IsZombie() || fileResoCorr[1]->IsZombie()){
-    //         cout << "could not find resolution systematics inputs!... returning!!" << endl;
-    //         return;
-    //     }
-    // }
-
-
 
     TFile *CutFinalResFile[2][ConstNumberOfCuts];
 
@@ -243,6 +236,141 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
     TString nameCorrectedYieldHisto[2];
     TString nameCorrectedYield[2];
     for (Int_t i=0; i< NumberOfCuts; i++){
+        
+        if (getNameAutomatically ){
+            cout << cutVariationName.Data() << endl;
+            TString tempCutnumber=Form("00010113_%s",cutNumber[0][i].Data());
+            cout << tempCutnumber.Data() << endl;
+            TString fEventCutSelection                              = "";
+            TString fGammaCutSelection                              = "";
+            TString fClusterCutSelection                            = "";
+            TString fElectronCutSelection                           = "";
+            TString fMesonCutSelection                              = "";
+            // disentangle cut selection
+            ReturnSeparatedCutNumberAdvanced(tempCutnumber.Data(),fEventCutSelection, fGammaCutSelection, fClusterCutSelection, fElectronCutSelection, fMesonCutSelection, mode);
+            if (mode == 4 || mode == 2){
+                if (fClusterCutSelection.BeginsWith("4")) isEDC = kTRUE;
+            }
+            cout << "E:"<< fEventCutSelection.Data() << "\tG:\t" << fGammaCutSelection.Data() << "\tC:\t" << fClusterCutSelection.Data() << "\tE:\t"<< fElectronCutSelection.Data() << "\tM:\t" << fMesonCutSelection.Data() << endl;
+            
+            if (cutVariationName.Contains("V0Reader")){
+                TString fV0Reader                                   = fGammaCutSelection(GetPhotonV0FinderCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseV0ReaderCut(CutNumberToInteger(fV0Reader));
+            } else if (cutVariationName.Contains("RapidityAndEtaClus")){
+                TString fRapidityCut                                = fMesonCutSelection(GetMesonRapidityCutPosition(),1);
+                TString rapidString                                 = AnalyseRapidityMesonCut(CutNumberToInteger(fRapidityCut));
+                TString etaCaloString                               = AnalyseEtaCalo(fClusterCutSelection);
+                cutStringsName[i]                                   = Form("%s, %s", etaCaloString.Data(), rapidString.Data() );
+            } else if (cutVariationName.Contains("Eta")){
+                TString fEtaCut                                     = fGammaCutSelection(GetPhotonEtaCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseEtaCut(CutNumberToInteger(fEtaCut));
+            } else if (cutVariationName.Contains("RCutAndPhotonQuality")){
+                TString fRCut                                       = fGammaCutSelection(GetPhotonMinRCutPosition(fGammaCutSelection),1);
+                TString fPhotonQuality                              = fGammaCutSelection(GetPhotonSharedElectronCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseRCutAndQuality(CutNumberToInteger(fRCut), CutNumberToInteger(fPhotonQuality));
+            } else if (cutVariationName.Contains("RCut")){
+                TString fRCut                                       = fGammaCutSelection(GetPhotonMinRCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseRCut(CutNumberToInteger(fRCut));
+            } else if (cutVariationName.Contains("SinglePt")){
+                TString fSinglePtCut                                = fGammaCutSelection(GetPhotonSinglePtCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseSinglePtCut(CutNumberToInteger(fSinglePtCut));
+            } else if (cutVariationName.Contains("TPCCluster")){
+                TString fClusterCut                                 = fGammaCutSelection(GetPhotonClsTPCCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseTPCClusterCut(CutNumberToInteger(fClusterCut));
+            } else if (cutVariationName.Contains("dEdxE")){
+                TString fdEdxCut                                    = fGammaCutSelection(GetPhotonEDedxSigmaCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseTPCdEdxCutElectronLine(CutNumberToInteger(fdEdxCut));
+            } else if (cutVariationName.Contains("dEdxPi")){
+                TString fdEdxCut                                    = fGammaCutSelection(GetPhotonPiDedxSigmaCutPosition(fGammaCutSelection),3);
+                cutStringsName[i]                                   = fdEdxCut.Data();
+            } else if (cutVariationName.Contains("TOF")){
+                TString fTOFelectronPIDCut                          = fGammaCutSelection(GetPhotonTOFelectronPIDCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseTOFelectronPIDCut(CutNumberToInteger(fTOFelectronPIDCut));
+            } else if (cutVariationName.Contains("Qt")){
+                TString fQtCut                                      = fGammaCutSelection(GetPhotonQtMaxCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseQtMaxCut(CutNumberToInteger(fQtCut));
+            } else if (cutVariationName.Contains("Chi2")){
+                TString fChi2Cut                                    = fGammaCutSelection(GetPhotonChi2GammaCutPosition(fGammaCutSelection),1);
+                TString fPsiPairCut                                 = fGammaCutSelection(GetPhotonPsiPairCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseChi2GammaCut(CutNumberToInteger(fChi2Cut), CutNumberToInteger(fPsiPairCut));
+            } else if (cutVariationName.Contains("PsiPairAndR")){
+                TString fPsiPairCut                                 = fGammaCutSelection(GetPhotonPsiPairCutPosition(fGammaCutSelection),1);
+                TString fRCut                                       = fGammaCutSelection(GetPhotonMinRCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalysePsiPairAndR(CutNumberToInteger(fPsiPairCut), CutNumberToInteger(fRCut));
+            } else if (cutVariationName.Contains("PsiPair")){
+                TString fPsiPairCut                                 = fGammaCutSelection(GetPhotonPsiPairCutPosition(fGammaCutSelection),1);
+                TString fChi2Cut                                    = fGammaCutSelection(GetPhotonChi2GammaCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalysePsiPair(CutNumberToInteger(fPsiPairCut), CutNumberToInteger(fChi2Cut));
+            } else if (cutVariationName.Contains("DCAZPhoton")){
+                TString fDCAZCut                                    = fGammaCutSelection(GetPhotonDcaZPrimVtxCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseDCAZPhotonCut(CutNumberToInteger(fDCAZCut));
+            } else if (cutVariationName.Contains("CosPoint")){
+                TString fCosPoint                                   = fGammaCutSelection(GetPhotonCosinePointingAngleCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalyseCosPointCut(CutNumberToInteger(fCosPoint));
+            } else if (cutVariationName.Contains("PhotonQuality")){
+                TString fPhotonQuality                              = fGammaCutSelection(GetPhotonSharedElectronCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalysePhotonQuality(CutNumberToInteger(fPhotonQuality));
+            } else if (cutVariationName.Contains("ConvPhi")){
+                cutStringsName[i]                                   = AnalyseConvPhiExclusionCut(fGammaCutSelection);
+            } else if (cutVariationName.Contains("BG")){
+                TString fBGCut                                      = fMesonCutSelection(GetMesonBGSchemeCutPosition(),3);
+                cutStringsName[i]                                   = AnalyseBackgroundScheme(fBGCut.Data());
+            } else if (cutVariationName.Contains("Rapidity")){
+                TString fRapidityCut                                = fMesonCutSelection(GetMesonRapidityCutPosition(),1);
+                cutStringsName[i]                                   = AnalyseRapidityMesonCut(CutNumberToInteger(fRapidityCut));
+            } else if (cutVariationName.Contains("Alpha")){
+                TString fAlphaCut                                   = fMesonCutSelection(GetMesonAlphaCutPosition(),1);
+                cutStringsName[i]                                   = AnalyseAlphaMesonCut(CutNumberToInteger(fAlphaCut));
+            } else if (cutVariationName.Contains("OpeningAngle")){
+                TString fMesonOpeningAngleCut                       = fMesonCutSelection(GetMesonOpeningAngleCutPosition(),1);
+                cutStringsName[i]                                   = AnalyseMesonOpeningAngleCut(CutNumberToInteger(fMesonOpeningAngleCut));
+            } else if (cutVariationName.Contains("Cent")){
+                cutStringsName[i]                                   = GetCentralityString(fEventCutSelection.Data());
+            } else if (cutVariationName.Contains("DiffRapWindow")){
+                TString fRapidityCut                                = fMesonCutSelection(GetMesonRapidityCutPosition(),1);
+                cutStringsName[i]                                   = AnalyseRapidityMesonCutpPb(CutNumberToInteger(fRapidityCut));
+            } else if (cutVariationName.Contains("MCSmearing")){
+                TString fMCSmearing                                 = fMesonCutSelection(GetMesonUseMCPSmearingCutPosition(),1);
+                cutStringsName[i]                                   = AnalyseMCSmearingCut(CutNumberToInteger(fMCSmearing));
+            } else if (cutVariationName.Contains("ClusterTrackMatchingCalo")){
+                TString fTrackMatching                              = fClusterCutSelection(GetClusterTrackMatchingCutPosition(fClusterCutSelection),1);
+                TString fClusterType                                = fClusterCutSelection(GetClusterTypeCutPosition(fClusterCutSelection),1);
+                cutStringsName[i]                                   = AnalyseTrackMatchingCaloCut(CutNumberToInteger(fTrackMatching), CutNumberToInteger(fClusterType));
+            } else if (cutVariationName.Contains("ClusterTrackMatching")){
+                TString fTrackMatching                              = fClusterCutSelection(GetClusterTrackMatchingCutPosition(fClusterCutSelection),1);
+                TString fClusterType                                = fClusterCutSelection(GetClusterTypeCutPosition(fClusterCutSelection),1);
+                cutStringsName[i]                                   = AnalyseTrackMatchingCut(CutNumberToInteger(fTrackMatching), CutNumberToInteger(fClusterType));
+            } else if (cutVariationName.Contains("ClusterMaterialTRD")){
+                TString fMinPhi                                     = fClusterCutSelection(GetClusterPhiMinCutPosition(fClusterCutSelection),1);
+                TString fMaxPhi                                     = fClusterCutSelection(GetClusterPhiMaxCutPosition(fClusterCutSelection),1);
+                cutStringsName[i]                                   = AnalyseAcceptanceCutPhiCluster(CutNumberToInteger(fMinPhi), CutNumberToInteger(fMaxPhi));
+            } else if (cutVariationName.Contains("ClusterM02")){
+                TString fMinM02Cut                                  = fClusterCutSelection(GetClusterMinM02CutPosition(fClusterCutSelection),1);
+                TString fMaxM02Cut                                  = fClusterCutSelection(GetClusterMaxM02CutPosition(fClusterCutSelection),1);
+                cutStringsName[i]                                   = AnalyseM02Cut(CutNumberToInteger(fMinM02Cut), CutNumberToInteger(fMaxM02Cut));
+            } else if (cutVariationName.Contains("ClusterNCells")){
+                TString fNCellsCut                                  = fClusterCutSelection(GetClusterMinNCellsCutPosition(fClusterCutSelection),1);
+                cutStringsName[i]                                   = AnalyseNCellsCut(CutNumberToInteger(fNCellsCut));
+            } else if (cutVariationName.Contains("ClusterMinEnergy")){
+                TString fMinEnergyCut                               = fClusterCutSelection(GetClusterMinEnergyCutPosition(fClusterCutSelection),1);
+                cout << fMinEnergyCut << "\t" << GetClusterMinEnergyCutPosition(fClusterCutSelection) << "\t"<< fClusterCutSelection.Length()<<endl;
+                cutStringsName[i]                                   = AnalyseMinEnergyCut(CutNumberToInteger(fMinEnergyCut));
+                if(mode == 3 || mode == 5) cutStringsName[i]        = AnalyseMinEnergyCutPHOS(CutNumberToInteger(fMinEnergyCut));
+            } else if (cutVariationName.Contains("ClusterTiming")){
+                TString fTimingCut                                  = fClusterCutSelection(GetClusterTimingCutPosition(fClusterCutSelection),1);
+                cutStringsName[i]                                   = AnalyseClusterTimingCut(CutNumberToInteger(fTimingCut));
+            } else if (cutVariationName.Contains("ClusterNonLinearity")){
+                TString fClusterNonLinearity                        = fClusterCutSelection(GetClusterNonLinearityCutPosition(fClusterCutSelection),2);
+                cutStringsName[i]                                   = AnalyseClusterNonLinearityCut(CutNumberToInteger(fClusterNonLinearity));
+            } else if (cutVariationName.Contains("ClusterAcceptance")){
+                TString fClusterAcc                                 = fClusterCutSelection(GetClusterTypeCutPosition(fClusterCutSelection),5);
+                cutStringsName[i]                                   = AnalyseClusterAcceptanceCut(fClusterAcc);
+            } else if (cutVariationName.Contains("PhotonAsymmetry")){
+                TString fPhotonAsymmetry                            = fGammaCutSelection(GetPhotonDoPhotonAsymmetryCutPosition(fGammaCutSelection),1);
+                cutStringsName[i]                                   = AnalysePhotonAsymmetry(CutNumberToInteger(fPhotonAsymmetry));
+            }
+            cout << cutStringsName[i] << endl;
+        }
         // Set correct graphgram name for corrected yield and efficiency
         nameCorrectedYieldHisto[0]                     = Form("CorrectedYield%s",meson.Data());
         nameCorrectedYieldHisto[1]                     = Form("CorrectedYield%s",meson.Data());
@@ -299,7 +427,6 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
         }
         if(graphCorrectedYieldCutDummy[0][i] && graphCorrectedYieldCutDummy[1][i])
             graphNuclModFacCut[i]   = DivideTGraphAsymErrorByTGraphAsymError(graphCorrectedYieldCutDummy[0][i], graphCorrectedYieldCutDummy[1][i], Form("%s_%s",nameCorrectedYield[1].Data(),cutStringsName[i].Data()));
-
         // Calculate ratios for comparisons
         if(histoNuclModFacCut[i] && histoNuclModFacCut[0]){
             histoRatioCorrectedYieldCut[i] = (TH1D*) histoNuclModFacCut[i]->Clone(Form("histoRatioCorrectedYieldCut%d",i));
@@ -613,8 +740,14 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
     for(Int_t j = 1; j < NumberOfCuts; j++){
         for (Int_t i = 0; i < NBinsPt; i++){
             // Calculate difference (rel/abs) and error for corrected yield
-            DifferenceCut[j][i] = SysErrCut[j][i].value - SysErrCut[0][i].value;
-            DifferenceErrorCut[j][i] = TMath::Sqrt(TMath::Abs(TMath::Power(SysErrCut[j][i].error,2)-TMath::Power(SysErrCut[0][i].error,2)));
+            DifferenceCut[j][i]         = SysErrCut[j][i].value - SysErrCut[0][i].value;
+            // calculate unc assuming binomial correlations
+            DifferenceErrorCut[j][i]    = TMath::Sqrt(TMath::Abs(TMath::Power(SysErrCut[j][i].error,2)-TMath::Power(SysErrCut[0][i].error,2)));
+            // attempt at Barlow
+            if (! (TMath::Abs(DifferenceCut[j][i]) > 0.8*DifferenceErrorCut[j][i])){
+                DifferenceCut[j][i] = 0;
+                DifferenceErrorCut[j][i] = 0;
+            }
             if(SysErrCut[0][i].value != 0){
                 RelDifferenceCut[j][i] = DifferenceCut[j][i]/SysErrCut[0][i].value*100. ;
                 RelDifferenceErrorCut[j][i] = DifferenceErrorCut[j][i]/SysErrCut[0][i].value*100. ;
@@ -641,25 +774,49 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
         }
     }
 
+    for (Int_t j = 0; j < NumberOfCuts; j++){
+        cout << "RpA: " << j << endl;
+        graphNuclModFacCut[j]->Print();
+    }
     // Write systematic error input to log file
     TString SysErrDatname = Form("%s/%s_%s_SystematicErrorCutStudies.dat",outputDir.Data(),meson.Data(),prefix2.Data());
     fstream SysErrDat;
     SysErrDat.open(SysErrDatname.Data(), ios::out);
     SysErrDat << "Calculation of the systematic error due to the yield cuts" << endl;
-
-    for (Int_t l=0; l< NumberOfCuts; l++){
-        if (l == 0) {
-            SysErrDat << endl <<"Bin" << "\t" << cutNumber[l] << "\t" <<endl;
-            for(Int_t i = 0; i < (NBinsPt); i++){
-                SysErrDat << BinsXCenter[i] << "\t" << SysErrCut[l][i].value << "\t" << SysErrCut[l][i].error << endl;
-            }
-        } else{
-            SysErrDat << endl <<"Bin" << "\t" << cutNumber[l] << "\t" << "Error " << "\t Dif to Cut1" << endl;
-            for(Int_t i = 0; i < (NBinsPt); i++){
-                SysErrDat << BinsXCenter[i] << "\t" << SysErrCut[l][i].value << "\t" << SysErrCut[l][i].error << "\t" <<  DifferenceCut[l][i] << "\t"<< DifferenceErrorCut[l][i] << "\t"<< RelDifferenceCut[l][i] <<  "\t" << RelDifferenceErrorCut[l][i] << endl;
-            }
+    
+    SysErrDat << "Direct comparison:" << endl;
+    for (Int_t i = 0; i < (NBinsPt); i++){
+        for (Int_t l = 0; l < NumberOfCuts; l++){
+            if (l == 0)
+                SysErrDat << BinsXCenter[i];
+            SysErrDat  << "\t" << SysErrCut[l][i].value; 
+            if (l == NumberOfCuts-1)
+                SysErrDat << endl << endl<< endl;
         }
     }
+    SysErrDat << "Direct comparison abs diff:" << endl;
+    for (Int_t i = 0; i < (NBinsPt); i++){
+        for (Int_t l = 0; l < NumberOfCuts; l++){
+            if (l == 0)
+                SysErrDat << BinsXCenter[i] << "\t" << SysErrCut[l][i].value;
+            else 
+                SysErrDat  << "\t" << DifferenceCut[l][i]; 
+            if (l == NumberOfCuts-1)
+                SysErrDat << endl<< endl<< endl;
+        }
+    }
+    SysErrDat << "Direct comparison rel diff:" << endl;
+    for (Int_t i = 0; i < (NBinsPt); i++){
+        for (Int_t l = 0; l < NumberOfCuts; l++){
+            if (l == 0)
+                SysErrDat << BinsXCenter[i] << "\t" << SysErrCut[l][i].value;
+            else 
+                SysErrDat  << "\t" << RelDifferenceCut[l][i] <<"%"; 
+            if (l == NumberOfCuts-1)
+                SysErrDat << endl<< endl<< endl;
+        }
+    }
+    
     SysErrDat << endl;
     SysErrDat << endl;
     SysErrDat << "Bin" << "\t" << "Largest Dev Neg" << "\t" << "Largest Dev Pos"  << endl;
@@ -672,6 +829,8 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
         if ( SysErrCut[0][i].value != 0.){
             LargestDiffRelNeg[i] = - LargestDiffNeg[i]/SysErrCut[0][i].value*100.;
             LargestDiffRelPos[i] = LargestDiffPos[i]/SysErrCut[0][i].value*100.;
+//             LargestDiffRelErrorNeg[i] = TMath::Abs(LargestDiffRelNeg[i]*0.01);
+//             LargestDiffRelErrorPos[i] = TMath::Abs(LargestDiffRelPos[i]*0.01);
             LargestDiffRelErrorNeg[i] = - LargestDiffErrorNeg[i]/SysErrCut[0][i].value*100.;
             LargestDiffRelErrorPos[i] = LargestDiffErrorPos[i]/SysErrCut[0][i].value*100.;
             if (i > 0){
@@ -693,15 +852,18 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
 
     // Create sys-err graphs
     TGraphAsymmErrors* SystErrGraphNeg = new TGraphAsymmErrors(NBinsPt, BinsXCenter, LargestDiffRelNeg, BinsXWidth, BinsXWidth, LargestDiffRelErrorNeg, LargestDiffRelErrorNeg);
-    SystErrGraphNeg->SetName(Form("%sRatio_SystErrorRelNeg_%s",meson.Data(),cutVariationName.Data()));
+    SystErrGraphNeg->SetName(Form("%sRatio_SystErrorRelNeg_%s%s",meson.Data(),cutVariationName.Data(),addOutput.Data()));
+    cout << "neg rel erros:" << endl;
+    SystErrGraphNeg->Print();
     TGraphAsymmErrors* SystErrGraphPos = new TGraphAsymmErrors(NBinsPt, BinsXCenter, LargestDiffRelPos, BinsXWidth, BinsXWidth, LargestDiffRelErrorPos, LargestDiffRelErrorPos);
-    SystErrGraphPos->SetName(Form("%sRatio_SystErrorRelPos_%s",meson.Data(),cutVariationName.Data()));
-
+    SystErrGraphPos->SetName(Form("%sRatio_SystErrorRelPos_%s%s",meson.Data(),cutVariationName.Data(),addOutput.Data()));
+    cout << "pos rel erros:" << endl;
+    SystErrGraphPos->Print();
     // Write sys-err graph to root output file
     TString Outputname = Form("%s/%sRatio_%s_SystematicErrorCuts.root",outputDirRootFile.Data(),meson.Data(),prefix2.Data());
     TFile* SystematicErrorFile = new TFile(Outputname.Data(),"UPDATE");
-        SystErrGraphPos->Write(Form("%sRatio_SystErrorRelPos_%s",meson.Data(),cutVariationName.Data()),TObject::kOverwrite);
-        SystErrGraphNeg->Write(Form("%sRatio_SystErrorRelNeg_%s",meson.Data(),cutVariationName.Data()),TObject::kOverwrite);
+        SystErrGraphPos->Write(Form("%sRatio_SystErrorRelPos_%s%s",meson.Data(),cutVariationName.Data(),addOutput.Data()),TObject::kOverwrite);
+        SystErrGraphNeg->Write(Form("%sRatio_SystErrorRelNeg_%s%s",meson.Data(),cutVariationName.Data(),addOutput.Data()),TObject::kOverwrite);
     SystematicErrorFile->Write();
     SystematicErrorFile->Close();
 // */

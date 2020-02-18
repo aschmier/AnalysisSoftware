@@ -581,7 +581,7 @@
                             case 81:
                             case 82:
                             case 83:
-                                return 28;      // EGA triggers
+                                return 13;      // EGA triggers
                                 break;
                             default:
                                 return 7;
@@ -1151,7 +1151,7 @@
                         case 81:
                         case 82:
                         case 83:
-                            return 13;      // EGA triggers
+                            return 12;      // EGA triggers
                             break;
                         default:
                             return 6;
@@ -1185,7 +1185,7 @@
                         case 81:
                         case 82:
                         case 83:
-                            return 15;      // EGA triggers
+                            return 7;      // EGA triggers
                             break;
                         default:
                             return 10;
@@ -1456,7 +1456,7 @@
         // Heavy meson fix
         if( mode>=100 ) mode -= 100;
 
-        cout << meson.Data() <<  "\t" <<  specialTrigg << "\t" << energy.Data() << endl;
+        cout << "Debug: GetStartBin: " << meson.Data() <<  "\t" <<  specialTrigg << "\t" << energy.Data() << endl;
         Int_t startPtBin = 0;
         //*************************************************************************************************
         //******************** Determine startbin for Pi0  ************************************************
@@ -1670,7 +1670,7 @@
                     case 13:
                         switch (specialTrigg){
                             case 0: // INT7 trigger
-                                if ((centrality.CompareTo("0-100%") == 0 ) )
+                                if ((centrality.CompareTo("0-100%") == 0 ) || energy.CompareTo("5TeVRefpPb")==0)
                                     startPtBin     = 1;
                                 else
                                     startPtBin     = 5;
@@ -1679,13 +1679,13 @@
                                 startPtBin     = 1;
                                 break;
                             case 2: // EG2 trigger
-                                if ((centrality.CompareTo("0-100%") == 0 ) )
+                                if ((centrality.CompareTo("0-100%") == 0 ) || energy.CompareTo("5TeVRefpPb")==0)
                                     startPtBin     = 9;
                                 else
                                     startPtBin     = 2;
                                 break;
                             case 3: // EG1 trigeer
-                                if ((centrality.CompareTo("0-100%") == 0 ) )
+                                if ((centrality.CompareTo("0-100%") == 0 ) || energy.CompareTo("5TeVRefpPb")==0)
                                     startPtBin     = 11;
                                 else
                                     startPtBin     = 2;
@@ -1708,7 +1708,7 @@
                     case 12:
                         switch (specialTrigg){
                             case 0: // INT7 trigger
-                                if (centrality.CompareTo("0-100%") == 0)
+                                if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
                                     startPtBin     = 2;
                                 else
                                     startPtBin     = 2;
@@ -1717,13 +1717,13 @@
                                 startPtBin     = 3;
                                 break;
                             case 2: // EG2 trigger
-                                if ((centrality.CompareTo("0-100%") == 0 ) )
+                                if ((centrality.CompareTo("0-100%") == 0 ) || energy.CompareTo("5TeVRefpPb")==0) 
                                     startPtBin     = 3;
                                 else
                                     startPtBin     = 1;
                                 break;
                             case 3: // EG1 trigger
-                                if ((centrality.CompareTo("0-100%") == 0 ) )
+                                if ((centrality.CompareTo("0-100%") == 0 ) || energy.CompareTo("5TeVRefpPb")==0) 
                                     startPtBin     = 6;
                                 else
                                     startPtBin     = 1;
@@ -2195,7 +2195,7 @@
                     case 13:
                         switch(specialTrigg){
                             case 0: // INT7 trigger
-                                if (centrality.CompareTo("0-100%") == 0)
+                                if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
                                     startPtBin     = 2;
                                 else
                                     startPtBin     = 6;
@@ -2204,14 +2204,14 @@
                                 startPtBin     = 1;
                                 break;
                             case 2: // EG2 trigger
-                                if (centrality.CompareTo("0-100%") == 0)
-                                    startPtBin     = 8;
+                                if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
+                                    startPtBin     = 2;
                                 else
                                     startPtBin     = 3;
                                 break;
                             case 3: // EG1 trigger
-                                if (centrality.CompareTo("0-100%") == 0)
-                                    startPtBin     = 7;
+                                if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
+                                    startPtBin     = 2;
                                 else
                                     startPtBin     = 2;
                                 break;
@@ -2234,7 +2234,7 @@
                             case 0: // INT7 trigger
                                 if (energy.CompareTo("pPb_5.023TeVCent") == 0)
                                     startPtBin     = 6;
-                                else if (centrality.CompareTo("0-100%") == 0)
+                                else if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
                                     startPtBin     = 2;
                                 else
                                     startPtBin     = 2;
@@ -2243,14 +2243,14 @@
                                 startPtBin     = 3;
                                 break;
                             case 2: // EG2 trigger
-                                if (centrality.CompareTo("0-100%") == 0)
+                                if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
                                     startPtBin     = 2;
                                 else
                                     startPtBin     = 3;
                                 break;
                             case 3: // EG1 trigger
-                                if (centrality.CompareTo("0-100%") == 0)
-                                    startPtBin     = 7;
+                                if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
+                                    startPtBin     = 4;
                                 else
                                     startPtBin     = 2;
                                 break;
@@ -2523,7 +2523,7 @@
         TString     centrality      = "",
         Bool_t      DoJetAnalysis   = kFALSE
     ){
-        cout<<"Debug, ExtractSignalBinning.h, Line: " << __LINE__ << "; GetBinning called with " << endl << "binningMax: " << binningMax << "; meson: " << meson.Data() << "; energy: " << energy.Data() << "; mode: " << mode << "; SpecialTrigger: " << SpecialTrigger << "DCAcase: " << DCAcase<<"; centrality: " << centrality.Data() << "; centrality: " << centrality << "; DoJetAnalysis: " << DoJetAnalysis << endl;
+        cout<<"Debug, ExtractSignalBinning.h, Line: " << __LINE__ << "; GetBinning called with " << endl << "binningMax: " << binningMax << "; meson: " << meson.Data() << "; energy: " << energy.Data() << "; mode: " << mode << "; SpecialTrigger: " << SpecialTrigger << "; DCAcase: " << DCAcase<<"; centrality: " << centrality.Data() << "; centrality: " << centrality << "; DoJetAnalysis: " << DoJetAnalysis << endl;
         Int_t maxNBins      = 0;
         binningMax          = 0;
         //*************************************************************************************************
@@ -3082,8 +3082,8 @@
                         cout << SpecialTrigger << "\t" << centrality.Data() << "\t" << energy.Data() << endl;
                         switch (SpecialTrigger){
                             case 0: // INT7 trigger
-                                if ( centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCPt,binning,53);
+                                if ( centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0) 
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCPt,binning,57);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCCentPt,binning, 38);
                                 break;
@@ -3163,7 +3163,7 @@
                         break;
                     case 20:
                         if ( !centrality.CompareTo("0-100%")){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombPt,binning,82);
+                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombPt,binning,86);
                         } else {
                             maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombCentPt,binning,50);
                         }
@@ -3964,19 +3964,19 @@
                                 break;
                             case 2:
                                 if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCTrigEG2Pt,binning, 24);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCTrigEG2Pt,binning, 15);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCTrigEG2CentPt,binning, 8);
                                 break;
                             case 3:
                                 if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCTrigEG1Pt,binning, 20);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCTrigEG1Pt,binning, 17);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCTrigEG1CentPt,binning, 8);
                                 break;
                             default:
                                 if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCCombTrigPt,binning, 44);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCCombTrigPt,binning, 39);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVPCMEMCCombTrigCentPt,binning, 24);
 
@@ -4010,20 +4010,20 @@
                                 break;
                             case 2:
                                 if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG2Pt,binning, 22);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG2Pt,binning, 19);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG2CentPt,binning, 11);
                                 break;
                             case 3:
                                 if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG1Pt,binning, 22);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG1Pt,binning, 19);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCTrigEG1CentPt,binning, 9);
                                 break;
                             default:
                                 if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigPt,binning, 39);
-                                else
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigPt,binning, 35);
+                                else 
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigCentPt,binning, 20);
                                 break;
                         }
@@ -4040,7 +4040,7 @@
                         cout << "entered case 20" << endl;
                         if (!centrality.CompareTo("0-100%") || energy.CompareTo("5TeVRefpPb")==0){
                             maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVCombPt,binning);
-                            maxNBins    = 47;
+                            maxNBins    = 41;
                         } else {
                             maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVCombCentPt,binning);
                             maxNBins    = 28;
@@ -4722,13 +4722,23 @@
             } else if ( trigger.CompareTo("83") == 0    ){
                 triggerSetTemp = 3; //L1 G2 (lower threshold)
             }
-        } else if (energy.Contains("5TeV2017") || energy.CompareTo("5TeVRefpPb")==0) {
+        } else if (energy.Contains("5TeV2017") ) {
             if (trigger.CompareTo("a1") == 0){
                 triggerSetTemp = 1;    // EMC7
             } else if ( trigger.CompareTo("a2") == 0 ){
                 triggerSetTemp = 2; // EG2
             } else if ( trigger.CompareTo("a3") == 0    ){
                 triggerSetTemp = 3; // EG1
+            } else if ( trigger.CompareTo("ap") == 0    ){
+                triggerSetTemp = 4; // MB
+            } else if ( trigger.CompareTo("10") == 0  && energy.CompareTo("5TeVRefpPb")==0  ){
+                triggerSetTemp = 0; // MB
+            }
+        } else if ( energy.CompareTo("5TeVRefpPb")==0) {
+            if (trigger.CompareTo("a1") == 0){
+                triggerSetTemp = 2;    // EMC7
+            } else if ( trigger.CompareTo("a2") == 0 ){
+                triggerSetTemp = 3; // EG2
             } else if ( trigger.CompareTo("ap") == 0    ){
                 triggerSetTemp = 4; // MB
             } else if ( trigger.CompareTo("10") == 0  && energy.CompareTo("5TeVRefpPb")==0  ){

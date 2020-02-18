@@ -424,7 +424,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     fNLMmin                             = 0;
                 }
             }
-            if ((optionEnergy.Contains("Pb") || optionEnergy.Contains("Xe")) && i == 0 ){
+            if ((optionEnergy.Contains("Pb") || optionEnergy.Contains("Xe")) && i == 0 && !optionEnergy.Contains("pPbRef")){
                 fCent                                   = GetCentralityString(fEventCutSelection);
                 centEstimator                           = GetCentralityEstimatorString(fEventCutSelection);
                 fCentOutput                             = GetCentralityStringOutput(fEventCutSelection);
@@ -472,7 +472,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
               }
             }
         } else {
-            if ((optionEnergy.Contains("Pb") || optionEnergy.Contains("Xe")) && i == 0 ){
+            if ((optionEnergy.Contains("Pb") || optionEnergy.Contains("Xe")) && i == 0 && !optionEnergy.Contains("pPbRef")){
                 fCent                                   = GetCentralityString(cutNumber[i]);
                 centEstimator                           = GetCentralityEstimatorString(cutNumber[i]);
                 fCentOutput                             = GetCentralityStringOutput(cutNumber[i]);
@@ -572,9 +572,13 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //*************************** set common binning ****************************************************************
     //***************************************************************************************************************
+    Int_t combTriggerSet            = -1;
+    if (( optionEnergy.CompareTo("pPb_5.023TeV") == 0 || optionEnergy.CompareTo("5TeVRefpPb") == 0 )&& numberOfTrigg == 1 && mode == 2) // need to make exception for RpA as pp only has MB
+        combTriggerSet              = 0;
+        
     Double_t binningPi0[400];
     Int_t maxNBinsPi0Abs            = 0;
-    Int_t maxNBinsPi0               = GetBinning( binningPi0, maxNBinsPi0Abs, "Pi0", optionEnergy, mode, -1, kFALSE, fCent, fDoJetAnalysis );
+    Int_t maxNBinsPi0               = GetBinning( binningPi0, maxNBinsPi0Abs, "Pi0", optionEnergy, mode, combTriggerSet, kFALSE, fCent, fDoJetAnalysis );
     Int_t maxNAllowedPi0            = 0;
     Int_t nRealTriggers             = 0;
     cout << "binning pi0" << endl;
@@ -586,7 +590,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
     Double_t binningEta[400];
     Int_t maxNBinsEtaAbs            = 0;
-    Int_t maxNBinsEta               = GetBinning( binningEta, maxNBinsEtaAbs, "Eta", optionEnergy, mode, -1, kFALSE, fCent, fDoJetAnalysis );
+    Int_t maxNBinsEta               = GetBinning( binningEta, maxNBinsEtaAbs, "Eta", optionEnergy, mode, combTriggerSet, kFALSE, fCent, fDoJetAnalysis );
     Int_t maxNAllowedEta            = 0;
     Int_t maxNAllowedEtaToPi0       = 0;
     if (enableEta){
@@ -608,8 +612,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
       if(mode == 4) outputDir = Form("%s/%s/%s/FinalResultsTriggersPatched_EMCAL%s", suffix.Data(),optionEnergy.Data(),dateForOutput.Data(),fNLMStringOutput.Data());
       if(mode == 2) outputDir = Form("%s/%s/%s/FinalResultsTriggersPatched_PCMEMCAL%s", suffix.Data(),optionEnergy.Data(),dateForOutput.Data(),fNLMStringOutput.Data());
     }
-    if (optionEnergy.Contains("Pb") || optionEnergy.Contains("Xe")){
+    if ( (optionEnergy.Contains("Pb") || optionEnergy.Contains("Xe")) && !optionEnergy.Contains("RefpPb") ){
         outputDir       = outputDir+"_"+fCentOutput;
+    } else {
+        outputDir       = outputDir+"_RefpPb";
     }
     if (optionEnergy.BeginsWith("5TeV") && (fSphericityCut.CompareTo("0") != 0 ) ){
         outputDir       = outputDir+"_"+fCentOutput;
@@ -2665,8 +2671,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
       if(mode == 2){
         offSetsPi0[1] = 0; //INT7
-        offSetsPi0[4] = 0; //EG2
-        offSetsPi0[5] = 0; //EG1
+        offSetsPi0[4] = 30; //EG2
+        offSetsPi0[5] = 38; //EG1
       }else if(mode == 4){
         offSetsPi0[1] = 0; //INT7
         if (fCentOutput.Contains("00100")){
@@ -3128,7 +3134,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         }
     } else if (optionEnergy.Contains("pPb_5.023TeV") ){
         if(mode == 2 ){
-            offSetsPi0Sys[1]+=3;
             offSetsPi0Sys[4]+=offSetsPi0[4];
             offSetsPi0Sys[5]+=offSetsPi0[5];
         } else if(mode == 4 ){
@@ -5540,7 +5545,16 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 // offSetsEta[4] = 2; //EGA
             }
         } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
-            if(mode == 4){
+            if(mode == 2){
+                offSetsEta[1] = 0; //INT7
+                if (fCentOutput.Contains("00100")){
+                    offSetsEta[4] = 16; //EG2
+                    offSetsEta[5] = 21; //EG1
+                } else {
+                    offSetsEta[4] = 7; //EG2
+                    offSetsEta[5] = 11; //EG1                
+                }
+            } else if(mode == 4){
                 offSetsEta[1] = 0; //INT7
                 if (fCentOutput.Contains("00100")){
                     offSetsEta[4] = 13; //EG2
@@ -6948,7 +6962,16 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     offSetsEtaToPi0[4] = -2; //EGA
                 }
             } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
-                if(mode == 4){
+                if(mode == 2){
+                    offSetsEtaToPi0[1] = 0; //INT7
+                    if (fCentOutput.Contains("00100")){
+                        offSetsEtaToPi0[4] = 16; //EG2
+                        offSetsEtaToPi0[5] = 21; //EG1
+                    } else {
+                        offSetsEtaToPi0[4] = 7; //EG2
+                        offSetsEtaToPi0[5] = 11; //EG1                
+                    }
+                } else if(mode == 4){
                     offSetsEtaToPi0[1] = 0; //INT7
                     if (fCentOutput.Contains("00100")){
                         offSetsEtaToPi0[4] = 13; //EG2
@@ -8000,8 +8023,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
     cout << "Writing output file" << endl;
     TString fileNameOutputComp  = Form("%s/%s_%sResultsFullCorrection_PP.root",outputDir.Data(),isMC.Data(),system.Data());
-    if (optionEnergy.Contains("pPb"))
+    if (optionEnergy.Contains("pPb") && !optionEnergy.Contains("RefpPb") )
         fileNameOutputComp      = Form("%s/%s_%sResultsFullCorrection_pPb.root",outputDirDay.Data(),isMC.Data(),system.Data());
+    else if( optionEnergy.Contains("RefpPb"))
+        fileNameOutputComp      = Form("%s/%s_%sResultsFullCorrection_PP.root",outputDirDay.Data(),isMC.Data(),system.Data());
     else if (optionEnergy.Contains("PbPb"))
         fileNameOutputComp      = Form("%s/%s_%sResultsFullCorrection_PbPb.root",outputDirDay.Data(),isMC.Data(),system.Data());
     else if (optionEnergy.Contains("XeXe"))
@@ -8171,9 +8196,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     fileOutputForComparisonFullyCorrected->Write();
     fileOutputForComparisonFullyCorrected->Close();
 
-    if (optionEnergy.Contains("pPb")){
+    if (optionEnergy.Contains("pPb") && !optionEnergy.Contains("RefpPb")){
         TString fileNameOutputComp2      = Form("%s/%s_%sResultsFullCorrection_pPb.root",outputDir.Data(),isMC.Data(),system.Data());
         gSystem->Exec("cp -f "+fileNameOutputComp+" "+fileNameOutputComp2);
+    } else if (optionEnergy.Contains("RefpPb")){
+        TString fileNameOutputComp2      = Form("%s/%s_%sResultsFullCorrection_PP.root",outputDir.Data(),isMC.Data(),system.Data());
+        gSystem->Exec("cp -f "+fileNameOutputComp+" "+fileNameOutputComp2);
     }
-
 }

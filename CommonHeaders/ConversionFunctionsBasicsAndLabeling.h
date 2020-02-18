@@ -3287,6 +3287,18 @@
                 return "-2 #sigma < TPC dE/dx - #LTdE/dx#GT 3.5 < #sigma";
             case 9: // -3,4
                 return "-3 #sigma < TPC dE/dx - #LTdE/dx#GT < 4 #sigma";
+            case 10: // -3,3
+                return "-3 #sigma < TPC dE/dx - #LTdE/dx#GT < 3 #sigma";
+            case 11: // -3.2,3.2
+                return "-3.2 #sigma < TPC dE/dx - #LTdE/dx#GT < 3.2 #sigma";
+            case 12: // -2.8,2.8
+                return "-2.8 #sigma < TPC dE/dx - #LTdE/dx#GT < 2.8 #sigma";
+            case 13: // -#infty,#infty
+                return "-#infty #sigma < TPC dE/dx - #LTdE/dx#GT < #infty #sigma";
+            case 14: // -7,1
+                return "-7 #sigma < TPC dE/dx - #LTdE/dx#GT < 1 #sigma";
+            case 15: // -3,4
+                return "-3 #sigma < TPC dE/dx - #LTdE/dx#GT < 4 #sigma";
             default:
                 return "no dEdx cut defined";
         }
@@ -3382,8 +3394,20 @@
                 return "-2 < #sigma_{e} < 3.5";
             case 8: // -2.5,3
                 return "-2.5 < #sigma_{e} < 3";
-            case 9: // -2.5,5
-                return "-2.5 < #sigma_{e} < 5";
+            case 9: // -3,4
+                return "-3 < #sigma_{e} < 4";
+            case 10: // -3,3
+                return "-3 < #sigma_{e} < 3";
+            case 11: // -3.2,3.2
+                return "-3.2 < #sigma_{e} < 3.2";
+            case 12: // -2.8,2.8
+                return "-2.8 < #sigma_{e} < 2.8";
+            case 13: // -#infty,#infty
+                return "-#infty < #sigma_{e} < #infty";
+            case 14: // -7,1
+                return "-7 < #sigma_{e} < 1";
+            case 15: // -3,4
+                return "-3 < #sigma_{e} < 4";
             default:
                 return "no dEdx cut defined";
         }
@@ -3550,7 +3574,8 @@
                                     Int_t psiPairCut){   // Set Cut
 
         TString psiPairCutString            = "";
-        Bool_t k2DPsiPairChi2               = kFALSE;
+        Int_t k2DPsiPairChi2                = 0;
+        cout << "chi2: " << chi2GammaCut << "\t" << " psi pair: " << psiPairCut << endl;
         switch(psiPairCut) {
             case 0:
                 psiPairCutString = "|#Psi_{Pair}| < 10000";
@@ -3569,22 +3594,59 @@
                 break;
             case 5:
                 psiPairCutString = "|#Psi_{Pair}| < 0.1";
-                k2DPsiPairChi2= kTRUE;
+                k2DPsiPairChi2= 1;
                 break;
             case 6:
                 psiPairCutString = "|#Psi_{Pair}| < 0.05";
-                k2DPsiPairChi2= kTRUE;
+                k2DPsiPairChi2= 1;
                 break;
             case 7:
                 psiPairCutString = "|#Psi_{Pair}| < 0.035";
-                k2DPsiPairChi2= kTRUE;
+                k2DPsiPairChi2= 1;
                 break;
             case 8:
                 psiPairCutString =  "|#Psi_{Pair}| < 0.2";
-                k2DPsiPairChi2= kTRUE;
+                k2DPsiPairChi2= 1;
                 break;
             case 9:
-                psiPairCutString =  "|#Psi_{Pair}| < 0.5";
+                psiPairCutString =  "|#Psi_{Pair}| < 0.1";
+                k2DPsiPairChi2= 1;
+                break;
+            case 10:
+                psiPairCutString =  "|#Psi_{Pair}| < 0.25";
+                k2DPsiPairChi2= 1;
+                break;
+            case 11:
+                psiPairCutString =  "|#Psi_{Pair}| < 0.3";
+                k2DPsiPairChi2= 1;
+                break;
+            case 12:
+                psiPairCutString =  "|#Psi_{Pair}| < 0.15";
+                k2DPsiPairChi2= 1;
+                break;
+            case 13:
+                psiPairCutString =  "|#Psi_{Pair}| < 0.15";
+                k2DPsiPairChi2= 2;
+                break;
+            case 14:
+                psiPairCutString =  "|#Psi_{Pair}| < 0.18";
+                k2DPsiPairChi2= 2;
+                break;
+            case 15:
+                psiPairCutString =  "|#Psi_{Pair}| < 0.20";
+                k2DPsiPairChi2= 2;
+                break;
+            case 16:
+                psiPairCutString =  "|#Psi_{Pair}| < 0.3";
+                k2DPsiPairChi2= 2;
+                break;
+            case 17:
+                psiPairCutString =  "|#Psi_{Pair}| < 0.35";
+                k2DPsiPairChi2= 2;
+                break;
+            case 18:
+                psiPairCutString =  "|#Psi_{Pair}| < 0.4";
+                k2DPsiPairChi2= 2;
                 break;
             default:
                 psiPairCutString =  "#Psi_{Pair} cut not defined";
@@ -3638,12 +3700,32 @@
         case 14:
             chi2CutString = "#chi_{#gamma}^{2} < 55";
             break;
+        case 15:
+            chi2CutString = "*exp(-0.065*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            break;
+        case 16:
+            chi2CutString = "*exp(-0.055*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            break;
+        case 17:
+            chi2CutString = "*exp(-0.050*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            break;
+        case 18:
+            chi2CutString = "*exp(-0.075*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            break;
+        case 19:
+            chi2CutString = "*exp(-0.085*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            break;
+        case 20:
+            chi2CutString = "*exp(-0.055*#chi^{2}), #chi_{#gamma}^{2} < 20";
+            break;
         default:
             chi2CutString = "#chi_{#gamma}^{2} cut unknown";
             break;
         }
-        if (k2DPsiPairChi2){
-            return Form("2D cut: %s, %s", chi2CutString.Data(), psiPairCutString.Data());
+        if (k2DPsiPairChi2 == 1){
+            return Form("triangle cut: %s, %s", chi2CutString.Data(), psiPairCutString.Data());
+        } else if (k2DPsiPairChi2 == 2){
+            return Form("%s%s", psiPairCutString.Data(), chi2CutString.Data());
         } else {
             return Form("1D cut: %s, 1D cut %s", chi2CutString.Data(), psiPairCutString.Data());
         }
@@ -3676,6 +3758,28 @@
                 return "2D ellipse q_{T}_{#gamma} < 0.05 GeV/c, #alpha < 0.95";
             case 9:
                 return "2D ellipse q_{T}_{#gamma} < 0.03 GeV/c, #alpha < 0.95";
+            case 10:
+                return "2D ellipse, q_{T,#gamma} < 0.11p_{T,#gamma} && q_{T,#gamma} < 0.04 GeV/c, #alpha < 0.95";
+            case 11:
+                return "2D ellipse, q_{T,#gamma} < 0.125p_{T,#gamma} && q_{T,#gamma} < 1 GeV/c, #alpha < 0.95";
+            case 12:
+                return "2D ellipse, q_{T,#gamma} < 0.125p_{T,#gamma} && q_{T,#gamma} < 1 GeV/c, #alpha < 0.95";
+            case 13:
+                return "2D ellipse, q_{T,#gamma} < 0.125p_{T,#gamma} && q_{T,#gamma} < 0.05 GeV/c, #alpha < 0.95";
+            case 14:
+                return "2D ellipse, q_{T,#gamma} < 0.14p_{T,#gamma} && q_{T,#gamma} < 0.06 GeV/c, #alpha < 0.95";
+            case 15:
+                return "2D ellipse, q_{T,#gamma} < 0.16p_{T,#gamma} && q_{T,#gamma} < 0.032 GeV/c, #alpha < 0.95";
+            case 16:
+                return "2D ellipse, q_{T,#gamma} < 0.18*p_{T,#gamma} && q_{T,#gamma} < 0.032 GeV/c, #alpha < 0.95";
+            case 17:
+                return "2D ellipse, q_{T,#gamma} < 0.2*p_{T,#gamma} && q_{T,#gamma} < 1 GeV/c, #alpha < 0.95";
+            case 18:
+                return "2D ellipse, q_{T,#gamma} < 0.2*p_{T,#gamma} && q_{T,#gamma} < 0.035 GeV/c, #alpha < 0.95";
+            case 19:
+                return "2D ellipse, q_{T,#gamma} < 0.25*p_{T,#gamma} && q_{T,#gamma} < 0.04 GeV/c, #alpha < 0.95";
+            case 20:
+                return "2D ellipse, q_{T,#gamma} < 0.3*p_{T,#gamma} && q_{T,#gamma} < 0.045 GeV/c, #alpha < 0.95";
             default:
                 return "no q_{T}_{#gamma} cut defined";
         }
@@ -3849,6 +3953,14 @@
                 return "#eta_{#gamma,e^{#pm}} < 0.4";
             case 9: // 10
                 return "#eta_{#gamma,e^{#pm}} < 10";
+            case 10: // 
+                return "0.2 < #eta_{#gamma,e^{#pm}} < 0.9";
+            case 11: // 
+                return "0.2 < #eta_{#gamma,e^{#pm}} < 0.9";
+            case 12: // 
+                return "#eta_{#gamma,e^{#pm}} < 0.85";
+            case 13: // 
+                return "#eta_{#gamma,e^{#pm}} < 0.8";
             default:
                 return "no #eta_{#gamma,e^{#pm}} cut defined";
         }
@@ -3880,6 +3992,14 @@
                 return "#eta_{#gamma,e^{#pm}} < 0.4";
             case 9: // 10
                 return "#eta_{#gamma,e^{#pm}} < 10";
+            case 10: // 
+                return "0.2 < #eta_{#gamma,e^{#pm}} < 0.9";
+            case 11: // 
+                return "0.2 < #eta_{#gamma,e^{#pm}} < 0.9";
+            case 12: // 
+                return "#eta_{#gamma,e^{#pm}} < 0.85";
+            case 13: // 
+                return "#eta_{#gamma,e^{#pm}} < 0.8";
             default:
                 return "no #eta_{#gamma,e^{#pm}} cut defined";
         }
@@ -4678,7 +4798,8 @@
     //******** Analyzes the cluster track matching cuts, return correct cut label ********
     //************************************************************************************
     TString AnalyseTrackMatchingCut(Int_t trackmatching, Int_t clusterType ){
-        if (clusterType == 1){
+        cout << "TM: " << trackmatching << "\t cluster type: " << clusterType << endl;
+        if (clusterType == 1 || clusterType == 4){
             switch(trackmatching) {
                 case 0:
                     return "TM disabled";
@@ -4693,13 +4814,36 @@
                 case 5:
                     return "TM #scale[0.5]{#Delta#eta < 0.020, -0.13(-0.08) < #Delta#varphi_{+(-)} < 0.08(0.13)} for V0s";
                 case 6:
-                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.03-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.08-0.015))^{1/2}})^{2}} for V0s";
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.03-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.08-0.015)})^{1/2})^{2}}";
                 case 7:
-                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015))^{1/2}})^{2}} for V0s";
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}}";
                 case 8:
-                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.05-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.10-0.015))^{1/1.75}})^{1.75}}   for V0s";
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.05-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.10-0.015)})^{1/1.75})^{1.75}}";
                 case 9:
-                    return "TM #scale[0.5]{#Delta#eta #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.06-0.015))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.020 + (#frac{1}{#it{p}_{T} + (1/(0.12-0.020))^{1/1.75}})^{1.75}} for V0s";
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.06-0.015))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.020 + (#frac{1}{#it{p}_{T} + (1/(0.12-0.020)})^{1/1.75})^{1.75}}";
+                case 10:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.035-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.085-0.015)})^{1/2})^{2}}";
+                case 11:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.045-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.095-0.015)})^{1/1.75})^{1.75}}";
+                case 12:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}}";
+                case 13:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 3";
+                case 14:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 2";
+                case 15:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 1.75";
+                case 16:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 1.5";
+                case 17:
+                    return "TM #scale[0.5]{#Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}} && E/p < 1.25";
+                case 18:
+                    return "TM #scale[0.5]{MIP subtraction: #Delta#eta < 0.010, -0.011 < #Delta#varphi_{+,-} < 0.011}";
+                case 19:
+                    return "TM #scale[0.5]{MIP subtraction: #Delta#eta < 0.015, -0.02 < #Delta#varphi_{+,-} < 0.02}";
+                case 20:
+                    return "TM #scale[0.5]{MIP subtraction: #Delta#eta #leq 0.010 + (#frac{1}{#it{p}_{T} + (1/(0.04-0.010))^{1/2.5}})^{2.5}, #Delta#phi #leq 0.015 + (#frac{1}{#it{p}_{T} + (1/(0.09-0.015)})^{1/2})^{2}}";
+
                 default:
                     return "track missmatch not defined ";
             }
@@ -4727,6 +4871,7 @@
     //************************************************************************************
     TString AnalyseTrackMatchingCaloCut(Int_t trackmatching, Int_t clusterType ){
         if (clusterType == 1 || clusterType == 4){
+            cout << "TM: " << trackmatching << "\t cluster type: " << clusterType << endl;
             switch(trackmatching) {
                 case 0:
                     return "TM disabled";
