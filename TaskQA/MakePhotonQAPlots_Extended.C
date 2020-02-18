@@ -103,8 +103,7 @@ void MakePhotonQAPlots_Extended(
     // definition of kinds in photon QA tree
     const Int_t nPossibleKinds                = 19;
     TString nameKind[nPossibleKinds]          = {"true #gamma conv.", "", "", "", "", "", "", "", "", "", "e^{#pm}e^{#pm}", "#pi^{#pm}#pi^{#pm}", "#pi^{#pm}p", "e^{#pm}#pi^{#pm}", "", "", "e^{#pm}p", "", "#pi^{#pm}K^{#pm}"};
-    TString nameForFileName[nPossibleKinds]   = {"true", "", "", "", "", "", "", "", "", "", "ee", "pipi", "pip", "epi", "", "", "ep", "", "piK"};
-    Bool_t includeKind[nPossibleKinds]        = {kTRUE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kTRUE, kTRUE, kTRUE, kTRUE, kFALSE, kFALSE, kTRUE, kFALSE, kTRUE};
+    Bool_t includeKind[nPossibleKinds]        = {kTRUE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kTRUE, kTRUE, kTRUE, kFALSE, kFALSE, kTRUE, kFALSE, kFALSE};
     for (Int_t i=0; i<nPossibleKinds; i++) {
         if(includeKind[i])
             cout << "include kind " << i << ": "  << nameKind[i].Data() << endl;
@@ -167,10 +166,12 @@ void MakePhotonQAPlots_Extended(
         6.0, 10., 15., 20., 30.,
         50.};
     // data/MC histograms
-    TH3F* histoGammaAlphaQtPt                   = NULL;
+    TH3F* histoGammaAlphaQtPt                   = NULL;      // read from file
     TH3F* histoGammaAlphaQtPtCopy               = NULL;
-    TH3F* histoGammaChi2PsiPairPt               = NULL;
+    TH3F* histoGammaChi2PsiPairPt               = NULL;      // read from file
     TH3F* histoGammaChi2PsiPairPtCopy           = NULL;
+    TH2D* histoGammaCosPointPt                  = NULL;      // read from file
+
     // projections
     TH2D* histoGammaAlphaQt                     = NULL;
     TH2D* histoGammaAlphaQtPtSliced[15]         = {NULL};
@@ -180,12 +181,15 @@ void MakePhotonQAPlots_Extended(
     TH2D* histoGammaChi2PsiPair                 = NULL;
     TH2D* histoGammaChi2PsiPairPtSliced[15]     = {NULL};
     TH2D* histoGammaChi2Pt                      = NULL;
+
     // true MC histograms
-    TH3F* histoTrueMCKindChi2PsiPairPt[20]      = {NULL};
+    TH3F* histoTrueMCKindChi2PsiPairPt[20]      = {NULL};     // read from file
     TH3F* histoTrueMCKindChi2PsiPairPtCopy[20]  = {NULL};
-    TH3F* histoTrueMCKindAlphaQtPt[20]          = {NULL};
+    TH3F* histoTrueMCKindAlphaQtPt[20]          = {NULL};     // read from file
     TH3F* histoTrueMCKindAlphaQtPtCopy[20]      = {NULL};
-    TH3F* histoTrueGammaChi2PsiPairPt           = NULL;
+    TH3F* histoTrueGammaChi2PsiPairPt           = NULL;       // read from file
+    TH2F* histoTrueMCKindCosPointPt[20]         = {NULL};     // read from file
+
     // projections
     TH2D* histoTrueMCKindQtPt[20]               = {NULL};
     TH2D* histoTrueMCKindAlphaPt[20]            = {NULL};
@@ -197,8 +201,10 @@ void MakePhotonQAPlots_Extended(
     TH2D* histoTrueMCKindAlphaQtPtSliced[20][15]= {NULL};
     TH2D* histoTrueGammaChi2PsiPair             = NULL;
 
+    cout << "read histograms..." << endl;
     histoGammaAlphaQtPt                     = (TH3F*)directoryConv->Get("histoGammaAlphaQtPt");
     histoGammaChi2PsiPairPt                 = (TH3F*)directoryConv->Get("histoGammaChi2PsiPairPt");
+    histoGammaCosPointPt                    = (TH2D*)directoryConv->Get("histoGammaCosPointPt");
 
     histoGammaAlphaQt                       = (TH2D*)histoGammaAlphaQtPt->Project3D("yx");
     histoGammaAlphaPt                       = (TH2D*)histoGammaAlphaQtPt->Project3D("zx");
@@ -218,8 +224,10 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         for(Int_t i=0;i<20;i++){
             if(!includeKind[i]) continue;
+            cout << nameKind[i] << endl;  // attention: need quite some memory to read and store all histograms
             histoTrueMCKindChi2PsiPairPt[i] = (TH3F*)directoryConv->Get(Form("histoTrueMCKindChi2PsiPairPt_kind%d",i));
             histoTrueMCKindAlphaQtPt[i]     = (TH3F*)directoryConv->Get(Form("histoTrueMCKindAlphaQtPt_kind%d",i));
+            histoTrueMCKindCosPointPt[i]    = (TH2F*)directoryConv->Get(Form("histoTrueMCKindCosPointPt_kind%d",i));
 
             histoTrueMCKindQtPt[i]          = (TH2D*)histoTrueMCKindAlphaQtPt[i]->Project3D(Form("zy%d",i));
             histoTrueMCKindAlphaPt[i]       = (TH2D*)histoTrueMCKindAlphaQtPt[i]->Project3D(Form("zx%d",i));
@@ -248,8 +256,8 @@ void MakePhotonQAPlots_Extended(
 
     TLatex* labelpTrange;
     Int_t textSizeLabelsPixel                   = 1200*0.04;
-    TExec *ex1 = NULL;
-    TExec *ex2 = NULL;
+    TExec *ex1 = new TExec("ex1","PalColor();");
+    TExec *ex2 = new TExec("ex2","gStyle->SetPalette(9);");
 
     TLatex *labelEnergy                  = new TLatex(0.95,0.90,Form("%s, %s",labelALICEforPlots.Data(),collisionSystem.Data()));
     SetStyleTLatex( labelEnergy, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,31);
@@ -270,15 +278,13 @@ void MakePhotonQAPlots_Extended(
     //********************************************************************************
     //*            plots                                                             *
     //********************************************************************************
-
+    cout << "plotting qT..." << endl;
     //    ____ _______
     //   / __ \__   __|
     //  | |  | | | |
     //  | |  | | | |
     //  | |__| | | |
     //   \___\_\ |_|
-
-
 
     TCanvas* canvasQtPlots = new TCanvas("canvasQtPlots","",200,10,1350,1200);  // gives the page size
     DrawGammaCanvasSettings( canvasQtPlots, 0.08, 0.02, 0.02, 0.09);
@@ -295,22 +301,18 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
         // draw pi-pi combinatorics
         histoTrueMCKindQtPt[kind_pipi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindQtPt[kind_pipi]->Draw("col,same");
         // draw e-pi combinatorics
         histoTrueMCKindQtPt[kind_epi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindQtPt[kind_epi]->Draw("col,same");
     } else {
         histoGammaQtPt->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoGammaQtPt->Draw("col,same");
     }
@@ -354,13 +356,13 @@ void MakePhotonQAPlots_Extended(
     labelProcess->Draw();
     histo2DQtDummy->Draw("axis,same");
     canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
+    labelBW->Delete();
 
     // plot true, cuts
     histo2DQtDummy->Draw("copy");
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
     }
@@ -382,17 +384,14 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
         // draw e-p combinatorics
         histoTrueMCKindQtPt[kind_ep]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindQtPt[kind_ep]->Draw("col,same");
         // draw pi-p combinatorics
         histoTrueMCKindQtPt[kind_pip]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindQtPt[kind_pip]->Draw("col,same");
     }
@@ -411,18 +410,17 @@ void MakePhotonQAPlots_Extended(
     histo2DQtDummy->Draw("axis,same");
     if (isMC)
         canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
 
     // plot true, pi-pi
     histo2DQtDummy->Draw("copy");
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
         // draw pi-pi combinatorics
         histoTrueMCKindQtPt[kind_pipi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindQtPt[kind_pipi]->Draw("col,same");
     }
@@ -439,23 +437,21 @@ void MakePhotonQAPlots_Extended(
     histo2DQtDummy->Draw("axis,same");
     if (isMC)
         canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_trueGammaAndComb_woCuts.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
 
     // plot true, pi-pi, e-pi
     histo2DQtDummy->Draw("copy");
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindQtPt[kind_true]->Draw("col,same");
         // draw pi-pi combinatorics
         histoTrueMCKindQtPt[kind_pipi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindQtPt[kind_pipi]->Draw("col,same");
         // draw e-pi combinatorics
         histoTrueMCKindQtPt[kind_epi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindQtPt[kind_epi]->Draw("col,same");
     }
@@ -472,11 +468,11 @@ void MakePhotonQAPlots_Extended(
     histo2DQtDummy->Draw("axis,same");
     if (isMC)
         canvasQtPlots->SaveAs(Form("%s/Qt_vs_Pt_trueGammaAndCombPlus_woCuts.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
 
     // plot all rec
     histo2DQtDummy->Draw("copy");
     histoGammaQtPt->Draw("col,same");
-    ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaQtPt->Draw("col,same");
     DrawGammaLines(0.05, 0.05, 0.04, 8, 3, kGreen-8, 9);
@@ -495,6 +491,7 @@ void MakePhotonQAPlots_Extended(
     //    / /\ \  \___ \  \   / | |\/| | |\/| |  __|    | |  |  _  / \   /
     //   / ____ \ ____) |  | |  | |  | | |  | | |____   | |  | | \ \  | |
     //  /_/    \_\_____/   |_|  |_|  |_|_|  |_|______|  |_|  |_|  \_\ |_|
+    cout << "plotting alpha..." << endl;
 
     textSizeLabelsPixel                   = 1200*0.04;
     TCanvas* canvasAsymPlots = new TCanvas("canvasAsymPlots","",200,10,1350,1200);  // gives the page size
@@ -509,7 +506,6 @@ void MakePhotonQAPlots_Extended(
     // RECONSTRUCTED PLOT
     histo2DAlphaDummy->Draw("copy");
     histoGammaAlphaPt->Draw("col,same");
-    ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaAlphaPt->Draw("col,same");
     labelEnergy->Draw();
@@ -523,7 +519,6 @@ void MakePhotonQAPlots_Extended(
     // draw true gamma->ee
     if (isMC){
         histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
     }
@@ -540,17 +535,14 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
         // draw pi-pi combinatorics
         histoTrueMCKindAlphaPt[kind_pipi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindAlphaPt[kind_pipi]->Draw("col,same");
         // draw e-pi combinatorics
         histoTrueMCKindAlphaPt[kind_epi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindAlphaPt[kind_epi]->Draw("col,same");
     }
@@ -563,29 +555,25 @@ void MakePhotonQAPlots_Extended(
     histo2DAlphaDummy->Draw("axis,same");
     if (isMC)
         canvasAsymPlots->SaveAs(Form("%s/Alpha_vs_Pt_trueGammaAndCombPlus_woCuts.%s",outputDir.Data(),suffix.Data()));
-
+    labelBW->Delete();
 
     // TRUE GAMMAS AND COMBINATORIAL GAMMA CANDIDATES PLOT
     histo2DAlphaDummy->Draw("copy");
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
         // draw pi-pi combinatorics
         histoTrueMCKindAlphaPt[kind_pipi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindAlphaPt[kind_pipi]->Draw("col,same");
         // draw e-pi combinatorics
         histoTrueMCKindAlphaPt[kind_epi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindAlphaPt[kind_epi]->Draw("col,same");
     } else {
         histoGammaAlphaPt->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoGammaAlphaPt->Draw("col,same");
     }
@@ -632,23 +620,21 @@ void MakePhotonQAPlots_Extended(
     labelProcessTrue->Draw();
     histo2DAlphaDummy->Draw("axis,same");
     canvasAsymPlots->SaveAs(Form("%s/Alpha_vs_Pt_Final_withCuts_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
+    labelBW->Delete();
 
     // true and proton contamination
         histo2DAlphaDummy->Draw("copy");
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindAlphaPt[kind_true]->Draw("col,same");
         // draw e-p combinatorics
         histoTrueMCKindAlphaPt[kind_ep]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindAlphaPt[kind_ep]->Draw("col,same");
         // draw pi-p combinatorics
         histoTrueMCKindAlphaPt[kind_pip]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindAlphaPt[kind_pip]->Draw("col,same");
     }
@@ -665,6 +651,7 @@ void MakePhotonQAPlots_Extended(
     histo2DAlphaDummy->Draw("axis,same");
     if (isMC)
         canvasAsymPlots->SaveAs(Form("%s/Alpha_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
 
 
     //    _____ _    _ _____ ___
@@ -673,7 +660,7 @@ void MakePhotonQAPlots_Extended(
     //  | |    |  __  | | |   / /
     //  | |____| |  | |_| |_ / /_
     //   \_____|_|  |_|_____|____|
-
+    cout << "plotting chi2..." << endl;
 
     textSizeLabelsPixel                   = 1200*0.04;
     TCanvas* canvasChi2Plots = new TCanvas("canvasChi2Plots","",200,10,1350,1200);  // gives the page size
@@ -688,7 +675,6 @@ void MakePhotonQAPlots_Extended(
     // RECONSTRUCTED PLOT
     histo2DChi2Dummy->Draw("copy");
     histoGammaChi2Pt->Draw("col,same");
-    ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaChi2Pt->Draw("col,same");
     labelEnergy->Draw();
@@ -702,7 +688,6 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
     }
@@ -719,17 +704,14 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
         // draw pi-pi combinatorics
         histoTrueMCKindChi2Pt[kind_pipi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindChi2Pt[kind_pipi]->Draw("col,same");
         // draw e-pi combinatorics
         //histoTrueMCKindChi2Pt[kind_epi]->Draw("col,same");
-        //ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         //ex2->Draw();
         //histoTrueMCKindChi2Pt[kind_epi]->Draw("col,same");
     }
@@ -742,28 +724,25 @@ void MakePhotonQAPlots_Extended(
     histo2DChi2Dummy->Draw("axis,same");
     if (isMC)
         canvasChi2Plots->SaveAs(Form("%s/Chi2_vs_Pt_trueGammaAndCombPlus_woCuts.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
 
     // TRUE GAMMAS AND COMBINATORIAL GAMMA CANDIDATES PLOT
     histo2DChi2Dummy->Draw("copy");
     // draw true gamma->ee
     if (isMC){
         histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
         // // draw pi-pi combinatorics
         // histoTrueMCKindChi2Pt[kind_pipi]->Draw("col,same");
-        // ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         // ex2->Draw();
         // histoTrueMCKindChi2Pt[kind_pipi]->Draw("col,same");
         // // draw e-pi combinatorics
         // histoTrueMCKindChi2Pt[kind_epi]->Draw("col,same");
-        // ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         // ex2->Draw();
         // histoTrueMCKindChi2Pt[kind_epi]->Draw("col,same");
     } else {
         histoGammaChi2Pt->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoGammaChi2Pt->Draw("col,same");
     }
@@ -810,17 +789,14 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindChi2Pt[kind_true]->Draw("col,same");
         // draw e-p combinatorics
         histoTrueMCKindChi2Pt[kind_ep]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindChi2Pt[kind_ep]->Draw("col,same");
         // draw pi-p combinatorics
         histoTrueMCKindChi2Pt[kind_pip]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindChi2Pt[kind_pip]->Draw("col,same");
     }
@@ -836,6 +812,7 @@ void MakePhotonQAPlots_Extended(
     histo2DChi2Dummy->Draw("axis,same");
     if (isMC)
         canvasChi2Plots->SaveAs(Form("%s/Chi2_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
 
     //   _____   _____ _____   _____        _____ _____
     //  |  __ \ / ____|_   _| |  __ \ /\   |_   _|  __ \
@@ -843,7 +820,7 @@ void MakePhotonQAPlots_Extended(
     //  |  ___/ \___ \  | |   |  ___/ /\ \   | | |  _  /
     //  | |     ____) |_| |_  | |  / ____ \ _| |_| | \ \
     //  |_|    |_____/|_____| |_| /_/    \_\_____|_|  \_\
-
+    cout << "plotting psipair..." << endl;
 
 
     textSizeLabelsPixel                   = 1200*0.04;
@@ -859,7 +836,6 @@ void MakePhotonQAPlots_Extended(
     // RECONSTRUCTED PLOT
     histo2DPsiPairDummy->Draw("copy");
     histoGammaPsiPairPt->Draw("col,same");
-    ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaPsiPairPt->Draw("col,same");
     labelEnergy->Draw();
@@ -873,7 +849,6 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
     }
@@ -890,17 +865,14 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
         // draw pi-pi combinatorics
         histoTrueMCKindPsiPairPt[kind_pipi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindPsiPairPt[kind_pipi]->Draw("col,same");
         // draw e-pi combinatorics
         //histoTrueMCKindPsiPairPt[kind_epi]->Draw("col,same");
-        //ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         //ex2->Draw();
         //histoTrueMCKindPsiPairPt[kind_epi]->Draw("col,same");
     }
@@ -913,29 +885,25 @@ void MakePhotonQAPlots_Extended(
     histo2DPsiPairDummy->Draw("axis,same");
     if (isMC)
         canvasPsiPairPlots->SaveAs(Form("%s/PsiPair_vs_Pt_trueGammaAndCombPlus_woCuts.%s",outputDir.Data(),suffix.Data()));
-
+    labelBW->Delete();
 
     // TRUE GAMMAS AND COMBINATORIAL GAMMA CANDIDATES PLOT
     histo2DPsiPairDummy->Draw("copy");
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
         // // draw pi-pi combinatorics
         // histoTrueMCKindPsiPairPt[kind_pipi]->Draw("col,same");
-        // ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         // ex2->Draw();
         // histoTrueMCKindPsiPairPt[kind_pipi]->Draw("col,same");
         // // draw e-pi combinatorics
         // histoTrueMCKindPsiPairPt[kind_epi]->Draw("col,same");
-        // ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         // ex2->Draw();
         // histoTrueMCKindPsiPairPt[kind_epi]->Draw("col,same");
     } else {
         histoGammaPsiPairPt->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoGammaPsiPairPt->Draw("col,same");
     }
@@ -985,17 +953,14 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindPsiPairPt[kind_true]->Draw("col,same");
         // draw e-p combinatorics
         histoTrueMCKindPsiPairPt[kind_ep]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindPsiPairPt[kind_ep]->Draw("col,same");
         // draw pi-p combinatorics
         histoTrueMCKindPsiPairPt[kind_pip]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindPsiPairPt[kind_pip]->Draw("col,same");
     }
@@ -1013,6 +978,7 @@ void MakePhotonQAPlots_Extended(
     histo2DPsiPairDummy->Draw("axis,same");
     if (isMC)
         canvasPsiPairPlots->SaveAs(Form("%s/PsiPair_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
 
 
     //   _____   _____ _____   _____        _____ _____         _____ _    _ _____ ___
@@ -1021,6 +987,7 @@ void MakePhotonQAPlots_Extended(
     //  |  ___/ \___ \  | |   |  ___/ /\ \   | | |  _  /  ___ | |    |  __  | | |   / /
     //  | |     ____) |_| |_  | |  / ____ \ _| |_| | \ \      | |____| |  | |_| |_ / /_
     //  |_|    |_____/|_____| |_| /_/    \_\_____|_|  \_\      \_____|_|  |_|_____|____|
+    cout << "plotting psipair-chi2..." << endl;
 
     textSizeLabelsPixel                   = 1200*0.04;
     TCanvas* canvasChi2PsiPairPlots = new TCanvas("canvasChi2PsiPairPlots","",200,10,1350,1200);  // gives the page size
@@ -1035,7 +1002,6 @@ void MakePhotonQAPlots_Extended(
     // RECONSTRUCTED PLOT
     histo2DChi2PsiPairDummy->Draw("copy");
     histoGammaChi2PsiPair->Draw("col,same");
-    ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaChi2PsiPair->Draw("col,same");
     labelEnergy->Draw();
@@ -1047,7 +1013,6 @@ void MakePhotonQAPlots_Extended(
         histo2DChi2PsiPairDummy->GetZaxis()->SetRangeUser(1,6e2);
         histo2DChi2PsiPairDummy->Draw("copy");
         histoGammaChi2PsiPairPtSliced[bin]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoGammaChi2PsiPairPtSliced[bin]->Draw("col,same");
         labelpTrange    = new TLatex(0.95,0.82,Form("%2.1f < #it{p}_{T} < %2.1f GeV/#it{c}",projBinnin[bin],projBinnin[bin+1]));
@@ -1064,7 +1029,6 @@ void MakePhotonQAPlots_Extended(
     // draw true gamma->ee
     if (isMC){
         histoTrueGammaChi2PsiPair->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueGammaChi2PsiPair->Draw("col,same");
     }
@@ -1081,7 +1045,6 @@ void MakePhotonQAPlots_Extended(
         histo2DChi2PsiPairDummy->Draw("copy");
         // draw true gamma->ee
         histoTrueMCKindChi2PsiPairPtSliced[kind_true][bin]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindChi2PsiPairPtSliced[kind_true][bin]->Draw("col,same");
         labelColor->Draw();
@@ -1102,12 +1065,10 @@ void MakePhotonQAPlots_Extended(
         histo2DChi2PsiPairDummy->Draw("copy");
         // draw true gamma->ee
         histoTrueMCKindChi2PsiPairPtSliced[kind_true][bin]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindChi2PsiPairPtSliced[kind_true][bin]->Draw("col,same");
         // draw e-pi combinatorics
         histoTrueMCKindChi2PsiPairPtSliced[kind_epi][bin]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindChi2PsiPairPtSliced[kind_epi][bin]->Draw("col,same");
         labelColor->Draw();
@@ -1128,17 +1089,14 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueGammaChi2PsiPair->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueGammaChi2PsiPair->Draw("col,same");
         // draw pi-pi combinatorics
         // histoTrueMCKindChi2PsiPair[kind_pipi]->Draw("col,same");
-        // ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         // ex2->Draw();
         // histoTrueMCKindChi2PsiPair[kind_pipi]->Draw("col,same");
         // draw e-pi combinatorics
         histoTrueMCKindChi2PsiPair[kind_epi]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindChi2PsiPair[kind_epi]->Draw("col,same");
     }
@@ -1158,22 +1116,19 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueGammaChi2PsiPair->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueGammaChi2PsiPair->Draw("col,same");
         // // draw pi-pi combinatorics
         // histoTrueMCKindChi2PsiPairPt[kind_pipi]->Draw("col,same");
-        // ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         // ex2->Draw();
         // histoTrueMCKindChi2PsiPairPt[kind_pipi]->Draw("col,same");
         // // draw e-pi combinatorics
         // histoTrueMCKindChi2PsiPairPt[kind_epi]->Draw("col,same");
-        // ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         // ex2->Draw();
         // histoTrueMCKindChi2PsiPairPt[kind_epi]->Draw("col,same");
     } else {
         histoGammaChi2PsiPair->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
+
         ex1->Draw();
         histoGammaChi2PsiPair->Draw("col,same");
     }
@@ -1229,18 +1184,15 @@ void MakePhotonQAPlots_Extended(
         // draw true gamma->ee
         //histoTrueGammaChi2PsiPair->Draw("col,same");
         histoTrueMCKindChi2PsiPair[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         //histoTrueGammaChi2PsiPair->Draw("col,same");
         histoTrueMCKindChi2PsiPair[kind_true]->Draw("col,same");
         // draw e-p combinatorics
         histoTrueMCKindChi2PsiPair[kind_ep]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindChi2PsiPair[kind_ep]->Draw("col,same");
         // draw pi-p combinatorics
         histoTrueMCKindChi2PsiPair[kind_pip]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindChi2PsiPair[kind_pip]->Draw("col,same");
     }
@@ -1262,7 +1214,7 @@ void MakePhotonQAPlots_Extended(
     histo2DChi2PsiPairDummy->Draw("axis,same");
     if (isMC)
         canvasChi2PsiPairPlots->SaveAs(Form("%s/Chi2PsiPair_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
-
+    labelBW->Delete();
 
     // TRUE GAMMAS AND COMBINATORIAL GAMMA CANDIDATES PLOT
     histo2DChi2PsiPairDummy->Draw("copy");
@@ -1285,7 +1237,6 @@ void MakePhotonQAPlots_Extended(
     }
 
 
-
     //    ____ _______                   _______     ____  __ __  __ ______ _______ _______     __
     //   / __ \__   __|           /\    / ____\ \   / /  \/  |  \/  |  ____|__   __|  __ \ \   / /
     //  | |  | | | |             /  \  | (___  \ \_/ /| \  / | \  / | |__     | |  | |__) \ \_/ /
@@ -1293,7 +1244,7 @@ void MakePhotonQAPlots_Extended(
     //  | |__| | | |           / ____ \ ____) |  | |  | |  | | |  | | |____   | |  | | \ \  | |
     //   \___\_\ |_|          /_/    \_\_____/   |_|  |_|  |_|_|  |_|______|  |_|  |_|  \_\ |_|
     //
-
+    cout << "plotting qT alpha..." << endl;
 
     textSizeLabelsPixel                   = 1200*0.04;
     TCanvas* canvasAlphaQtPlots = new TCanvas("canvasAlphaQtPlots","",200,10,1350,1200);  // gives the page size
@@ -1308,7 +1259,6 @@ void MakePhotonQAPlots_Extended(
     // RECONSTRUCTED PLOT
     histo2DAlphaQtDummy->Draw("copy");
     histoGammaAlphaQt->Draw("col,same");
-    ex1 = new TExec("ex1","PalColor();");
     ex1->Draw();
     histoGammaAlphaQt->Draw("col,same");
     labelEnergy->Draw();
@@ -1320,7 +1270,6 @@ void MakePhotonQAPlots_Extended(
         // RECONSTRUCTED PLOT
         histo2DAlphaQtDummy->Draw("copy");
         histoGammaAlphaQtPtSliced[bin]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoGammaAlphaQtPtSliced[bin]->Draw("col,same");
         labelEnergy->Draw();
@@ -1337,7 +1286,6 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindAlphaQt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindAlphaQt[kind_true]->Draw("col,same");
     }
@@ -1356,7 +1304,6 @@ void MakePhotonQAPlots_Extended(
         // RECONSTRUCTED PLOT
         histo2DAlphaQtDummy->Draw("copy");
         histoTrueMCKindAlphaQtPtSliced[kind_true][bin]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindAlphaQtPtSliced[kind_true][bin]->Draw("col,same");
         labelColor->Draw();
@@ -1373,12 +1320,10 @@ void MakePhotonQAPlots_Extended(
         // RECONSTRUCTED PLOT
         histo2DAlphaQtDummy->Draw("copy");
         histoTrueMCKindAlphaQtPtSliced[kind_true][bin]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindAlphaQtPtSliced[kind_true][bin]->Draw("col,same");
         // draw e-pi combinatorics
         histoTrueMCKindAlphaQtPtSliced[kind_epi][bin]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindAlphaQtPtSliced[kind_epi][bin]->Draw("col,same");
         labelEnergy->Draw();
@@ -1397,22 +1342,18 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw true gamma->ee
         histoTrueMCKindAlphaQt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindAlphaQt[kind_true]->Draw("col,same");
         // // draw pi-pi combinatorics
         // histoTrueMCKindAlphaQtPt[kind_pipi]->Draw("col,same");
-        // ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         // ex2->Draw();
         // histoTrueMCKindAlphaQtPt[kind_pipi]->Draw("col,same");
         // // draw e-pi combinatorics
         // histoTrueMCKindAlphaQtPt[kind_epi]->Draw("col,same");
-        // ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         // ex2->Draw();
         // histoTrueMCKindAlphaQtPt[kind_epi]->Draw("col,same");
     } else {
         histoGammaAlphaQt->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoGammaAlphaQt->Draw("col,same");
     }
@@ -1456,22 +1397,18 @@ void MakePhotonQAPlots_Extended(
     if (isMC){
         // draw e-p combinatorics
         histoTrueMCKindAlphaQt[kind_ep]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindAlphaQt[kind_ep]->Draw("col,same");
         // draw pi-p combinatorics
         histoTrueMCKindAlphaQt[kind_pip]->Draw("col,same");
-        ex2 = new TExec("ex2","gStyle->SetPalette(9);");
         ex2->Draw();
         histoTrueMCKindAlphaQt[kind_pip]->Draw("col,same");
         // draw true gamma->ee
         histoTrueMCKindAlphaQt[kind_true]->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoTrueMCKindAlphaQt[kind_true]->Draw("col,same");
     } else {
         histoGammaAlphaQt->Draw("col,same");
-        ex1 = new TExec("ex1","PalColor();");
         ex1->Draw();
         histoGammaAlphaQt->Draw("col,same");
     }
@@ -1481,5 +1418,97 @@ void MakePhotonQAPlots_Extended(
     labelProcessTrue->Draw();
     histo2DAlphaQtDummy->Draw("axis,same");
     canvasAlphaQtPlots->SaveAs(Form("%s/AlphaQt_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
+
+
+
+
+    //    ___   _____
+    //   / __| |  __ \
+    //  | |    | |__) |
+    //  | |    |  ___/
+    //  | |__  | |
+    //   \___| |_|
+    //
+    cout << "plotting cospoint..." << endl;
+
+    TCanvas* canvasCosPointPlots = new TCanvas("canvasCosPointPlots","",200,10,1350,1200);  // gives the page size
+    DrawGammaCanvasSettings( canvasCosPointPlots, 0.08, 0.02, 0.02, 0.09);
+    canvasCosPointPlots->SetLogy();
+    canvasCosPointPlots->SetLogz();
+
+    TH2F * histo2DCosPointDummy = new TH2F("histo2DCosPointDummy","histo2DCosPointDummy",250,0.9,1,1000,0.04,40);
+    SetStyleHistoTH2ForGraphs(histo2DCosPointDummy, "cos(#theta_{point})","#it{p}_{T} (GeV/#it{c})",0.035,0.04, 0.035,0.04, 0.98,0.9);
+    histo2DCosPointDummy->GetZaxis()->SetRangeUser(6,6e2);
+    canvasCosPointPlots->cd();
+    histo2DCosPointDummy->Draw("copy");
+
+    Double_t cutCosPoint = 0.85;
+
+    // true and pion contamination
+    histo2DCosPointDummy->Draw("copy");
+    if (isMC){
+        // draw e-pi combinatorics
+        histoTrueMCKindCosPointPt[kind_epi]->Draw("col,same");
+        ex2->Draw();
+        histoTrueMCKindCosPointPt[kind_epi]->Draw("col,same");
+        // draw pi-pi combinatorics
+        histoTrueMCKindCosPointPt[kind_pipi]->Draw("col,same");
+        ex2->Draw();
+        histoTrueMCKindCosPointPt[kind_pipi]->Draw("col,same");
+        // draw true gamma->ee
+        histoTrueMCKindCosPointPt[kind_true]->Draw("col,same");
+        ex1->Draw();
+        histoTrueMCKindCosPointPt[kind_true]->Draw("col,same");
+    }
+    labelColor->Draw();
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)", nameKind[kind_ep].Data(),nameKind[kind_pip].Data()) : "");
+    SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
+    labelBW->Draw();
+    labelEnergy->Draw();
+    labelProcessTrue->Draw();
+    histo2DCosPointDummy->Draw("axis,same");
+    if (isMC)
+        canvasCosPointPlots->SaveAs(Form("%s/CosPoint_vs_Pt_trueGammaAndComb.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
+
+    // true and proton contamination
+    histo2DCosPointDummy->Draw("copy");
+    if (isMC){
+        // draw e-p combinatorics
+        histoTrueMCKindCosPointPt[kind_ep]->Draw("col,same");
+        ex2->Draw();
+        histoTrueMCKindCosPointPt[kind_ep]->Draw("col,same");
+        // draw pi-p combinatorics
+        histoTrueMCKindCosPointPt[kind_pip]->Draw("col,same");
+        ex2->Draw();
+        histoTrueMCKindCosPointPt[kind_pip]->Draw("col,same");
+        // draw true gamma->ee
+        histoTrueMCKindCosPointPt[kind_true]->Draw("col,same");
+        ex1->Draw();
+        histoTrueMCKindCosPointPt[kind_true]->Draw("col,same");
+    }
+    labelColor->Draw();
+    labelBW                     = new TLatex(0.12,0.86, isMC ? Form("#gamma rec. from %s/%s (BAW)", nameKind[kind_ep].Data(),nameKind[kind_pip].Data()) : "");
+    SetStyleTLatex( labelBW, 0.95*textSizeLabelsPixel,4,1,43,kTRUE,11);
+    labelBW->Draw();
+    labelEnergy->Draw();
+    labelProcessTrue->Draw();
+    histo2DCosPointDummy->Draw("axis,same");
+    if (isMC)
+        canvasCosPointPlots->SaveAs(Form("%s/CosPoint_vs_Pt_trueGammaAndCombProton.%s",outputDir.Data(),suffix.Data()));
+    labelBW->Delete();
+
+
+    // all rec
+    histo2DCosPointDummy->Draw("copy");
+    histoGammaCosPointPt->Draw("col,same");
+    ex1->Draw();
+    histoGammaCosPointPt->Draw("col,same");
+    DrawGammaLines(cutCosPoint, cutCosPoint, 0.04, 8, 3, kGreen-8, 9);
+    labelEnergy->Draw();
+    labelProcess->Draw();
+    histoGammaCosPointPt->Draw("axis,same");
+    canvasCosPointPlots->SaveAs(Form("%s/CosPoint_vs_Pt_AllRec_%s.%s",outputDir.Data(),isMC ? "MC" : "data",suffix.Data()));
 
 }
