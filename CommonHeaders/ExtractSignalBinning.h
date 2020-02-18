@@ -1355,7 +1355,7 @@
                     cout<<"Getting EMC-EMC("<<mode<<") Example Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<trigger<<endl;
                     switch (trigger){
                         case 8: case 82: case 85: //Due to Current Implementation Trigger EG1 and EG2 are both Case 8
-                            return 8;
+                            return 15;
                         default:
                             return 8;
                     }
@@ -2423,34 +2423,34 @@
                     startPtBin     = 3;
                 } else if (mode == 41 || mode == 61){ //PCM-EMCal
                     if (specialTrigg == 2 ){ //7EG1, 7DG1 (8d, 9GeV)
-                        startPtBin = 6;
+                        startPtBin = 7;
                     } else if (specialTrigg == 3 ){ //7EG2, 7DG2 (8e, 4GeV)
-                        startPtBin = 5;
+                        startPtBin = 7;
                     } else {  //-1 MB and also 9b
                         startPtBin = 3;
                     }
                 } else if (mode == 42 || mode == 62){ //PCM-PHOS
                     cout<<"Getting PCM-PHOS("<<mode<<") Start Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<specialTrigg<<endl;
                     if (specialTrigg == 6 ){ //PHI7 (62, 4GeV)
-                        startPtBin = 5;
+                        startPtBin = 12;
                     } else { //MB
-                        startPtBin = 2;
+                        startPtBin = 4;
                     }
                     cout<<"=> startBin:"<<startPtBin<<endl;
                 } else if (mode == 44 || mode == 64){ //EMCal-EMCal
                     if (specialTrigg == 2 ){ //7EG1, 7DG1 (8d, 9GeV)
-                        startPtBin = 2;
+                        startPtBin = 18;
                     } else if (specialTrigg == 3 ){ //7EG2, 7DG2 (8e, 4GeV)
-                        startPtBin = 2;
+                        startPtBin = 13;
                     } else { //MB and also 9b
                         startPtBin = 5;
                     }
                 } else if (mode == 45 || mode == 65){ //PHOS-PHOS
                     cout<<"Getting PHOS-PHOS("<<mode<<") Start Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<specialTrigg<<endl;
                     if (specialTrigg == 6 ){ //PHI7 (62, 4GeV)
-                        startPtBin = 10;
+                        startPtBin = 12;
                     } else { //MB
-                        startPtBin = 4;
+                        startPtBin = 6;
                     }
                     cout<<"=> startBin:"<<startPtBin<<endl;
                 }

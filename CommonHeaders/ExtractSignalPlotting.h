@@ -1525,7 +1525,7 @@
                                     Bool_t isVsPtConv                       = kFALSE
                                 ){
 
-        Int_t doDebugOutputLevel    =   1;
+        Int_t doDebugOutputLevel    =   0;
         if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<" "<<endl;}
         cout << "Trigger set: " << triggerSet << endl;
         cout << "fCollisionSystemDummy: " << fCollisionSystemDummy << endl;
