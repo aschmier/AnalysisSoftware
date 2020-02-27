@@ -4735,9 +4735,9 @@
                 triggerSetTemp = 0; // MB
             }
         } else if ( energy.CompareTo("5TeVRefpPb")==0) {
-            if (trigger.CompareTo("a1") == 0){
+            if (trigger.CompareTo("a1") == 0 || trigger.CompareTo("85") == 0){
                 triggerSetTemp = 2;    // EMC7
-            } else if ( trigger.CompareTo("a2") == 0 ){
+            } else if ( trigger.CompareTo("a2") == 0 || trigger.CompareTo("83") == 0){
                 triggerSetTemp = 3; // EG2
             } else if ( trigger.CompareTo("ap") == 0    ){
                 triggerSetTemp = 4; // MB

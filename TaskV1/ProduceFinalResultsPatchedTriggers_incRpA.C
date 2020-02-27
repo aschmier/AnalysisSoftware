@@ -346,9 +346,13 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     //***************************************************************************************************************
     //*************************** set common binning ****************************************************************
     //***************************************************************************************************************
+    Int_t combTriggerSet            = -1;
+    if (( optionEnergy.CompareTo("pPb_5.023TeV") == 0 || optionEnergy.CompareTo("5TeVRefpPb") == 0 )&& numberOfTrigg == 1 && mode == 2) // need to make exception for RpA as pp only has MB
+        combTriggerSet              = 0;
+
     Double_t binningPi0[400];
     Int_t maxNBinsPi0Abs            = 0;
-    Int_t maxNBinsPi0               = GetBinning( binningPi0, maxNBinsPi0Abs, "Pi0", optionEnergy, mode, -1, kFALSE, fCent );
+    Int_t maxNBinsPi0               = GetBinning( binningPi0, maxNBinsPi0Abs, "Pi0", optionEnergy, mode, combTriggerSet, kFALSE, fCent );
     Int_t maxNAllowedPi0            = 0;
     Int_t nRealTriggers             = 0;
     cout << "binning pi0" << endl;
@@ -360,7 +364,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
 
     Double_t binningEta[400];
     Int_t maxNBinsEtaAbs            = 0;
-    Int_t maxNBinsEta               = GetBinning( binningEta, maxNBinsEtaAbs, "Eta", optionEnergy, mode, -1, kFALSE, fCent );
+    Int_t maxNBinsEta               = GetBinning( binningEta, maxNBinsEtaAbs, "Eta", optionEnergy, mode, combTriggerSet, kFALSE, fCent );
     Int_t maxNAllowedEta            = 0;
     if (enableEta){
         cout << "binning eta" << endl;
@@ -537,7 +541,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
         DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
         graphCorrectedYieldPi0[i]->Draw("e1,p,same");
-        DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0Ref[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
+        DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0Ref[i], markerTriggMC[i], sizeTrigg[i], colorTriggShade[i], colorTriggShade[i]);
         graphCorrectedYieldPi0Ref[i]->Draw("e1,p,same");
         legendSpectra->AddEntry(graphCorrectedYieldPi0[i],triggerNameLabel[i].Data(),"p");
     }
@@ -606,8 +610,23 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             offSetsPi0[4] = 0; //EG2
             offSetsPi0[5] = 4; //EG1
         }
+    } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
+        if(mode == 2){
+            offSetsPi0[1] = 0; //INT7
+            offSetsPi0[4] = 30; //EG2
+            offSetsPi0[5] = 38; //EG1
+        }else if(mode == 4){
+            offSetsPi0[1] = 0; //INT7
+            if (fCentOutput.Contains("00100") ){
+                offSetsPi0[4] = 31; //EG2
+                offSetsPi0[5] = 34; //EG1
+            } else {
+                offSetsPi0[4] = 22; //EG2
+                offSetsPi0[5] = 24; //EG1            
+            }
+        }
     }
-
+    
     for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
         // read systematics, if fileName is set to "bla" no action has to be performed and systematics will be disabled for the rest of the analysis
         if (sysFilePi0[i].CompareTo("bla") != 0){
@@ -826,12 +845,20 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             graphSystPi0[nCorrOrder]    = graphsNuclearModFactorSysPi0Shrunk[i];
             offSetsPi0Sys[nCorrOrder]   = histoStatPi0[nCorrOrder]->GetXaxis()->FindBin(graphSystPi0[nCorrOrder]->GetX()[0])-1;
         }
-        if (triggerName[i].Contains("INT7") && optionEnergy.Contains("pPb_8TeV") && mode == 2 )
+    }
+    // set correct systematics offsets
+    if (optionEnergy.Contains("pPb_8TeV")){
+        if (mode == 2){
             offSetsPi0Sys[1]+=3;
-        if (triggerName[i].Contains("EG1") && optionEnergy.Contains("pPb_8TeV") && mode == 2 )
             offSetsPi0Sys[5]+=2;
-        if (triggerName[i].Contains("EG1") && optionEnergy.Contains("pPb_8TeV") && mode==4)
+        } else if (mode == 4) {
             offSetsPi0Sys[5]+=4;
+        }
+    } else if (optionEnergy.Contains("pPb_5.023TeV")){
+        if (mode == 4) {
+            offSetsPi0Sys[4]+=offSetsPi0[4];
+            offSetsPi0Sys[5]+=offSetsPi0[5];
+        }
     }
 
     Double_t minpTscaledyield = 0;
@@ -856,7 +883,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
         for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
             DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0Scaled[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
             graphCorrectedYieldPi0Scaled[i]->Draw("e1,p,same");
-            DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0RefScaled[i], markerTriggMC[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
+            DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldPi0RefScaled[i], markerTriggMC[i], sizeTrigg[i], colorTriggShade[i], colorTriggShade[i]);
             graphCorrectedYieldPi0RefScaled[i]->Draw("e1,p,same");
             legendSpectra->AddEntry(graphCorrectedYieldPi0Scaled[i],triggerNameLabel[i].Data(),"p");
             cout << "scaled yield for pPb trigger " << triggerNameLabel[i].Data() << endl;
@@ -1028,7 +1055,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
         for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
             DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldEta[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
             graphCorrectedYieldEta[i]->Draw("e1,p,same");
-            DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldEtaRef[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
+            DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldEtaRef[i],  markerTriggMC[i], sizeTrigg[i], colorTriggShade[i], colorTriggShade[i]);
             graphCorrectedYieldEtaRef[i]->Draw("e1,p,same");
             legendSpectraEta->AddEntry(graphCorrectedYieldEta[i],triggerNameLabel[i].Data(),"p");
         }
@@ -1096,6 +1123,26 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             offSetsEta[1] = -1; //INT7
             offSetsEta[4] = -2; //EG2
             offSetsEta[5] = -2; //EG1
+        }
+    } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0 ){
+        if(mode == 2){
+            offSetsEta[1] = 0; //INT7
+            if (fCentOutput.Contains("00100") ){
+                offSetsEta[4] = 16; //EG2
+                offSetsEta[5] = 21; //EG1
+            } else {
+                offSetsEta[4] = 7; //EG2
+                offSetsEta[5] = 11; //EG1                
+            }
+        } else if(mode == 4){
+            offSetsEta[1] = 0; //INT7
+            if (fCentOutput.Contains("00100") ){
+                offSetsEta[4] = 13; //EG2
+                offSetsEta[5] = 17; //EG1
+            } else {
+                offSetsEta[4] = 7; //EG2
+                offSetsEta[5] = 11; //EG1                
+            }
         }
     }
     if(enableEta){
@@ -1314,14 +1361,20 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
                 graphSystEta[nCorrOrder]    = graphsNuclearModFactorSysEtaShrunk[i];
                 offSetsEtaSys[nCorrOrder]   = histoStatEta[nCorrOrder]->GetXaxis()->FindBin(graphSystEta[nCorrOrder]->GetX()[0])-1;
             }
-            if (triggerName[i].Contains("EG1") && optionEnergy.CompareTo("pPb_8TeV")==0 && (mode == 2||mode==4)){
-                offSetsEtaSys[1]+=-1; //EG1
-                offSetsEtaSys[4]+=-2; //EG1
-                offSetsEtaSys[5]+=-2; //EG1
-            }
         }
     }
-
+    if (optionEnergy.CompareTo("pPb_8TeV") == 0){
+        if (mode == 2 || mode == 4){
+            offSetsEtaSys[1]+=-1; //EG1
+            offSetsEtaSys[4]+=-2; //EG1
+            offSetsEtaSys[5]+=-2; //EG1
+        }
+    } else if (optionEnergy.Contains("pPb_5.023TeV")){
+        if (mode == 4) {
+            offSetsEtaSys[4]+=offSetsEta[4];
+            offSetsEtaSys[5]+=offSetsEta[5];
+        }
+    }
     // create weighted graphs for spectra and supporting graphs
     TString nameWeightsLogFileEta =     Form("%s/weightsEta_%s.dat",outputDir.Data(),isMC.Data());
     TGraphAsymmErrors* graphNuclModFactorWeightedAverageEtaStat    = NULL;

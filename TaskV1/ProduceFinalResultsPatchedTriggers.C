@@ -88,9 +88,9 @@ Int_t GetOrderedTrigger(TString triggerNameDummy){
         return 2;
     } else if ((triggerNameDummy.CompareTo("EMC7") == 0 || triggerNameDummy.CompareTo("EMC7_NLM2") == 0|| triggerNameDummy.CompareTo("PHI7") == 0 ) ){
         return 3;
-    } else if ((triggerNameDummy.CompareTo("EG2") == 0 || triggerNameDummy.CompareTo("EG2_NLM2") == 0 ||  triggerNameDummy.CompareTo("EGA") == 0) ){
+    } else if ((triggerNameDummy.CompareTo("EG2") == 0 || triggerNameDummy.CompareTo("EG2_NLM2") == 0 || triggerNameDummy.CompareTo("EGA") == 0 || triggerNameDummy.CompareTo("EMC7_CF") == 0) ){
         return 4;
-    } else if ((triggerNameDummy.CompareTo("EG1") == 0 || triggerNameDummy.CompareTo("EG1_NLM2") == 0 ) ){
+    } else if ((triggerNameDummy.CompareTo("EG1") == 0 || triggerNameDummy.CompareTo("EG1_NLM2") == 0 || triggerNameDummy.CompareTo("EG2_CF") == 0) ){
         return 5;
     } else if ((triggerNameDummy.CompareTo("MB_NLM1") == 0 || triggerNameDummy.CompareTo("INT1_NLM1") == 0  ) ){
         return 6;
@@ -2668,14 +2668,14 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         offSetsPi0[3] = 0; //EMC7
         offSetsPi0[4] = 0; //EGA
       }
-    } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
+    } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0 || optionEnergy.CompareTo("5TeVRefpPb")==0 ){
       if(mode == 2){
         offSetsPi0[1] = 0; //INT7
         offSetsPi0[4] = 30; //EG2
         offSetsPi0[5] = 38; //EG1
       }else if(mode == 4){
         offSetsPi0[1] = 0; //INT7
-        if (fCentOutput.Contains("00100")){
+        if (fCentOutput.Contains("00100") || optionEnergy.CompareTo("5TeVRefpPb")==0 ){
             offSetsPi0[4] = 31; //EG2
             offSetsPi0[5] = 34; //EG1
         } else {
@@ -3101,11 +3101,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         }
     }
 
-    if (optionEnergy.CompareTo("5TeVRefpPb")==0){
-        if(mode == 10){
-            offSetsPi0Sys[3]-=0;
-        }
-    } else if (optionEnergy.CompareTo("7TeV")==0){
+    if (optionEnergy.CompareTo("7TeV")==0){
         if(mode == 2){
             offSetsPi0Sys[3]+=27;
         } else if (mode == 4 ){
@@ -3132,7 +3128,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsPi0Sys[3]+=0;
             offSetsPi0Sys[4]+=0;
         }
-    } else if (optionEnergy.Contains("pPb_5.023TeV") ){
+    } else if (optionEnergy.Contains("pPb_5.023TeV") || optionEnergy.CompareTo("5TeVRefpPb")==0  ){
         if(mode == 2 ){
             offSetsPi0Sys[4]+=offSetsPi0[4];
             offSetsPi0Sys[5]+=offSetsPi0[5];
@@ -3142,6 +3138,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsPi0Sys[5]+=offSetsPi0[5];
         } else if (mode == 10 ){
             offSetsPi0Sys[1]+=0;
+            offSetsPi0Sys[3]-=0;
             offSetsPi0Sys[4]+=0;
             offSetsPi0Sys[5]+=0;
         }
@@ -5544,10 +5541,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 // offSetsEta[3] = -1; //EMC7
                 // offSetsEta[4] = 2; //EGA
             }
-        } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
+        } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0 || optionEnergy.CompareTo("5TeVRefpPb")==0){
             if(mode == 2){
                 offSetsEta[1] = 0; //INT7
-                if (fCentOutput.Contains("00100")){
+                if (fCentOutput.Contains("00100") || optionEnergy.CompareTo("5TeVRefpPb")==0){
                     offSetsEta[4] = 16; //EG2
                     offSetsEta[5] = 21; //EG1
                 } else {
@@ -5556,7 +5553,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 }
             } else if(mode == 4){
                 offSetsEta[1] = 0; //INT7
-                if (fCentOutput.Contains("00100")){
+                if (fCentOutput.Contains("00100") || optionEnergy.CompareTo("5TeVRefpPb")==0){
                     offSetsEta[4] = 13; //EG2
                     offSetsEta[5] = 17; //EG1
                 } else {
@@ -5896,7 +5893,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsEtaSys[1]+=-1; //INT7
             offSetsEtaSys[3]+=-2; //EMC7
             offSetsEtaSys[4]+=-2; //EGA
-        } else if (optionEnergy.CompareTo("pPb_5.023TeV")==0 && (mode==4 || mode==2)){
+        } else if ((optionEnergy.CompareTo("pPb_5.023TeV")==0 ||optionEnergy.CompareTo("5TeVRefpPb")==0  )&& (mode==4 || mode==2)){
             offSetsEtaSys[1]+=0; //INT7
             offSetsEtaSys[4]+=offSetsEta[4]; //EG2
             offSetsEtaSys[5]+=offSetsEta[5]; //EG1
@@ -6961,10 +6958,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     offSetsEtaToPi0[3] = -2; //EMC7
                     offSetsEtaToPi0[4] = -2; //EGA
                 }
-            } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0){
+            } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0 || optionEnergy.CompareTo("5TeVRefpPb")==0 ){
                 if(mode == 2){
                     offSetsEtaToPi0[1] = 0; //INT7
-                    if (fCentOutput.Contains("00100")){
+                    if (fCentOutput.Contains("00100") || optionEnergy.CompareTo("5TeVRefpPb")==0 ){
                         offSetsEtaToPi0[4] = 16; //EG2
                         offSetsEtaToPi0[5] = 21; //EG1
                     } else {
@@ -6973,7 +6970,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     }
                 } else if(mode == 4){
                     offSetsEtaToPi0[1] = 0; //INT7
-                    if (fCentOutput.Contains("00100")){
+                    if (fCentOutput.Contains("00100") || optionEnergy.CompareTo("5TeVRefpPb")==0){
                         offSetsEtaToPi0[4] = 13; //EG2
                         offSetsEtaToPi0[5] = 17; //EG1
                     } else {
@@ -7251,7 +7248,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 offSetsEtaToPi0Sys[1]+=-1; //INT7
                 offSetsEtaToPi0Sys[3]+=-2; //EMC7
                 offSetsEtaToPi0Sys[4]+=-2; //EGA
-            } else if (optionEnergy.BeginsWith("pPb_5.023TeV") && (mode == 4 || mode == 2)){
+            } else if ((optionEnergy.BeginsWith("pPb_5.023TeV") || optionEnergy.CompareTo("5TeVRefpPb")==0)&& (mode == 4 || mode == 2)){
                 offSetsEtaToPi0Sys[1]+=0; //INT7
                 offSetsEtaToPi0Sys[4]+=offSetsEtaToPi0[4]; //EG2
                 offSetsEtaToPi0Sys[5]+=offSetsEtaToPi0[5]; //EG1
@@ -7279,7 +7276,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 } else if(optionEnergy.BeginsWith("5TeV") && mode==4){
                   maxNAllowedEtaToPi0 -= 2;
                   maxPtGlobalEtaToPi0 = 20;
-                } else if(optionEnergy.Contains("pPb_5.023TeV") && mode==4 ){
+                } else if((optionEnergy.Contains("pPb_5.023TeV") || optionEnergy.CompareTo("5TeVRefpPb")==0 )&& mode==4 ){
                     if (fCentOutput.Contains("00100"))
                         maxNAllowedEtaToPi0 -= 7;
                     else 

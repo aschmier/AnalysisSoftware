@@ -228,8 +228,8 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
     TH1D *histoNuclModFacCut[ConstNumberOfCuts] = {NULL};
     TGraphAsymmErrors *graphNuclModFacCut[ConstNumberOfCuts] = {NULL};
 
-    TH1D *histoRatioCorrectedYieldCut[ConstNumberOfCuts] = {NULL};
-    TGraphAsymmErrors *graphRatioCorrectedYieldCut[ConstNumberOfCuts] = {NULL};
+    TH1D *histoRatioNuclModFacCut[ConstNumberOfCuts] = {NULL};
+    TGraphAsymmErrors *graphRatioNuclModFacCut[ConstNumberOfCuts] = {NULL};
 
     Double_t minPt  = 0;
     Double_t maxPt  = 0;
@@ -422,20 +422,22 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
 
             histoRatioCorrectedYieldCutDummy[0][i] = (TH1D*) histoCorrectedYieldCutDummy[0][i]->Clone(Form("histoRatioCorrectedYieldCutDummy0%d",i));
             histoRatioCorrectedYieldCutDummy[0][i]->Divide(histoCorrectedYieldCutDummy[0][i], histoCorrectedYieldCutDummy[0][0],1.,1.,"B");
-            histoRatioCorrectedYieldCutDummy[1][i] = (TH1D*) histoCorrectedYieldCutDummy[0][i]->Clone(Form("histoRatioCorrectedYieldCutDummy1%d",i));
+            histoRatioCorrectedYieldCutDummy[1][i] = (TH1D*) histoCorrectedYieldCutDummy[1][i]->Clone(Form("histoRatioCorrectedYieldCutDummy1%d",i));
             histoRatioCorrectedYieldCutDummy[1][i]->Divide(histoCorrectedYieldCutDummy[1][i], histoCorrectedYieldCutDummy[1][0],1.,1.,"B");
         }
         if(graphCorrectedYieldCutDummy[0][i] && graphCorrectedYieldCutDummy[1][i])
-            graphNuclModFacCut[i]   = DivideTGraphAsymErrorByTGraphAsymError(graphCorrectedYieldCutDummy[0][i], graphCorrectedYieldCutDummy[1][i], Form("%s_%s",nameCorrectedYield[1].Data(),cutStringsName[i].Data()));
+            graphNuclModFacCut[i]   = new TGraphAsymmErrors(histoNuclModFacCut[i]);
         // Calculate ratios for comparisons
         if(histoNuclModFacCut[i] && histoNuclModFacCut[0]){
-            histoRatioCorrectedYieldCut[i] = (TH1D*) histoNuclModFacCut[i]->Clone(Form("histoRatioCorrectedYieldCut%d",i));
-            histoRatioCorrectedYieldCut[i]->Divide(histoNuclModFacCut[i], histoNuclModFacCut[0],1.,1.,"B");
+            histoRatioNuclModFacCut[i] = (TH1D*) histoNuclModFacCut[i]->Clone(Form("histoRatioNuclModFacCut%d",i));
+            histoRatioNuclModFacCut[i]->Divide(histoNuclModFacCut[i], histoNuclModFacCut[0],1.,1.,"B");
         }
         if(graphNuclModFacCut[i] && graphNuclModFacCut[0]){
-            graphRatioCorrectedYieldCut[i] = DivideTGraphAsymErrorByTGraphAsymError(graphNuclModFacCut[i], graphNuclModFacCut[0], Form("graphRatioCorrectedYieldCut_%s",cutStringsName[i].Data()));
-            if (i > 0){
-                minPt= graphNuclModFacCut[i]->GetX()[0] - 3*graphNuclModFacCut[i]->GetEXlow()[0];
+            graphRatioNuclModFacCut[i] = new TGraphAsymmErrors(histoRatioNuclModFacCut[i]);
+            if (i == 0){
+                Int_t minBin = 0;
+                while (minBin <  graphNuclModFacCut[i]->GetN()-1 && graphNuclModFacCut[i]->GetY()[minBin] < 0.00001) minBin++;
+                minPt= graphNuclModFacCut[i]->GetX()[minBin] - 3*graphNuclModFacCut[i]->GetEXlow()[minBin];
                 maxPt= graphNuclModFacCut[i]->GetX()[graphNuclModFacCut[i]->GetN()-1] + 3*graphNuclModFacCut[i]->GetEXhigh()[graphNuclModFacCut[i]->GetN()-1];
             }
         }
@@ -536,10 +538,8 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
             histo2DDummyCorrYieldRatioRatio->GetXaxis()->SetMoreLogLabels(kTRUE);
             histo2DDummyCorrYieldRatioRatio->GetXaxis()->SetNoExponent(kTRUE);
             histo2DDummyCorrYieldRatioRatio->Draw("copy");
-            DrawGammaSetMarkerTGraphAsym(graphRatioCorrectedYieldCut[i], 20, 1.,color[0],color[0]);
-            // graphRatioCorrectedYieldCut[i]->Draw("e1,p,same");
-            DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20, 1.,color[0],color[0]);
-            histoRatioCorrectedYieldCut[i]->Draw("same,e1,p");
+            DrawGammaSetMarker(histoRatioCorrectedYieldCutDummy[1][i], 20, 1.,color[0],color[0]);
+            histoRatioCorrectedYieldCutDummy[1][i]->Draw("same,e1,p");
         }
         else{
             if(i<20){
@@ -655,21 +655,21 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
             histo2DDummyNuclModFacRatioRatio->GetXaxis()->SetNoExponent(kTRUE);
             histo2DDummyNuclModFacRatioRatio->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
             histo2DDummyNuclModFacRatioRatio->Draw("copy");
-            DrawGammaSetMarkerTGraphAsym(graphRatioCorrectedYieldCut[i], 20, 1.,color[0],color[0]);
-            // graphRatioCorrectedYieldCut[i]->Draw("e1,p,same");
-            DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20, 1.,color[0],color[0]);
-            histoRatioCorrectedYieldCut[i]->Draw("same,e1,p");
+            DrawGammaSetMarkerTGraphAsym(graphRatioNuclModFacCut[i], 20, 1.,color[0],color[0]);
+            // graphRatioNuclModFacCut[i]->Draw("e1,p,same");
+            DrawGammaSetMarker(histoRatioNuclModFacCut[i], 20, 1.,color[0],color[0]);
+            histoRatioNuclModFacCut[i]->Draw("same,e1,p");
         }
         else{
             if(i<20){
-                DrawGammaSetMarkerTGraphAsym(graphRatioCorrectedYieldCut[i], 20+i, 1.,color[i],color[i]);
-                DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20+i, 1.,color[i],color[i]);
+                DrawGammaSetMarkerTGraphAsym(graphRatioNuclModFacCut[i], 20+i, 1.,color[i],color[i]);
+                DrawGammaSetMarker(histoRatioNuclModFacCut[i], 20+i, 1.,color[i],color[i]);
             } else {
-                DrawGammaSetMarkerTGraphAsym(graphRatioCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
-                DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                DrawGammaSetMarkerTGraphAsym(graphRatioNuclModFacCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                DrawGammaSetMarker(histoRatioNuclModFacCut[i], 20+i, 1.,color[i-20],color[i-20]);
             }
-            // graphRatioCorrectedYieldCut[i]->Draw("e1,p,same");
-            histoRatioCorrectedYieldCut[i]->Draw("same,e1,p");
+            // graphRatioNuclModFacCut[i]->Draw("e1,p,same");
+            histoRatioNuclModFacCut[i]->Draw("same,e1,p");
         }
     }
     DrawGammaLines(0., maxPt,1., 1.,1,  kGray+2, 2);
@@ -702,6 +702,8 @@ void CompareDifferentDirectoriesFinalResultsRatio_v2(
     for (Int_t j = 0; j < NumberOfCuts; j++){
         for (Int_t i = 0; i < NBinsPt; i++){
             SysErrCut[j][i].value = graphNuclModFacCut[j]->GetY()[i];
+            cout << graphNuclModFacCut[0]->GetX()[i] << "\t" << SysErrCut[j][i].value << "\t" <<  histoNuclModFacCut[j]->GetBinContent( histoNuclModFacCut[j]->FindBin(graphNuclModFacCut[j]->GetX()[i]))<< "\t" << TMath::Abs( SysErrCut[j][i].value - histoNuclModFacCut[j]->GetBinContent( histoNuclModFacCut[j]->FindBin(graphNuclModFacCut[j]->GetX()[i]))) << endl;
+            
             SysErrCut[j][i].error = graphNuclModFacCut[j]->GetEYlow()[i];
         }
     }

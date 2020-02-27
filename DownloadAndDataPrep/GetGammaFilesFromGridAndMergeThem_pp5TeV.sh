@@ -21,8 +21,8 @@ listsToMerge=`cat runlistsToMerge.txt`
 
 DOWNLOADON=1
 MERGEON=1
-MERGEONData=0
-MERGEONMC=0
+MERGEONData=1
+MERGEONMC=1
 MERGEONFASTAndWOSDD=1
 SINGLERUN=1
 SEPARATEON=0
@@ -70,6 +70,9 @@ LHC18b8MCMother=""
 LHC18b8MCF=""
 LHC18b8MC=""
 LHC16h3MC=""
+LHC18l2MCMother=""
+LHC18l2MCE=""
+LHC18l2MCD=""
 
 passNr="1";
 
@@ -147,15 +150,27 @@ if [ $3 = "AODSKIMMB" ]; then
     LHC15nData="child_1"
     
 elif [ $3 = "AODmcp" ]; then
-    TRAINDIR=20200206-RerunSysPCMEMC
-    LHC15nData="1251"
-    LHC17pqData="1252";
+#     TRAINDIR=20200206-RerunSysPCMEMC
+# #     LHC15nData="1251"
+#     LHC15nData="1269"
+# #     LHC17pqData="1252";
+#     LHC17pqData="1271"; #(PHOS)
+#     LHC17pDataFast="child_1";
+#     LHC17qDataFast="child_2";
+    TRAINDIR=20200224-RerunSysEMC
+    LHC15nData="1284"
+    LHC17pqData="1285";
     LHC17pDataFast="child_1";
     LHC17qDataFast="child_2";
 elif [ $3 = "AODmcpSKIMEMCFull" ]; then
-    TRAINDIR=20200206-RerunSysPCMEMC
-#     LHC15nData="1253"
+#     TRAINDIR=20200206-RerunSysPCMEMC
+# #     LHC15nData="1253"
     LHC17pqData="1255";
+#     LHC17pDataFast="child_1";
+#     LHC17qDataFast="child_2";
+    TRAINDIR=20200224-RerunSysEMC
+    LHC15nData="1284"
+    LHC17pqData="1285";
     LHC17pDataFast="child_1";
     LHC17qDataFast="child_2";
     
@@ -174,8 +189,10 @@ else
     TRAINDIR=20200206-RerunSysPCMEMC
 #     LHC15nData="1227"
 #     LHC15nData="1249"
+#     LHC15nData="1270" #PHOS
 #     LHC17pqData="1228";
 #     LHC17pqData="1250";
+#     LHC17pqData="1272";
 #     LHC17pDataFast="child_1";
 #     LHC17pData="child_2";
 #     LHC17qDataFast="child_3";
@@ -187,6 +204,7 @@ else
 #     LHC15nMC="2302"
 #     LHC15nMC="2304" #(EMC)
 #     LHC15nMC="2310" #(EMC)
+#     LHC15nMC="2332" #(PHOS)
 #     LHC17e2MC="child_1"
 #     LHC18j3MC="child_2"
 #     LHC17pqMC="2281";
@@ -195,16 +213,22 @@ else
 #     LHC17pqMC="2303";
 #     LHC17pqMC="2305"; #(EMC)
 #     LHC17pqMC="2309"; #(EMC)
+#     LHC17pqMC="2333"; #(PHOS)
 #     LHC17l3bMC="child_2";
 #     LHC18j2MC="child_4";
 #     LHC17l3bMCFast="child_1";
 #     LHC18j2MCFast="child_3";
 #     LHC16h3MC="2306";
-    LHC18b8MCMother="2307";
+    LHC16h3MC="2374"; #(EMC rerun proper Thresholds)
+#     LHC18b8MCMother="2307";
 #     LHC18b8MCMother="2311";
+#     LHC18b8MCMother="2337"; #PHOS
+    LHC18b8MCMother="2375"; #(EMC rerun proper Thresholds)
     LHC18b8MCF="child_1";
     LHC18b8MC="child_3";
-
+#     LHC18l2MCMother="2369"; #(EMC rerun proper Thresholds)
+#     LHC18l2MCE="child_1";
+#     LHC18l2MCD="child_2";
 fi
 
 
@@ -290,6 +314,17 @@ LHC18b8MC=$tempDir
 OUTPUTDIR_LHC18b8=$tempPath
 echo "18b8_cent_woSDD JJ anchored to 17pq: $HAVELHC18b8 $LHC18b8MC $OUTPUTDIR_LHC18b8"
 
+FindCorrectTrainDirectory $LHC18l2MCE $OUTPUTDIRMC $ALIENDIRMC $LHC18l2MCMother
+HAVELHC18l2E=$tempBool
+LHC18l2MCE=$tempDir
+OUTPUTDIR_LHC18l2E=$tempPath
+echo "18l2_EMCal JJ anchored to 17pq: $HAVELHC18l2E $LHC18l2MCE $OUTPUTDIR_LHC18l2E"
+FindCorrectTrainDirectory $LHC18l2MCD $OUTPUTDIRMC $ALIENDIRMC $LHC18l2MCMother
+HAVELHC18l2D=$tempBool
+LHC18l2MCD=$tempDir
+OUTPUTDIR_LHC18l2D=$tempPath
+echo "18l2_DCal JJ anchored to 17pq: $HAVELHC18l2D $LHC18l2MCD $OUTPUTDIR_LHC18l2D"
+
 
 currentDir=$PWD
 if [ $CLEANUPMAYOR == 0 ]; then
@@ -328,6 +363,11 @@ if [ $CLEANUPMAYOR == 0 ]; then
     cd $currentDir
     CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC18b8_cent_woSDD" $HAVELHC18b8 $OUTPUTDIR_LHC18b8 $LHC18b8MC $pathMCJJ $baseLegoMC "/alice/sim/2018" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC18b8_cent_woSDD.txt
 
+    CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC18l2a" $HAVELHC18l2E $OUTPUTDIR_LHC18l2E $LHC18l2MCE $pathMCJJ $baseLegoMC "/alice/sim/2018" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC18l2a.txt
+    cd $currentDir
+    CopyRunwiseAndMergeAccordingToRunlistJJMC "LHC18l2b" $HAVELHC18l2D $OUTPUTDIR_LHC18l2D $LHC18l2MCD $pathMCJJ $baseLegoMC "/alice/sim/2018" $NSlashes3 runlistsToMerge.txt $FILENAMEBASE runlists/binsJetJetLHC18l2b.txt
+
+    
     for runListName in $listsToMerge; do
         if [ $HAVELHC15n == 1 ]; then
             ls $OUTPUTDIR_LHC15n/$FILENAMEBASE-$runListName\_*.root > fileLHC15n.txt
@@ -440,6 +480,22 @@ if [ $CLEANUPMAYOR == 0 ]; then
             for fileName in $fileNumbers; do
                 echo $fileName
                 ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC18b8 $NSlashes "MC_LHC18b8_cent_woSDD-$runListName" "-$runListName"
+            done;
+        fi
+        if [ $HAVELHC18l2E == 1 ]; then
+            ls $OUTPUTDIR_LHC18l2E/$FILENAMEBASE-$runListName\_*.root > fileLHC18l2E.txt
+            fileNumbers=`cat fileLHC18l2E.txt`
+            for fileName in $fileNumbers; do
+                echo $fileName
+                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC18l2E $NSlashes "MC_LHC18l2a-$runListName" "-$runListName"
+            done;
+        fi
+        if [ $HAVELHC18l2D == 1 ]; then
+            ls $OUTPUTDIR_LHC18l2D/$FILENAMEBASE-$runListName\_*.root > fileLHC18l2D.txt
+            fileNumbers=`cat fileLHC18l2D.txt`
+            for fileName in $fileNumbers; do
+                echo $fileName
+                ChangeStructureIfNeededGeneral $fileName $OUTPUTDIR_LHC18l2D $NSlashes "MC_LHC18l2b-$runListName" "-$runListName"
             done;
         fi
     done
@@ -625,38 +681,6 @@ if [ $CLEANUPMAYOR == 0 ]; then
                         fi
                     done
                     MergeAccordingToList listCurrMerge.txt $OUTPUTDIR/$FILENAMEBASE\_MC$nameOut-$runListName\_$number.root
-                done
-            done
-
-            
-            ls $OUTPUTDIR/$FILENAMEBASE\_MC_LHC18b8_fast-$runListName\_*.root > filesForMerging.txt
-            filesForMerging=`cat filesForMerging.txt`
-            periodList=`echo -e "_1\n_2"`
-            for fileName in $filesForMerging; do
-                echo $fileName
-                GetFileNumberMerging $fileName $((NSlashes-1)) 5
-                echo $number
-                for runListName in $listsToMerge; do
-                    rm listCurrMerge.txt
-                    nameOut=""
-                    for periodID in $periodList; do
-                        echo $periodID
-                        currFile=$OUTPUTDIR/$FILENAMEBASE\_MC_LHC19a4$periodID-$runListName\_$number.root
-                        if [ -f $currFile ]; then
-                            outAdd=`echo $periodID  | cut -d "-" -f 1 `
-                            nameOut+=$outAdd
-                            echo -e "$currFile\n" >> listCurrMerge.txt
-                        else
-                            echo $currFile " does not exist"
-                        fi
-                    done
-                    if [ $nameOut = "_1_2" ]; then
-                        nameOut="x";
-                    fi
-                    MergeAccordingToList listCurrMerge.txt $OUTPUTDIR/$FILENAMEBASE\_MC_LHC19a4$nameOut-$runListName\_$number.root
-                    for periodID in $periodList; do
-                        mv $OUTPUTDIR/$FILENAMEBASE\_MC_LHC19a4$periodID-$runListName\_$number.root $OUTPUTDIR/SinglePeriods/
-                    done  
                 done
             done
         fi
