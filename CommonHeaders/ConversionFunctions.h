@@ -5125,6 +5125,7 @@
         // Generate identifier string based on mode number
         TString nominalMainDir = GetDefaultMainTListName(mode);
         // Go through main directories in ROOT file and see which one complies with identifier
+        cout << "searching for:  " << nominalMainDir.Data() << endl;
         TString mainDir;
         TKey *key;
         TObjArray* arr;
@@ -5132,6 +5133,7 @@
         while ( (key=(TKey*)next()) ){
             // cout << Form("-> found TopDir: %s",key->GetName()) << endl;
             mainDir = key->GetName();
+            cout << "main dir: " << mainDir.Data() << endl;
             arr = mainDir.Tokenize("_");
             if( mesonName.Length() && mainDir.BeginsWith(nominalMainDir) ) { // if heavy meson analysis
                 TString mesonId = ((TObjString*)arr->At(2))->GetString();

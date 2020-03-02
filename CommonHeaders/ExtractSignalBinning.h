@@ -3163,7 +3163,7 @@
                         break;
                     case 20:
                         if ( !centrality.CompareTo("0-100%")){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombPt,binning,86);
+                            maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombPt,binning,87);
                         } else {
                             maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVCombCentPt,binning,50);
                         }
@@ -4039,8 +4039,7 @@
                     case 20:
                         cout << "entered case 20" << endl;
                         if (!centrality.CompareTo("0-100%") || energy.CompareTo("5TeVRefpPb")==0){
-                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVCombPt,binning);
-                            maxNBins    = 41;
+                            maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVCombPt,binning, 43);
                         } else {
                             maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVCombCentPt,binning);
                             maxNBins    = 28;

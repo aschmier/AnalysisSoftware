@@ -1068,10 +1068,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             isV0AND         = 1;
         }
     }
-    if (optionEnergy.BeginsWith("5TeV") == 0 || optionEnergy.BeginsWith("8TeV") || optionEnergy.CompareTo("13TeV") == 0 || optionEnergy.CompareTo("13TeVLowB") == 0){
+    if (optionEnergy.BeginsWith("5TeV") || optionEnergy.BeginsWith("8TeV") || optionEnergy.CompareTo("13TeV") == 0 || optionEnergy.CompareTo("13TeVLowB") == 0){
         isV0AND             = 1;
     }
     Double_t xSection       = ReturnCorrectXSection( optionEnergy, isV0AND);
+    cout << "xsection: "<< xSection << "\t" << optionEnergy.Data() << "\t" << isV0AND << endl;
+
     //***************************************************************************************************************
     //*******************************Plotting trigger rejection factors = fits log scale all in one *****************
     //***************************************************************************************************************
