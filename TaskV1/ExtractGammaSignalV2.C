@@ -134,9 +134,11 @@ void ExtractGammaSignalV2(      TString meson               = "",
         cout << fCutSelectionRead.Data() << endl;
     }
 
+    Bool_t changePileUpCutNoMC = kTRUE;
+    if(mode==0 && (fEnergyFlag.CompareTo("PbPb_5.02TeV") == 0))  changePileUpCutNoMC = kFALSE;
     TString fEventCutSelectionPileUpRejection   = fEventCutSelection(5,1);
     cout << "cutnumber for PileUpRejection is: " << fEventCutSelectionPileUpRejection << endl;
-    if( CutNumberToInteger(fEventCutSelectionPileUpRejection) > 1  && optionMC.CompareTo("kTRUE") == 0){
+    if( changePileUpCutNoMC && CutNumberToInteger(fEventCutSelectionPileUpRejection) > 1  && optionMC.CompareTo("kTRUE") == 0){
       cout << "changing PileUpCut for MC" << endl;
       cout << fEventCutSelection.Data() << endl;
       fEventCutSelection.Replace(GetEventRemovePileUpCutPosition(),1,"1");
@@ -4691,25 +4693,6 @@ Bool_t LoadSecondariesFromCocktailFile(TString cutSelection, TString optionEnerg
         return kFALSE;
     }
 
-    // set bins
-    Int_t       nBins                                           = 0;
-    Double_t    xMin                                            = 0.;
-    Double_t    xMax                                            = 20;
-    if (fEnablePCM && !fEnableCalo) {
-        nBins                                                   = fHistoGammaConvPtOrBin->GetNbinsX();
-        xMin                                                    = fHistoGammaConvPtOrBin->GetXaxis()->GetXmin();
-        xMax                                                    = fHistoGammaConvPtOrBin->GetXaxis()->GetXmax();
-    } else if (fEnableCalo && !fEnablePCM) {
-        nBins                                                   = fHistoGammaCaloPtOrBin->GetNbinsX();
-        xMin                                                    = fHistoGammaCaloPtOrBin->GetXaxis()->GetXmin();
-        xMax                                                    = fHistoGammaCaloPtOrBin->GetXaxis()->GetXmax();
-    } else {
-        cout << "Will use " << fHistoGammaConvPtOrBin->GetName() << " for original binning of secondary gamma spectra from cocktail." << endl;
-        nBins                                                   = fHistoGammaConvPtOrBin->GetNbinsX();
-        xMin                                                    = fHistoGammaConvPtOrBin->GetXaxis()->GetXmin();
-        xMax                                                    = fHistoGammaConvPtOrBin->GetXaxis()->GetXmax();
-    }
-
     // get secondary spectra from cocktail file
     cout << "Found cocktail file: " << nameCocktailFile.Data() << " -> will add cocktail histos to output" << endl;
     for (Int_t k = 0; k < 3; k++){
@@ -4720,8 +4703,17 @@ Bool_t LoadSecondariesFromCocktailFile(TString cutSelection, TString optionEnerg
         }
         fHistoSecondaryGammaCocktailFromXPt[k]->Sumw2();
         fHistoSecondaryGammaCocktailFromXPtOrBin[k]         = (TH1D*)fHistoSecondaryGammaCocktailFromXPt[k]->Clone(Form("CocktailSecondaryGammaFromXFrom%s_PtOrBin", fSecondaries[k].Data()));
-        RebinSpectrum(fHistoSecondaryGammaCocktailFromXPt[k]);
-        fHistoSecondaryGammaCocktailFromXPtOrBin[k]->SetBins(nBins,xMin,xMax);
+        RebinSpectrum(fHistoSecondaryGammaCocktailFromXPt[k]);   // set analysis binning
+        // set original binning as in task
+        // fHistoSecondaryGammaCocktailFromXPtOrBin[k]->SetBins(nBins,xMin,xMax);    // worked only for equidistant bins
+        if (fEnablePCM && !fEnableCalo) {
+            fHistoSecondaryGammaCocktailFromXPtOrBin[k] = RebinTH1D(fHistoSecondaryGammaCocktailFromXPtOrBin[k],fHistoGammaConvPtOrBin,kFALSE);
+        } else if (fEnableCalo && !fEnablePCM) {
+            fHistoSecondaryGammaCocktailFromXPtOrBin[k] = RebinTH1D(fHistoSecondaryGammaCocktailFromXPtOrBin[k],fHistoGammaCaloPtOrBin,kFALSE);
+        } else {
+            cout << "Will use " << fHistoGammaConvPtOrBin->GetName() << " for original binning of secondary gamma spectra from cocktail." << endl;
+            fHistoSecondaryGammaCocktailFromXPtOrBin[k] = RebinTH1D(fHistoSecondaryGammaCocktailFromXPtOrBin[k],fHistoGammaConvPtOrBin,kFALSE);
+        }
     }
 
     // all spectra found
