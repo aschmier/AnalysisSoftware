@@ -45,6 +45,7 @@ then
 				# Download all relevant files
 				for filename in `cat $FilenamesinTrain`
 				do
+					echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
 					MergeRuns=0
 
 					tmp=`grep $filename $AvailibleFiles | wc -l`
@@ -56,7 +57,11 @@ then
 						downlogFile="$Dirout/${filename%%.root}.downlog"
 
 						if [[ $UseOnlyrunwise = 0 ]]; then
-							GetFile $inFile $outFile $downlogFile
+							if [[ $isjalien = 1 ]]; then
+								GetFile_jalien $inFile $outFile $downlogFile
+							else
+								GetFile $inFile $outFile $downlogFile
+							fi
 							if [[ $UseMerge = 1 ]]
 							then
 								doMergeFiles $filename $Dirout $Dirin $DirMerged
@@ -77,7 +82,6 @@ then
 						fi
 					fi
 
-					echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
 					if [[ $DoSoftDown = 1 ]]; then
 						printf "\e[33m|-> Merging file:\e[0m $RunlistName $ChildName $filename " | tee -a $LogFile
 						doMergeFiles $filename $Dirout $Dirin $DirMerged
@@ -189,10 +193,14 @@ then
 									for runinFile in `grep "_$childID/$Search" $RunPathList`
 									do
 										# printf "\t$runoutFile" | tee -a $LogFile
-										GetFile $runinFile $runoutFile $rundownlogFile
+										if [[ $isjalien = 1 ]]; then
+											GetFile_jalien $runinFile $runoutFile $rundownlogFile
+										else
+											GetFile $runinFile $runoutFile $rundownlogFile
+										fi
 										if [[ $MergeRuns = 1 ]]
 										then
-											doMergeFiles $Search $runDir ${runinFile/%%$Search} $Dirout
+											PrepMerge $Search $runDir ${runinFile/%%$Search} $Dirout
 										else
 											printf "\n" | tee -a $LogFile
 										fi
@@ -224,12 +232,18 @@ then
 										subrundownlogFile=$subrunDir/.${Search%%.root}.downlog
 										((tmpsubruncount++))
 										printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$runName|$subrunname\t$Search " | tee -a $LogFile
-										GetFile $subruninFile $subrunoutFile $subrundownlogFile
-										if [[ $? -eq 1 ]]; then
-											continue
+										if [[ $isjalien = 1 ]]; then
+											GetFile_jalien $subruninFile $subrunoutFile $subrundownlogFile
+										else
+											GetFile $subruninFile $subrunoutFile $subrundownlogFile
 										fi
-										doMergeFiles $Search $subrunDir ${subruninFile/%%$Search} $runDir
+										# if [[ $? -eq 1 ]]; then
+										# 	continue
+										# fi
+										PrepMerge $Search $subrunDir ${subruninFile/%%$Search} $runDir
 									done
+									printf "\t\t\t\e[33m|->\e[0m StartMergeProcess" #| tee -a $WARNINGLog | tee -a $LogFile
+									StartMergeProcess $runDir &> /dev/null
 									echo -e "\t\t\e[33m|->\e[0m merge from higher stages.. done" #| tee -a $WARNINGLog | tee -a $LogFile
 									if [[ $MergeRuns = 1 ]]
 									then
@@ -238,10 +252,15 @@ then
 										then
 											echo "doMergeFiles $Search $runDir ${runinFile/%%$Search} $Dirout" | tee -a $LogFile
 										fi
-										doMergeFiles $Search $runDir ${runinFile/%%$Search} $Dirout
+										PrepMerge $Search $runDir ${runinFile/%%$Search} $Dirout
 									fi
 								fi
 							done
+							# printf "\t\t\e[33m|->\e[0m waiting: merge from higher stages..." #| tee -a $WARNINGLog | tee -a $LogFile
+							# wait
+							# printf "\t done \n\t\t" #| tee -a $WARNINGLog | tee -a $LogFile
+							printf "\t\t" #| tee -a $WARNINGLog | tee -a $LogFile
+							StartMergeProcess $Dirout
 							if [[ $OptIsJJ = 1 ]] ; then
 								if [[ $MergeRuns = 1 ]]; then
 									printf "\t\t\e[33m|->\e[0m merging pT hardbin " #| tee -a $WARNINGLog | tee -a $LogFile
@@ -249,11 +268,13 @@ then
 									then
 										echo "doMergeFiles $Search $Dirout 0 $DiroutTmp" | tee -a $LogFile
 									fi
-									doMergeFiles $Search $Dirout "0" $DiroutTmp
+									PrepMerge $Search $Dirout "0" $DiroutTmp
 								fi
 								Dirout=$DiroutTmp
 							fi
 						done
+						printf "\t" #| tee -a $WARNINGLog | tee -a $LogFile
+						StartMergeProcess $DiroutTmp
 					fi
 					if [[ $UseMerge = 1 ]] ; then
 						# touch $completlymerged

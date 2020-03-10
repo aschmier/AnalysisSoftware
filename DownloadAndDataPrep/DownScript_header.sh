@@ -26,6 +26,7 @@ sleep 2
 
 ############### global variables
 debug=0
+isjalien=1
 ErrorLog=""
 WARNINGLog=""
 pathtocert=""
@@ -33,6 +34,7 @@ UserName=""
 alienUserName=""
 BASEDIR=${PWD}
 thisuser=`echo ${USER}`
+NCHilds=0
 
 #There are Settings to be used beforehand
 TrainPage=""
@@ -191,11 +193,11 @@ function AddToList(){
 		done
 		new_rm $1
 	fi
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-	then
-		echo "cat $2" | tee -a $LogFile
-		cat $2 | tee -a $LogFile
-	fi
+	# if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+	# then
+	# 	echo "cat $2" | tee -a $LogFile
+	# 	cat $2 | tee -a $LogFile
+	# fi
 }
 
 function Init(){
@@ -229,14 +231,16 @@ function Init(){
 
 
 	# chack if valid token is active
-	if [[ `alien-token-info` =~ "No Token found!" ]]
-	then
-		echo -e "\e[31mWARNING:\e[0m No alien token" | tee -a $LogFile
-		# alien-token-init $alienUserName
-		echo;echo;
-		alien-token-init $alienUserName
-		echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
-		echo;echo;
+	if [[ $isjalien = 0 ]]; then
+		if [[ `alien-token-info` =~ "No Token found!" ]]
+		then
+			echo -e "\e[31mWARNING:\e[0m No alien token" | tee -a $LogFile
+			# alien-token-init $alienUserName
+			echo;echo;
+			alien-token-init $alienUserName
+			echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
+			echo;echo;
+		fi
 	fi
 
 	while [[ -f OptRunlistNames_$RunningScripts.txt ]]; do
@@ -336,6 +340,7 @@ function InitilaizeChild(){
 	echo -e "\e[35m $1 \e[0m" | tee -a $LogFile
 
 	childID=${1##*child_}
+	childID=${childID%/*}
 
 	foundperiod=0
 	foundchild=0
@@ -358,7 +363,11 @@ function InitilaizeChild(){
 
 	# get one globalvariables.C to get information about the child
 	GlobalVariablesPath="$OUTPUTDIR/.$1/$GlobalVariablesFile"
-	GetFile "$AlienDir$1/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
+	if [[ $isjalien = 1 ]]; then
+		GetFile_jalien "$AlienDir$1/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
+	else
+		GetFile "$AlienDir$1/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
+	fi
 	echo;
 
 	ChildName=`grep "periodName =" "$GlobalVariablesPath" | awk -F "= " '{print $2}' | awk -F ";" '{print $1}' | awk -F "\"" '{print $2}'`
@@ -371,7 +380,6 @@ function InitilaizeChild(){
 		# ChildName=`echo $(head -n 1 $PathtoRuns) | awk -F "/" '{print $7}' ` | tee -a $LogFile
 		if [[ $ChildName = "" ]]; then
 			ChildName=`grep "export TEST_DIR_child_${childID}=" $envFile | cut -d "'" -f 2 | cut -d "/" -f 5`
-
 		fi
 		echo -e "\e[33m|->\e[0m Changed periodName = $ChildName" | tee -a $LogFile
 	fi
@@ -393,6 +401,9 @@ function InitilaizeTrain(){
 
 	new_rm $ErrorLog
 	new_rm $WARNINGLog
+
+	for file in `find  $BASEDIR/$OutName/ -name .FileForAllMergeProcesses.txt`; do new_rm $file; done
+	for file in `find  $BASEDIR/$OutName/ -name .FileForAllMergeProcessesSavedDetails.txt`; do new_rm $file; done
 
 
 	OUTPUTDIR=$BASEDIR/$OutName
@@ -442,7 +453,12 @@ function InitilaizeTrain(){
 	done
 	# cat $List
 	echo -e "\e[33m|->\e[0m $Childeone" | tee -a $LogFile
-	GetFile $AlienDir$Childeone/env.sh $envFile $envFile.downlog 1; echo
+	if [[ $isjalien = 1 ]]; then
+		GetFile_jalien "$AlienDir$Childeone/env.sh" "$envFile" "$envFile.downlog" 1
+	else
+		GetFile "$AlienDir$Childeone/env.sh" "$envFile" "$envFile.downlog" 1
+	fi
+	echo
 	PERIODNAME=`grep "PERIOD_NAME=" $envFile | awk -F "=" '{print $2}' | awk -F ";" '{print $1}'`
 	echo "PERIODNAME = $PERIODNAME" | tee -a $LogFile
 	NCHilds=`grep "CHILD_DATASETS=" $envFile | awk -F "=" '{print $2}' | awk -F ";" '{print $1}'`
@@ -450,7 +466,11 @@ function InitilaizeTrain(){
 	echo
 
 	lego_train_mergePath="$OUTPUTDIR/.lego_train_merge.C"
-	GetFile $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog 1; echo
+	if [[ $isjalien = 1 ]]; then
+		GetFile_jalien $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog 1; echo
+	else
+		GetFile $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog 1; echo
+	fi
 	grep "TString outputFiles" "$lego_train_mergePath"  | awk -F "\"" '{print $2}' > $FilenamesinTrain.tmp
 	sed -i 's/,/\n/g' $FilenamesinTrain.tmp
 	sed -i 's/ //g' $FilenamesinTrain.tmp
@@ -569,9 +589,17 @@ function InitilaizeRunlist(){
 			for Search in `cat $FilenamesinTrain`
 			do
 				if [[ $OptNoRunlist = 0 ]]; then
-					cmd="alien_ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+					# if [[ $isjalien = 1 ]]; then
+					# 	cmd="alien.py ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+					# else
+						cmd="alien_ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+					# fi
 				else
-					cmd="alien_ls $AlienDir$child/merge/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+					# if [[ $isjalien = 1 ]]; then
+					# 	cmd="alien.py ls $AlienDir$child/merge/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+					# else
+						cmd="alien_ls $AlienDir$child/merge/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+					# fi
 				fi
 				eval $cmd
 				usecmd $cmd
@@ -647,6 +675,9 @@ function ParseSettings(){
 		elif [[ $setting = "-runwise" ]]
 		then
 			Userunwise=1
+		elif [[ $setting = "-isjalien" ]]
+		then
+			isjalien=1
 		elif [[ $setting = "-onlyrunwise" ]]
 		then
 			Userunwise=1
@@ -828,6 +859,7 @@ function Parsehtml(){
 	# parse html to get infos
 	for line in `cat $TrainPageHTML`
 	do
+
 		if [[ $line = *"editPeriod"* ]]
 		then
 			if [[ $found = 1 ]]
@@ -836,25 +868,34 @@ function Parsehtml(){
 			fi
 			if [[ $line = *"$PERIODNAME"* ]]
 			then
-				found=1
 				if [[ $debug = 2 ]]
 				then
 					echo -e "\e[33m|-> \e[0m found period" | tee -a $LogFile
+				fi
+				if [[ $NCHilds = "'1'" ]]; then
+					echo -e "\e[33m|-> \e[0m skipping searching childs" | tee -a $LogFile
+					foundchild=1
+				else
+					found=1
 				fi
 			fi
 		fi
 		if [[ $found = 1 ]]
 		then
+			if [[ $debug = 2 ]]
+			then
+				printf "\e[33m|->\e[0m $line \t " | tee -a $LogFile
+			fi
 			if [[ $lookchildID = 1 ]]
 			then
-				if [[ $debug = 2 ]]
+				if [[ $debug = 2 ]] || [[ $debug = 1 ]]
 				then
-					echo -e "\e[33m|-> \e[0m lookchildID $line" | tee -a $LogFile
+					echo -e "\e[33m|-> \e[0m lookchildID (childID): $line" | tee -a $LogFile
 				fi
 				foundchild=0
 				if [[ $line = "$childID" ]]
 				then
-					if [[ $debug = 2 ]]
+					if [[ $debug = 2 ]] || [[ $debug = 1 ]]
 					then
 						if [[ $Usechildsareperiods = 0 ]]
 						then
@@ -865,6 +906,7 @@ function Parsehtml(){
 						echo -e "\e[33m|->\e[0m childID = $childID" | tee -a $LogFile
 					fi
 					if [[ $OptNoRunlist = 1 ]]; then
+						echo -e "\e[33m|->\e[0m RunlistName = default" | tee -a $LogFile
 						RunlistName="default"
 						RunlistID=1
 						foundRunlists=1
@@ -890,13 +932,13 @@ function Parsehtml(){
 		fi
 		if [[ $foundchild = 1 ]]
 		then
-			if [[ $debug = 2 ]]
-			then
-				echo -e "\e[33m|-> \e[0m found child: $line" | tee -a $LogFile
+			if [[ $line = *"</tr>"* ]] && [[ $NCHilds = "'1'" ]]; then
+				foundchild=0
 			fi
+			# printf " |$line| " | tee -a $LogFile
 			if [[ $readRuns = 1 ]]
 			then
-				if [[ $debug = 2 ]]; then
+				if [[ $debug = 2 ]] || [[ $debug = 1 ]]; then
 					printf "($line)" | tee -a $LogFile
 				fi
 				# echo $RunlistOnTrainpage
@@ -1011,6 +1053,9 @@ function Parsehtml(){
 			if [[ $line = *"table_row"* ]]
 			then
 				RunlistID=0
+			fi
+			if [[ $debug = 2 ]] &&  [[ ! $NCHilds = "'1'" ]]; then
+				echo -e "\e[33m|-> \e[0m found child: $line" | tee -a $LogFile
 			fi
 		fi
 	done
@@ -1228,7 +1273,12 @@ function doMergeFiles() {
 		return
 	fi
 	printf "\e[33m|->\e[0m merging Files \n"  #(log: $logFile)" | tee -a $LogFile
-	hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile
+	if [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+		echo "hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile"
+		hadd -k $mergedFile.tmp $mergedFile $2/$1  | tee $logFile
+	else
+		hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile
+	fi
 	exitstatus=$?
 	if [[ ! "$exitstatus" = "0" ]]; then
 		printf "  \e[33m|->\e[0m Retry with download" | tee -a $LogFile
@@ -1243,7 +1293,11 @@ function doMergeFiles() {
 		new_rm $mergedFile.tmp
 		if [[ ! $3 -eq "0"  ]]; then
 			new_rm $2/$1
-			GetFile $3/$1 $2/$1 $downlogFile
+			if [[ $isjalien = 1 ]]; then
+				GetFile_jalien $3/$1 $2/$1 $downlogFile
+			else
+				GetFile $3/$1 $2/$1 $downlogFile
+			fi
 		fi
 		printf "  \e[33m|->\e[0m merging " | tee -a $LogFile
 		hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile
@@ -1293,7 +1347,11 @@ function SeachFilesOnAlienAndAddToList(){
 }
 function FindPathsAndAddToList(){
 	echo  -e "\e[36m--  FindPathsAndAddToList \e[0m" | tee -a $LogFile
-	cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
+	# if [[ $isjalien = 1 ]]; then
+	# 	cmd="alien.py find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
+	# else
+		cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
+	# fi
 	eval $cmd
 	tmpcouuntnew=0
 	if [[ ! "$?" = "0" ]]; then
@@ -1322,9 +1380,17 @@ function FindAllRunsAndAddToList(){
 	fi
 
 	for (( i = 1; i < $maxtmp; i++ )); do
-		cmd="alien_ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
+		# if [[ $isjalien = 1 ]]; then
+		# 	cmd="alien.py ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
+		# else
+			cmd="alien_ls /alice/$Type/$Year/$ChildName 1> tmprunfolder.txt"
+		# fi
 		if [[ $OptIsJJ = 1 ]]; then
-			cmd="alien_ls /alice/$Type/$Year/$ChildName/$i 1> tmprunfolder.txt"
+			# if [[ $isjalien = 1 ]]; then
+			# 	cmd="alien.py ls /alice/$Type/$Year/$ChildName/$i 1> tmprunfolder.txt"
+			# else
+				cmd="alien_ls /alice/$Type/$Year/$ChildName/$i 1> tmprunfolder.txt"
+			# fi
 		fi
 		# echo "/alice/$Type/$Year/$ChildName/$i"
 		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
@@ -1334,12 +1400,21 @@ function FindAllRunsAndAddToList(){
 		eval $cmd
 		tmpcouuntnew=0
 		while [[ ! $? = "0" ]] ; do
-			if [[ $tmpcouuntnew > 10 ]]; then break; fi
+			if [[ $tmpcouuntnew > 10 ]]; then return; fi
 			((tmpcouuntnew++))
 			eval $cmd
 			printf "."
 			sleep 1
 		done
+
+
+		new_rm tmprunfolder.txt.tmp
+		for TMPrun in `cat tmprunfolder.txt`; do
+			echo ${TMPrun%/} >> tmprunfolder.txt.tmp
+			# printf "${TMPrun%/}, "
+		done
+		new_rm tmprunfolder.txt
+		mv tmprunfolder.txt.tmp tmprunfolder.txt
 
 
 		if [[ `grep "does not exist" tmprunfolder.txt | wc -l` < 1 ]] ; then
@@ -1351,7 +1426,11 @@ function FindAllRunsAndAddToList(){
 	done
 }
 function GetChilds(){
-	cmd="alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2 &> $1"
+	# if [[ $isjalien = 1 ]]; then
+	# 	cmd="alien.py ls $AlienDir 2> /dev/null | grep $TrainNumber\_2 &> $1"
+	# else
+		cmd="alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2 &> $1"
+	# fi
 	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
 	then
 		echo $cmd | tee -a $LogFile
@@ -1367,6 +1446,100 @@ function GetChilds(){
 	done
 }
 # Fuction to check if file is there and download it if not
+function GetFile_jalien(){
+
+	debugtmp=0
+	if [ "$#" == "4" ]; then
+		debugtmp=$4
+	fi
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]] ; then
+		debugtmp=1
+	fi
+	if [[ $debugtmp = 1 ]] || [[ $debug = 3 ]]; then
+		echo -e "\e[33mGetFile(): \e[0m alien_cp $1 file:///$2" | tee -a $LogFile
+		# echo -e "\e[33mGetFile(): \e[0m alien:/$1  file:/$2" | tee -a $LogFile
+	fi
+
+	if [[ -f $3 ]]; then
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+			cat $3 | tee -a $LogFile
+		fi
+		if [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]] && [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]]; then
+			if [[ -f $2 ]]; then
+				new_rm $2
+				if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+					echo -e "\t deleting $2" | tee -a $LogFile
+				fi
+			fi
+		fi
+	fi
+
+	if [[ -f $2 ]] # Check if file there
+	then
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+			echo -e "\e[33m|-> \e[0mFile $2 exists." | tee -a $LogFile
+		else
+			printf "\e[33m|-> \e[0mFile exists." | tee -a $LogFile
+		fi
+	else
+		# if [[ $isjalien = 1 ]]; then
+		# 	tmp=`alien.py ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+		# else
+			tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+		# fi
+		while [[ ! $? = "0" ]]; do
+			print "."
+			# if [[ $isjalien = 1 ]]; then
+			# 	tmp=`alien.py ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+			# else
+				tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+			# fi
+		done
+		if [[ $tmp -eq 0 ]]; then
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+				echo -e "\e[33m|-> \e[0mDownloading file alien:/$1" | tee -a $LogFile
+				alien_cp $1 file:///$2 &> $3
+				# alien_cp -o  alien:/$1 file:/$2 &> $3
+			else
+				printf "\e[33m|-> \e[0mDownloading file" | tee -a $LogFile
+				alien_cp $1 file:///$2 &> $3
+				# alien_cp -o  alien:/$1 file:/$2 &> $3
+			fi
+			downexitstatus=$?
+			tmpdowncount=1
+			if [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; then
+				printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
+			fi
+			while [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; do
+				if [[ $tmpdowncount = 10 ]]; then
+					echo "." | tee -a $LogFile
+					break
+				fi
+				printf "${tmpdowncount} " | tee -a $LogFile
+				alien_cp $1 file:///$2 &> $3
+				# alien_cp -o  alien:/$1 file:/$2 &> $3
+				downexitstatus=$?
+				((tmpdowncount++))
+			done
+			if [[ -f $2 ]] && [[ `grep "SUCCESS" $3 | wc -l` > 0 ]]  && [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]]; then
+				printf "  \e[33m|->\e[0m successful  " | tee -a $LogFile
+			else
+				printf "  \e[33m|->\e[0m Download failed "   | tee -a $ErrorLog | tee -a $LogFile
+			fi
+		else
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+			then
+				printf "\e[31m|->\e[0m missing $1 on alien"    | tee -a $ErrorLog | tee -a $LogFile
+			else
+				printf "\e[31m|->\e[0m missing on alien"  | tee -a $ErrorLog | tee -a $LogFile
+			fi
+		fi
+	fi
+
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+		cat $3 | tee -a $LogFile
+	fi
+}
 function GetFile(){
 
 	debugtmp=0
@@ -1377,14 +1550,15 @@ function GetFile(){
 		debugtmp=1
 	fi
 	if [[ $debugtmp = 1 ]] || [[ $debug = 3 ]]; then
-		echo -e "\e[33mGetFile(): \e[0m alien:/$1  file:/$2" | tee -a $LogFile
+		echo -e "\e[33mGetFile(): \e[0m alien_cp $1 file:///$2" | tee -a $LogFile
+		# echo -e "\e[33mGetFile(): \e[0m alien:/$1  file:/$2" | tee -a $LogFile
 	fi
 
 	if [[ -f $3 ]]; then
 		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
 			cat $3 | tee -a $LogFile
 		fi
-		if [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]]; then
+		if [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]] && [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]]; then
 			if [[ -f $2 ]]; then
 				new_rm $2
 				if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
@@ -1430,7 +1604,7 @@ function GetFile(){
 				downexitstatus=$?
 				((tmpdowncount++))
 			done
-			if [[ -f $2 ]] && [[ `grep "100.00 %" $3 | wc -l` > 0 ]] ; then
+			if [[ -f $2 ]] && [[ `grep "100.00 %" $3 | wc -l` > 0 ]] && [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]]; then
 				printf "  \e[33m|->\e[0m successful  " | tee -a $LogFile
 			else
 				printf "  \e[33m|->\e[0m Download failed "   | tee -a $ErrorLog | tee -a $LogFile
@@ -1448,4 +1622,181 @@ function GetFile(){
 	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
 		cat $3 | tee -a $LogFile
 	fi
+}
+
+function PrepMerge() {
+	# printf "\e[33m|->\e[0m PrepMerge() " | tee -a $LogFile
+	if [ "$#" == "5" ]; then
+		additionalargument=$5
+	else
+		additionalargument=""
+	fi
+	FileForAllMergeProcesses="$4/.FileForAllMergeProcesses.txt"
+	FileForAllMergeProcessesSavedDetails="$4/.FileForAllMergeProcessesSavedDetails.txt"
+	if [[ -f $FileForAllMergeProcessesSavedDetails ]]; then
+		if [[ `grep "$1 $2 $3 $4 $additionalargument" $FileForAllMergeProcessesSavedDetails | wc -l` < 1 ]]; then
+			echo "$1 $2 $3 $4 $additionalargument" >> $FileForAllMergeProcessesSavedDetails
+		else
+			printf "\e[33m|-> \e[0m already added\n" | tee -a $LogFile
+			return
+		fi
+	else
+		echo "$1 $2 $3 $4 $additionalargument" >> $FileForAllMergeProcessesSavedDetails
+	fi
+	downlogFile="$2/${1%%.root}.downlog"
+	mergedFile=$4/$1
+	if [ "$#" == "5" ]; then
+		alreadyMerged="$2/.${1%%.root}_$5.merged"
+	else
+		alreadyMerged="$2/.${1%%.root}.merged"
+	fi
+	logFile=$2/.${1%%.root}.log
+	new_rm $logFile
+	new_rm $mergedFile.tmp
+	if [[ -f $alreadyMerged ]]
+	then
+		for filesalreadymerged in `cat $alreadyMerged`; do
+			if [[ $filesalreadymerged = $mergedFile ]]; then
+				printf "\e[33m|-> \e[0m already merged\n" | tee -a $LogFile
+				return
+			fi
+		done
+	fi
+	if [[ ! -f $2/$1 ]]
+	then
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+		then
+			echo -e "\t\e[31m|->\e[0m File missing $2/$1  "  | tee -a $ErrorLog | tee -a $LogFile
+		else
+			echo -e "\t\e[31m|->\e[0m File missing "  | tee -a $ErrorLog | tee -a $LogFile
+		fi
+		return
+	fi
+	if [[ ! -f $mergedFile ]]
+	then
+		echo -e "\e[33m|->\e[0m Copy: is first" | tee -a $LogFile
+		echo "Copyed to $mergedFile" > $logFile | tee -a $LogFile
+		cp $2/$1 $mergedFile
+		# touch $alreadyMerged
+		echo $mergedFile >> $alreadyMerged
+		return
+	fi
+	if [[ -f $FileForAllMergeProcesses ]]; then
+		if [[ `grep "hadd -k $mergedFile.tmp" $FileForAllMergeProcesses | wc -l` < 1 ]] ; then
+			printf "\e[33m|-> \e[0m Add file for merging\n" | tee -a $LogFile
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+				printf "\t\e[33m|-> \e[0m from:$2/$1  to:$4/$1" | tee -a $LogFile
+			fi
+			echo "hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile" >> $FileForAllMergeProcesses
+			# cat $FileForAllMergeProcesses
+		else
+			new_rm $FileForAllMergeProcesses.tmp
+			# cat $FileForAllMergeProcesses
+			# for lineTmp in `cat $FileForAllMergeProcesses`; do
+			while IFS= read -r lineTmp; do
+				# if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+					# printf "\e[33m|-> \e[0m $lineTmp" | tee -a $LogFile
+				# fi
+				# echo "|$lineTmp|"
+				if [[ `echo "$lineTmp" | grep "hadd -k $mergedFile.tmp" | wc -l` < 1 ]]; then
+					echo "$lineTmp" >> $FileForAllMergeProcesses.tmp
+				else
+					printf "\e[33m|-> \e[0m Add file to list for merging " | tee -a $LogFile
+					if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+						printf "\t\e[33m|-> \e[0m from:$2/$1  to:$4/$1" | tee -a $LogFile
+					fi
+					printf "\n" | tee -a $LogFile
+					logFile=$2/.${1%%.root}.log
+					echo "${lineTmp%\&\>*} $2/$1 &> ${lineTmp#*\&\>}" >> $FileForAllMergeProcesses.tmp
+					# cat $FileForAllMergeProcesses.tmp
+				fi
+			done < "$FileForAllMergeProcesses"
+			# done
+			mv $FileForAllMergeProcesses.tmp $FileForAllMergeProcesses
+			# cat $FileForAllMergeProcesses
+		fi
+	else
+		printf "\e[33m|-> \e[0m Add first file for merging\n" | tee -a $LogFile
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+			printf "\t\e[33m|-> \e[0m from:$2/$1  to:$4/$1" | tee -a $LogFile
+		fi
+		echo "hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile" > $FileForAllMergeProcesses
+		# cat $FileForAllMergeProcesses
+	fi
+	# echo;
+}
+
+function StartMergeProcess() {
+	if [[ ! -e $FileForAllMergeProcesses ]]; then
+		# if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+			printf " \e[33m|->\e[0m no merging needed\n" | tee -a $LogFile
+		# else
+			# echo;
+		# fi
+		return
+	fi
+	printf "\e[33m|->\e[0m StartMergeProcess  " | tee -a $LogFile
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+		printf -e "\e[33m|->\e[0m from:$4" | tee -a $LogFile
+	fi
+	FileForAllMergeProcesses="$1/.FileForAllMergeProcesses.txt"
+	FileForAllMergeProcessesSavedDetails="$1/.FileForAllMergeProcessesSavedDetails.txt"
+	# cat $FileForAllMergeProcesses
+	IFS=$'\n'       # make newlines the only separator
+	for processinline in $(cat $FileForAllMergeProcesses); do
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+			printf "\e[33m|->\e[0m $processinline" | tee -a $LogFile
+		fi
+		# echo;
+		# printf "\e[33m|->\e[0m $processinline \n" | tee -a $LogFile
+		eval "$processinline"  | tee -a $LogFile
+
+		tmp=1
+		exitstatus=$?
+		if [[ ! "$exitstatus" = "0" ]]; then
+			printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
+		fi
+		while [[ ! "$exitstatus" = "0" ]]; do
+			printf "." | tee -a $LogFile
+			if [[ $tmp = 6 ]]; then
+				printf "  \e[33m|->\e[0m Retry with original processes\n" | tee -a $LogFile
+				while IFS=" " read -r value1 value2 value3 value4 value5 remainder
+				do
+					if [[ `echo $processinline | grep "$value2/$value1" | grep "$value4/$value1" | wc -l` = 1 ]]; then
+						echo -e "\e[33mdoMergeFiles(): \e[0m from:$value2/$value1  to:$value4/$value1" | tee -a $LogFile
+						doMergeFiles $value1 $value2 $value3 $value4 $value5
+					fi
+				done < "$FileForAllMergeProcessesSavedDetails"
+				break
+			fi
+			eval $processinline >> $LogFile
+			exitstatus=$?
+			((tmp++))
+		done
+		if [[ "$exitstatus" = "0" ]]; then
+			printf "  \e[33m|->\e[0m Done " | tee -a $LogFile
+			while IFS=" " read -r value1 value2 value3 value4 value5 remainder
+			do
+				if [[ `echo $processinline | grep "$value2/$value1" | grep "$value4/$value1" | wc -l` = 1 ]]; then
+					mergedFile=$value4/$value1
+					alreadyMerged="$value2/.${value1%%.root}_$value5.merged"
+					if [[ $value5 = "" ]]; then
+						alreadyMerged="$value2/.${value1%%.root}.merged"
+					fi
+					if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+						printf "\n\t\t  \e[33m|->\e[0m merged $mergedFile " | tee -a $LogFile
+					fi
+					if [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+						printf " (->$alreadyMerged)" | tee -a $LogFile
+					fi
+					echo $mergedFile >> $alreadyMerged
+				fi
+			done < "$FileForAllMergeProcessesSavedDetails"
+		fi
+		echo;
+	done
+	unset IFS
+
+	new_rm $FileForAllMergeProcesses
+	new_rm $FileForAllMergeProcessesSavedDetails
 }
