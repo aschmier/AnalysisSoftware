@@ -7171,7 +7171,7 @@ void SaveHistos(Int_t optionMC, TString cutID, TString prefix3, Bool_t UseTHnSpa
     fMesonFullPtBackground->Write();
     fMesonFullPtBackNorm->SetName("Mapping_BackNorm_InvMass_FullPt");
     fMesonFullPtBackNorm->Write();
-    fNumberOfGoodESDTracks->Write();
+    if(fNumberOfGoodESDTracks) fNumberOfGoodESDTracks->Write();
     fEventQuality->Write();
     if(fDoJetAnalysis) fHistNEventswithJets->Write();
 
