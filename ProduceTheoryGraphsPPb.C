@@ -1383,7 +1383,7 @@ void ProduceTheoryGraphsPPb(){
 
 
     //**********************************************************************************************************************
-    //********************************pp 5.023 TeV Pi0 and Eta calc*********************************************************
+    //********************************pPb 8.16 TeV Pi0 and Eta calc*********************************************************
     //**********************************************************************************************************************
 
     //*********************************************************
@@ -1604,6 +1604,70 @@ void ProduceTheoryGraphsPPb(){
     TGraphAsymmErrors* graphNLOCalcInvYieldPi0nPDFpPb8160GeV= ScaleGraphAsym(graphNLOCalcInvSecPi0nPDF8160GeV, 208/(2.095*recalcBarn));
 
 
+
+    //////////////////////////////////////////ColorGlassCondensate predictions for pi0 spectrum ///////////////////////////////
+    //Predictions sent by Heikki Mäntysaari [heikki.mantysaari@jyu.fi]
+    TString fileNameCGCPi0RpAy0pA8160          = "ExternalInputpPb/Theory/CGC/rpa_816tev";
+    ifstream inCGCPi0RpA;
+
+    inCGCPi0RpA.open(fileNameCGCPi0RpAy0pA8160.Data(),ios_base::in);
+    cout<<"*********************CGC spectrum******************"<<fileNameCGCPi0RpAy0pA8160.Data()<<endl;
+    Int_t nlinesCGCPi0RpA8TeV = 0;
+    Double_t xValuePi0CGCRpA8TeV[100];
+    Double_t yValuePi0CGCRpA8TeV[100];
+
+    string currentline8TeVRpACGC;
+    while( getline(inCGCPi0RpA, currentline8TeVRpACGC) && nlinesCGCPi0RpA8TeV < 100 ) {
+        TString temp1        = "";
+        TString temp2        = "";
+        //cout<<currentline8TeVRpACGC<<" hola "<<nlinesCGCPi0RpA8TeV<<endl;
+        istringstream cs(currentline8TeVRpACGC); // controll stream
+        cs >> temp1>>temp2;
+
+        if( !temp1.Contains("#") ) {
+            xValuePi0CGCRpA8TeV[nlinesCGCPi0RpA8TeV] = temp1.Atof();
+            yValuePi0CGCRpA8TeV[nlinesCGCPi0RpA8TeV] = temp2.Atof();
+            cout << nlinesCGCPi0RpA8TeV <<"\t"<<xValuePi0CGCRpA8TeV[nlinesCGCPi0RpA8TeV]<<"\t"<<yValuePi0CGCRpA8TeV[nlinesCGCPi0RpA8TeV]<<endl;
+            nlinesCGCPi0RpA8TeV++;
+        }
+    }
+
+    TGraph* grahCGCPi0y0RpApA8160              = new TGraph(nlinesCGCPi0RpA8TeV,xValuePi0CGCRpA8TeV,yValuePi0CGCRpA8TeV);
+    cout << endl;
+
+    //////////////////////////////////////////ColorGlassCondensate predictions for pi0 spectrum ///////////////////////////////
+    //Predictions sent by Heikki Mäntysaari [heikki.mantysaari@jyu.fi]
+    TString fileNameCGCPi0RpAy0pA5020          = "ExternalInputpPb/Theory/CGC/rpa_502tev";
+    ifstream inCGCPi0RpA5t;
+
+    inCGCPi0RpA5t.open(fileNameCGCPi0RpAy0pA5020.Data(),ios_base::in);
+    cout<<"*********************CGC spectrum******************"<<fileNameCGCPi0RpAy0pA5020.Data()<<endl;
+    Int_t nlinesCGCPi0RpA5020 = 0;
+    Double_t xValuePi0CGCRpA5020[100];
+    Double_t yValuePi0CGCRpA5020[100];
+
+    string currentline5020RpACGC;
+    while( getline(inCGCPi0RpA5t, currentline5020RpACGC) && nlinesCGCPi0RpA5020 < 100 ) {
+        TString temp1        = "";
+        TString temp2        = "";
+        //cout<<currentline5020RpACGC<<" hola "<<nlinesCGCPi0RpA5020<<endl;
+        istringstream cs(currentline5020RpACGC); // controll stream
+        cs >> temp1>>temp2;
+
+        if( !temp1.Contains("#") ) {
+            xValuePi0CGCRpA5020[nlinesCGCPi0RpA5020] = temp1.Atof();
+            yValuePi0CGCRpA5020[nlinesCGCPi0RpA5020] = temp2.Atof();
+            cout << nlinesCGCPi0RpA5020 <<"\t"<<xValuePi0CGCRpA5020[nlinesCGCPi0RpA5020]<<"\t"<<yValuePi0CGCRpA5020[nlinesCGCPi0RpA5020]<<endl;
+            nlinesCGCPi0RpA5020++;
+        }
+    }
+    TGraph* grahCGCPi0y0RpApA5020              = new TGraph(nlinesCGCPi0RpA5020,xValuePi0CGCRpA5020,yValuePi0CGCRpA5020);
+    cout << endl;
+    cout << endl;
+    cout << endl;
+
+
+
     //**********************************************************************************************************************
     //********************************* Write graphs and histos to compilation file for pPb ********************************
     //**********************************************************************************************************************
@@ -1795,6 +1859,7 @@ void ProduceTheoryGraphsPPb(){
             histoEtaPi0PureMtScaling->GetYaxis()->SetTitle("#eta/#pi^{0}");
             histoEtaPi0PureMtScaling->GetXaxis()->SetTitle("#it{p}_{T} (GeV/#it{c})");
             histoEtaPi0PureMtScaling->Write("histoEtaPi0PureMtScaling_ALICECombPi0", TObject::kOverwrite);
+            grahCGCPi0y0RpApA5020->Write("graphCGCRpAPi05020GeV", TObject::kOverwrite);
 
         // write McGill calc for different cents and particles
         for (Int_t iCent = 0; iCent < nCent; iCent++){
@@ -1882,6 +1947,7 @@ void ProduceTheoryGraphsPPb(){
             if (graphNLOCalcInvYieldPi0nPDFMuOnepPb8160GeV) graphNLOCalcInvYieldPi0nPDFMuOnepPb8160GeV->Write("graphNLOCalcDSS14InvYieldPi0MuOne8160GeV_CT10", TObject::kOverwrite);
             if (graphNLOCalcInvYieldPi0nPDFMuTwopPb8160GeV) graphNLOCalcInvYieldPi0nPDFMuTwopPb8160GeV->Write("graphNLOCalcDSS14InvYieldPi0MuTwo8160GeV_CT10", TObject::kOverwrite);
             graphNLOCalcInvYieldPi0nPDFpPb8160GeV->Write("graphNLOCalcDSS14InvYieldPi08160GeV_CT10", TObject::kOverwrite);
+            grahCGCPi0y0RpApA8160->Write("graphCGCRpAPi08160GeV", TObject::kOverwrite);
 
 
             // graphRpPbEPPS16_DSS14->Write("graphNLOCalcDSS14RpAPi08160GeV_EPPS16", TObject::kOverwrite);

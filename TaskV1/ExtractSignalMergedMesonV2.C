@@ -214,7 +214,7 @@ void ExtractSignalMergedMesonV2(    TString meson                   = "",
             fClusterCutSelectionRead        = fClusterCutSelection;
             fClusterMergedCutSelectionRead  = fClusterMergedCutSelection;
             fMesonCutSelectionRead          = fMesonCutSelection;
-            if(fIsMC && file.Contains("_Sys")){
+            if(fIsMC && (file.Contains("_Sys")||file.Contains("_SYS"))){
                 fEventCutSelectionRead.Replace(3, 2,"10");
                 cout << "loading inputs using cutnumber: " << fEventCutSelectionRead.Data() << endl;
             }
@@ -2967,14 +2967,16 @@ Bool_t LoadMesonAcceptance( TH1D * fDeltaPtFill) {
     cout << "loading external acceptance" << endl;
     TString extAccFileName = Form("ExternalInput/KinematicAcceptance/ExternalAcceptance%s.root",mesonStringLoad.Data());
     TFile* extAccFile =  new TFile(extAccFileName.Data());
+    TString rapidityCutNumberDummy     = fMesonCutSelection(GetMesonRapidityCutPosition(),1);
+    Int_t rapidtyInt = rapidityCutNumberDummy.Atoi();
     if (!extAccFile->IsZombie()){
-        TString acceptancehistoName= "mEMC";
+        TString acceptancehistoName= Form("mEMC_%d",rapidtyInt);
         if(fClusterCutSelection.BeginsWith("3"))
-            acceptancehistoName= "mDMC";
+            acceptancehistoName= Form("mDMC_%d",rapidtyInt);
         else if(fClusterCutSelection.BeginsWith("4"))
-            acceptancehistoName= "mEDC";
+            acceptancehistoName= Form("mEDC_%d",rapidtyInt);
         else if(fClusterCutSelection.BeginsWith("2"))
-            acceptancehistoName= "mPHOS";
+            acceptancehistoName= Form("mPHOS_%d",rapidtyInt);
         histoGeneratedExtMeson    = (TH1D*)extAccFile->Get(Form("histo%sGen_%s",mesonStringLoad.Data(),acceptancehistoName.Data()));
         histoInAcceptanceExtMeson = (TH1D*)extAccFile->Get(Form("histo%sInAcc_%s",mesonStringLoad.Data(),acceptancehistoName.Data()));
         if(!histoGeneratedExtMeson || !histoInAcceptanceExtMeson) return kFALSE;

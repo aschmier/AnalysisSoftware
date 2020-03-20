@@ -1338,7 +1338,9 @@ void CorrectCaloNonLinearityV4(
     // plotting total correction
     //*******************************************************************************
     canvasMassRatioMCData->cd();
-    TH1D* totalCorrection = new TH1D("Total Correction","; #it{E}_{Cluster} (GeV); correction factor",1000,0.3,50);
+    Double_t maxXTotalCorrPlot = 50;
+    if(select.Contains("pPb")) maxXTotalCorrPlot = 200;
+    TH1D* totalCorrection = new TH1D("Total Correction","; #it{E}_{Cluster} (GeV); correction factor",1000,0.3,maxXTotalCorrPlot);
     SetStyleHistoTH1ForGraphs(totalCorrection, "#it{E}_{Cluster} (GeV)","correction factor",0.035,0.043, 0.035,0.043, 1.,0.9);
     totalCorrection->GetYaxis()->SetRangeUser(minPlotY+0.031,1.1);
     if(select.Contains("LHC11cd") && mode==2)totalCorrection->GetYaxis()->SetRangeUser(0.98,1.15);
@@ -1348,10 +1350,10 @@ void CorrectCaloNonLinearityV4(
     totalCorrection->DrawCopy("p");
 
 
-    fFitMassPosInverted->SetRange(0.3,50);
-    fFitCompositInverted->SetRange(0.3,50);
-    fFitExpCombInverted->SetRange(0.3,50);
-    fFitConstFullInv->SetRange(0.3,50);
+    fFitMassPosInverted->SetRange(0.3,maxXTotalCorrPlot);
+    fFitCompositInverted->SetRange(0.3,maxXTotalCorrPlot);
+    fFitExpCombInverted->SetRange(0.3,maxXTotalCorrPlot);
+    fFitConstFullInv->SetRange(0.3,maxXTotalCorrPlot);
 
     DrawGammaSetMarkerTF1( fFitMassPosInverted, 1, 2, kRed+2);
     DrawGammaSetMarkerTF1( fFitCompositInverted, 7, 2, kGreen+2);
@@ -1372,7 +1374,7 @@ void CorrectCaloNonLinearityV4(
     if(isNotFirstIte) legend2->AddEntry(fFitConstFullInv,"Constant fitted","l");
     legend2->Draw("same");
 
-    DrawGammaLines(0.3, 50.,1.0, 1.0, 1, kGray+2, 2);
+    DrawGammaLines(0.3, maxXTotalCorrPlot,1.0, 1.0, 1, kGray+2, 2);
 
     PutProcessLabelAndEnergyOnPlot(0.94, 0.96, 0.03, fCollisionSystem.Data(), fTextMeasurement.Data(), recGamma.Data(), 42, 0.03, "", 1, 1.25, 31);
     for (Int_t i = 0; i < nSets; i++){

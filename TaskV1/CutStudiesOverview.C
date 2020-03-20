@@ -2657,6 +2657,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         TString Outputname = Form("%s/%s_%s_SystematicErrorCuts.root",outputDirRootFile.Data(),meson.Data(),prefix2.Data());
         TFile* SystematicErrorFile = new TFile(Outputname.Data(),"UPDATE");
 
+            if(cutVariationName.Contains("RelStatError")&&histoRawYieldCutRelUnc[0])histoRawYieldCutRelUnc[0]->Write(Form("%s_%s%s",meson.Data(),cutVariationName.Data(),centralityString.Data()),TObject::kOverwrite);
             SystErrGraphPos->Write(Form("%s_SystErrorRelPos_%s%s",meson.Data(),cutVariationName.Data(),centralityString.Data()),TObject::kOverwrite);
             SystErrGraphNeg->Write(Form("%s_SystErrorRelNeg_%s%s",meson.Data(),cutVariationName.Data(),centralityString.Data()),TObject::kOverwrite);
             if (isEta){

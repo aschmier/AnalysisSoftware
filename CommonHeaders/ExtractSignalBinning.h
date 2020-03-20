@@ -743,7 +743,7 @@
                     if (triggerSet == 2){
                         return 39;
                     } else if(triggerSet == 3){
-                        return 36;
+                        return 33;
                     } else {
                         return 10;
                     }
@@ -770,7 +770,7 @@
                             return 24;
                             break;
                         default:
-                            return 54;
+                            return 39;
                             break;
                     }
                 } else {
@@ -1233,7 +1233,7 @@
                 } else if (mode == 3){
                     return 11;
                 } else if (mode == 4 || mode == 12  || mode == 15){
-                    return 13;
+                    return 12;
                 } else if (mode == 5){
                     return 10;
                 } else {
@@ -2783,7 +2783,7 @@
                             binning[i] = fBinsPi07TeVDalitzPt[i];
                         }
                     } else if ( mode == 0 ){
-                        maxNBins = 38;
+                        maxNBins = 33;
                         for(Int_t i = 0; i < maxNBins+1; i++){
                             binning[i] = fBinsPi07TeVPt[i];
                         }
@@ -3159,7 +3159,7 @@
                         maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCDalitzPt,binning,22);
                         break;
                     case 10:
-                        maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVmEMCPt,binning, 27);
+                        maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVmEMCPt,binning, 22);
                         break;
                     case 20:
                         if ( !centrality.CompareTo("0-100%")){
@@ -3206,7 +3206,7 @@
                         maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCDalitzPt,binning,22);
                         break;
                     case 10:
-                        maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVmEMCPt,binning,27);
+                        maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVmEMCPt,binning,26);
                         break;
 
                 }
@@ -3634,7 +3634,7 @@
               }
             } else if (energy.CompareTo("7TeV") == 0){
                 if ( mode == 0 ){
-                    maxNBins = 17;
+                    maxNBins = 16;
                     for(Int_t i = 0; i < maxNBins+1; i++){
                         binning[i] = fBinsEta7TeVPt[i];
                     }
@@ -3701,14 +3701,7 @@
                     for(Int_t i = 0; i < maxNBins+1; i++){
                         binning[i] = fBinsEtaPiPlPiMiPiZero7TevPtPHOS[i];
                     }
-                }
-            } else if (energy.CompareTo("7TeV") == 0){
-                if ( mode == 0 ){
-                    maxNBins = 17;
-                    for(Int_t i = 0; i < maxNBins+1; i++){
-                        binning[i] = fBinsEta7TeVPt[i];
-                    }
-                } else if(mode == 40 || mode == 60){
+                }else if(mode == 40 || mode == 60){
                     maxNBins = 2;
                     binningMax  = 2;
                     for(Int_t i = 0; i < maxNBins+1; i++){
@@ -4620,7 +4613,12 @@
 
         // Set fBinsClusterPt according to cases
         fBinsClusterPt          = new Double_t[400];
-        if( energy.CompareTo("2.76TeV") == 0 || energy.CompareTo("PbPb_2.76TeV") == 0 || energy.CompareTo("PbPb_5.02TeV") == 0 ||  energy.CompareTo("5TeV") == 0 || energy.Contains("5TeV2017")  || energy.CompareTo("5TeVSpecial") == 0 ){
+        if(modi==10){
+            fNBinsClusterPt       = fNBinsCluster8TeVPt;
+            for(Int_t iPt=0;iPt<=fNBinsClusterPt;iPt++){
+                fBinsClusterPt[iPt] = fBinsCluster8TeVPt[iPt];
+            }
+        } else if( energy.CompareTo("2.76TeV") == 0 || energy.CompareTo("PbPb_2.76TeV") == 0 || energy.CompareTo("PbPb_5.02TeV") == 0 ||  energy.CompareTo("5TeV") == 0 || energy.Contains("5TeV2017")  || energy.CompareTo("5TeVSpecial") == 0 ){
             fNBinsClusterPt       = fNBinsCluster2760GeVPt;
             for(Int_t iPt=0;iPt<=fNBinsClusterPt;iPt++){
                 fBinsClusterPt[iPt] = fBinsCluster2760GeVPt[iPt];
@@ -4766,6 +4764,8 @@
                 triggerSetTemp = 3; // L0 EMC8
             } else if ( trigger.CompareTo("82") == 0 ) {
                 triggerSetTemp = 4; // L1 INT8 EGA
+            } else if ( trigger.CompareTo("83") == 0 ) {
+                triggerSetTemp = 2; // temporary placeholder
             } else {
                 triggerSetTemp = 0; // MB
             }

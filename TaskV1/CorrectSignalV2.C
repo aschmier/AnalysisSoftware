@@ -2786,8 +2786,24 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             canvasAcceptance->SaveAs(Form("%s/%s_AcceptanceWithSec_%s.%s",outputDir.Data(),nameMeson.Data(),fCutSelection.Data(),suffix.Data()));
         }
 
+        if(useExtAccept){
+            TH1D* acceptanceRatioExtAcc = (TH1D*)histoAcceptanceStandard->Clone("acceptanceRatioExtAcc");
+            acceptanceRatioExtAcc->Divide(histoAcceptance);
+            DrawAutoGammaMesonHistos( acceptanceRatioExtAcc,
+                                        "", "#it{p}_{T} (GeV/#it{c})", Form("A^{%s}_{std.} / A^{%s}_{ext.} in |#it{y}| < %s",textMeson.Data(),textMeson.Data(),rapidityRange.Data()),
+                                        kFALSE, 1.3, 3e-6, kFALSE,
+                                        kTRUE, 0.86, 1.14,
+                                        kFALSE, 0., 10.);
 
+            DrawGammaSetMarker(acceptanceRatioExtAcc, 20, 1.5, kAzure-6, kAzure-6);
+            acceptanceRatioExtAcc->DrawCopy("e1");
+            DrawGammaLines(0., acceptanceRatioExtAcc->GetXaxis()->GetBinUpEdge(acceptanceRatioExtAcc->GetNbinsX()),1., 1.,1);
 
+            PutProcessLabelAndEnergyOnPlot(0.72, 0.25, 28, collisionSystem.Data(), fTextMeasurement.Data(), fDetectionProcess.Data(), 43, 0.03);
+
+            canvasAcceptance->Update();
+            canvasAcceptance->SaveAs(Form("%s/%s_Acceptance_ExtAccComparison_%s.%s",outputDir.Data(),nameMeson.Data(),fCutSelection.Data(),suffix.Data()));
+        }
         delete canvasAcceptance;
 
         //**********************************************************************************

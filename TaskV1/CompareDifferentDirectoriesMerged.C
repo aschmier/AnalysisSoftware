@@ -493,7 +493,10 @@ void CompareDifferentDirectoriesMerged( TString FolderList          = "",
                 // Set ratio min and max
                 Double_t minYRatio = 0.75;
                 Double_t maxYRatio = 1.25;
-                if(!cutVariationName.CompareTo("pThcompareMerged")){
+                if(cutVariationName.Contains("NonLinearities")){
+                    minYRatio = 0.88;
+                    maxYRatio = 1.12;
+                }else if(!cutVariationName.CompareTo("pThcompareMerged")){
                     minYRatio = 0.8;
                     maxYRatio = 1.05;
                 }
@@ -511,7 +514,7 @@ void CompareDifferentDirectoriesMerged( TString FolderList          = "",
                 histoRatioCorrectedYieldCut[i]->DrawCopy("same,e1,p");
             }
         }
-        DrawGammaLines(0., maxPt,1., 1.,0.1);
+        DrawGammaLines(0., maxPt,1., 1.,1.0);
 
     canvasCorrectedYieldMeson->Update();
     canvasCorrectedYieldMeson->SaveAs(Form("%s/%s_%s_CorrectedYield.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));

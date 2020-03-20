@@ -876,6 +876,15 @@
             } else if ( mode == 5) {                                // PHOS
                 fFitRange[0]                = 0.07;
                 fFitRange[1]                = 0.25;
+                if (fEnergyFlag.Contains("pPb_8TeV")){
+                    if(trigger.CompareTo("62")==0){
+                        fMesonFitRange[0]       = 0.05;
+                        fMesonFitRange[1]       = 0.28;
+                    } else {
+                        fMesonFitRange[0]       = 0.04;
+                        fMesonFitRange[1]       = 0.29;
+                    }
+                }
             } else {                                                // defaults
                 fFitRange[0]                = 0.05;
                 fFitRange[1]                = 0.25;
@@ -1256,6 +1265,9 @@
                 if (fEnergyFlag.CompareTo("XeXe_5.44TeV") == 0 ){
                     fMesonFitRange[0]       = 0.03;
                     fMesonFitRange[1]       = 0.25;
+                }else if (fEnergyFlag.Contains("pPb_8TeV")){ // &&  trigger.CompareTo("62")==0){
+                    fMesonFitRange[0]       = 0.05;
+                    fMesonFitRange[1]       = 0.28;
                 } else {
                     fMesonFitRange[0]       = 0.08;
                     fMesonFitRange[1]       = 0.25;

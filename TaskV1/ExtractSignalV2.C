@@ -388,6 +388,7 @@ void ExtractSignalV2(
     //***************************** Get Main folder for cut ************************************************
     //******************************************************************************************************
     HistosGammaConversion       = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
+
     // couldn't find main folder for cut
     if(HistosGammaConversion == NULL){
         //******************************************************************************************************
@@ -400,9 +401,9 @@ void ExtractSignalV2(
             fMesonCutSelectionRead          = fMesonCutSelection;
             fClusterCutSelectionRead        = fClusterCutSelection;
             // Alternative time cuts for EMC
-            TString mostProbableTimeCuts[11]= {"5", "6", "0", "1", "2", "3", "4", "7", "8", "9", "a"};
+            TString mostProbableTimeCuts[20]= {"5", "6", "0", "1", "2", "3", "4", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j"};
             Int_t i = 0;
-            while (HistosGammaConversion == NULL && i < 11){
+            while (HistosGammaConversion == NULL && i < 20){
                 // replace time cut
                 fClusterCutSelection.Replace(GetClusterTimingCutPosition(fClusterCutSelectionRead),1,mostProbableTimeCuts[i].Data());
                 fClusterCutSelectionRead= fClusterCutSelection;
@@ -415,7 +416,7 @@ void ExtractSignalV2(
                 i++;
             }
             i = 0;
-            while (HistosGammaConversion == NULL && i < 11){
+            while (HistosGammaConversion == NULL && i < 20){
                 // replace time cut
                 fEventCutSelectionRead.Replace(GetEventSystemCutPosition(),1,"1");
                 cout << fEventCutSelectionRead.Data() << endl;
@@ -6854,63 +6855,64 @@ void FillMCSecondaryHistAndCalculateAcceptance(TH2D* mcSecInputSourcePt, TH2D* m
 TString GetCorrectAcceptanceHistoName() {
     TString addString = "09_";
     if(fGammaCutSelection.Length() && fGammaCutSelection[1]=='d') addString = "08_";
-
+    TString rapidityCutNumberDummy     = fMesonCutSelection(GetMesonRapidityCutPosition(),1);
+    Int_t rapidtyInt = rapidityCutNumberDummy.Atoi();
     switch (fMode){
         case 0:
-            return Form("%sPCM",addString.Data());
+            return Form("%sPCM_%d",addString.Data(), rapidtyInt);
         // case 1:
             // return Form("%sPCM-#gamma^{*}#gamma";
         case 2:
             if(fClusterCutSelection.BeginsWith("1")){
                 if(fClusterCutSelection[4]=='a')
-                    return Form("%sPCMEMCR1",addString.Data());
+                    return Form("%sPCMEMCR1_%d",addString.Data(), rapidtyInt);
                 else
-                    return Form("%sPCMEMC",addString.Data());
+                    return Form("%sPCMEMC_%d",addString.Data(), rapidtyInt);
             }else if(fClusterCutSelection.BeginsWith("3"))
-                return Form("%sPCMDMC",addString.Data());
+                return Form("%sPCMDMC_%d",addString.Data(), rapidtyInt);
             else if(fClusterCutSelection.BeginsWith("4"))
-                return Form("%sPCMEDC",addString.Data());
+                return Form("%sPCMEDC_%d",addString.Data(), rapidtyInt);
         case 3:
             if(fClusterCutSelection.BeginsWith("24444"))
-                return Form("%sPCMPHOS",addString.Data());
+                return Form("%sPCMPHOS_%d",addString.Data(), rapidtyInt);
             else if(fClusterCutSelection.BeginsWith("24466"))
-                return Form("%sPCMPHOSR2",addString.Data());
+                return Form("%sPCMPHOSR2_%d",addString.Data(), rapidtyInt);
         case 4:
             if(fClusterCutSelection.BeginsWith("1"))
                 if(fClusterCutSelection[4]=='a')
-                    return "EMCR1";
+                    return Form("EMCR1_%d",rapidtyInt);
                 else
-                    return "EMC";
+                    return Form("EMC_%d",rapidtyInt);
             else if(fClusterCutSelection.BeginsWith("3"))
-                return "DMC";
+                return Form("DMC_%d",rapidtyInt);
             else if(fClusterCutSelection.BeginsWith("4"))
-                return "EDC";
+                return Form("EDC_%d",rapidtyInt);
         case 5: case -5:
             if(fClusterCutSelection.BeginsWith("24444"))
-                return "PHOS";
+                return Form("PHOS_%d",rapidtyInt);
             else if(fClusterCutSelection.BeginsWith("24466"))
-                return "PHOSR2";
+                return Form("PHOSR2_%d",rapidtyInt);
         // case 6:
-        //     return "EMC-#gamma^{*}#gamma";
+        //     return Form("EMC-#gamma^{*}#gamma_%d",rapidtyInt);
         // case 7:
-        //     return "PHOS-#gamma^{*}#gamma";
+        //     return Form("PHOS-#gamma^{*}#gamma_%d",rapidtyInt);
         case 10:
             if(fClusterCutSelection.BeginsWith("1"))
-                return "mEMC";
+                return Form("mEMC_%d",rapidtyInt);
             else if(fClusterCutSelection.BeginsWith("3"))
-                return "mDMC";
+                return Form("mDMC_%d",rapidtyInt);
             else if(fClusterCutSelection.BeginsWith("4"))
-                return "mEDC";
+                return Form("mEDC_%d",rapidtyInt);
         case 11:
-            return "mPHOS";
+            return Form("mPHOS_%d",rapidtyInt);
         case 12:
-            return "DMC";
+            return Form("DMC_%d",rapidtyInt);
         case 13:
-            return Form("%sPCMDMC",addString.Data());
+            return Form("%sPCMDMC_%d",addString.Data(), rapidtyInt);
         case 14:
-            return Form("%sEDCPHOS",addString.Data());
+            return Form("%sEDCPHOS_%d",addString.Data(), rapidtyInt);
         case 15:
-            return "EDC";
+            return Form("EDC_%d",rapidtyInt);
         default:
             return "undefined";
 

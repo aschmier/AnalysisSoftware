@@ -120,9 +120,12 @@
         16.0, 24.0, 32.0, 40.0};
         
     // mEMC:
-    std::vector<Double_t> fBinsPi0pPb5TeVmEMCPt { // size 32
-        0.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0,    19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0, 26.0, 28.0, 30.0,
-        35.0, 40.0, 50.0, 60.0, 80.0, 100., 130.0, 160.0};
+    // std::vector<Double_t> fBinsPi0pPb5TeVmEMCPt { // size 22 binning for pPb8 comparison
+    //     0.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16., 18.,
+    //     20., 25., 30., 35., 40., 50., 60., 80., 100, 130,       160, 200, 250};
+    std::vector<Double_t> fBinsPi0pPb5TeVmEMCPt { // size 26 binning for Fredi combination
+        0.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0,    19.0, 20.0, 22.0, 24.0, 26.0, 28.0, 30.0,
+        35.0, 40.0, 50.0, 60.0, 80.0, 100., 130.0, 160.0,200.0};
 
     // PCM-Dalitz:
     std::vector<Double_t> fBinsPi0pPb5TeVDalitzPt { // size 23

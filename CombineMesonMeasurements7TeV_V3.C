@@ -585,18 +585,19 @@ fileNameEMCAL2="";
     // ************************** Combination of different measurements **************************************
     // *******************************************************************************************************
 
-    Int_t nBinsPi0 = 41;
-    Double_t xPtLimits[44]                      =  { 0.0, 0.3, 0.4, 0.5, 0.6,
-                                                     0.7, 0.8, 0.9, 1.0, 1.1,
-                                                     1.2, 1.3, 1.4, 1.5, 1.6,
-                                                     1.7, 1.8, 2.0,
-                                                     2.2, 2.4, 2.6, 2.8,
-                                                     3.0, 3.2, 3.4, 3.6, 3.8,
-                                                     4.0, 4.5, 5.0, 5.5,
-                                                     6.0, 7.0, 8.0, 9.0,
-                                                     10.0, 11.0, 12.0, 14.0,
-                                                     16.0, 20.0, 25.0
-                                                    };
+    // Int_t nBinsPi0 = 43;
+    Int_t nBinsPi0 = 38;
+    // Double_t xPtLimits[44]                      =  { 0.0, 0.3, 0.4, 0.5, 0.6,
+    //                                                  0.7, 0.8, 0.9, 1.0, 1.1,
+    //                                                  1.2, 1.3, 1.4, 1.5, 1.6,
+    //                                                  1.7, 1.8, 2.0,
+    //                                                  2.2, 2.4, 2.6, 2.8,
+    //                                                  3.0, 3.2, 3.4, 3.6, 3.8,
+    //                                                  4.0, 4.5, 5.0, 5.5,
+    //                                                  6.0, 7.0, 8.0, 9.0,
+    //                                                  10.0, 11.0, 12.0, 14.0,
+    //                                                  16.0, 20.0, 25.0
+    //                                                 };
     // Double_t xPtLimits[44]                      =  { 0.0, 0.3, 0.4, 0.5, 0.6,
     //                                                  0.7, 0.8, 0.9, 1.0, 1.1,
     //                                                  1.2, 1.3, 1.4, 1.5, 1.6,
@@ -608,17 +609,50 @@ fileNameEMCAL2="";
     //                                                  10.0, 11.0, 12.0, 13.0, 14.0,
     //                                                  16.0, 18.0, 20.0, 25.0
     //                                                 };
+    Double_t xPtLimits[39]                      =  { 0.0, 0.3, 0.4, 0.5, 0.6,
+                                                     0.7, 0.8, 1.0,
+                                                     1.2, 1.4, 1.6,
+                                                     1.8, 2.0,
+                                                     2.2, 2.4, 2.6, 2.8,
+                                                     3.0, 3.2, 3.4, 3.6, 3.8,
+                                                     4.0, 4.5, 5.0, 5.5,
+                                                     6.0, 7.0, 8.0, 9.0,
+                                                     10.0, 11.0, 12.0, 13.0, 14.0,
+                                                     16.0, 18.0, 20.0, 25.0
+                                                    };
 
-    Int_t nBinsEta = 22;
-    Double_t xPtLimitsEta[49]                   =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    // Int_t nBinsEta = 22;
+    // Double_t xPtLimitsEta[49]                   =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    //                                                  1.4, 1.8, 2.2, 2.6, 3.0,
+    //                                                  3.5, 4.0, 5.0, 6.0, 8.0,
+    //                                                  10.0, 12.0, 14.0, 20.0, 25.0, 30.0, 40.
+    //                                                };
+    // Double_t xPtLimitsEtaToPi0[49]              =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    //                                                  1.4, 1.8, 2.2, 2.6, 3.0,
+    //                                                  3.5, 4.0, 5.0, 6.0, 8.0,
+    //                                                  10.0, 12.0, 14.0, 20.0, 25.0, 30.0, 40.
+    //                                                };
+    // Int_t nBinsEta = 17;
+    Int_t nBinsEta = 16;
+    // Double_t xPtLimitsEta[49]                   =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    //                                                  1.4, 1.8, 2.2, 2.6, 3.0,
+    //                                                  3.5, 4.0, 5.0, 6.0, 8.0,
+    //                                                  10.0, 15.0, 20.0, 25.0, 30.0, 40.
+    //                                                };
+    // Double_t xPtLimitsEtaToPi0[49]              =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    //                                                  1.4, 1.8, 2.2, 2.6, 3.0,
+    //                                                  3.5, 4.0, 5.0, 6.0, 8.0,
+    //                                                  10.0, 15.0, 20.0, 25.0, 30.0, 40.
+    //                                                };
+    Double_t xPtLimitsEta[20]                   =  { 0.0, 0.4, 0.6, 0.8, 1.0,
                                                      1.4, 1.8, 2.2, 2.6, 3.0,
-                                                     3.5, 4.0, 5.0, 6.0, 8.0,
-                                                     10.0, 12.0, 14.0, 20.0, 25.0, 30.0, 40.
+                                                     3.5, 4.0, 6.0, 8.0,
+                                                     10.0, 15.0, 20.0, 25.0, 30.0, 40.
                                                    };
-    Double_t xPtLimitsEtaToPi0[49]              =  { 0.0, 0.4, 0.6, 0.8, 1.0,
+    Double_t xPtLimitsEtaToPi0[20]              =  { 0.0, 0.4, 0.6, 0.8, 1.0,
                                                      1.4, 1.8, 2.2, 2.6, 3.0,
-                                                     3.5, 4.0, 5.0, 6.0, 8.0,
-                                                     10.0, 12.0, 14.0, 20.0, 25.0, 30.0, 40.
+                                                     3.5, 4.0, 6.0, 8.0,
+                                                     10.0, 15.0, 20.0, 25.0, 30.0, 40.
                                                    };
     // Double_t xPtLimitsEta[49]                   =  { 0.0, 0.4, 0.6, 0.8, 1.0,
     //                                                  1.4, 1.8, 2.2, 2.6, 3.0,
@@ -699,8 +733,8 @@ fileNameEMCAL2="";
 
     // Definition of offsets for stat & sys see output of function in shell, make sure pt bins match
     //                                            PCM,PHOS,EMC,PCMPHOS,PCMEMC,        EMC
-    Int_t offSets[11]                           =  {0,    8,  3,     2,     0, 0,0,0,   6,0,0};
-    Int_t offSetsSys[11]                        =  {1,    8,  13,     3,     6, 0,0,0,   6,0,0};
+    Int_t offSets[11]                           =  {0,    6,  3,     2,     0, 0,0,0,   6,0,0};
+    Int_t offSetsSys[11]                        =  {1,    6,  13,     3,     6, 0,0,0,   6,0,0};
     // if(!useDanielmeas){
     //   offSets[2]    = 6;
     //   offSetsSys[2] = 6;
@@ -796,7 +830,7 @@ fileNameEMCAL2="";
                                                                                            0x0, fileInputCorrFactors
                                                                                           );
 
-    //return;
+    // return;
     if(doOutput) graphCombPi0InvXSectionStat->Print();
     TGraphAsymmErrors* graphCombEtaInvXSectionStat= NULL;
     TGraphAsymmErrors* graphCombEtaInvXSectionSys = NULL;
@@ -807,7 +841,7 @@ fileNameEMCAL2="";
                                                                                            fileNameOutputWeightingEta,"7TeV", "Eta", kTRUE,
                                                                                            0x0, fileInputCorrFactors
                                                                                          );
-    //return;
+    // return;
     if(doOutput) graphCombEtaInvXSectionStat->Print();
   // return;
 
@@ -916,10 +950,10 @@ fileNameEMCAL2="";
         labelWeightsPi0->SetTextFont(43);
         labelWeightsPi0->Draw();
 
-        DrawGammaLines(0.23, 70. , 0.5, 0.5,0.1, kGray, 7);
-        DrawGammaLines(0.23, 70. , 0.4, 0.4,0.1, kGray, 1);
-        DrawGammaLines(0.23, 70. , 0.3, 0.3,0.1, kGray, 7);
-        DrawGammaLines(0.23, 70. , 0.2, 0.2,0.1, kGray, 3);
+        DrawGammaLines(0.23, 70. , 0.5, 0.5,1.0, kGray, 7);
+        DrawGammaLines(0.23, 70. , 0.4, 0.4,1.0, kGray, 1);
+        DrawGammaLines(0.23, 70. , 0.3, 0.3,1.0, kGray, 7);
+        DrawGammaLines(0.23, 70. , 0.2, 0.2,1.0, kGray, 3);
 
     canvasWeights->SaveAs(Form("%s/Pi0_WeightsMethods.%s",outputDir.Data(),suffix.Data()));
 
@@ -1133,10 +1167,10 @@ fileNameEMCAL2="";
         labelWeightsEta->SetTextFont(43);
         labelWeightsEta->Draw();
 
-        DrawGammaLines(0.23, 70. , 0.5, 0.5,0.1, kGray, 7);
-        DrawGammaLines(0.23, 70. , 0.4, 0.4,0.1, kGray, 1);
-        DrawGammaLines(0.23, 70. , 0.3, 0.3,0.1, kGray, 7);
-        DrawGammaLines(0.23, 70. , 0.2, 0.2,0.1, kGray, 3);
+        DrawGammaLines(0.23, 70. , 0.5, 0.5,1.0, kGray, 7);
+        DrawGammaLines(0.23, 70. , 0.4, 0.4,1.0, kGray, 1);
+        DrawGammaLines(0.23, 70. , 0.3, 0.3,1.0, kGray, 7);
+        DrawGammaLines(0.23, 70. , 0.2, 0.2,1.0, kGray, 3);
 
     canvasWeightsEta->SaveAs(Form("%s/Eta_WeightsMethods.%s",outputDir.Data(),suffix.Data()));
 
@@ -1349,10 +1383,10 @@ fileNameEMCAL2="";
         labelWeightsEtaToPi0->SetTextFont(43);
         labelWeightsEtaToPi0->Draw();
 
-        DrawGammaLines(0.23, 70. , 0.5, 0.5,0.1, kGray, 7);
-        DrawGammaLines(0.23, 70. , 0.4, 0.4,0.1, kGray, 1);
-        DrawGammaLines(0.23, 70. , 0.3, 0.3,0.1, kGray, 7);
-        DrawGammaLines(0.23, 70. , 0.2, 0.2,0.1, kGray, 3);
+        DrawGammaLines(0.23, 70. , 0.5, 0.5,1.0, kGray, 7);
+        DrawGammaLines(0.23, 70. , 0.4, 0.4,1.0, kGray, 1);
+        DrawGammaLines(0.23, 70. , 0.3, 0.3,1.0, kGray, 7);
+        DrawGammaLines(0.23, 70. , 0.2, 0.2,1.0, kGray, 3);
 
     canvasWeightsEtaToPi0->SaveAs(Form("%s/EtaToPi0_WeightsMethods.%s",outputDir.Data(),suffix.Data()));
 
@@ -2306,14 +2340,14 @@ fileNameEMCAL2="";
     histo2DPi0RatioToCombFit->GetYaxis()->SetRangeUser(0.6,2.1);
     histo2DPi0RatioToCombFit->Draw("copy");
 
+        DrawGammaLines(0.23, 50. , 1., 1.,1.0, kGray+2);
+        DrawGammaLines(0.23, 50. , 1.1, 1.1,1.0, kGray, 7);
+        DrawGammaLines(0.23, 50. , 0.9, 0.9,1.0, kGray, 7);
         DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSys, markerStyleComb, markerSizeComb, colorComb , colorComb, widthLinesBoxes, kTRUE);
         graphRatioCombCombFitSys->Draw("E2same");
         DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitStat_WOXErr, markerStyleComb, markerSizeComb, colorComb , colorComb);
         graphRatioCombCombFitStat_WOXErr->Draw("p,same,z");
 
-        DrawGammaLines(0.23, 50. , 1., 1.,0.1, kGray+2);
-        DrawGammaLines(0.23, 50. , 1.1, 1.1,0.1, kGray, 7);
-        DrawGammaLines(0.23, 50. , 0.9, 0.9,0.1, kGray, 7);
 
         TLatex *labelRatioToFitEnergy   = new TLatex(0.72, 0.91, collisionSystem7TeV.Data());
         SetStyleTLatex( labelRatioToFitEnergy, textSizeLabelsPixel,4);
@@ -2337,7 +2371,9 @@ fileNameEMCAL2="";
     histo2DPi0RatioToCombFit->SetYTitle("Data/fit");
     histo2DPi0RatioToCombFit->GetYaxis()->SetRangeUser(0.05,2.45);
     histo2DPi0RatioToCombFit->Draw("copy");
-
+        DrawGammaLines(minPtPi0, maxPtPi0, 1., 1.,1.0, kGray+2);
+        DrawGammaLines(minPtPi0, maxPtPi0 , 1.1, 1.1,1.0, kGray, 7);
+        DrawGammaLines(minPtPi0, maxPtPi0 , 0.9, 0.9,1.0, kGray, 7);
 
     while (graphRatioPi0CombPowerFitSys->GetX()[0] < 1.6) graphRatioPi0CombPowerFitSys->RemovePoint(0);
     while (graphRatioPi0CombPowerFitStat_WOXErr->GetX()[0] < 1.6) graphRatioPi0CombPowerFitStat_WOXErr->RemovePoint(0);
@@ -2361,9 +2397,7 @@ fileNameEMCAL2="";
         DrawGammaSetMarkerTGraphAsym(graphRatioPi0CombHagedornFitStat_WOXErr, 24, markerSizeComb+0.2, colorTrigg[2] , colorTrigg[2]);
         graphRatioPi0CombHagedornFitStat_WOXErr->Draw("p,same,z");
 
-        DrawGammaLines(minPtPi0, maxPtPi0, 1., 1.,0.1, kGray+2);
-        DrawGammaLines(minPtPi0, maxPtPi0 , 1.1, 1.1,0.1, kGray, 7);
-        DrawGammaLines(minPtPi0, maxPtPi0 , 0.9, 0.9,0.1, kGray, 7);
+
 
         labelRatioToFitEnergy->Draw();
         labelRatioToFitALICE->Draw();
@@ -2388,6 +2422,9 @@ fileNameEMCAL2="";
     histo2DPi0RatioToCombFit->GetXaxis()->SetRangeUser(minPtPi0,maxPtPi0);
     histo2DPi0RatioToCombFit->Draw("copy");
 
+    DrawGammaLines(minPtPi0,maxPtPi0 , 1., 1.,1, kGray+2);
+    DrawGammaLines(minPtPi0,maxPtPi0 , 1.1, 1.1,1, kGray, 7);
+    DrawGammaLines(minPtPi0,maxPtPi0 , 0.9, 0.9,1, kGray, 7);
     for (Int_t i = 0; i < 11; i++){
       if(directoryPi0[i]){
         DrawGammaSetMarkerTGraphAsym(graphRatioCombFitSys[i], markerStyleDet[i] ,markerSizeDet[i]*0.5, colorDet[i], colorDet[i], widthLinesBoxes, kTRUE);
@@ -2398,9 +2435,7 @@ fileNameEMCAL2="";
       }
     }
 
-    DrawGammaLines(minPtPi0,maxPtPi0 , 1., 1.,0.5, kGray+2);
-    DrawGammaLines(minPtPi0,maxPtPi0 , 1.1, 1.1,0.5, kGray, 7);
-    DrawGammaLines(minPtPi0,maxPtPi0 , 0.9, 0.9,0.5, kGray, 7);
+
 
     labelRatioToFitEnergy->Draw();
     labelRatioToFitALICE->Draw();
@@ -2466,14 +2501,14 @@ fileNameEMCAL2="";
     histo2DEtaRatioToCombFit->GetYaxis()->SetRangeUser(0.3,1.8);
     histo2DEtaRatioToCombFit->Draw("copy");
 
+        DrawGammaLines(0.33, 50. , 1., 1.,1, kGray+2);
+        DrawGammaLines(0.33, 50. , 1.1, 1.1,1, kGray, 7);
+        DrawGammaLines(0.33, 50. , 0.9, 0.9,1, kGray, 7);
         DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSysEta, markerStyleComb, markerSizeComb, colorComb , colorComb, widthLinesBoxes, kTRUE);
         graphRatioCombCombFitSysEta->Draw("E2same");
         DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitStatEta_WOXErr, markerStyleComb, markerSizeComb, colorComb , colorComb);
         graphRatioCombCombFitStatEta_WOXErr->Draw("p,same,z");
 
-        DrawGammaLines(0.33, 50. , 1., 1.,0.5, kGray+2);
-        DrawGammaLines(0.33, 50. , 1.1, 1.1,0.5, kGray, 7);
-        DrawGammaLines(0.33, 50. , 0.9, 0.9,0.5, kGray, 7);
 
         TLatex *labelRatioToFitEnergy2   = new TLatex(0.73, 0.91, collisionSystem7TeV.Data());
         SetStyleTLatex( labelRatioToFitEnergy2, textSizeLabelsPixel,4);
@@ -2498,7 +2533,9 @@ fileNameEMCAL2="";
     histo2DEtaRatioToCombFit->SetYTitle("Data/fit");
     histo2DEtaRatioToCombFit->GetYaxis()->SetRangeUser(0.1,2.45);
     histo2DEtaRatioToCombFit->Draw("copy");
-
+        DrawGammaLines(0.33, 50. , 1., 1.,1.0, kGray+2);
+        DrawGammaLines(0.33, 50. , 1.1, 1.1,1.0, kGray, 7);
+        DrawGammaLines(0.33, 50. , 0.9, 0.9,1.0, kGray, 7);
     while (graphRatioEtaCombPowerFitSys->GetX()[0] < 1.6) graphRatioEtaCombPowerFitSys->RemovePoint(0);
     while (graphRatioEtaCombPowerFitStat_WOXErr->GetX()[0] < 1.6) graphRatioEtaCombPowerFitStat_WOXErr->RemovePoint(0);
 
@@ -2522,9 +2559,7 @@ fileNameEMCAL2="";
         DrawGammaSetMarkerTGraphAsym(graphRatioEtaCombHagedornFitStat_WOXErr, 24, markerSizeComb+0.2, colorTrigg[2] , colorTrigg[2]);
         graphRatioEtaCombHagedornFitStat_WOXErr->Draw("p,same,z");
 
-        DrawGammaLines(0.33, 50. , 1., 1.,0.1, kGray+2);
-        DrawGammaLines(0.33, 50. , 1.1, 1.1,0.1, kGray, 7);
-        DrawGammaLines(0.33, 50. , 0.9, 0.9,0.1, kGray, 7);
+
 
         labelRatioToFitEnergy2->Draw();
         labelRatioToFitALICE2->Draw();
@@ -2547,7 +2582,9 @@ fileNameEMCAL2="";
     canvasRatioToCombFit->cd();
     histo2DPi0RatioToCombFit->GetXaxis()->SetRangeUser(minPtEta,maxPtEta);
     histo2DPi0RatioToCombFit->Draw("copy");
-
+    DrawGammaLines(minPtEta,maxPtEta , 1., 1.,1, kGray+2);
+    DrawGammaLines(minPtEta,maxPtEta , 1.1, 1.1,1, kGray, 7);
+    DrawGammaLines(minPtEta,maxPtEta , 0.9, 0.9,1, kGray, 7);
     for (Int_t i = 0; i < 11; i++){
       if(directoryEta[i]){
         DrawGammaSetMarkerTGraphAsym(graphRatioCombFitSysEta[i], markerStyleDet[i] ,markerSizeDet[i]*0.5, colorDet[i], colorDet[i], widthLinesBoxes, kTRUE);
@@ -2558,9 +2595,7 @@ fileNameEMCAL2="";
       }
     }
 
-    DrawGammaLines(minPtEta,maxPtEta , 1., 1.,0.5, kGray+2);
-    DrawGammaLines(minPtEta,maxPtEta , 1.1, 1.1,0.5, kGray, 7);
-    DrawGammaLines(minPtEta,maxPtEta , 0.9, 0.9,0.5, kGray, 7);
+
 
     labelRatioToFitEnergy->Draw();
     labelRatioToFitALICE->Draw();
@@ -2692,15 +2727,15 @@ fileNameEMCAL2="";
     histo2DPi0RatioToCombFit->GetYaxis()->SetRangeUser(0.6,2.1);
     histo2DPi0RatioToCombFit->SetYTitle("Data/Tsallis fit");
     histo2DPi0RatioToCombFit->Draw("copy");
-
+        DrawGammaLines(0.23, 50. , 1., 1.,1.0, kGray+2);
+        DrawGammaLines(0.23, 50. , 1.1, 1.1,1.0, kGray, 7);
+        DrawGammaLines(0.23, 50. , 0.9, 0.9,1.0, kGray, 7);
         DrawGammaSetMarkerTGraphAsym(graphRatioPi0TsallisCombCombFitSys, markerStyleComb, markerSizeComb, colorComb , colorComb, widthLinesBoxes, kTRUE);
         graphRatioPi0TsallisCombCombFitSys->Draw("E2same");
         DrawGammaSetMarkerTGraphAsym(graphRatioPi0TsallisCombCombFitStat_WOXErr, markerStyleComb, markerSizeComb, colorComb , colorComb);
         graphRatioPi0TsallisCombCombFitStat_WOXErr->Draw("p,same,z");
 
-        DrawGammaLines(0.23, 50. , 1., 1.,0.1, kGray+2);
-        DrawGammaLines(0.23, 50. , 1.1, 1.1,0.1, kGray, 7);
-        DrawGammaLines(0.23, 50. , 0.9, 0.9,0.1, kGray, 7);
+
 
         labelRatioToFitEnergy->Draw();
         labelRatioToFitALICE->Draw();
@@ -2715,7 +2750,9 @@ fileNameEMCAL2="";
     canvasRatioToCombFit->cd();
     histo2DPi0RatioToCombFit->GetYaxis()->SetRangeUser(0.05,2.45);
     histo2DPi0RatioToCombFit->Draw("copy");
-
+    DrawGammaLines(minPtPi0,maxPtPi0 , 1., 1.,1, kGray+2);
+    DrawGammaLines(minPtPi0,maxPtPi0 , 1.1, 1.1,1, kGray, 7);
+    DrawGammaLines(minPtPi0,maxPtPi0 , 0.9, 0.9,1, kGray, 7);
     for (Int_t i = 0; i < 11; i++){
       if(directoryPi0[i]){
         DrawGammaSetMarkerTGraphAsym(graphRatioPi0TsallisCombFitSys[i], markerStyleDet[i] ,markerSizeDet[i]*0.5, colorDet[i], colorDet[i], widthLinesBoxes, kTRUE);
@@ -2726,9 +2763,7 @@ fileNameEMCAL2="";
       }
     }
 
-    DrawGammaLines(minPtPi0,maxPtPi0 , 1., 1.,0.5, kGray+2);
-    DrawGammaLines(minPtPi0,maxPtPi0 , 1.1, 1.1,0.5, kGray, 7);
-    DrawGammaLines(minPtPi0,maxPtPi0 , 0.9, 0.9,0.5, kGray, 7);
+
 
     labelRatioToFitEnergy->Draw();
     labelRatioToFitALICE->Draw();
@@ -2771,15 +2806,15 @@ fileNameEMCAL2="";
     histo2DEtaRatioToCombFit->GetYaxis()->SetRangeUser(0.3,1.8);
     histo2DEtaRatioToCombFit->SetYTitle("Data/Tsallis fit");
     histo2DEtaRatioToCombFit->Draw("copy");
-
+        DrawGammaLines(0.33, 50. , 1., 1.,1, kGray+2);
+        DrawGammaLines(0.33, 50. , 1.1, 1.1,1, kGray, 7);
+        DrawGammaLines(0.33, 50. , 0.9, 0.9,1, kGray, 7);
         DrawGammaSetMarkerTGraphAsym(graphRatioEtaTsallisCombCombFitSys, markerStyleComb, markerSizeComb, colorComb , colorComb, widthLinesBoxes, kTRUE);
         graphRatioEtaTsallisCombCombFitSys->Draw("E2same");
         DrawGammaSetMarkerTGraphAsym(graphRatioEtaTsallisCombCombFitStat_WOXErr, markerStyleComb, markerSizeComb, colorComb , colorComb);
         graphRatioEtaTsallisCombCombFitStat_WOXErr->Draw("p,same,z");
 
-        DrawGammaLines(0.33, 50. , 1., 1.,0.5, kGray+2);
-        DrawGammaLines(0.33, 50. , 1.1, 1.1,0.5, kGray, 7);
-        DrawGammaLines(0.33, 50. , 0.9, 0.9,0.5, kGray, 7);
+
 
         labelRatioToFitEnergy2->Draw();
         labelRatioToFitALICE2->Draw();
@@ -2795,7 +2830,9 @@ fileNameEMCAL2="";
     histo2DEtaRatioToCombFit->GetYaxis()->SetRangeUser(0.05,2.45);
     histo2DEtaRatioToCombFit->GetXaxis()->SetRangeUser(minPtEta,maxPtEta);
     histo2DEtaRatioToCombFit->Draw("copy");
-
+    DrawGammaLines(minPtEta,maxPtEta , 1., 1.,1, kGray+2);
+    DrawGammaLines(minPtEta,maxPtEta , 1.1, 1.1,1, kGray, 7);
+    DrawGammaLines(minPtEta,maxPtEta , 0.9, 0.9,1, kGray, 7);
     for (Int_t i = 0; i < 11; i++){
       if(directoryEta[i]){
         DrawGammaSetMarkerTGraphAsym(graphRatioEtaTsallisCombFitSys[i], markerStyleDet[i] ,markerSizeDet[i]*0.5, colorDet[i], colorDet[i], widthLinesBoxes, kTRUE);
@@ -2806,9 +2843,7 @@ fileNameEMCAL2="";
       }
     }
 
-    DrawGammaLines(minPtEta,maxPtEta , 1., 1.,0.5, kGray+2);
-    DrawGammaLines(minPtEta,maxPtEta , 1.1, 1.1,0.5, kGray, 7);
-    DrawGammaLines(minPtEta,maxPtEta , 0.9, 0.9,0.5, kGray, 7);
+
 
     labelRatioToFitEnergy->Draw();
     labelRatioToFitALICE2->Draw();
@@ -2955,7 +2990,7 @@ fileNameEMCAL2="";
             }
         }
 
-        DrawGammaLines(minPtPi0,maxPtPi0 , mesonMassExpectPi0*1000., mesonMassExpectPi0*1000.,0.1, kGray);
+        DrawGammaLines(minPtPi0,maxPtPi0 , mesonMassExpectPi0*1000., mesonMassExpectPi0*1000.,1.0, kGray);
 
         TLatex *labelLegendBMass            = new TLatex(0.13,0.22,"b)");
         SetStyleTLatex( labelLegendBMass, textSizeLabelsPixel,4);
@@ -3105,7 +3140,7 @@ fileNameEMCAL2="";
             }
         }
 
-        DrawGammaLines(minPtEta,maxPtEta , mesonMassExpectEta*1000., mesonMassExpectEta*1000.,0.1, kGray);
+        DrawGammaLines(minPtEta,maxPtEta , mesonMassExpectEta*1000., mesonMassExpectEta*1000.,1.0, kGray);
 
         labelLegendBMass->Draw();
 
@@ -3478,15 +3513,15 @@ fileNameEMCAL2="";
 
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitStat_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
            graphRatioCombCombFitStat_WOXErr->SetLineWidth(widthLinesBoxes);
-           DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSys, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-           graphRatioCombCombFitSys->SetLineWidth(0);
+           DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSys, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, kBlack, kTRUE);
+          //  graphRatioCombCombFitSys->SetLineWidth(1);
            graphRatioCombCombFitSys->Draw("2,same");
            graphRatioCombCombFitStat_WOXErr->Draw("p,same");
 
            TBox* boxErrorSigmaRatio = CreateBoxConv(kGray+2, 0.25, 1.-(0.035 ), 0.3, 1.+(0.035));
            boxErrorSigmaRatio->SetLineWidth(8);
            boxErrorSigmaRatio->Draw();
-           DrawGammaLines(minPtPi0, maxPtPi0,1., 1.,0.5,kGray+2);
+           DrawGammaLines(minPtPi0, maxPtPi0,1., 1.,1.0, kGray+2);
 
            TLegend* legendRatioTheorypp_3Parted = GetAndSetLegend2(0.2,0.76,0.45,0.96, 0.85* textSizeLabelsPixel);
            legendRatioTheorypp_3Parted->AddEntry(graphRatioCombCombFitSys,"Data","pf");
@@ -3551,12 +3586,12 @@ fileNameEMCAL2="";
        DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitStat_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
        graphRatioCombCombFitStat_WOXErr->SetLineWidth(widthLinesBoxes);
        DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSys, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-       graphRatioCombCombFitSys->SetLineWidth(0);
+       graphRatioCombCombFitSys->SetLineWidth(1);
        graphRatioCombCombFitSys->Draw("2,same");
        graphRatioCombCombFitStat_WOXErr->Draw("p,same");
 
        boxErrorSigmaRatio->Draw();
-       DrawGammaLines(minPtPi0, maxPtPi0,1., 1.,0.5,kGray+2);
+       DrawGammaLines(minPtPi0, maxPtPi0,1., 1.,1.0, kGray+2);
 
        TLegend* legendRatioTheorypp_3Parted2= GetAndSetLegend2(0.15,0.65,0.4,0.96, 0.85* textSizeLabelsPixel);
        legendRatioTheorypp_3Parted2->AddEntry(graphRatioCombCombFitSys,"Data","pf");
@@ -3616,14 +3651,14 @@ fileNameEMCAL2="";
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitStatEta_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
            graphRatioCombCombFitStat_WOXErr->SetLineWidth(widthLinesBoxes);
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSysEta, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-           graphRatioCombCombFitSysEta->SetLineWidth(0);
+           graphRatioCombCombFitSysEta->SetLineWidth(1);
            graphRatioCombCombFitSysEta->Draw("2,same");
            graphRatioCombCombFitStatEta_WOXErr->Draw("p,same");
 
            TBox* boxErrorSigmaRatioEta = CreateBoxConv(kGray+2, 0.35, 1.-(0.035 ), 0.4, 1.+(0.035));
            boxErrorSigmaRatioEta->SetLineWidth(8);
            boxErrorSigmaRatioEta->Draw();
-           DrawGammaLines(minPtEta, maxPtEta, 1., 1.,0.5, kGray+2);
+           DrawGammaLines(minPtEta, maxPtEta, 1., 1.,1, kGray+2);
 
            TLegend* legendRatioTheoryppEta_3Parted= GetAndSetLegend2(0.15,0.84-(0.85*textsizeLabelsPP*5),0.40,0.96, 0.85* textSizeLabelsPixel);
            legendRatioTheoryppEta_3Parted->AddEntry(graphRatioCombCombFitSysEta,"Data","pf");
@@ -3814,12 +3849,12 @@ fileNameEMCAL2="";
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitStat_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
            graphRatioCombCombFitStat_WOXErr->SetLineWidth(widthLinesBoxes);
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSys, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-           graphRatioCombCombFitSys->SetLineWidth(0);
+           graphRatioCombCombFitSys->SetLineWidth(1);
            graphRatioCombCombFitSys->Draw("2,same");
            graphRatioCombCombFitStat_WOXErr->Draw("p,same");
 
            boxErrorSigmaRatio->Draw();
-           DrawGammaLines(minPtPi0, maxPtPi0, 1., 1.,0.5, kGray+2);
+           DrawGammaLines(minPtPi0, maxPtPi0, 1., 1.,1, kGray+2);
 
        padInvSectionPythiaRatio->cd();
        padInvSectionPythiaRatio->SetLogx(1);
@@ -3847,12 +3882,12 @@ fileNameEMCAL2="";
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitStat_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
            graphRatioCombCombFitStat_WOXErr->SetLineWidth(widthLinesBoxes);
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSys, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-           graphRatioCombCombFitSys->SetLineWidth(0);
+           graphRatioCombCombFitSys->SetLineWidth(1);
            graphRatioCombCombFitSys->Draw("2,same");
            graphRatioCombCombFitStat_WOXErr->Draw("p,same");
 
            boxErrorSigmaRatio->Draw();
-           DrawGammaLines(minPtPi0, maxPtPi0 , 1., 1.,0.5, kGray+2);
+           DrawGammaLines(minPtPi0, maxPtPi0 , 1., 1.,1, kGray+2);
 
        canvasInvSectionPaper->Print(Form("%s/Pi0_InvXSectionWithRatios_Paper.%s",outputDir.Data(),suffix.Data()));
 
@@ -3940,12 +3975,12 @@ fileNameEMCAL2="";
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitStatEta_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
            graphRatioCombCombFitStatEta_WOXErr->SetLineWidth(widthLinesBoxes);
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSysEta, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-           graphRatioCombCombFitSysEta->SetLineWidth(0);
+           graphRatioCombCombFitSysEta->SetLineWidth(1);
            graphRatioCombCombFitSysEta->Draw("2,same");
            graphRatioCombCombFitStatEta_WOXErr->Draw("p,same");
 
            boxErrorSigmaRatioEta->Draw();
-           DrawGammaLines(minPtEta, maxPtEta, 1., 1.,0.5, kGray+2);
+           DrawGammaLines(minPtEta, maxPtEta, 1., 1.,1, kGray+2);
 
        padInvSectionPythiaRatio->cd();
        padInvSectionPythiaRatio->SetLogx(1);
@@ -3973,12 +4008,12 @@ fileNameEMCAL2="";
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitStatEta_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
            graphRatioCombCombFitStatEta_WOXErr->SetLineWidth(widthLinesBoxes);
            DrawGammaSetMarkerTGraphAsym(graphRatioCombCombFitSysEta, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-           graphRatioCombCombFitSysEta->SetLineWidth(0);
+           graphRatioCombCombFitSysEta->SetLineWidth(1);
            graphRatioCombCombFitSysEta->Draw("2,same");
            graphRatioCombCombFitStatEta_WOXErr->Draw("p,same");
 
            boxErrorSigmaRatioEta->Draw();
-           DrawGammaLines(minPtEta, maxPtEta, 1., 1.,0.5, kGray+2);
+           DrawGammaLines(minPtEta, maxPtEta, 1., 1.,1, kGray+2);
 
        canvasInvSectionPaper->Print(Form("%s/Eta_InvXSectionWithRatios_Paper.%s",outputDir.Data(),suffix.Data()));
 
@@ -4291,7 +4326,7 @@ fileNameEMCAL2="";
     DrawGammaSetMarkerTGraphAsym(graphCombEtaToPi0Stat_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
     graphCombEtaToPi0Stat_WOXErr->SetLineWidth(widthLinesBoxes);
     DrawGammaSetMarkerTGraphAsym(graphCombEtaToPi0Sys, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-    graphCombEtaToPi0Sys->SetLineWidth(0);
+    graphCombEtaToPi0Sys->SetLineWidth(1);
     graphCombEtaToPi0Sys->Draw("2,same");
     graphCombEtaToPi0Stat_WOXErr->Draw("p,same");
 
@@ -4375,7 +4410,7 @@ fileNameEMCAL2="";
     DrawGammaSetMarkerTGraphAsym(graphCombEtaToPi0Stat_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
     graphCombEtaToPi0Stat_WOXErr->SetLineWidth(widthLinesBoxes);
     DrawGammaSetMarkerTGraphAsym(graphCombEtaToPi0Sys, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-    graphCombEtaToPi0Sys->SetLineWidth(0);
+    graphCombEtaToPi0Sys->SetLineWidth(1);
     graphCombEtaToPi0Sys->Draw("2,same");
     graphCombEtaToPi0Stat_WOXErr->Draw("p,same");
 
@@ -4427,7 +4462,7 @@ fileNameEMCAL2="";
     DrawGammaSetMarkerTGraphAsym(graphRatioForMt_stat, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
     graphRatioForMt_stat->SetLineWidth(widthLinesBoxes);
     DrawGammaSetMarkerTGraphAsym(graphRatioForMt_sys, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-    graphRatioForMt_sys->SetLineWidth(0);
+    graphRatioForMt_sys->SetLineWidth(1);
     graphRatioForMt_sys->Draw("2,same");
     graphRatioForMt_stat->Draw("p,same");
 
@@ -4437,7 +4472,7 @@ fileNameEMCAL2="";
     legendXsectionPaperEtaToPiRatio->AddEntry(graphRatioForMt_sys,"ALICE pp, #sqrt{#it{s}} = 7 TeV - (#eta/#pi^{0})_{data}/(#eta/#pi^{0})_{m_{T}}","pf");
     legendXsectionPaperEtaToPiRatio->Draw();
 
-    DrawGammaLines(0.33, 32. , 1., 1.,0.5, kGray+2);
+    DrawGammaLines(0.33, 32. , 1., 1.,1, kGray+2);
 
     histo2DEtatoPi0ratio->Draw("axis,same");
 
@@ -4510,7 +4545,7 @@ fileNameEMCAL2="";
     DrawGammaSetMarkerTGraphAsym(graphCombEtaToPi0Stat_WOXErr, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kFALSE);
     graphCombEtaToPi0Stat_WOXErr->SetLineWidth(widthLinesBoxes);
     DrawGammaSetMarkerTGraphAsym(graphCombEtaToPi0Sys, markerStyleComb, markerSizeComb, kBlack, kBlack, widthLinesBoxes, kTRUE, 0);
-    graphCombEtaToPi0Sys->SetLineWidth(0);
+    graphCombEtaToPi0Sys->SetLineWidth(1);
     graphCombEtaToPi0Sys->Draw("2,same");
     graphCombEtaToPi0Stat_WOXErr->Draw("p,same");
 

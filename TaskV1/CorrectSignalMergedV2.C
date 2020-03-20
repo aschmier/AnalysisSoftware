@@ -625,7 +625,7 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
             histoMesonPurityPt->Add(histoRatioAdditionalGammaCorrM02,-1);
             histoMesonPurityPtOnlyGammaCorr->Add(histoRatioAdditionalGammaCorrM02,-1);
 
-        } else if (optionEnergy.CompareTo("5TeV2017") == 0 && fitPromptdivFragTheo_5TeV) {
+        } else if ((optionEnergy.CompareTo("5TeV2017") == 0 || optionEnergy.CompareTo("5TeVRefpPb") == 0) && fitPromptdivFragTheo_5TeV) {
             cout << "found theo scaling fac" <<  endl;
             cout << "adjusting gamma contribution according theory predictions" <<  endl;
             histoRatioAdditionalGammaCorrM02->Multiply(fitPromptdivFragTheo_5TeV);
@@ -639,6 +639,13 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
             histoMesonPurityPtOnlyGammaCorr         = (TH1D*)histoMesonPurityUnmodPt->Clone("histoMesonPurityPtOnlyGammaCorr");
             histoMesonPurityPt->Add(histoRatioAdditionalGammaCorrM02,-1);
             histoMesonPurityPtOnlyGammaCorr->Add(histoRatioAdditionalGammaCorrM02,-1);
+        } else if (optionEnergy.Contains("pPb_5.023TeV") && fitPromptdivFragTheo_pPb8TeV) {
+            cout << "found theo scaling fac" <<  endl;
+            cout << "adjusting gamma contribution according theory predictions" <<  endl;
+            histoRatioAdditionalGammaCorrM02->Multiply(fitPromptdivFragTheo_pPb8TeV);
+            histoMesonPurityPtOnlyGammaCorr         = (TH1D*)histoMesonPurityUnmodPt->Clone("histoMesonPurityPtOnlyGammaCorr");
+            histoMesonPurityPt->Add(histoRatioAdditionalGammaCorrM02,-1);
+            histoMesonPurityPtOnlyGammaCorr->Add(histoRatioAdditionalGammaCorrM02,-1);
         } else if (optionEnergy.Contains("pPb_8TeV") && fitPromptdivFragTheo_pPb8TeV) {
             cout << "found theo scaling fac" <<  endl;
             cout << "adjusting gamma contribution according theory predictions" <<  endl;
@@ -648,7 +655,7 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
             histoMesonPurityPtOnlyGammaCorr->Add(histoRatioAdditionalGammaCorrM02,-1);
         }
         // apply purity correction for eta from cocktail output (= correct from measurement)
-        if (optionEnergy.CompareTo("5TeV2017") == 0 && nameMeson.CompareTo("Pi0") == 0 ){
+        if ((optionEnergy.CompareTo("5TeV2017") == 0 || optionEnergy.CompareTo("5TeVRefpPb") == 0) && nameMeson.CompareTo("Pi0") == 0 ){
             cout << "adjusting eta contribution according data/MC comparison for eta/pi0" <<  endl;
             TH1D* histoRatioAdditionalEtaCorrM02    = (TH1D*)fileCorrections->Get("RatioTrueYieldEtaM02");
             histoRatioAdditionalEtaCorrM02->Scale(0.465/0.407-1.); // this factor is first the measured eta/pi0 in data and the eta/pi0 from the Pythia8, JJ at high pt
@@ -668,16 +675,23 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
             histoMesonPurityPtOnlyEtaCorr         = (TH1D*)histoMesonPurityUnmodPt->Clone("histoMesonPurityPtOnlyEtaCorr");
             histoMesonPurityPt->Add(histoRatioAdditionalEtaCorrM02,-1);
             histoMesonPurityPtOnlyEtaCorr->Add(histoRatioAdditionalEtaCorrM02,-1);
-        } else if (optionEnergy.Contains("pPb_8TeV") && nameMeson.CompareTo("Pi0") == 0 ){
+        } else if (optionEnergy.Contains("pPb_5") && nameMeson.CompareTo("Pi0") == 0 ){
             cout << "adjusting eta contribution according data/MC comparison for eta/pi0" <<  endl;
             TH1D* histoRatioAdditionalEtaCorrM02    = (TH1D*)fileCorrections->Get("RatioTrueYieldEtaM02");
             histoRatioAdditionalEtaCorrM02->Scale(0.483/0.524-1.); // this factor is first the measured eta/pi0 in data and the eta/pi0 from the Pythia8 MB MC (0.524). in the JJ at high pt it would be (0.414)
             histoMesonPurityPtOnlyEtaCorr         = (TH1D*)histoMesonPurityUnmodPt->Clone("histoMesonPurityPtOnlyEtaCorr");
             histoMesonPurityPt->Add(histoRatioAdditionalEtaCorrM02,-1);
             histoMesonPurityPtOnlyEtaCorr->Add(histoRatioAdditionalEtaCorrM02,-1);
+        } else if (optionEnergy.Contains("pPb_8TeV") && nameMeson.CompareTo("Pi0") == 0 ){
+            cout << "adjusting eta contribution according data/MC comparison for eta/pi0" <<  endl;
+            TH1D* histoRatioAdditionalEtaCorrM02    = (TH1D*)fileCorrections->Get("RatioTrueYieldEtaM02");
+            histoRatioAdditionalEtaCorrM02->Scale(0.521/0.414-1.); // this factor is first the measured eta/pi0 in data and the eta/pi0 from the Pythia8 MB MC (0.524). in the JJ at high pt it would be (0.414)
+            histoMesonPurityPtOnlyEtaCorr         = (TH1D*)histoMesonPurityUnmodPt->Clone("histoMesonPurityPtOnlyEtaCorr");
+            histoMesonPurityPt->Add(histoRatioAdditionalEtaCorrM02,-1);
+            histoMesonPurityPtOnlyEtaCorr->Add(histoRatioAdditionalEtaCorrM02,-1);
         }
         // apply purity correction for electrons
-        if(optionEnergy.CompareTo("5TeV2017") == 0 && splineRatioElecFromWeakBoson_5TeV){
+        if((optionEnergy.CompareTo("5TeV2017") == 0 || optionEnergy.CompareTo("5TeVRefpPb") == 0) && splineRatioElecFromWeakBoson_5TeV){
             cout << "adjusting electron contribution according data/MC comparison for eta/pi0" <<  endl;
             cout << "USING 8 TEV PP INPUT FOR NOW FOR 5 TEV!!!!" << endl;
             TH1D* histoRatioAdditionalElecCorrM02  = (TH1D*)fileCorrections->Get("RatioTrueYieldElectronM02");
@@ -694,6 +708,16 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
             for(Int_t i = 1; i <= histoRatioAdditionalElecCorrM02->GetNbinsX(); i++){
                 histoRatioAdditionalElecCorrM02->SetBinContent(i,histoRatioAdditionalElecCorrM02->GetBinContent(i)*
                                                                splineRatioElecFromWeakBoson_8TeV->Eval(histoRatioAdditionalElecCorrM02->GetBinCenter(i)));
+            }
+            histoMesonPurityPtOnlyElecCorr         = (TH1D*)histoMesonPurityUnmodPt->Clone("histoMesonPurityPtOnlyElecCorr");
+            histoMesonPurityPt->Add(histoRatioAdditionalElecCorrM02,-1);
+            histoMesonPurityPtOnlyElecCorr->Add(histoRatioAdditionalElecCorrM02,-1);
+        }else if(optionEnergy.Contains("pPb_5") && splineRatioElecFromWeakBoson_pPb8TeV){
+            cout << "adjusting electron contribution according to Powheg (e from W/Z) vs Pythia electrons" <<  endl;
+            TH1D* histoRatioAdditionalElecCorrM02  = (TH1D*)fileCorrections->Get("RatioTrueYieldElectronM02");
+            for(Int_t i = 1; i <= histoRatioAdditionalElecCorrM02->GetNbinsX(); i++){
+                histoRatioAdditionalElecCorrM02->SetBinContent(i,histoRatioAdditionalElecCorrM02->GetBinContent(i)*
+                                                               splineRatioElecFromWeakBoson_pPb8TeV->Eval(histoRatioAdditionalElecCorrM02->GetBinCenter(i)));
             }
             histoMesonPurityPtOnlyElecCorr         = (TH1D*)histoMesonPurityUnmodPt->Clone("histoMesonPurityPtOnlyElecCorr");
             histoMesonPurityPt->Add(histoRatioAdditionalElecCorrM02,-1);
@@ -2085,7 +2109,7 @@ void  CorrectSignalMergedV2(    TString fileNameUnCorrectedFile = "myOutput",
             // plotting everyting together MC
             //****************************************************************************
             TH2F * histo2DPi0M02Dummy;
-            histo2DPi0M02Dummy             = new TH2F("histo2DPi0M02Dummy","histo2DPi0M02Dummy",11000,0.0,2.,10000,0,10);
+            histo2DPi0M02Dummy             = new TH2F("histo2DPi0M02Dummy","histo2DPi0M02Dummy",11000,0.0,2.,10000,0.00001,10);
             SetStyleHistoTH2ForGraphs(histo2DPi0M02Dummy, "#it{#sigma}_{long}^{2}","#it{P}",0.85*textsizeLabelsM02, textsizeLabelsM02,
                                     0.85*textsizeLabelsM02, textsizeLabelsM02,0.88, 0.115/(textsizeFacM02*marginM02));
             

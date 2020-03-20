@@ -248,7 +248,7 @@
         TString formula1                    = f1->GetExpFormula();
         TString formula2                    = f2->GetExpFormula();
 
-        for (Int_t i = 0; i< nPar2; i++){
+        for (Int_t i = nPar2-1; i>= 0; i--){
             #if !defined (__CINT__) || defined (__CLING__)
                 formula2.ReplaceAll(Form("[p%d]",i), Form("[p%d]",i+nPar1));
             #else

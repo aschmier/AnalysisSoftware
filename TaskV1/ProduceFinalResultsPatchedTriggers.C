@@ -238,9 +238,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TString nameMassMC                                  = "histoTrueMassMeson";
     TString nameWidthMC                                 = "histoTrueFWHMMeson";
     TString nameMCYield                                 = "MCYield_Meson_oldBinWOWeights";
-    if ( mode == 4 || mode == 5 ){
+    if ( mode == 4 ){
         nameCorrectedYield                              = "CorrectedYieldNormEff";
-        if(mode == 5 && (optionEnergy.Contains("5TeV2017") || optionEnergy.Contains("PbPb_5.02TeV") )) nameCorrectedYield = "CorrectedYieldTrueEff";
         nameEfficiency                                  = "MesonEffiPt";
         nameMassMC                                      = "histoMassMesonRecMC";
         nameWidthMC                                     = "histoFWHMMesonRecMC";
@@ -250,7 +249,19 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             nameCorrectedYield                          = "CorrectedYieldTrueEff";
             nameEfficiency                              = "TrueMesonEffiPt";
         }
-        if(mode == 5 && (optionEnergy.Contains("13TeV") )){
+    } else if ( mode == 5 ){
+        nameCorrectedYield                              = "CorrectedYieldNormEff";
+        if(optionEnergy.Contains("5TeV2017") || optionEnergy.Contains("PbPb_5.02TeV") ) nameCorrectedYield = "CorrectedYieldTrueEff";
+        nameEfficiency                                  = "MesonEffiPt";
+        nameMassMC                                      = "histoMassMesonRecMC";
+        nameWidthMC                                     = "histoFWHMMesonRecMC";
+        if (optionEnergy.CompareTo("PbPb_2.76TeV")==0 ){
+            nameMassMC                                  = "histoTrueMassMeson";
+            nameWidthMC                                 = "histoTrueFWHMMeson";
+            nameCorrectedYield                          = "CorrectedYieldTrueEff";
+            nameEfficiency                              = "TrueMesonEffiPt";
+        }
+        if(optionEnergy.Contains("13TeV") ){
             nameMassMC                                  = "histoTrueMassMeson";
             nameWidthMC                                 = "histoTrueFWHMMeson";
             nameCorrectedYield                          = "CorrectedYieldTrueEff";
@@ -1322,9 +1333,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             if (mode == 2 || mode == 4 || mode == 10 )
                 maxTriggRejectLin = 2500;
             if (fCentOutput.CompareTo("V0A_60_80"))
-              maxTriggRejectLin = 3100;
+                maxTriggRejectLin = 3100;
             else if (fCentOutput.CompareTo("V0A_80_100"))
-              maxTriggRejectLin = 12000;
+                maxTriggRejectLin = 12000;
 
         }
         TH2F * histo2DTriggRejectLinear;
@@ -2975,9 +2986,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             for (Int_t j = 0; j< graphsCorrectedYieldSysRemoved0Pi0[i]->GetN(); j++){
                 if (sysAvailPi0[i]){
                     Int_t counter = 0;
-                    while(counter < 400 && TMath::Abs(graphsCorrectedYieldSysRemoved0Pi0[i]->GetX()[j] - ptSysRelPi0[i][counter])> 0.001) counter++;
-                    if (counter < 400){
-                        cout << ptSysRelPi0[i][counter]<< "\t found it" << endl;
+                    Int_t counterMax = 400;
+                    if(optionEnergy.Contains("pPb_8TeV")) counterMax = 100;
+                    while(counter < counterMax && TMath::Abs(graphsCorrectedYieldSysRemoved0Pi0[i]->GetX()[j] - ptSysRelPi0[i][counter])> 0.001) counter++;
+                    if (counter < counterMax){
+                        cout << ptSysRelPi0[i][counter]<< "\t found it for " << counter << endl;
                         Double_t yErrorSysLowDummy  = TMath::Abs(yErrorSysLowRelPi0[i][counter]/100*graphsCorrectedYieldSysRemoved0Pi0[i]->GetY()[j]);
                         Double_t yErrorSysHighDummy = yErrorSysHighRelPi0[i][counter]/100*graphsCorrectedYieldSysRemoved0Pi0[i]->GetY()[j];
                         graphsCorrectedYieldSysRemoved0Pi0[i]->SetPointEYlow(j,yErrorSysLowDummy);
@@ -3715,11 +3728,19 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     graphRelSysErrPi0SourceWeighted[i]->Draw("pX0,csame");
                     legendMeanNew->AddEntry(graphRelSysErrPi0SourceWeighted[i],GetSystematicsName(ptSysDetail[0][0].at(i+1)),"p");
                 }
-
                 DrawGammaSetMarkerTGraphAsym(graphRelSysErrPi0SourceWeighted[nRelSysErrPi0Sources-1], 20, 1.,kBlack,kBlack);
                 graphRelSysErrPi0SourceWeighted[nRelSysErrPi0Sources-1]->Draw("p,csame");
                 legendMeanNew->AddEntry(graphRelSysErrPi0SourceWeighted[nRelSysErrPi0Sources-1],"quad. sum.","p");
+
+                DrawGammaSetMarkerTGraphAsym(graphRelErrorPi0Stat, 24, 1.5, kGray+2 , kGray+2,2);
+                while (graphRelErrorPi0Stat->GetX()[0]< minPtGlobalPi0){
+                    graphRelErrorPi0Stat->RemovePoint(0);
+                }
+                graphRelErrorPi0Stat->Draw("l,x0,same,e1");
+                legendMeanNew->AddEntry(graphRelErrorPi0Stat,"rel. stat. err.","l");
+
                 legendMeanNew->Draw();
+
 
                 // labeling
                 TLatex *labelEnergySysDetailed = new TLatex(0.95, 0.93,collisionSystem.Data());
@@ -6328,6 +6349,13 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     DrawGammaSetMarkerTGraphAsym(graphRelSysErrEtaSourceWeighted[nRelSysErrEtaSources-1], 20, 1.,kBlack,kBlack);
                     graphRelSysErrEtaSourceWeighted[nRelSysErrEtaSources-1]->Draw("p,csame");
                     legendMeanNew->AddEntry(graphRelSysErrEtaSourceWeighted[nRelSysErrEtaSources-1],"quad. sum.","p");
+
+                    while (graphRelErrorEtaStat->GetX()[0]< minPtGlobalEta){
+                        graphRelErrorEtaStat->RemovePoint(0);
+                    }
+                    graphRelErrorEtaStat->Draw("l,x0,same,e1");
+                    legendMeanNew->AddEntry(graphRelErrorEtaStat,"rel. stat. err.","l");
+
                     legendMeanNew->Draw();
 
                     // labeling
@@ -7700,6 +7728,13 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                       DrawGammaSetMarkerTGraphAsym(graphRelSysErrEtaToPi0SourceWeighted[nRelSysErrEtaToPi0Sources-1], 20, 1.,kBlack,kBlack);
                       graphRelSysErrEtaToPi0SourceWeighted[nRelSysErrEtaToPi0Sources-1]->Draw("p,csame");
                       legendMeanNew->AddEntry(graphRelSysErrEtaToPi0SourceWeighted[nRelSysErrEtaToPi0Sources-1],"quad. sum.","p");
+
+                        while (graphRelErrorEtaToPi0Stat->GetX()[0]< minPtGlobalEta){
+                            graphRelErrorEtaToPi0Stat->RemovePoint(0);
+                        }
+                        graphRelErrorEtaToPi0Stat->Draw("l,x0,same,e1");
+                        legendMeanNew->AddEntry(graphRelErrorEtaToPi0Stat,"rel. stat. err.","l");
+
                       legendMeanNew->Draw();
 
                       // labeling

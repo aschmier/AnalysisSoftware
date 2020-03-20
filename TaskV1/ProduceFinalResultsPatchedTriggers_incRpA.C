@@ -917,15 +917,15 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
             offSetsPi0 ,offSetsPi0Sys,
             graphNuclModFactorWeightedAveragePi0Stat, graphNuclModFactorWeightedAveragePi0Sys,
             nameWeightsLogFilePi0.Data(),
-            mode, optionEnergy, "Pi0", kTRUE,
+            mode, optionEnergy, "Pi0Ratio", kTRUE,
             fileInputCorrFactors
         );
     }
     graphNuclModFactorWeightedAveragePi0Tot->Print();
     // return;
-    while (graphNuclModFactorWeightedAveragePi0Tot->GetY()[0] <= 0) graphNuclModFactorWeightedAveragePi0Tot->RemovePoint(0);
-    while (graphNuclModFactorWeightedAveragePi0Stat->GetY()[0] <= 0) graphNuclModFactorWeightedAveragePi0Stat->RemovePoint(0);
-    while (graphNuclModFactorWeightedAveragePi0Sys->GetY()[0] <= 0) graphNuclModFactorWeightedAveragePi0Sys->RemovePoint(0);
+    while (graphNuclModFactorWeightedAveragePi0Tot->GetY()[0] <= 0.0000001) graphNuclModFactorWeightedAveragePi0Tot->RemovePoint(0);
+    while (graphNuclModFactorWeightedAveragePi0Stat->GetY()[0] <= 0.0000001) graphNuclModFactorWeightedAveragePi0Stat->RemovePoint(0);
+    while (graphNuclModFactorWeightedAveragePi0Sys->GetY()[0] <= 0.0000001) graphNuclModFactorWeightedAveragePi0Sys->RemovePoint(0);
     // return;
     //***************************************************************************************************************
     //************************************Plotting nuclear modification factors  *************************************
@@ -1391,7 +1391,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
                 offSetsEta ,offSetsEtaSys,
                 graphNuclModFactorWeightedAverageEtaStat, graphNuclModFactorWeightedAverageEtaSys,
                 nameWeightsLogFileEta.Data(),
-                mode, optionEnergy, "Eta", kTRUE,
+                mode, optionEnergy, "EtaRatio", kTRUE,
                 fileInputCorrFactors
             );
         }
