@@ -1089,10 +1089,14 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                 echo -e "--> CrystalBall chosen ...\n";
                 CORRECT=1
                 crystal=CrystalBall
-            elif [ $answer = "Gaussian" ] || [ $answer = "G" ] || [ $answer = "g" ]; then
+            elif [ $answer = "Gaussian" ] || [ $answer = "G" ] || [ $answer = "g" ] || [ $answer = "Gaus" ]; then
                 echo -e "--> Gaussian chosen ...\n";
                 CORRECT=1
                 crystal=Gaussian
+            elif [ $answer = "GaussianexpPol2" ] || [ $answer = "GexpPol2" ] || [ $answer = "gexpPol2" ] || [ $answer = "GausexpPol2" ] || [ $answer = "GaussianExpPol2" ] || [ $answer = "GExpPol2" ] || [ $answer = "gExpPol2" ] || [ $answer = "GausExpPol2" ]; then
+                echo -e "--> GaussianExpPol2 chosen ...\n";
+                CORRECT=1
+                crystal=GausexpPol2
             elif [ $answer = "CrystalBallRatio" ] || [ $answer = "CRatio" ] || [ $answer = "cRatio" ]; then
                 echo -e "--> CrystalBall with Signal To Background Fit Option chosen ...\n";
                 CORRECT=1
