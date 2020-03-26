@@ -4047,6 +4047,26 @@ Double_t FitFunctionPHOSBckPol2(Double_t *x, Double_t *par){
 }
 
 void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) {
+    Double_t NumberOfZeroesRatioLimit=0.5;
+    Double_t CurrentNumberOfZeroesRatio;
+    Double_t FitRangeSigBckRatioMin;
+    Double_t FitRangeSigBckRatioMax;
+    Double_t FitRangeSigBckRatioOption=3;
+    if (FitRangeSigBckRatioOption == 1){
+        //PHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]=0.19; PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]=0.17
+        FitRangeSigBckRatioMin=fBGFitRangeLeft[1];
+        FitRangeSigBckRatioMax=fBGFitRange[0];
+    } else if (FitRangeSigBckRatioOption == 2){
+        FitRangeSigBckRatioMin=0.070;
+        FitRangeSigBckRatioMax=0.200;
+    } else if (FitRangeSigBckRatioOption == 3){
+        FitRangeSigBckRatioMin=0.080;
+        FitRangeSigBckRatioMax=0.190;
+    } else {
+        //PHOS: fBGFitRangeLeft[0]=0.04; fBGFitRange[1]=0.3; PCMPHOS: fBGFitRangeLeft[0]=0.05; fBGFitRange[1]=0.3
+        FitRangeSigBckRatioMin=fBGFitRangeLeft[0];
+        FitRangeSigBckRatioMax=fBGFitRange[1];
+    }
     for (Int_t binx= 0; binx < fGammaGamma->GetNbinsX()+1; binx++){
         if(fGammaGamma->GetBinContent(binx) == 0){
             fGammaGamma->SetBinError(binx,1.);
@@ -4066,8 +4086,8 @@ void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) 
     Int_t iNumberOfFitParametersPol2=3;
     if (fFitPHOSPol1!=NULL){delete fFitPHOSPol1; fFitPHOSPol1=NULL;}
     if (fFitPHOSPol2!=NULL){delete fFitPHOSPol2; fFitPHOSPol2=NULL;}
-    fFitPHOSPol1 = new TF1(fFitBackgroundHistogramFitNamePol1.Data(), FitFunctionPHOSBckPol1,fBGFitRangeLeft[0],fBGFitRange[1],iNumberOfFitParametersPol1);
-    fFitPHOSPol2 = new TF1(fFitBackgroundHistogramFitNamePol2.Data(), FitFunctionPHOSBckPol2,fBGFitRangeLeft[0],fBGFitRange[1],iNumberOfFitParametersPol2);
+    fFitPHOSPol1 = new TF1(fFitBackgroundHistogramFitNamePol1.Data(), FitFunctionPHOSBckPol1,FitRangeSigBckRatioMin,FitRangeSigBckRatioMax,iNumberOfFitParametersPol1);
+    fFitPHOSPol2 = new TF1(fFitBackgroundHistogramFitNamePol2.Data(), FitFunctionPHOSBckPol2,FitRangeSigBckRatioMin,FitRangeSigBckRatioMax,iNumberOfFitParametersPol2);
     fRatioSB->Fit(fFitBackgroundHistogramFitNamePol1,"QRME0");
     fRatioSB->Fit(fFitBackgroundHistogramFitNamePol2,"QRME0");
     Double_t CurrentBinContentRatio;
@@ -4093,7 +4113,12 @@ void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) 
     }
     fSignal             = (TH1D*)fGammaGamma->Clone("fSignal");
     fSignal->Sumw2();
-    if ((Double_t)numberOfZeros/fBck->GetNbinsX()< 0.25) fSignal->Add(fBckNorm,-1.);
+    CurrentNumberOfZeroesRatio=(Double_t)numberOfZeros/fBck->GetNbinsX();
+    if (CurrentNumberOfZeroesRatio < NumberOfZeroesRatioLimit){
+        fSignal->Add(fBckNorm,-1.);
+    } else {
+        cout<<"WARNING!!! numberOfZeros/fBck->GetNbinsX()< "<<NumberOfZeroesRatioLimit<<": "<<"numberOfZeros: "<<numberOfZeros<<"; fBck->GetNbinsX(): "<<fBck->GetNbinsX()<<"; numberOfZeros/fBck->GetNbinsX(): "<<CurrentNumberOfZeroesRatio<<endl;
+    }
 }
 
 //****************************************************************************
