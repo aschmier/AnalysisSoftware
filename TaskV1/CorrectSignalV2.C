@@ -2462,8 +2462,8 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             ((mode == 2 || mode == 3 || mode == 4) && optionEnergy.Contains("pPb_8TeV"))
         )
         scaleTrueEffiWithFit        = kFALSE;
-    if (mode == 5 && ( optionEnergy.Contains("5TeV2017") || optionEnergy.Contains("PbPb_5.02TeV") || optionEnergy.Contains("13TeV") )) scaleTrueEffiWithFit        = kTRUE;
-
+    if (mode == 5 && ( optionEnergy.Contains("5TeV2017") || optionEnergy.Contains("PbPb_5.02TeV") )){scaleTrueEffiWithFit        = kTRUE;}
+    if (mode == 5 && ( optionEnergy.Contains("13TeV")  )){scaleTrueEffiWithFit        = kFALSE;}
     if ( ( mode == 4 || mode == 2 || mode == 3 ) && optionEnergy.CompareTo("pPb_5.023TeV") == 0 && centralityString.CompareTo("0-100%") != 0 && nameMeson.CompareTo("Eta") == 0){
         scaleTrueEffiWithFit        = kFALSE;
     }
