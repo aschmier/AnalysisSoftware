@@ -262,10 +262,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             nameEfficiency                              = "TrueMesonEffiPt";
         }
         if(optionEnergy.Contains("13TeV") ){
-            nameMassMC                                  = "histoTrueMassMeson";
-            nameWidthMC                                 = "histoTrueFWHMMeson";
-            nameCorrectedYield                          = "CorrectedYieldTrueEff";
-            nameEfficiency                              = "TrueMesonEffiPt";
+            nameCorrectedYield                          = "CorrectedYieldNormEff";
+            nameEfficiency                              = "MesonEffiPt";
+            nameMassMC                                  = "histoMassMesonRecMC";
+            nameWidthMC                                 = "histoFWHMMesonRecMC";
         }
     } else if (mode == 2 && optionEnergy.BeginsWith("13TeV") ){
         cout << "using rec quantities for PCM-EMC/PCM-PHOS" << endl;
@@ -273,6 +273,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         nameEfficiency                                  = "MesonEffiPt";
         nameMassMC                                      = "histoMassMesonRecMC";
         nameWidthMC                                     = "histoFWHMMesonRecMC";
+    } else if (mode == 3 && optionEnergy.BeginsWith("13TeV") ){
+        nameMassMC                                  = "histoTrueMassMeson";
+        nameWidthMC                                 = "histoTrueFWHMMeson";
+        nameCorrectedYield                          = "CorrectedYieldTrueEff";
+        nameEfficiency                              = "TrueMesonEffiPt";
     } else if ( (mode == 2 || mode == 3) && !(optionEnergy.BeginsWith("8TeV") || optionEnergy.CompareTo("pPb_5.023TeV")==0)){
         cout << "using rec quantities for PCM-EMC/PCM-PHOS" << endl;
         nameMassMC                                      = "histoMassMesonRecMC";
