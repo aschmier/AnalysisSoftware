@@ -840,8 +840,8 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
             maxTriggReject = 49000;
         else if (mode == 10 && !optionEnergy.CompareTo("pPb_8TeV"))
             maxTriggReject = 9000;
-        else if (optionEnergy.CompareTo("13TeV") == 0)
-            maxTriggReject = 4200;
+        else if (optionEnergy.Contains("13TeV"))
+            maxTriggReject = 9000;
         else if (mode == 10)
             maxTriggReject = 5200;
         else if (mode == 64 && optionEnergy.CompareTo("7TeV") == 0)
@@ -880,7 +880,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                 else
                     legendTriggReject->AddEntry((TObject*)0,Form("     %3.2f #pm %3.2f",triggRejecFac[i][trigSteps[i][0]], triggRejecFacErr[i][trigSteps[i][0]]),"");
 
-                
+
                 TF1* pol0 = new TF1("pol0","[0]",minPt[i],maxPt[i]); //
                 histoRatioRawClusterPt[i]->Fit(pol0,"NRME+","",minPt[i],maxPt[i]);
 
@@ -1050,8 +1050,11 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
             if (mode == 2 || mode == 4 || mode == 10 )
                 maxTriggRejectLin = 310;
         } else if( optionEnergy.CompareTo("13TeV")==0 ){
-            if (mode == 2 || mode == 4 || mode == 10 )
+            if (mode == 2 || mode == 4 || mode == 10 ) {
                 maxTriggRejectLin = 1005;
+            }else if (mode == 5){
+                maxTriggRejectLin = 10000;
+            }
         } else if( optionEnergy.CompareTo("pPb_8TeV")==0 ){
             if (mode == 2 || mode == 4 || mode == 10 )
                 maxTriggRejectLin = 4005;
