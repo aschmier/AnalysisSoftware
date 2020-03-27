@@ -913,6 +913,13 @@ void ExtractSignalV2(
         fFileDataLog << "----------------------------------new pT bin ------------------------------------" << endl;
         fFileDataLog << "---------------------------------------------------------------------------------" << endl;
 
+        if (fEnergyFlag.Contains("pPb_5.023TeV") && meson.Contains("Pi0") && (mode == 4 || mode == 12) ){
+            if (fBinsPt[iPt] > 10.0)
+                fBGFitRange[0]      = 0.24;
+            else if (fBinsPt[iPt] > 10.0)
+                fBGFitRange[0]      = 0.26;
+        }
+        
         ProcessEM_switch( fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[iPt], fBGFitRange);
         fHistoMappingSignalInvMassPtBin[iPt]            = fSignal;
         fHistoMappingBackNormInvMassPtBin[iPt]          = fBckNorm;

@@ -171,6 +171,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
     TH1D*   histoRawYieldCut            [ConstNumberOfCuts];
     TH1D*   histoRawYieldCutRelUnc      [ConstNumberOfCuts];
     TH1D*   histoTrueEffiCutRelUnc      [ConstNumberOfCuts];
+    TH1D*   histoMassMeson              [ConstNumberOfCuts];
     TH1D*   histoMassRatioCut           [ConstNumberOfCuts];
     TH1D*   histoWidthRatioCut          [ConstNumberOfCuts];
     TH1D*   histoEtaToPi0Cut            [ConstNumberOfCuts];
@@ -183,6 +184,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
     TH1D*   histoRatioTrueEffiCut       [ConstNumberOfCuts];
     TH1D*   histoRatioAcceptanceCut     [ConstNumberOfCuts];
     TH1D*   histoRatioRawYieldCut       [ConstNumberOfCuts];
+    TH1D*   histoRatioMassCut           [ConstNumberOfCuts];
     TH1D*   histoRatioMassRatioCut      [ConstNumberOfCuts];
     TH1D*   histoRatioWidthRatioCut     [ConstNumberOfCuts];
     TH1D*   histoRatioEtaToPi0Cut       [ConstNumberOfCuts];
@@ -468,6 +470,13 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
 
             histoAcceptanceCut[i]                               = (TH1D*)Cutcorrfile[i]->Get(nameAcceptance.Data());
             histoAcceptanceCut[i]->SetName(Form("%s_%s", nameAcceptance.Data(), cutNumber[i].Data()));
+            histoMassMeson[i]                                = (TH1D*)Cutcorrfile[i]->Get("histoMassMeson");
+            if (histoMassMeson[i] == NULL)
+                histoMassMeson[i]                            = (TH1D*)Cutcorrfile[i]->Get("histoMassGaussianMeson");
+            if (histoMassMeson[i] == NULL )
+                doMassRatio                                     = kFALSE;
+            if (doMassRatio) histoMassMeson[i]->SetName(Form("histoMass_%s", cutNumber[i].Data()));
+
             histoMassRatioCut[i]                                = (TH1D*)Cutcorrfile[i]->Get("histoRatioRecMass");
             if (histoMassRatioCut[i] == NULL)
                 histoMassRatioCut[i]                            = (TH1D*)Cutcorrfile[i]->Get("histoRatioRecMassGauss");
@@ -542,6 +551,9 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             histoRatioAcceptanceCut[i]->Divide(histoRatioAcceptanceCut[i],histoAcceptanceCut[0],1.,1.,"B");
             // cout << "line " << __LINE__ << endl;
             if (doMassRatio){
+                histoRatioMassCut[i]                       = (TH1D*) histoMassMeson[i]->Clone(Form("histoRatioMassMeson_%s", cutNumber[i].Data()));
+                histoRatioMassCut[i]->Divide(histoRatioMassCut[i],histoMassMeson[0],1.,1.,"B");
+                
                 histoRatioMassRatioCut[i]                       = (TH1D*) histoMassRatioCut[i]->Clone(Form("histoRatioMassRatio_%s", cutNumber[i].Data()));
                 histoRatioMassRatioCut[i]->Divide(histoRatioMassRatioCut[i],histoMassRatioCut[0],1.,1.,"B");
             }
@@ -933,7 +945,83 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         canvasWidthMeson->SaveAs(Form("%s/%s_%s_Width%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
         delete canvasWidthMeson;
 
+        TCanvas* canvasMassMeson = new TCanvas("canvasMassMeson","",1350,1500);
+        DrawGammaCanvasSettings( canvasMassMeson,  0.13, 0.02, 0.02, 0.09);
+        // Upper pad definition
+        TPad* padMass = new TPad("padMass", "", 0., 0.33, 1., 1.,-1, -1, -2);
+        DrawGammaPadSettings( padMass, 0.12, 0.02, 0.02, 0.);
+        //padMass->SetLogy();
+        padMass->Draw();
+        // lower pad definition
+        TPad* padMassRatios = new TPad("padMassRatios", "", 0., 0., 1., 0.33,-1, -1, -2);
+        DrawGammaPadSettings( padMassRatios, 0.12, 0.02, 0.0, 0.2);
+        padMassRatios->Draw();
 
+        padMass->cd();
+        padMass->SetTickx();
+        padMass->SetTicky();
+
+        // Plot Mass in uppper panel
+        padMass->cd();
+
+        TLegend* legendMass = GetAndSetLegend2(0.27,0.02,0.35,0.02+1.15*0.032*NumberOfCuts, 1500*0.75*0.032);
+        Double_t maxMassMesonPlot = 0.140;
+        if(mode == 4) maxMassMesonPlot = 0.160;
+        for(Int_t i = 0; i< NumberOfCuts; i++){
+            if(i == 0){
+                DrawGammaSetMarker(histoMassMeson[i], 20, 1., color[0], color[0]);
+                DrawAutoGammaMesonHistos( histoMassMeson[i],
+                                      "", "#it{p}_{T} (GeV/#it{c})", Form("%s mass",textMeson.Data()),
+                                      kFALSE, 0., 1e-4, kTRUE,
+                                      kTRUE, 0.11, maxMassMesonPlot,
+                                      kFALSE, 0., 10.);
+                legendMass->AddEntry(histoMassMeson[i],Form("standard: %s",cutStringsName[i].Data()));
+            }
+            else {
+                if(i<20){
+                    DrawGammaSetMarker(histoMassMeson[i], 20+i, 1.,color[i],color[i]);
+                } else {
+                    DrawGammaSetMarker(histoMassMeson[i], 20+i, 1.,color[i-20],color[i-20]);
+                }
+                histoMassMeson[i]->DrawCopy("same,e1,p");
+                legendMass->AddEntry(histoMassMeson[i],cutStringsName[i].Data());
+            }
+
+        }
+        legendMass->Draw();
+        // Labeling of plot
+        PutProcessLabelAndEnergyOnPlot( 0.94, 0.95, 0.032, collisionSystem, process, detectionProcess, 42, 0.03, optionPeriod, 1, 1.25, 31);
+
+        padMassRatios->cd();
+        for(Int_t i = 0; i< NumberOfCuts; i++){
+            if(i==0){
+                // Set ratio min and max
+                Double_t minYRatio = 0.9;
+                Double_t maxYRatio = 1.1; //qu
+                if( optionEnergy.Contains("PbPb_5.02TeV") ){
+                  minYRatio = 0.01;
+                  maxYRatio = 1.99;
+                }
+                SetStyleHistoTH1ForGraphs(histoRatioMassCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
+                DrawGammaSetMarker(histoRatioMassCut[i], 20, 1.,color[0],color[0]);
+                histoRatioMassCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
+                histoRatioMassCut[i]->DrawCopy("p,e1");
+            } else{
+                if(i<20){
+                    DrawGammaSetMarker(histoRatioMassCut[i], 20+i, 1.,color[i],color[i]);
+                } else {
+                    DrawGammaSetMarker(histoRatioMassCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                }
+                histoRatioMassCut[i]->DrawCopy("same,e1,p");
+            }
+            DrawGammaLines(0., maxPt,1., 1.,0.1);
+        }
+
+        canvasMassMeson->Update();
+        canvasMassMeson->SaveAs(Form("%s/%s_%s_Mass%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
+        delete canvasMassMeson;
+
+        
     //**************************************************************************************
     //************************ Plotting SB  ************************************************
     //**************************************************************************************

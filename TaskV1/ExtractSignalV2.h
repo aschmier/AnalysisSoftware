@@ -917,26 +917,22 @@
                 fBGFitRange[1]              = 0.3;
                 fBGFitRangeLeft[0]          = 0.05;
                 fBGFitRangeLeft[1]          = 0.08;
-                if ( fEnergyFlag.CompareTo("7TeV") == 0 ){
+                if ( fEnergyFlag.CompareTo("5TeV2017") == 0 ){
+                    if( trigger.CompareTo("a1") == 0 || trigger.CompareTo("a2") == 0){
+                        fBGFitRange[0]              = 0.23;
+                        fBGFitRange[1]              = 0.3;
+                    }
+                } else  if ( fEnergyFlag.CompareTo("7TeV") == 0 ){
                     if( trigger.CompareTo("52") == 0 || triggerSet == 1 ){
                         fBGFitRange[0] = 0.26;
                     }
-                }
-                if ( fEnergyFlag.BeginsWith("8TeV") ){
+                } else if ( fEnergyFlag.BeginsWith("8TeV") ){
                     if( trigger.CompareTo("52") == 0 || triggerSet == 1 ){
                         fBGFitRange[0] = 0.25;
                     } else if ( trigger.CompareTo("81")==0 || triggerSet == 2 ){
                         fBGFitRange[0] = 0.26;
                     }
-                }
-                if ( fEnergyFlag.Contains("pPb_8TeV") ){
-                    if( trigger.CompareTo("8e") == 0 || triggerSet == 1 ){
-                        fBGFitRange[0] = 0.25;
-                    } else if ( trigger.CompareTo("8d")==0 || triggerSet == 2 ){
-                        fBGFitRange[0] = 0.26;
-                    }
-                }
-                if ( fEnergyFlag.CompareTo("13TeV") == 0 ){
+                } else if ( fEnergyFlag.CompareTo("13TeV") == 0 ){
                     if( trigger.CompareTo("52") == 0 || triggerSet == 1 ){
                         fBGFitRange[0] = 0.25;
                     } else if ( trigger.CompareTo("85")==0 || trigger.CompareTo("8e")==0 || triggerSet == 3 ){
@@ -949,25 +945,27 @@
                       fBGFitRange[0] = 0.20;
                       fBGFitRange[1] = 0.27;
                     }
-                }
-                // if(fEnergyFlag.Contains("13TeV") && GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1)){
-                if(fEnergyFlag.Contains("13TeV")){
-                  fBGFitRange[0]              = 0.22;
-                  fBGFitRange[1]              = 0.3;
-                  fBGFitRangeLeft[0]          = 0.26;
-                  fBGFitRangeLeft[1]          = 0.30;
-                }
-
-
-                if ( fEnergyFlag.CompareTo("5TeV2017") == 0 ){
-                  if( trigger.CompareTo("a1") == 0 || trigger.CompareTo("a2") == 0){
-                    fBGFitRange[0]              = 0.23;
+                    fBGFitRange[0]              = 0.22;
                     fBGFitRange[1]              = 0.3;
-                  }
-                }
-                if ( fEnergyFlag.CompareTo("PbPb_5.02TeV") == 0 ){
-                  fBGFitRange[0]              = 0.24;
-                  fBGFitRange[1]              = 0.3;
+                    fBGFitRangeLeft[0]          = 0.26;
+                    fBGFitRangeLeft[1]          = 0.30;
+                } else if ( fEnergyFlag.Contains("pPb_5.023TeV") ){
+                    if( trigger.CompareTo("85") == 0 || triggerSet == 2 ){
+                        fBGFitRange[0] = 0.25;
+                    } else if ( trigger.CompareTo("83")==0 || triggerSet == 3 ){
+                        fBGFitRange[0] = 0.26;
+                    } else {
+                        fBGFitRange[0] = 0.22;
+                    }
+                } else if ( fEnergyFlag.Contains("pPb_8TeV") ){
+                    if( trigger.CompareTo("8e") == 0 || triggerSet == 1 ){
+                        fBGFitRange[0] = 0.25;
+                    } else if ( trigger.CompareTo("8d")==0 || triggerSet == 2 ){
+                        fBGFitRange[0] = 0.26;
+                    }
+                } else if ( fEnergyFlag.CompareTo("PbPb_5.02TeV") == 0 ){
+                    fBGFitRange[0]              = 0.24;
+                    fBGFitRange[1]              = 0.3;
                 }
             } else if ( mode == 5) {                                // PHOS
                 fBGFitRange[0]              = 0.19;

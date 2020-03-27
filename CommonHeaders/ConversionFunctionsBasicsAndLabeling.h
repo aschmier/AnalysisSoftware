@@ -5008,6 +5008,14 @@
                 return "n Cells #geq 5";
             case 6:
                 return "n Cells #geq 6";
+            case 17:    
+                return "n Cells #geq 2, #epsilon_{P2} appl. to MC";
+            case 18:    
+                return "n Cells #geq 2, #epsilon_{MC}";
+            case 19:    
+                return "n Cells #geq 2, #epsilon_{P2} appl. to data";
+            case 20:    
+                return "n Cells #geq 2, #epsilon_{TB} appl. to data";
             default:
                 return "n Cells cut not defined";
         }
@@ -5267,6 +5275,8 @@
             return "EMCal";
         else if (clusterCutBegin.CompareTo("41179") == 0)
             return "EMCal+DCal";
+        else if (clusterCutBegin.CompareTo("38855") == 0)
+            return "DCal";
         else
             return "";
     }
