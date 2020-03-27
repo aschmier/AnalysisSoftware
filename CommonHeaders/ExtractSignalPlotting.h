@@ -533,14 +533,21 @@
             } else {
                 fitPi0InvMassBG                                  = new TF1("Pol2","[0]+[1]*x+[2]*x*x",0.00,0.3);
             }
+        } else if(optionOtherResBckAsStd == -2){
+            if(fMesonType.CompareTo("Pi0") == 0 || fMesonType.CompareTo("Pi0EtaBinning") == 0){
+                fitPi0InvMassBG                                  = new TF1("Nofunc","0",0.02,0.25);
+            } else {
+                fitPi0InvMassBG                                  = new TF1("Linearpp","[0]+[1]*x",0.00,0.3);
+            }
         }
 
         // set parameters according to BG part of signal+BG fit
-        fitPi0InvMassBG->SetParameter(0, fitPi0InvMassSig->GetParameter(4));
-        fitPi0InvMassBG->SetParError(0, fitPi0InvMassSig->GetParError(4));
-        fitPi0InvMassBG->SetParameter(1, fitPi0InvMassSig->GetParameter(5));
-        fitPi0InvMassBG->SetParError(1, fitPi0InvMassSig->GetParError(5));
-
+        if(!(optionOtherResBckAsStd == -2 && fMesonType.Contains("Pi0"))){
+          fitPi0InvMassBG->SetParameter(0, fitPi0InvMassSig->GetParameter(4));
+          fitPi0InvMassBG->SetParError(0, fitPi0InvMassSig->GetParError(4));
+          fitPi0InvMassBG->SetParameter(1, fitPi0InvMassSig->GetParameter(5));
+          fitPi0InvMassBG->SetParError(1, fitPi0InvMassSig->GetParError(5));
+        }
         if(optionOtherResBckAsStd == 0){
             fitPi0InvMassBG->SetParameter(2, fitPi0InvMassSig->GetParameter(6));
             fitPi0InvMassBG->SetParError(2, fitPi0InvMassSig->GetParError(6));
@@ -555,7 +562,7 @@
             histoPi0InvMassRemBG->SetBinContent(j,0);
             histoPi0InvMassRemBG->SetBinError(j,0);
         }
-        if(fMesonType.CompareTo("Pi0") == 0 || fMesonType.CompareTo("Pi0EtaBinning") == 0){
+        if((fMesonType.CompareTo("Pi0") == 0 || fMesonType.CompareTo("Pi0EtaBinning") == 0 ) && optionOtherResBckAsStd != -2){
             for (Int_t j = histoPi0InvMassSig->GetXaxis()->FindBin(0.01); j < histoPi0InvMassSig->GetXaxis()->FindBin(0.30)+1; j++){
                 Double_t startBinEdge                                   = histoPi0InvMassSig->GetXaxis()->GetBinLowEdge(j);
                 Double_t endBinEdge                                     = histoPi0InvMassSig->GetXaxis()->GetBinUpEdge(j);
@@ -610,7 +617,7 @@
                 histoPi0InvMassRemBG->SetBinContent(j,intRemBack);
                 histoPi0InvMassRemBG->SetBinError(j,errorRemBack);
             }
-        } else { //omega
+        } else if(optionOtherResBckAsStd != -2){ //omega
           Double_t lowBin = 0.65;
           Double_t highBin = 0.9;
             for (Int_t j = histoPi0InvMassSig->GetXaxis()->FindBin(lowBin); j < histoPi0InvMassSig->GetXaxis()->FindBin(highBin)+1; j++){
@@ -636,8 +643,10 @@
         histoPi0InvMassSigRemBGSub->Sumw2();
         histoPi0InvMassSigRemBGSub->Add(histoPi0InvMassRemBG,-1);
 
-        fitPi0InvMassSig->SetParameter(4, 0);
-        fitPi0InvMassSig->SetParameter(5, 0);
+        if(!(optionOtherResBckAsStd == -2 && fMesonType.Contains("Pi0"))){
+          fitPi0InvMassSig->SetParameter(4, 0);
+          fitPi0InvMassSig->SetParameter(5, 0);
+        }
         if(optionOtherResBckAsStd == 0){
             fitPi0InvMassSig->SetParameter(6, 0);
         }
@@ -1621,7 +1630,7 @@
           histo1DInvMassDummy             = new TH1F("histo1DInvMass2","histo1DInvMass2",11000,0.645,0.89);
           SetStyleHistoTH1ForGraphs(histo1DInvMassDummy, Form("#it{M}_{%s} (GeV/#it{c}^{2})",decayChannel.Data()),"Counts",0.85*textsizeLabelsInvMass, textsizeLabelsInvMass,
                                       0.85*textsizeLabelsInvMass, textsizeLabelsInvMass,0.88, 0.115/(textsizeFacInvMass*marginInvMass));
-          
+
           histo1DInvMassDummy->GetYaxis()->SetLabelOffset(0.008);
           histo1DInvMassDummy->GetXaxis()->SetLabelOffset(0.005);
         }

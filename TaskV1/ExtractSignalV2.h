@@ -14,6 +14,10 @@
     #include "TH1D.h"
     #include "TString.h"
     #include "TObjectTable.h"
+    #include "../CommonHeaders/PlottingGammaConversionHistos.h"
+    #include "../CommonHeaders/PlottingGammaConversionAdditional.h"
+    #include "../CommonHeaders/FittingGammaConversion.h"
+    #include "../CommonHeaders/ConversionFunctions.h"
 
     //****************************************************************************
     //******************** Global variable for setup of macro ********************
@@ -74,6 +78,7 @@
     Double_t    fCBn                                                        = 0;
     Float_t     pictDrawingCoordinatesFWHM[9]                               = {0.6, 0.8, 0.30, 0.04, 0.15,0.7, 0.1, 0.035,0};
     Int_t       fNRebinGlobal                                               = 2;
+    Double_t    fBinWidthInvMass                                            = 0.001;
     Int_t       maxNSec                                                     = 4;
     TString     nameSecondaries[4]                                          = {"K0S", "Lambda", "K0L", "Rest"};
     TString     nameSecondariesCocktail[4]                                  = {"K0s", "Lambda", "K0l", "Rest"};
@@ -247,6 +252,7 @@
     void CreatePtHistos();                                                                                      // Creat pt dependent histograms
     void FillPtHistos();                                                                                        // Fill pt dependent histograms
     void FitSubtractedInvMassInPtBins(TH1D * ,Double_t *, Int_t, Bool_t );                                      // Fits the invariant mass histos with a gaussian plus exponential plus lin BG
+    void FitSubtractedInvMassInPtBinsWOLinear(TH1D * ,Double_t *, Int_t, Bool_t );                              // Fits the invariant mass histos with a gaussian plus exponential
     void FitSubtractedPol2InvMassInPtBins(TH1D*, Double_t*, Int_t, Bool_t );                                    // Fits the invariant mass histos with a gaussian plus exponential plus pol2 BG
     void FitSubtractedExp1InvMassInPtBins(TH1D* , Double_t* , Int_t , Bool_t );                                 // Fits the invariant mass histos with a gaussian plus exponential plus exp BG
     void FitSubtractedExp2InvMassInPtBins(TH1D* , Double_t* , Int_t , Bool_t );                                 // Fits the invariant mass histos with a gaussian plus exponential plus exp BG
@@ -943,6 +949,15 @@
                       fBGFitRange[1] = 0.27;
                     }
                 }
+                // if(fEnergyFlag.Contains("13TeV") && GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1)){
+                if(fEnergyFlag.Contains("13TeV")){
+                  fBGFitRange[0]              = 0.22;
+                  fBGFitRange[1]              = 0.3;
+                  fBGFitRangeLeft[0]          = 0.26;
+                  fBGFitRangeLeft[1]          = 0.30;
+                }
+
+
                 if ( fEnergyFlag.CompareTo("5TeV2017") == 0 ){
                   if( trigger.CompareTo("a1") == 0 || trigger.CompareTo("a2") == 0){
                     fBGFitRange[0]              = 0.23;
@@ -1260,6 +1275,11 @@
                 } else if( fEnergyFlag.CompareTo("PbPb_5.02TeV") == 0 ){
                     fMesonFitRange[0]       = 0.075;
                     fMesonFitRange[1]       = 0.25;
+                }
+                // if(fEnergyFlag.Contains("13TeV") && GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1)){
+                if(fEnergyFlag.Contains("13TeV")){
+                  fMesonFitRange[0]       = 0.08;
+                  fMesonFitRange[1]       = 0.26;
                 }
             } else if (mode == 5){                                      // PHOS
                 if (fEnergyFlag.CompareTo("XeXe_5.44TeV") == 0 ){
@@ -1684,6 +1704,14 @@
             fMesonMassPlotRange[1]      = 0.79;
             fMesonMassRange[0]          = 0.35;
             fMesonMassRange[1]          = 0.79;
+            // if(GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1))){ // in case of rotation background
+            if(fEnergyFlag.Contains("13TeV") && mode == 4){
+              fMesonMassPlotRange[0]      = 0.35;
+              fMesonMassPlotRange[1]      = 0.79;
+              fMesonMassRange[0]          = 0.35;
+              fMesonMassRange[1]          = 0.79;
+            }
+
 
             // Set Meson fit range
             if (mode == 2 || mode == 13){
@@ -1740,14 +1768,17 @@
                         fMesonFitRange[0]         = 0.36;
                         fMesonFitRange[1]         = 0.74;
                     }
+                } else if(fEnergyFlag.Contains("13TeV")){
+                  fMesonFitRange[0]           = 0.25;
+                  fMesonFitRange[1]           = 0.73;
                 } else {
                     fMesonFitRange[0]           = 0.38;
                     fMesonFitRange[1]           = 0.73;
                 }
             } else if (mode == 0) {
                 if( fEnergyFlag.Contains("13TeV")  ){
-                    fMesonFitRange[0]                = 0.44;
-                    fMesonFitRange[1]                = 0.7;
+                    fMesonFitRange[0]                = 0.35;
+                    fMesonFitRange[1]                = 0.75;
                 }else if( fEnergyFlag.Contains("PbPb") ){
                     fMesonFitRange[0]                = 0.44;
                     fMesonFitRange[1]                = 0.66;

@@ -1018,6 +1018,8 @@
                 return "#pi^{0} rec w/ PHOS, DALITZ";
             case 50: case 70:
                 return "#pi^{0} rec w/ DCAL, DALITZ";
+            case 90:
+                return "EDC";
             default:
                 return "not known";
 
@@ -3701,19 +3703,19 @@
             chi2CutString = "#chi_{#gamma}^{2} < 55";
             break;
         case 15:
-            chi2CutString = "*exp(-0.065*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            chi2CutString = "*exp(-0.065*#chi^{2}), #chi_{#gamma}^{2} < 50";
             break;
         case 16:
-            chi2CutString = "*exp(-0.055*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            chi2CutString = "*exp(-0.055*#chi^{2}), #chi_{#gamma}^{2} < 50";
             break;
         case 17:
-            chi2CutString = "*exp(-0.050*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            chi2CutString = "*exp(-0.050*#chi^{2}), #chi_{#gamma}^{2} < 50";
             break;
         case 18:
-            chi2CutString = "*exp(-0.075*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            chi2CutString = "*exp(-0.075*#chi^{2}), #chi_{#gamma}^{2} < 50";
             break;
         case 19:
-            chi2CutString = "*exp(-0.085*#chi^{2}), #chi_{#gamma}^{2} < 50"; 
+            chi2CutString = "*exp(-0.085*#chi^{2}), #chi_{#gamma}^{2} < 50";
             break;
         case 20:
             chi2CutString = "*exp(-0.055*#chi^{2}), #chi_{#gamma}^{2} < 20";
@@ -3953,13 +3955,13 @@
                 return "#eta_{#gamma,e^{#pm}} < 0.4";
             case 9: // 10
                 return "#eta_{#gamma,e^{#pm}} < 10";
-            case 10: // 
+            case 10: //
                 return "0.2 < #eta_{#gamma,e^{#pm}} < 0.9";
-            case 11: // 
+            case 11: //
                 return "0.2 < #eta_{#gamma,e^{#pm}} < 0.9";
-            case 12: // 
+            case 12: //
                 return "#eta_{#gamma,e^{#pm}} < 0.85";
-            case 13: // 
+            case 13: //
                 return "#eta_{#gamma,e^{#pm}} < 0.8";
             default:
                 return "no #eta_{#gamma,e^{#pm}} cut defined";
@@ -3992,13 +3994,13 @@
                 return "#eta_{#gamma,e^{#pm}} < 0.4";
             case 9: // 10
                 return "#eta_{#gamma,e^{#pm}} < 10";
-            case 10: // 
+            case 10: //
                 return "0.2 < #eta_{#gamma,e^{#pm}} < 0.9";
-            case 11: // 
+            case 11: //
                 return "0.2 < #eta_{#gamma,e^{#pm}} < 0.9";
-            case 12: // 
+            case 12: //
                 return "#eta_{#gamma,e^{#pm}} < 0.85";
-            case 13: // 
+            case 13: //
                 return "#eta_{#gamma,e^{#pm}} < 0.8";
             default:
                 return "no #eta_{#gamma,e^{#pm}} cut defined";
@@ -5265,10 +5267,10 @@
             return "EMCal";
         else if (clusterCutBegin.CompareTo("41179") == 0)
             return "EMCal+DCal";
-        else 
+        else
             return "";
     }
-    
+
     //************************************************************************************
     //***************** Analyzes the min energy cut, return correct cut label ************
     //************************************************************************************
@@ -6396,6 +6398,13 @@
             } else if (!strTrigger.CompareTo("9b")){  // EJ1
                 triggerRejec    = 1;
             }
+        } else  if (energy.BeginsWith("13TeV")){
+            cout << "Trigger used: " << trigger << endl;
+            if (!strTrigger.CompareTo("8e")){  // EG2
+                triggerRejec    = 418.44;
+            } else if (!strTrigger.CompareTo("8d")){  // EG1
+                triggerRejec    = 418.44*11.522;
+            }
         }
         return triggerRejec;
     }
@@ -6568,5 +6577,15 @@
         Int_t cutInt    = ((int)cutChar[0]>=(int)'a') ? cutChar[0]-'a'+10 : cutChar[0]-'0';
         return cutInt;
     }
+
+    //************************************************************************************
+    // Return if background is Photon Rotation Method
+    //************************************************************************************
+    Bool_t GetMesonBGSchemeIsRotation (TString cut){
+        Int_t icut = ReturnSingleAlphaNumericCutAsInt(cut);
+        if(icut >= 27 || icut <= 33) return kTRUE;
+        return kFALSE;
+    }
+
 
 #endif

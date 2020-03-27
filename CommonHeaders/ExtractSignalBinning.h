@@ -42,6 +42,7 @@
     Double_t fBGFitRange_FixedPzPiZero[2]           = {0,0};
 
 
+
     //****************************************************************************************************
     //****************** Pt binning for Inter/Extrapolations *********************************************
     //****************************************************************************************************
@@ -501,7 +502,7 @@
                     return 5;
                 } else if ( mode == 1 ){
                     return 5;
-                } else if ( mode == 2 || mode == 4 || mode == 13 || mode == 14 || mode == 15 ){
+                } else if ( mode == 2 || mode == 4 || mode == 10 || mode == 13 || mode == 14 || mode == 15 ){
                     switch (trigger){
                         case 83:
                             return 10;
@@ -1065,7 +1066,7 @@
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0) {
                 if (mode == 0){
                     return 4;
-                } else if (mode == 2){
+                } else if (mode == 2 || mode == 4){
                     switch (trigger){
                         case 83:
                             return 10;
@@ -1616,7 +1617,7 @@
                         startPtBin = 5;
                     }
                 } else if ( mode == 10){
-                    startPtBin     = 28;
+                    startPtBin     = 10;
                 } else if (mode == 20){
                     startPtBin     = 1;
                 }
@@ -1717,13 +1718,13 @@
                                 startPtBin     = 3;
                                 break;
                             case 2: // EG2 trigger
-                                if ((centrality.CompareTo("0-100%") == 0 ) || energy.CompareTo("5TeVRefpPb")==0) 
+                                if ((centrality.CompareTo("0-100%") == 0 ) || energy.CompareTo("5TeVRefpPb")==0)
                                     startPtBin     = 3;
                                 else
                                     startPtBin     = 1;
                                 break;
                             case 3: // EG1 trigger
-                                if ((centrality.CompareTo("0-100%") == 0 ) || energy.CompareTo("5TeVRefpPb")==0) 
+                                if ((centrality.CompareTo("0-100%") == 0 ) || energy.CompareTo("5TeVRefpPb")==0)
                                     startPtBin     = 6;
                                 else
                                     startPtBin     = 1;
@@ -2970,23 +2971,34 @@
                                 //cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeVPCMEMCTrigINT7Pt"<<endl;
                                 //maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigINT7Pt, binning, 99 );
                                 //------------------------------------PCM Binning, for Combination of Measurements
-                                //cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7Pt"<<endl;
-                                //maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7Pt, binning, 84 );
+                                cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7Pt"<<endl;
+                                maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7Pt, binning, 84 );
                             }
                         break;
                         }
+
                     break;
-                    case 10: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPtmEMC, binning, 59 ); break;
-                    case 14:
-                    cout<<"13 TeV "<<energy<<" Binning used for mode "<<mode<<" with SpecialTrigger:" << SpecialTrigger << "   fBinsPi013TeVPCMEMCTrig...Pt";
-                        // maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_CombinedBinning, binning, 139 ); break;
-                        switch(SpecialTrigger) {
-                            // case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7Pt, binning, 85 ); break;
-                            case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEDCPHOSTrigINT7Pt, binning, 104 ); break;
-                            default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEDCPHOSTrigINT7Pt, binning, 104 ); break;
+                    case 10:
+                      switch(SpecialTrigger) {
+                          case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedTrigINT7Pt, binning ); break;
+                          case 4:
+                          case 5:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedTrigINT7Pt, binning ); break;
+                          case 1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedTrigINT7Pt, binning ); break;
+                          case 2:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedTrigEG1Pt, binning ); break;
+                          case 3:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedTrigEG2Pt, binning ); break;
+                          default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedCombPt, binning ); break;
                         }
                         break;
-                    default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigINT7Pt, binning, 109 ); break;
+                      case 14:
+                      cout<<"13 TeV "<<energy<<" Binning used for mode "<<mode<<" with SpecialTrigger:" << SpecialTrigger << "   fBinsPi013TeVPCMEMCTrig...Pt";
+                          // maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_CombinedBinning, binning, 139 ); break;
+                          switch(SpecialTrigger) {
+                              // case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7Pt, binning, 85 ); break;
+                              case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEDCPHOSTrigINT7Pt, binning, 104 ); break;
+                              default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEDCPHOSTrigINT7Pt, binning, 104 ); break;
+                          }
+                          break;
+                  default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigINT7Pt, binning, 96 ); break;
                 }
                 // Check max bins and array size
                 CheckBinSize(maxNBins,binningMax,kFALSE);
@@ -3082,7 +3094,7 @@
                         cout << SpecialTrigger << "\t" << centrality.Data() << "\t" << energy.Data() << endl;
                         switch (SpecialTrigger){
                             case 0: // INT7 trigger
-                                if ( centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0) 
+                                if ( centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCPt,binning,57);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVPCMEMCCentPt,binning, 38);
@@ -3812,10 +3824,22 @@
                     case 42:
                     case 44:
                     case 45: maxNBins = CopyVectorToArray( binningMax, fBinsEtaPiPlPiMiPiZero13TevPtPCM, binning, 17 ); break;
+
                     case 14:
                         switch(SpecialTrigger) {
                             case 0: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVEDCPHOSTrigINT7Pt, binning, 48 ); break;
                             default: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVEDCPHOSTrigINT7Pt, binning, 48 ); break;
+                          }
+                          break;
+
+                    case 10:
+                        switch(SpecialTrigger) {
+                            case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedTrigEG1Pt, binning ); break;
+                            case 4:
+                            case 5:
+                            case 3: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedTrigEG1Pt, binning ); break;
+                            case 2: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedTrigEG1Pt, binning ); break;
+                            default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCMergedTrigEG1Pt, binning ); break;
                         }
                         break;
                     default:
@@ -4016,7 +4040,7 @@
                             default:
                                 if (centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigPt,binning, 35);
-                                else 
+                                else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsEtapPb5TeVEMCCombTrigCentPt,binning, 20);
                                 break;
                         }
@@ -4612,7 +4636,7 @@
         if(modi>=100) modi -= 100;
 
         // Set fBinsClusterPt according to cases
-        fBinsClusterPt          = new Double_t[400];
+        fBinsClusterPt          = new Double_t[1001];
         if(modi==10){
             fNBinsClusterPt       = fNBinsCluster8TeVPt;
             for(Int_t iPt=0;iPt<=fNBinsClusterPt;iPt++){
@@ -4649,23 +4673,33 @@
 
         } else if( energy.EqualTo("13TeV") || energy.EqualTo("13TeVLowB") || energy.EqualTo("13TeVRBins") ) {
             if( modi!=0 && modeHeavy<100 ) {
+
                 if ( (modi == 62 ) || (modi == 65) || (modi == 61) || (modi == 64)){
                     fNBinsClusterPt            = fNBinsClusterOmega13TeVPt; // 73
+
+                }else if(modi == 10){
+                  // binning for very high pT analyses
+                  fNBinsClusterPt = 1000;
+                  for(Int_t i=0; i<=fNBinsClusterPt;i++){
+                    if(i <= 999)    fBinsCluster13TeVPt[i]          = 0.2*i;
+                    else           fBinsCluster13TeVPt[i]          = 200;
+                  }
                 } else {
-                    fNBinsClusterPt            = fNBinsCluster13TeVPt; // 307
-                }
-                for(Int_t i=0; i<=fNBinsCluster13TeVPt; i++ ){
-                    if (i < 1) fBinsCluster13TeVPt[i]          = 0.3*i;
-                    else if(i<197) fBinsCluster13TeVPt[i]      = 0.3+0.1*(i-1);
-                    else if(i<237) fBinsCluster13TeVPt[i]      = 20.+0.25*(i-197);
-                    else if(i<277) fBinsCluster13TeVPt[i]      = 30.+0.5*(i-237);
-                    else if(i<297) fBinsCluster13TeVPt[i]      = 50.+1.0*(i-277);
-                    else if(i<307) fBinsCluster13TeVPt[i]      = 70.+2.5*(i-297);
-                    else fBinsCluster13TeVPt[i]                = 100;
+                  fNBinsClusterPt            = fNBinsCluster13TeVPt; // 307
+                  for(Int_t i=0; i<=fNBinsCluster13TeVPt; i++ ){
+                      if (i < 1) fBinsCluster13TeVPt[i]          = 0.3*i;
+                      else if(i<197) fBinsCluster13TeVPt[i]      = 0.3+0.1*(i-1);
+                      else if(i<237) fBinsCluster13TeVPt[i]      = 20.+0.25*(i-197);
+                      else if(i<277) fBinsCluster13TeVPt[i]      = 30.+0.5*(i-237);
+                      else if(i<297) fBinsCluster13TeVPt[i]      = 50.+1.0*(i-277);
+                      else if(i<307) fBinsCluster13TeVPt[i]      = 70.+2.5*(i-297);
+                      else fBinsCluster13TeVPt[i]                = 100;
+                  }
                 }
                 for(Int_t iPt=0;iPt<=fNBinsClusterPt;iPt++){
                     fBinsClusterPt[iPt] = fBinsCluster13TeVPt[iPt];
                 }
+
             } else if( modi==0 || modeHeavy>=100 ){
                 fNBinsClusterPt        = fNBinsCluster13TeVPCMPt; // 301
                 for(Int_t i=0; i<=fNBinsCluster13TeVPCMPt; i++ ){
@@ -4772,10 +4806,10 @@
         } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0) {
             if     ( trigger.EqualTo("10") ) triggerSetTemp = 0; // MinBias
             else if( trigger.EqualTo("52") ) triggerSetTemp = 1; // L0 EMC7 3GeV
-            else if( trigger.EqualTo("83") ) triggerSetTemp = 2; // EG1 8GeV
-            else if( trigger.EqualTo("85") ) triggerSetTemp = 3; // EG2 4GeV
-            else if( trigger.EqualTo("8d") ) triggerSetTemp = 2; // EG1 8GeV
-            else if( trigger.EqualTo("8e") ) triggerSetTemp = 3; // EG2 4GeV
+            else if( trigger.EqualTo("83") || trigger.EqualTo("89") ) triggerSetTemp = 2; // EG1 8GeV (EMC || DMC)
+            else if( trigger.EqualTo("85") || trigger.EqualTo("8b") ) triggerSetTemp = 3; // EG2 4GeV (EMC || DMC)
+            else if( trigger.EqualTo("8d") ) triggerSetTemp = 2; // EG1 8GeV (EMC && DMC)
+            else if( trigger.EqualTo("8e") ) triggerSetTemp = 3; // EG2 4GeV (EMC && DMC)
             else if( trigger.EqualTo("74") ) triggerSetTemp = 4; // VHM
             else if( trigger.EqualTo("76") ) triggerSetTemp = 5; // VHM+SPD2
             else if( trigger.EqualTo("62") ) triggerSetTemp = 6; // PHOS VZERO 4GeV
@@ -5436,6 +5470,7 @@
                                     fNRebin[i]      = fBinsPi013TeVPCMEMCTrigEG2PtRebin[i];
                                 } else if (specialTrigg==2 || specialTrigg == 5){
                                     fNRebin[i]      = fBinsPi013TeVPCMEMCTrigEG1PtRebin[i];
+
                                 }
                             } else if (modi == 3){ //PCM-PHOS
                                 if (energy.Contains("RBins")){
@@ -5483,7 +5518,17 @@
                                         }
                                     break;
                                 }
-                            } else {
+                            } else if(modi == 10){
+                              if (specialTrigg == 0 || specialTrigg == 4 || specialTrigg == 5){
+                                  fNRebin[i]      = fBinsPi013TeVEMCMergedTrigINT7PtRebin[i];
+                              } else if (specialTrigg==1){
+                                  fNRebin[i]      = fBinsPi013TeVEMCMergedTrigINT7PtRebin[i];
+                              } else if (specialTrigg==3){
+                                  fNRebin[i]      = fBinsPi013TeVEMCMergedTrigEG2PtRebin[i];
+                              } else if (specialTrigg==2){
+                                  fNRebin[i]      = fBinsPi013TeVEMCMergedTrigEG1PtRebin[i];
+                              }
+                            }else {
                                 fNRebin[i]      = fBinsPi013TeVPCMEMCTrigINT7PtRebin[i];
                             }
                         }
@@ -6549,7 +6594,7 @@
                 }
                 cout<<"Rebin: "<<energy<<" "<<setPi0<<endl;
                 GetOptimumNColumnsAndRows(fNBinsPt, fStartPtBin, fColumn, fRow);
-                if( setPi0.EqualTo("Eta") ) {
+                if( setPi0.EqualTo("Eta") || setPi0.EqualTo("Pi0EtaBinning") ) {
                     switch(modi) {
                         case 0: //PCM-PCM
                             cout<<"Rebin Case PCM-PCM"<<endl;
@@ -6614,6 +6659,7 @@
                             break;
                         case 4:
                             switch(specialTrigg) {
+
                                 case 0: CopyVectorToArray(fBinsEta13TeVEMCTrigINT7PtRebin,fNRebin); break;
                                 case 2: CopyVectorToArray(fBinsEta13TeVEMCTrigEG1PtRebin, fNRebin); break;
                                 case 3: CopyVectorToArray(fBinsEta13TeVEMCTrigEG2PtRebin, fNRebin); break;

@@ -737,6 +737,9 @@ do
         CORRECT=1
     elif [ $answer = "4" ] || [ $answer = "104" ]; then
         echo -e "--> You are analysing EMCAL-EMCAL output\n";
+        NEVTSTOY=1e6
+        MINPTTOY=0.1
+        MAXPTTOY=100
         MODE=$answer
         ADVMESONQA="AdvancedMesonQA"
         CORRECT=1
@@ -849,7 +852,7 @@ do
         EXTINPUTFILE="ExternalInput/IdentifiedCharged/ChargedIdentifiedSpectraPP_2016_08_14.root";
     elif [ $answer = "13TeV" ] || [ $answer = "13" ]; then
         ENERGY="13TeV";
-        EXTINPUTFILE="ExternalInput/IdentifiedCharged/ChargedIdentifiedSpectraPP_2016_08_14.root";
+        EXTINPUTFILE="ExternalInput/IdentifiedCharged/HIST_pp.13TeV.mb.INEL.PREL_12062017.root";
     elif [ $answer = "13TeVRBins" ] ; then
         ENERGY="13TeVRBins";
         EXTINPUTFILE="ExternalInput/IdentifiedCharged/ChargedIdentifiedSpectraPP_2016_08_14.root";
@@ -1098,6 +1101,10 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                 echo -e "--> Gaussian with Signal To Background Fit Option  chosen ...\n";
                 CORRECT=1
                 crystal=GaussianRatio
+            elif [ $answer = "GaussianWOLinear" ] || [ $answer = "WOLinear" ]; then
+                echo -e "--> Gaussian without linear back chosen ...\n";
+                CORRECT=1
+                crystal=GausWOLinear
             else
                 echo "--> Command \"$answer\" not found. Please try again."
             fi
