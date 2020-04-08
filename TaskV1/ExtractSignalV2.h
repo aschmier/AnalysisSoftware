@@ -213,6 +213,7 @@
     Double_t*    fMesonLambdaTailRangeMC                                    = nullptr;
     Double_t*    fMidPt                                                     = nullptr;
     Double_t*    fFullPt                                                    = nullptr;
+    Double_t     FitRangeSigBckRatioOption                                  = 0;
 
     //****************************************************************************
     //************************ correction histograms *****************************

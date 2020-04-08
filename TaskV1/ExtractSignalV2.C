@@ -4020,8 +4020,13 @@ Double_t FitFunctionPHOSBck(Double_t *x, Double_t *par){
 Double_t FitFunctionPHOSBckPol1(Double_t *x, Double_t *par){
     Double_t result=0;
     Double_t xx=x[0];
-    if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+    FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+    FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+    //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
     //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+    if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
         ;
         TF1::RejectPoint();
         //return 0;
@@ -4034,8 +4039,20 @@ Double_t FitFunctionPHOSBckPol1(Double_t *x, Double_t *par){
 Double_t FitFunctionPHOSBckPol2(Double_t *x, Double_t *par){
     Double_t result=0;
     Double_t xx=x[0];
-    if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+    if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+        //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+        FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+        FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+    } else {
+        //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+        FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+        FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+    }
+    //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
     //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+    if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
         ;
         TF1::RejectPoint();
         //return 0;
@@ -4051,7 +4068,6 @@ void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) 
     Double_t CurrentNumberOfZeroesRatio;
     Double_t FitRangeSigBckRatioMin;
     Double_t FitRangeSigBckRatioMax;
-    Double_t FitRangeSigBckRatioOption=3;
     if (FitRangeSigBckRatioOption == 1){
         //PHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]=0.19; PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]=0.17
         FitRangeSigBckRatioMin=fBGFitRangeLeft[1];
