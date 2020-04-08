@@ -848,7 +848,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         }
 
         // Initialize default BG fit range right & left
-        if(mode == 40 || mode == 60){
+        if(mode == 40 || mode == 60){ //PCM
             fBGFitRange[0]                = 0.83;
             fBGFitRange[1]                = 0.88;
             fBGFitRange_SubPiZero[0]      = fBGFitRange[0]; //
@@ -861,7 +861,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_SubPiZero[1]             = fBGFitRangeLeft[1];
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
-        } else if (mode == 41 || mode == 61){
+        } else if (mode == 41 || mode == 61){ //PCM-EMCAL
             fBGFitRange[0]                = 0.825;
             fBGFitRange[1]                = 0.865;
             fBGFitRange_SubPiZero[0]      = fBGFitRange[0]; //
@@ -874,7 +874,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_SubPiZero[1]             = fBGFitRangeLeft[1];
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
-        } else if (mode == 42 || mode == 62){
+        } else if (mode == 42 || mode == 62){ //PCM-PHOS
             fBGFitRange[0]                = 0.815;
             fBGFitRange[1]                = 0.85;
             fBGFitRange_SubPiZero[0]      = fBGFitRange[0]; //
@@ -887,7 +887,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_SubPiZero[1]             = fBGFitRangeLeft[1];
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
-        } else if (mode == 44 || mode == 64){
+        } else if (mode == 44 || mode == 64){ //EMCAL
             fBGFitRange[0]                = 0.88;
             fBGFitRange[1]                = 0.97;
             fBGFitRange_SubPiZero[0]      = fBGFitRange[0]; //
@@ -900,7 +900,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_SubPiZero[1]             = fBGFitRangeLeft[1];
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
-        } else if (mode == 45 || mode == 65){
+        } else if (mode == 45 || mode == 65){ //PHOS
             fBGFitRange[0]                = 0.81;
             fBGFitRange[1]                = 0.85;
             fBGFitRange_SubPiZero[0]      = fBGFitRange[0]; //
@@ -923,35 +923,35 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         }
 
         // Initialize default Plot default integration ranges
-        if(mode == 40 || mode == 60){
+        if(mode == 40 || mode == 60){ //PCM
             fMesonIntDeltaRange[0]      = -0.035;
             fMesonIntDeltaRange[1]      =  0.035;
             fMesonIntDeltaRangeWide[0]  = -0.05;
             fMesonIntDeltaRangeWide[1]  = 0.05;
             fMesonIntDeltaRangeNarrow[0]= -0.025;
             fMesonIntDeltaRangeNarrow[1]= 0.025;
-        } else if(mode == 41 || mode == 61){
+        } else if(mode == 41 || mode == 61){ //PCM-EMCAL
             fMesonIntDeltaRange[0]      = -0.035;
             fMesonIntDeltaRange[1]      =  0.035;
             fMesonIntDeltaRangeWide[0]  = -0.05;
             fMesonIntDeltaRangeWide[1]  = 0.05;
             fMesonIntDeltaRangeNarrow[0]= -0.025;
             fMesonIntDeltaRangeNarrow[1]= 0.025;
-        } else if(mode == 42 || mode == 62){
+        } else if(mode == 42 || mode == 62){ //PCM-PHOS
             fMesonIntDeltaRange[0]      = -0.03;
             fMesonIntDeltaRange[1]      =  0.03;
             fMesonIntDeltaRangeWide[0]  = -0.05;
             fMesonIntDeltaRangeWide[1]  = 0.05;
             fMesonIntDeltaRangeNarrow[0]= -0.02;
             fMesonIntDeltaRangeNarrow[1]= 0.02;
-        } else if(mode == 44 || mode == 64){
+        } else if(mode == 44 || mode == 64){ //EMCAL
             fMesonIntDeltaRange[0]      = -0.065;
             fMesonIntDeltaRange[1]      =  0.065;
             fMesonIntDeltaRangeWide[0]  = -0.08;
             fMesonIntDeltaRangeWide[1]  = 0.08;
             fMesonIntDeltaRangeNarrow[0]= -0.04;
             fMesonIntDeltaRangeNarrow[1]= 0.04;
-        } else if( mode == 45 || mode == 65){
+        } else if( mode == 45 || mode == 65){ //PHOS
             fMesonIntDeltaRange[0]      = -0.04;
             fMesonIntDeltaRange[1]      =  0.04;
             fMesonIntDeltaRangeWide[0]  = -0.06;
@@ -976,7 +976,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fMesonMassRange_SubPiZero[1]          = fMesonMassRange[1];
             fMesonMassRange_FixedPzPiZero[0]      = fMesonMassRange[0];
             fMesonMassRange_FixedPzPiZero[1]      = fMesonMassRange[1];
-        } else if(mode == 41 || mode == 61){
+        } else if(mode == 41 || mode == 61){ //PCM-EMCAL
             fMesonMassPlotRange[0]                = 0.66;
             fMesonMassPlotRange[1]                = 0.89;
             fMesonMassPlotRange_SubPiZero[0]      = fMesonMassPlotRange[0];
@@ -990,7 +990,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fMesonMassRange_SubPiZero[1]          = fMesonMassRange[1];
             fMesonMassRange_FixedPzPiZero[0]      = fMesonMassRange[0];
             fMesonMassRange_FixedPzPiZero[1]      = fMesonMassRange[1];
-        } else if(mode == 44 || mode == 64){
+        } else if(mode == 44 || mode == 64){ //EMCAL
             fMesonMassPlotRange[0]                = 0.6;
             fMesonMassPlotRange[1]                = 0.99;
             fMesonMassPlotRange_SubPiZero[0]      = fMesonMassPlotRange[0];
@@ -1007,7 +1007,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         }
 
          // Set meson fit range
-         if(mode == 40 || mode == 60){
+         if(mode == 40 || mode == 60){ //PCM
              fMesonFitRange[0]                 = 0.59;
              fMesonFitRange[1]                 = 0.99;
 
@@ -1016,7 +1016,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
              fMesonFitRange_FixedPzPiZero[0]   = fMesonFitRange[0];
              fMesonFitRange_FixedPzPiZero[1]   = fMesonFitRange[1];
-         } else if (mode == 41 || mode == 61){
+         } else if (mode == 41 || mode == 61){ //PCM-EMCAL
              fMesonFitRange[0]                 = 0.65;
              fMesonFitRange[1]                 = 0.87;
 
@@ -1025,7 +1025,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
              fMesonFitRange_FixedPzPiZero[0]   = fMesonFitRange[0];
              fMesonFitRange_FixedPzPiZero[1]   = fMesonFitRange[1];
-         } else if (mode == 42 || mode == 62){
+         } else if (mode == 42 || mode == 62){ //PCM-PHOS
              fMesonFitRange[0]                 = 0.68;
              fMesonFitRange[1]                 = 0.85;
 
@@ -1034,7 +1034,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
              fMesonFitRange_FixedPzPiZero[0]   = fMesonFitRange[0];
              fMesonFitRange_FixedPzPiZero[1]   = fMesonFitRange[1];
-         } else if (mode == 44 || mode == 64){
+         } else if (mode == 44 || mode == 64){ //EMCAL
              fMesonFitRange[0]                 = 0.65;
              fMesonFitRange[1]                 = 0.87;
 
@@ -1044,7 +1044,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonFitRange_FixedPzPiZero[0]   = fMesonFitRange[0] ;
              fMesonFitRange_FixedPzPiZero[1]   = fMesonFitRange[1] ;
 
-         } else if (mode == 45 || mode == 65){
+         } else if (mode == 45 || mode == 65){ //PHOS
              fMesonFitRange[0]                 = 0.70;
              fMesonFitRange[1]                 = 0.87;
 
@@ -1056,7 +1056,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
          }
 
          // Set remaining parameters for fitting
-         if(mode == 40 || mode == 60){
+         if(mode == 40 || mode == 60){ //PCM
              fMesonWidthExpect            = 0.010;
              fMesonWidthRange[0]          = 0.001;
              fMesonWidthRange[1]          = 0.100;
@@ -1078,7 +1078,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
 
-         } else if(mode == 41 || mode == 61){
+         } else if(mode == 41 || mode == 61){ //PCM-EMCAL
              fMesonWidthExpect           = 0.012;
              fMesonWidthRange[0]         = 0.001;
              fMesonWidthRange[1]         = 0.055;
@@ -1099,7 +1099,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthExpectMC   = fMesonWidthExpect;
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
-         } else if(mode == 42 || mode == 62){
+         } else if(mode == 42 || mode == 62){ //PCM-PHOS
              fMesonWidthExpect           = 0.01;
              fMesonWidthRange[0]         = 0.001;
              fMesonWidthRange[1]         = 0.070;
@@ -1120,7 +1120,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthExpectMC   = fMesonWidthExpect;
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
-         } else if(mode == 44 || mode == 64){
+         } else if(mode == 44 || mode == 64){ //EMCAL
              fMesonWidthExpect           = 0.06;
              fMesonWidthRange[0]         = 0.005;
              fMesonWidthRange[1]         = 0.030;
@@ -1141,7 +1141,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthExpectMC   = fMesonWidthExpect;
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
-         } else if(mode == 45 || mode == 65){
+         } else if(mode == 45 || mode == 65){ //PHOS
              fMesonWidthExpect           = 0.040;
              fMesonWidthRange[0]         = 0.005;
              fMesonWidthRange[1]         = 0.120;

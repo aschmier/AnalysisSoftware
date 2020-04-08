@@ -5383,7 +5383,9 @@ void IntegrateFitFunc(TF1 * fFunc, TH1D *  fHistoMappingSignalInvMassPtBinSingle
 
 void FillHistosArrayMC(TH1D* fHistoMCMesonPtWithinAcceptanceFill, TH1D * fHistoMCMesonPtFill, TH1D * fDeltaPtFill, TString nameCanvas)
 {
+    Int_t debugLevel=0;
 //    Char_t nameHisto[100] = "fHistoMCMesonPtEtaWithinAcceptance";
+    if (debugLevel>=1){cout<<"Debug Output, ExtractSignalPiPlPiMiPiZero.C, FillHistosArrayMC(), Line: "<<__LINE__<<"; fNBinsPt: "<<fNBinsPt<<"; fBinsPt: "<<fBinsPt<<"; fDeltaPtFill: "<<fDeltaPtFill<<endl;}
     fHistoMCMesonPtWithinAcceptanceFill->Sumw2();
     fHistoMCMesonWithinAccepPt = (TH1D*)fHistoMCMesonPtWithinAcceptanceFill->Rebin(fNBinsPt,"",fBinsPt); // Proper bins in Pt
     fHistoMCMesonWithinAccepPt->Divide(fDeltaPtFill);
@@ -5409,6 +5411,7 @@ TH1D* CalculateMesonEfficiency( TH1D* fMC_fMesonYieldsPt,
                                 TH1D* fHistoMCMesonWithinAccepPt,
                                 TString nameEfi
                               ){
+    Int_t debugLevel=1;
     fHistoMCMesonEffiPt = new TH1D(nameEfi.Data(),"",fNBinsPt,fBinsPt);
 
     fHistoMCMesonEffiPt->Sumw2();
@@ -5423,7 +5426,9 @@ TH1D* CalculateMesonEfficiency( TH1D* fMC_fMesonYieldsPt,
 
     fHistoMCMesonEffiPt->Divide(fHistoMCMesonEffiPt,fHistoMCMesonWithinAccepPt,1.,1.,"B");
     fFileDataLog << endl << "Calculation of the Efficiency" << nameEfi.Data()<< endl;
+    if (debugLevel>=1){cout<<"Debug Output, ExtractSignalPiPlPiMiPiZero.C, CalculateMesonEfficiency(), Line: "<<__LINE__<<":"<<endl;}
     for ( Int_t i = 1; i < fHistoMCMesonEffiPt->GetNbinsX()+1 ; i++){
+        if (debugLevel>=1){cout<<"Bin " << i << "\t" << fHistoMCMesonEffiPt->GetBinCenter(i)<< "\t"<< fHistoMCMesonEffiPt->GetBinContent(i) << "\t" << fHistoMCMesonEffiPt->GetBinError(i) <<endl;}
         fFileDataLog << "Bin " << i << "\t" << fHistoMCMesonEffiPt->GetBinCenter(i)<< "\t"<< fHistoMCMesonEffiPt->GetBinContent(i) << "\t" << fHistoMCMesonEffiPt->GetBinError(i) <<endl;
     }
     fHistoMCMesonEffiFitPt = (TH1D*)fHistoMCMesonEffiPt->Clone(Form("%s_Fit",nameEfi.Data()));
