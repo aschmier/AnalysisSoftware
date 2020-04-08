@@ -144,6 +144,8 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     StyleSettingsThesis();
     SetPlotStyle();
 
+    Int_t debugLevel = 0;
+
     Bool_t useErrFunctionAsDefault = kTRUE;
 
     TString dateForOutput           = ReturnDateStringForOutput();
@@ -188,23 +190,23 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
 
     Size_t textSizeSpectra          = 0.04;
     Int_t textSizePixelSpectra      = textSizeSpectra*1000;
-    const Int_t MaxNumberOfFiles    = 12;
+    const Int_t MaxNumberOfFiles    = 13;
 
-    Color_t colorTrigg      [12]    = { kBlack, kBlack, kBlack, kBlack, kBlack,
+    Color_t colorTrigg      [13]    = { kBlack, kBlack, kBlack, kBlack, kBlack,
                                         kBlack, kBlack, kBlack, kBlack, kBlack,
-                                        kBlack, kBlack  };
-    Color_t colorTriggShade [12]    = { kGray+1, kGray+1, kGray+1, kGray+1, kGray+1,
+                                        kBlack, kBlack, kBlack  };
+    Color_t colorTriggShade [13]    = { kGray+1, kGray+1, kGray+1, kGray+1, kGray+1,
                                         kGray+1, kGray+1, kGray+1, kGray+1, kGray+1,
-                                        kGray+1, kGray+1 };
-    Marker_t markerTrigg    [12]    = { 20, 20, 20, 20, 20,
+                                        kGray+1, kGray+1, kGray+1 };
+    Marker_t markerTrigg    [13]    = { 20, 20, 20, 20, 20,
                                         20, 20, 20, 20, 20,
-                                        20, 20 };
-    Marker_t markerTriggMC  [12]    = { 24, 24, 24, 24, 24,
+                                        20, 20, 20 };
+    Marker_t markerTriggMC  [13]    = { 24, 24, 24, 24, 24,
                                         24, 24, 24, 24, 24,
-                                        24, 24 };
-    Size_t sizeTrigg        [12]    = { 1.5, 1.5, 1.5, 1.5, 1.5,
+                                        24, 24, 24 };
+    Size_t sizeTrigg        [13]    = { 1.5, 1.5, 1.5, 1.5, 1.5,
                                         1.5, 1.5, 1.5, 1.5, 1.5,
-                                        1.5, 1.5 };
+                                        1.5, 1.5, 1.5 };
 
     TString strEG2_A = "EG2";
     if(optionEnergy.CompareTo("8TeV")==0) strEG2_A = "EGA";
@@ -1653,7 +1655,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         canvasEffi->cd();
         histo2DEffiOmega->DrawCopy();
 
-        TGraphErrors* graphEffBaseOmega[12]   = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+        TGraphErrors* graphEffBaseOmega[13]   = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
         TLegend* legendEffiOmegaW0TriggEff    = GetAndSetLegend2(0.62, 0.13, 0.95, 0.13+(1.05*nrOfTrigToBeComb/2*0.85*textSizeSpectra),28);
         legendEffiOmegaW0TriggEff->SetNColumns(2);
         for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
@@ -2149,15 +2151,15 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         }
     }
     // definition of predefined arrays for trigger correlation filling
-    TH1D*               histoStatOmega    [12];
-    TGraphAsymmErrors*  graphSystOmega    [12];
-    TH1D*               histoRelStatOmega [12];
-    TGraphAsymmErrors*  graphRelSystOmega [12];
+    TH1D*               histoStatOmega    [MaxNumberOfFiles];
+    TGraphAsymmErrors*  graphSystOmega    [MaxNumberOfFiles];
+    TH1D*               histoRelStatOmega [MaxNumberOfFiles];
+    TGraphAsymmErrors*  graphRelSystOmega [MaxNumberOfFiles];
 
-    Int_t offSetsOmega[12]        =   { 0, 0, 0, 0, 0, 0,
-                                      0, 0, 0, 0, 0, 0 };
-    Int_t offSetsOmegaSys[12]     =   { 0, 0, 0, 0, 0, 0,
-                                      0, 0, 0, 0, 0, 0 };
+    Int_t offSetsOmega[13]        =   { 0, 0, 0, 0, 0, 0,
+                                      0, 0, 0, 0, 0, 0, 0 };
+    Int_t offSetsOmegaSys[13]     =   { 0, 0, 0, 0, 0, 0,
+                                      0, 0, 0, 0, 0, 0, 0 };
 
     if(optionEnergy.CompareTo("8TeV")==0){
       if(mode == 2){
@@ -2177,7 +2179,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     }
 
     // set all graphs to NULL first
-    for (Int_t j = 0; j<12; j++){
+    for (Int_t j = 0; j<MaxNumberOfFiles; j++){
         histoStatOmega[j]                 = NULL;
         graphSystOmega[j]                 = NULL;
         histoRelStatOmega[j]              = NULL;
@@ -2283,7 +2285,12 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         graphsCorrectedYieldRemoved0Omega[i]      = new TGraphAsymmErrors(histoCorrectedYieldOmegaScaled[i]);
         graphsCorrectedYieldSysShrunkOmega[i]     = new TGraphAsymmErrors(histoCorrectedYieldOmegaScaled[i]);
         graphsCorrectedYieldSysRemoved0Omega[i]   = new TGraphAsymmErrors(histoCorrectedYieldOmegaScaled[i]);
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         histoCorrectedYieldOmegaScaledMasked[i]   = (TH1D*)histoCorrectedYieldOmegaScaled[i]->Clone(Form("Omega_ScaledMasked_%s",triggerName[i].Data()));
+        if (debugLevel >= 1 ){
+            cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<"; histoCorrectedYieldOmegaScaledMasked["<<i<<"]->GetNbinsX(): ";
+            cout<<histoCorrectedYieldOmegaScaledMasked[i]->GetNbinsX()<<endl;
+        }
 
         // create supporting figure graphs
         if (mode != 10){ // these are not available for merged cluster analysis
@@ -2321,6 +2328,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
 
         // remove 0 bins at beginning
         Int_t binsToMask = 1;
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         while (histoCorrectedYieldOmegaScaledMasked[i]->GetBinCenter(binsToMask) < ptFromSpecOmega[i][0] ){
             histoCorrectedYieldOmegaScaledMasked[i]->SetBinContent(binsToMask,0.);
             histoCorrectedYieldOmegaScaledMasked[i]->SetBinError(binsToMask,0.);
@@ -2364,6 +2372,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                 graphEfficiencySecOmega[k][i]         = NULL;
             }
             sysAvailOmega[i]          = kFALSE;
+            if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
             for (Int_t f = 1; f < histoCorrectedYieldOmegaScaledMasked[i]->GetNbinsX()+1; f++ ){
                 histoCorrectedYieldOmegaScaledMasked[i]->SetBinContent(f,0.);
                 histoCorrectedYieldOmegaScaledMasked[i]->SetBinError(f,0.);
@@ -2524,15 +2533,24 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
             nPointFinalOmega++;
         }
 
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         // Set correct trigger order for combination function
         Int_t nCorrOrder    = GetOrderedTrigger(triggerName[i]);
         if (nCorrOrder == -1){
             cout << "ERROR: trigger name not defined" << endl;
             return;
         }
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<"; nCorrOrder: "<<nCorrOrder<<endl;}
 
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
+        if (debugLevel >= 1 ){
+            cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<"; histoCorrectedYieldOmegaScaledMasked["<<i<<"]->GetNbinsX(): ";
+            cout<<histoCorrectedYieldOmegaScaledMasked[i]->GetNbinsX()<<endl;
+        }
         if ( graphsCorrectedYieldShrunkOmega[i]){
+            if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
             histoStatOmega[nCorrOrder]    = histoCorrectedYieldOmegaScaledMasked[i];
+            if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<"; histoCorrectedYieldOmegaScaledMasked["<<i<<"]: "<<histoCorrectedYieldOmegaScaledMasked[i]<<endl;}
             graphSystOmega[nCorrOrder]    = graphsCorrectedYieldSysShrunkOmega[i];
             offSetsOmegaSys[nCorrOrder]   = histoStatOmega[nCorrOrder]->GetXaxis()->FindBin(graphSystOmega[nCorrOrder]->GetX()[0])-1;
             if (graphMassOmegaData[i])
@@ -2565,6 +2583,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                 }
             }
         }
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         if (triggerName[i].Contains("INT7") && optionEnergy.CompareTo("8TeV")==0 && mode == 2)
             offSetsOmegaSys[1]+=3;
         if (triggerName[i].Contains("EMC7") && optionEnergy.CompareTo("7TeV")==0)
@@ -2576,6 +2595,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     }
 
 
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     // create weighted graphs for spectra and supporting graphs
     TString nameWeightsLogFileOmega =     Form("%s/weightsOmega_%s.dat",outputDir.Data(),isMC.Data());
     TGraphAsymmErrors* graphCorrectedYieldWeightedAverageOmegaStat    = NULL;
@@ -2593,12 +2613,23 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     TGraphAsymmErrors* graphEffectSecCorrOmegaWeighted[4]             = {NULL, NULL, NULL, NULL};
     TGraphAsymmErrors* graphEfficiencySecOmegaWeighted[4]             = {NULL, NULL, NULL, NULL};
 
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     for (Int_t k = 0; k < 30; k++){
         graphRelSysErrOmegaSourceWeighted[k]                          = NULL;
     }
     // Calculate averaged Omega spectrum & respective supporting graphs according to statistical and systematic errors taking correctly into account the cross correlations
     if (averagedOmega){
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         cout << maxNBinsOmega << endl;
+        if (debugLevel >= 1 ){
+            if (histoStatOmega[0]==NULL){
+                cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<"; histoStatOmega[0]==NULL"<<endl;
+            } else if (histoStatOmega[11]==NULL){
+                cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<"; histoStatOmega[11]==NULL"<<endl;
+            } else if (histoStatOmega[12]==NULL){
+                cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<"; histoStatOmega[12]==NULL"<<endl;
+            }
+        }
         // Calculate average Omega spectrum
         graphCorrectedYieldWeightedAverageOmegaTot        = CombinePtPointsSpectraTriggerCorrMat(    histoStatOmega, graphSystOmega,
                                                                                                    binningOmega,  maxNBinsOmega,
@@ -2611,18 +2642,21 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
 
         cout << "managed combination!!!!" << endl;
 
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         // preparations for weight readout
         Double_t xValuesReadOmega[100];
-        Double_t weightsReadOmega[12][100];
-        Int_t availableMeasOmega[12]       = {-1, -1, -1, -1, -1, -1,
-                                            -1, -1, -1, -1, -1, -1};
+        Double_t weightsReadOmega[MaxNumberOfFiles][100];
+        Int_t availableMeasOmega[13]       = {-1, -1, -1, -1, -1, -1,
+                                            -1, -1, -1, -1, -1, -1,
+                                             -1};
         Int_t nMeasSetOmega               = nrOfTrigToBeCombOmegaRed;
         Int_t nPtBinsReadOmega            = 0;
 
         // labeling and plotting settings
-        TString nameTriggerWeighted[12]  = {"INT1", "INT7", "EMC1", "EMC7", strEG2_A.Data(), "EG1",
-                                            "INT1_NLM1", "INT7_NLM1", "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1"};
-        Color_t colorTriggWeighted[12]   = {GetDefaultTriggerColorName(nameTriggerWeighted[0], 0),
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
+        TString nameTriggerWeighted[13]  = {"INT1", "INT7", "EMC1", "EMC7", strEG2_A.Data(), "EG1",
+                                            "INT1_NLM1", "INT7_NLM1", "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1", "PHI7"};
+        Color_t colorTriggWeighted[13]   = {GetDefaultTriggerColorName(nameTriggerWeighted[0], 0),
                                            GetDefaultTriggerColorName(nameTriggerWeighted[1], 0),
                                            GetDefaultTriggerColorName(nameTriggerWeighted[2], 0),
                                            GetDefaultTriggerColorName(nameTriggerWeighted[3], 0),
@@ -2633,9 +2667,10 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                                            GetDefaultTriggerColorName(nameTriggerWeighted[8], 0),
                                            GetDefaultTriggerColorName(nameTriggerWeighted[9], 0),
                                            GetDefaultTriggerColorName(nameTriggerWeighted[10], 0),
-                                           GetDefaultTriggerColorName(nameTriggerWeighted[11], 0)
+                                           GetDefaultTriggerColorName(nameTriggerWeighted[11], 0),
+                                           GetDefaultTriggerColorName(nameTriggerWeighted[12], 0),
                                           };
-        Marker_t markerTriggWeighted[12] = {GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[0], 0),
+        Marker_t markerTriggWeighted[13] = {GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[0], 0),
                                            GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[1], 0),
                                            GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[2], 0),
                                            GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[3], 0),
@@ -2646,10 +2681,12 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                                            GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[8], 0),
                                            GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[9], 0),
                                            GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[10], 0),
-                                           GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[11], 0)
+                                           GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[11], 0),
+                                           GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[12], 0),
                                           };
 
         // Reading weights from output file for plotting
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         ifstream fileWeightsOmega;
         fileWeightsOmega.open(nameWeightsLogFileOmega,ios_base::in);
         cout << "reading" << nameWeightsLogFileOmega << endl;
@@ -2683,8 +2720,9 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         fileWeightsOmega.close();
 
         // creating & filling the weight graphs
-        TGraph* graphWeightsOmega[12];
-        for (Int_t i = 0; i < 12; i++){
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
+        TGraph* graphWeightsOmega[MaxNumberOfFiles];
+        for (Int_t i = 0; i < MaxNumberOfFiles; i++){
             graphWeightsOmega[i]                    = NULL;
         }
         for (Int_t i = 0; i < nMeasSetOmega; i++){
@@ -2702,6 +2740,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         //  **********************************************************************************************************************
         //  ******************************************* Plotting weights Omega *****************************************************
         //  **********************************************************************************************************************
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         Int_t textSizeLabelsPixel = 900*0.04;
 
         TCanvas* canvasWeights = new TCanvas("canvasWeights","",200,10,1350,900);// gives the page size
@@ -2745,8 +2784,9 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         canvasWeights->SaveAs(Form("%s/%s_WeightsOmegaTriggers.%s",outputDir.Data(), isMC.Data(), suffix.Data()));
         delete canvasWeights;
 
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         // Calculating relative error for Omega
-        for (Int_t i = 0; i < 12; i++){
+        for (Int_t i = 0; i < MaxNumberOfFiles; i++){
             if (histoStatOmega[i])
                 histoRelStatOmega[i]      = CalculateRelErrUpTH1D( histoStatOmega[i], Form("relativeStatErrorOmega_%s", nameTriggerWeighted[i].Data()));
             if (graphSystOmega[i])
@@ -2825,6 +2865,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
 
 
         // plot stat relative errors for individual triggers
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         TCanvas* canvasRelStatErr           = new TCanvas("canvasRelStatErr","",200,10,1350,900);  // gives the page size
         DrawGammaCanvasSettings( canvasRelStatErr, 0.08, 0.02, 0.035, 0.09);
 
@@ -2864,6 +2905,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         canvasRelStatErr->SaveAs(Form("%s/Omega_RelStatErr_SingleMeas.%s",outputDir.Data(),suffix.Data()));
 
         // plot full error for final result decomposed
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         TCanvas* canvasRelTotErr            = new TCanvas("canvasRelTotErr","",200,10,1350,900);  // gives the page size
         DrawGammaCanvasSettings( canvasRelTotErr, 0.08, 0.02, 0.035, 0.09);
 
@@ -2913,6 +2955,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
 //         return;
 
         // Calculation of averaged supporting plots with weights from spectra
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         if (mode != 10){
             graphMassOmegaDataWeighted                    = CalculateWeightedQuantity(    graphOrderedMassOmegaData,
                                                                                         graphWeightsOmega,
@@ -2965,6 +3008,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
             return;
         }
 
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
 
         for (Int_t k = 0; k< 4; k++){
             cout << "calculating effective sec corr: " << k << endl;
@@ -3011,6 +3055,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                                                                                         binningOmega,  maxNBinsOmega,
                                                                                         MaxNumberOfFiles
                                                                                     );
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
 
         if (!graphEffTimesAccOmegaWeighted){
             cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -3019,6 +3064,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
 
 
         // remove points in spectrum which should have been masked
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         if (mode != 10){
             if (graphMassOmegaDataWeighted)
                 while (graphMassOmegaDataWeighted->GetY()[0] == -10000 )   graphMassOmegaDataWeighted->RemovePoint(0);
@@ -3052,6 +3098,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
             while (graphEffTimesAccOmegaWeighted->GetY()[0] == -10000)    graphEffTimesAccOmegaWeighted->RemovePoint(0);
         else
             cout << "I don't have a weighted Omega acceptance x efficiency graph" << endl;
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
 
         for (Int_t k = 0; k< 4; k++){
             if (graphEffectSecCorrOmegaWeighted[k])
@@ -3068,6 +3115,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         //  **************************************** Combine+write detailed Systematics ******************************************
         //  **********************************************************************************************************************
 
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         const char *SysErrDatnameMeanSingleErr = Form("%s/SystematicErrorAveragedSingle%s_Omega_%s.dat",outputDir.Data(),sysStringComb.Data(),optionEnergy.Data());
         fstream SysErrDatAverSingle;
         SysErrDatAverSingle.precision(4);
@@ -3100,6 +3148,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         // ***************************************************************************************************
         // ********************* Plot all mean erros separately after smoothing ******************************
         // ***************************************************************************************************
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         if(sysAvailSingleOmega[0] && graphRelSysErrOmegaSourceWeighted[0]){
             TCanvas* canvasNewSysErrMean = new TCanvas("canvasNewSysErrMean","",200,10,1350,900);// gives the page size
             DrawGammaCanvasSettings( canvasNewSysErrMean, 0.08, 0.01, 0.015, 0.09);
@@ -3158,6 +3207,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
             canvasNewSysErrMean->SaveAs(Form("%s/Omega_SysErrorsSeparatedSourcesReweighted_%s.%s",outputDir.Data(),isMC.Data(),suffix.Data()));
         }
 
+        if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
         for(Int_t iR=0; iR<nrOfTrigToBeComb; iR++){
             for(Int_t iB=0; iB<50; iB++) ptSysDetail[iR][iB].clear();
         }
@@ -3206,6 +3256,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         SysErrDatAverSingleCheck.close();
 
     }
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     // print final graphs
     cout << "stat Omega" << endl;
     graphCorrectedYieldWeightedAverageOmegaStat->Print();
@@ -3436,6 +3487,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //***************************************************************************************************************
     //************************************* Efficiency weighted *****************************************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     if (graphEfficiencyOmegaWeighted){
         DrawGammaCanvasSettings( canvasEffi, 0.09, 0.017, 0.037, 0.08);
         canvasEffi->SetLogy(0);
@@ -3464,6 +3516,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //***************************************************************************************************************
     //************************************* Efficiency weighted *****************************************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     if (graphEffTimesAccOmegaWeighted){
       DrawGammaCanvasSettings( canvasEffi, 0.09, 0.017, 0.015, 0.08);
       canvasEffi->SetLogy(1);
@@ -3502,6 +3555,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //***************************************************************************************************************
     //***************************** Secondary corr factors weighted all separate ************************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     for (Int_t k = 0; k< 4; k++ ){
         if (graphEfficiencySecOmegaWeighted[k]){
             canvasEffi->cd();
@@ -3568,6 +3622,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //***************************************************************************************************************
     //***************************** Secondary corr factors weighted all separate ************************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     Int_t nSecEffis = 0;
     Int_t nSecCorrs = 0;
     for (Int_t k = 0; k<4; k++){
@@ -3609,6 +3664,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //***************************************************************************************************************
     //***************************************** Purity weighted *****************************************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     if (graphPurityOmegaWeighted){
         TCanvas* canvasPurity = new TCanvas("canvasPurity","",0,0,1000,900);// gives the page size
         DrawGammaCanvasSettings( canvasPurity, 0.09, 0.017, 0.015, 0.08);
@@ -3647,6 +3703,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //***************************************************************************************************************
     //************************************* Acceptance weighted *****************************************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     if (graphAcceptanceOmegaWeighted){
         DrawGammaCanvasSettings( canvasAcc, 0.1, 0.017, 0.015, 0.08);
         canvasAcc->cd();
@@ -3676,6 +3733,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //***************************************************************************************************************
     //************************************Plotting scaled invariant yield *****************************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     TCanvas* canvasCorrScaled = new TCanvas("canvasCorrScaled","",0,0,1000,1350);// gives the page size
     DrawGammaCanvasSettings( canvasCorrScaled, 0.15, 0.017, 0.015, 0.07);
     canvasCorrScaled->SetLogy();
@@ -3766,6 +3824,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //************************************Plotting final invariant yield ********************************************
     //***************************************************************************************************************
 
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     histo2DInvYieldScaled->DrawCopy();
     DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldWeightedAverageOmegaSys, 24, 2, kGray+1 , kGray+1, 1, kTRUE);
     graphCorrectedYieldWeightedAverageOmegaSys->Draw("p,E2,same");
@@ -3811,6 +3870,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //***************************************************************************************************************
     //****************************** Ratio to fit for individual spectra full range *********************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     TCanvas* canvasRatioSpec = new TCanvas("canvasRatioSpec","",0,0,1000,900);// gives the page size
     DrawGammaCanvasSettings( canvasRatioSpec, 0.09, 0.017, 0.015, 0.08);
     canvasRatioSpec->SetLogy(0);
@@ -3864,6 +3924,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //****************************** Ratio to fit for individual spectra used range *********************************
     //***************************************************************************************************************
 
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     histo2DRatioToFitOmega->DrawCopy();
 
     TGraphAsymmErrors* graphCorrectedYieldToFitOmegaUsed[MaxNumberOfFiles];
@@ -3900,6 +3961,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //****************************** Ratio to fit for final spectrum ************************************************
     //***************************************************************************************************************
 
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     histo2DRatioToFitOmega->DrawCopy();
 
     TGraphAsymmErrors* graphCorrectedYieldFinalStatToFitOmega;
@@ -3962,6 +4024,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //***************************************************************************************************************
     //************************************Loading pi0 omega binning histograms ****************************************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     TString FileNameCorrectedPi0OmegaBin  [MaxNumberOfFiles];
     TFile* fileCorrectedPi0OmegaBin       [MaxNumberOfFiles];
     Bool_t foundPi0OmegaBinFile           [MaxNumberOfFiles];
@@ -3998,6 +4061,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         //***************************************************************************************************************
     //********************************** setting correct histo names fir pi0 ************************************************
     //***************************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     nameCorrectedYield                          = "CorrectedYieldTrueEff";
     nameEfficiency                              = "TrueMesonEffiPt";
     nameAcceptance                              = "fMCMesonAccepPt";
@@ -4275,14 +4339,16 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
             TH1D* histoOmegaToPi0Masked                       [MaxNumberOfFiles];
 
             // create variables for combination functions
-            TH1D*               histoStatOmegaToPi0   [12];
-            TGraphAsymmErrors*  graphSystOmegaToPi0   [12];
-            TH1D*               histoRelStatOmegaToPi0[12];
-            TGraphAsymmErrors*  graphRelSystOmegaToPi0[12];
-            Int_t offSetsOmegaToPi0[12]           = { 0, 0, 0, 0, 0, 0,
-                                                    0, 0, 0, 0, 0, 0 };
-            Int_t offSetsOmegaToPi0Sys[12]        = { 0, 0, 0, 0, 0, 0,
-                                                    0, 0, 0, 0, 0, 0 };
+            TH1D*               histoStatOmegaToPi0   [MaxNumberOfFiles];
+            TGraphAsymmErrors*  graphSystOmegaToPi0   [MaxNumberOfFiles];
+            TH1D*               histoRelStatOmegaToPi0[MaxNumberOfFiles];
+            TGraphAsymmErrors*  graphRelSystOmegaToPi0[MaxNumberOfFiles];
+            Int_t offSetsOmegaToPi0[13]           = { 0, 0, 0, 0, 0, 0,
+                                                    0, 0, 0, 0, 0, 0,
+                                                    0};
+            Int_t offSetsOmegaToPi0Sys[13]        = { 0, 0, 0, 0, 0, 0,
+                                                    0, 0, 0, 0, 0, 0,
+                                                    0};
 
             if(optionEnergy.CompareTo("8TeV")==0){
               if(mode == 2){
@@ -4298,7 +4364,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
 
 
             Bool_t hasSysOmegaToPi0           = kFALSE;
-            for (Int_t j = 0; j<12; j++){
+            for (Int_t j = 0; j<MaxNumberOfFiles; j++){
                 histoStatOmegaToPi0[j]        = NULL;
                 graphSystOmegaToPi0[j]        = NULL;
                 histoRelStatOmegaToPi0[j]     = NULL;
@@ -4576,15 +4642,17 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                 fileWeightsOmegaToPi0.open(nameWeightsLogFileOmegaToPi0,ios_base::in);
                 cout << "reading" << nameWeightsLogFileOmegaToPi0 << endl;
                 Double_t xValuesReadOmegaToPi0[100];
-                Double_t weightsReadOmegaToPi0[12][100];
-                Int_t availableMeasOmegaToPi0[12]     = { -1, -1, -1, -1, -1, -1,
-                                                        -1, -1, -1, -1, -1, -1};
+                Double_t weightsReadOmegaToPi0[MaxNumberOfFiles][100];
+                Int_t availableMeasOmegaToPi0[13]     = { -1, -1, -1, -1, -1, -1,
+                                                        -1, -1, -1, -1, -1, -1,
+                                                          -1};
                 Int_t nMeasSetOmegaToPi0              = numberOfTrigg;
                 Int_t nPtBinsReadOmegaToPi0           = 0;
 
-                TString nameTriggerWeighted[12]  = {"INT1", "INT7", "EMC1", "EMC7", strEG2_A.Data(), "EG1",
-                                                    "INT1_NLM1", "INT7_NLM1", "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1"};
-                Color_t colorTriggWeighted[12]   = {GetDefaultTriggerColorName(nameTriggerWeighted[0], 0),
+                TString nameTriggerWeighted[13]  = {"INT1", "INT7", "EMC1", "EMC7", strEG2_A.Data(), "EG1",
+                                                    "INT1_NLM1", "INT7_NLM1", "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1",
+                                                   "PHI7"};
+                Color_t colorTriggWeighted[13]   = {GetDefaultTriggerColorName(nameTriggerWeighted[0], 0),
                                                 GetDefaultTriggerColorName(nameTriggerWeighted[1], 0),
                                                 GetDefaultTriggerColorName(nameTriggerWeighted[2], 0),
                                                 GetDefaultTriggerColorName(nameTriggerWeighted[3], 0),
@@ -4595,9 +4663,10 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                                                 GetDefaultTriggerColorName(nameTriggerWeighted[8], 0),
                                                 GetDefaultTriggerColorName(nameTriggerWeighted[9], 0),
                                                 GetDefaultTriggerColorName(nameTriggerWeighted[10], 0),
-                                                GetDefaultTriggerColorName(nameTriggerWeighted[11], 0)
+                                                GetDefaultTriggerColorName(nameTriggerWeighted[11], 0),
+                                                GetDefaultTriggerColorName(nameTriggerWeighted[12], 0)
                                                 };
-                Marker_t markerTriggWeighted[12] = {GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[0], 0),
+                Marker_t markerTriggWeighted[13] = {GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[0], 0),
                                                 GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[1], 0),
                                                 GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[2], 0),
                                                 GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[3], 0),
@@ -4608,7 +4677,8 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                                                 GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[8], 0),
                                                 GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[9], 0),
                                                 GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[10], 0),
-                                                GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[11], 0)
+                                                GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[11], 0),
+                                                GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[12], 0)
                                                 };
 
                 while(!fileWeightsOmegaToPi0.eof() && nPtBinsReadOmegaToPi0 < 100){
@@ -4788,7 +4858,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                 delete canvasWeights;
 
                 // Calculating relative error for omega/pi0
-                for (Int_t i = 0; i < 12; i++){
+                for (Int_t i = 0; i < MaxNumberOfFiles; i++){
                     if (histoStatOmegaToPi0[i])
                         histoRelStatOmegaToPi0[i]      = CalculateRelErrUpTH1D( histoStatOmegaToPi0[i], Form("relativeStatErrorOmegaToPi0_%s", nameTriggerWeighted[i].Data()));
                     if (graphSystOmegaToPi0[i])
@@ -5198,6 +5268,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     //*********************************************************************************************************
     //********************** ComparisonFile Output ************************************************************
     //*********************************************************************************************************
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<endl;}
     TString system              = "PCM";
     if (mode == 2) system       = "PCM-EMCAL";
     if (mode == 3) system       = "PCM-PHOS";
