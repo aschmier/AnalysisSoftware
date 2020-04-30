@@ -26,7 +26,7 @@ sleep 2
 
 ############### global variables
 debug=0
-isjalien=1
+isjalien=0
 ErrorLog=""
 WARNINGLog=""
 pathtocert=""
@@ -59,12 +59,14 @@ MultiTrains=0
 Userunwise=0
 UseOnlyrunwise=0
 SetOutName=""
+OptZip=0
 Usechildsareperiods=0
 newfiles=0
 re='^[0-9]+$'
 
 RunningScripts=0
 OptRunlistNamefile=OptRunlistNames_$RunningScripts.txt
+OptDownloadAll=0
 
 job=$$
 lockfile=$job.lock
@@ -475,15 +477,25 @@ function InitilaizeTrain(){
 	sed -i 's/,/\n/g' $FilenamesinTrain.tmp
 	sed -i 's/ //g' $FilenamesinTrain.tmp
 	new_rm $FilenamesinTrain.tmp2
+	new_rm $FilenamesinTrain
 
-	for Search in `cat $Searchfile`
-	do
-		grep $Search $FilenamesinTrain.tmp >> $FilenamesinTrain.tmp2
-	done
-	# AddToList $FilenamesinTrain.tmp2 $FilenamesinTrain
-	mv $FilenamesinTrain.tmp2 $FilenamesinTrain
-	new_rm $FilenamesinTrain.tmp
-	new_rm $FilenamesinTrain.tmp2
+	if [[ $OptDownloadAll = 1 ]]; then
+		for SearchTMP in `cat $FilenamesinTrain.tmp`; do
+			if [[ ! $SearchTMP = "AnalysisResults.root" ]] && [[ ! $SearchTMP = "EventStat_temp.root" ]]; then
+				echo $SearchTMP >> $FilenamesinTrain
+			fi
+		done
+	else
+		for SearchTMP in `cat $Searchfile`
+		do
+			grep $SearchTMP $FilenamesinTrain.tmp >> $FilenamesinTrain.tmp2
+		done
+		# AddToList $FilenamesinTrain.tmp2 $FilenamesinTrain
+		mv $FilenamesinTrain.tmp2 $FilenamesinTrain
+		new_rm $FilenamesinTrain.tmp
+		new_rm $FilenamesinTrain.tmp2
+	fi
+
 
 	# Loop over all childs
 	unset LIST_child
@@ -586,25 +598,29 @@ function InitilaizeRunlist(){
 			fi
 		fi
 		if [[ $newfiles = 1 ]] || [ ! -f $FileList ]; then
+			cmd="alien_ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null > tmp.txt"
+			eval $cmd
+			usecmd $cmd
 			for Search in `cat $FilenamesinTrain`
 			do
 				if [[ $OptNoRunlist = 0 ]]; then
 					# if [[ $isjalien = 1 ]]; then
 					# 	cmd="alien.py ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null | grep "$Search" > $FileList.tmp"
 					# else
-						cmd="alien_ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+						cmd="cat tmp.txt | grep "$Search" > $FileList.tmp"
 					# fi
 				else
 					# if [[ $isjalien = 1 ]]; then
 					# 	cmd="alien.py ls $AlienDir$child/merge/ 2> /dev/null | grep "$Search" > $FileList.tmp"
 					# else
-						cmd="alien_ls $AlienDir$child/merge/ 2> /dev/null | grep "$Search" > $FileList.tmp"
+						cmd="cat tmp.txt | grep "$Search" > $FileList.tmp"
 					# fi
 				fi
 				eval $cmd
 				usecmd $cmd
 				AddToList $FileList.tmp $FileList
 			done
+			rm tmp.txt
 		fi
 	fi
 
@@ -637,13 +653,24 @@ function ParseSettings(){
 			SetOutName=${setting#*-Name_}
 		elif [[ $setting = "?_"* ]]
 		then
+			if [[ $OptDownloadAll = 1 ]]; then
+				OptDownloadAll=0
+			fi
 			Searchtmp=${setting#*\?_}
-			echo $Searchtmp >> $Searchfile
-			if [[ $Search = ".root" ]]
-			then
+			if [[ $Searchtmp = *".zip" ]]; then
+				if [[ $Search = ".root" ]]; then
+					OptDownloadAll=1
+				fi
+				OptZip=1
 				Search=*$Searchtmp*
 			else
-				Search=$Search'|'*$Searchtmp*
+				echo $Searchtmp >> $Searchfile
+				if [[ $Search = ".root" ]]
+				then
+					Search=*$Searchtmp*
+				else
+					Search=$Search'|'*$Searchtmp*
+				fi
 			fi
 		elif [[ $setting = "-RL_"* ]]
 		then
@@ -872,9 +899,22 @@ function Parsehtml(){
 				then
 					echo -e "\e[33m|-> \e[0m found period" | tee -a $LogFile
 				fi
-				if [[ $NCHilds = "'1'" ]]; then
+				if [[ $NCHilds = "'1'" ]] ; then
 					echo -e "\e[33m|-> \e[0m skipping searching childs" | tee -a $LogFile
 					foundchild=1
+
+					if [[ $OptNoRunlist = 1 ]]; then
+						echo -e "\e[33m|->\e[0m RunlistName = default" | tee -a $LogFile
+						RunlistName="default"
+						RunlistID=1
+						foundRunlists=1
+						RunlistOnTrainpage="$FrameworkDir/DownloadAndDataPrep/runlistsOnTrainpage/runNumbers$ChildName-$RunlistName.txt"
+						LIST_RunlistName+=($RunlistName)
+						LIST_RunlistID+=($RunlistID)
+						LIST_foundRunlists+=($foundRunlists)
+						LIST_RunlistOnTrainpage+=($RunlistOnTrainpage)
+						FindAllRunsAndAddToList $RunlistOnTrainpage
+					fi
 				else
 					found=1
 				fi
@@ -1094,9 +1134,9 @@ function doMergeTrainsPeriods(){
 				# look for availible Files
 				FileList="${BASEDIR}/${MergeTrainsOutname}/$RunlistName/.FileList.txt"
 				if [ -f $FileList ]; then new_rm $FileList; fi
-				for Search in `cat $Searchfile`
+				for SearchTMP in `cat $Searchfile`
 				do
-					cmd="ls $BASEDIR/$singletrainDir/$RunlistName/$Periodname/ | grep "$Search" | grep ".root" >> $FileList"
+					cmd="ls $BASEDIR/$singletrainDir/$RunlistName/$Periodname/ | grep "$SearchTMP" | grep ".root" >> $FileList"
 					eval $cmd
 					usecmd $cmd
 				done
@@ -1161,9 +1201,9 @@ function doMergeTrainsRuns(){
 					# look for availible Files
 					FileList="${BASEDIR}/${MergeTrainsOutname}/$RunlistName/.FileList.txt"
 					if [ -f $FileList ]; then new_rm $FileList; fi
-					for Search in `cat $Searchfile`
+					for SearchTMP in `cat $Searchfile`
 					do
-						cmd="ls $BASEDIR/$singletrainDir/$RunlistName/$Periodname/$runname/ | grep "$Search" | grep ".root" >> $FileList"
+						cmd="ls $BASEDIR/$singletrainDir/$RunlistName/$Periodname/$runname/ | grep "$SearchTMP" | grep ".root" >> $FileList"
 						eval $cmd
 						usecmd $cmd
 					done
@@ -1200,9 +1240,9 @@ function doMergeTrains(){
 			# look for availible Files
 			FileList="${BASEDIR}/${MergeTrainsOutname}/$RunlistName/.FileList.txt"
 			if [ -f $FileList ]; then new_rm $FileList; fi
-			for Search in `cat $Searchfile`
+			for SearchTMP in `cat $Searchfile`
 			do
-				cmd="ls $BASEDIR/$singletrainDir/$RunlistName/ | grep "$Search" | grep ".root" >> $FileList"
+				cmd="ls $BASEDIR/$singletrainDir/$RunlistName/ | grep "$SearchTMP" | grep ".root" >> $FileList"
 				eval $cmd
 				usecmd $cmd
 			done
@@ -1319,14 +1359,51 @@ function doMergeFiles() {
 function SeachFilesOnAlienAndAddToList(){
 	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
 	then
-		echo "SeachFilesOnAlienAndAddToList:" | tee -a $LogFile
+		echo;
+		echo "SeachFilesOnAlienAndAddToList($1,$2):" | tee -a $LogFile
 	fi
-	for Search in `cat $FilenamesinTrain`
+	cmd='alien_ls $1 2> /dev/null > tmp.txt'
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+	then
+		echo "alien_ls $1 2> /dev/null > tmp.txt" | tee -a $LogFile
+	fi
+	eval $cmd
+	tmpcouuntnew=0
+	if [[ ! "$?" = "0" ]]; then
+		printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
+	fi
+	while [[ ! $? = "0" ]]; do
+		if [[ $tmpcouuntnew > 10 ]]; then break; fi
+		printf "${tmpcouuntnew} " | tee -a $LogFile
+		# printf "." | tee -a $LogFile
+		((tmpcouuntnew++))
+		eval $cmd
+	done
+	for SearchTMP in `cat $FilenamesinTrain`
 	do
-		cmd='alien_ls $1 2> /dev/null | grep "$Search" > $2.tmp'
+		cmd='cat tmp.txt | grep "$SearchTMP" > $2.tmp'
 		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
 		then
-			echo $cmd | tee -a $LogFile
+			echo "cat tmp.txt | grep "$SearchTMP" > $2.tmp" | tee -a $LogFile
+		fi
+		eval $cmd
+		# usecmd $cmd
+		AddToList $2.tmp $2
+		new_rm $2.tmp
+	done
+	new_rm  tmp.txt
+}
+function FindPathsAndAddToList(){
+	printf "\e[36m--  FindPathsAndAddToList \e[0m" | tee -a $LogFile
+	if [[ ! -f $2 ]]  || [ "$(( $(date +"%s") - $(stat -c "%Y" $2) ))" -gt "604800" ]; then  # 86400 = 1 Day
+		# if [[ $isjalien = 1 ]]; then
+		# 	cmd="alien.py find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
+		# else
+			cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
+		# fi
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+		then
+			echo "alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp" | tee -a $LogFile
 		fi
 		eval $cmd
 		tmpcouuntnew=0
@@ -1340,33 +1417,12 @@ function SeachFilesOnAlienAndAddToList(){
 			((tmpcouuntnew++))
 			eval $cmd
 		done
-		usecmd $cmd
 		AddToList $2.tmp $2
 		new_rm $2.tmp
-	done
-}
-function FindPathsAndAddToList(){
-	echo  -e "\e[36m--  FindPathsAndAddToList \e[0m" | tee -a $LogFile
-	# if [[ $isjalien = 1 ]]; then
-	# 	cmd="alien.py find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
-	# else
-		cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
-	# fi
-	eval $cmd
-	tmpcouuntnew=0
-	if [[ ! "$?" = "0" ]]; then
-		printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
+		echo;
+	else
+		printf "  \e[33m|->\e[0m is up to date \n" | tee -a $LogFile
 	fi
-	while [[ ! $? = "0" ]]; do
-		if [[ $tmpcouuntnew > 10 ]]; then break; fi
-		printf "${tmpcouuntnew} " | tee -a $LogFile
-		# printf "." | tee -a $LogFile
-		((tmpcouuntnew++))
-		eval $cmd
-	done
-	usecmd $cmd
-	AddToList $2.tmp $2
-	new_rm $2.tmp
 }
 function GrapPathsAndAddToList(){
 	grep $1 $3 > $2.tmp
@@ -1440,9 +1496,9 @@ function GetChilds(){
 	while [[ ! $? = "0" ]] ; do
 		if [[ $tmpcouuntnew > 10 ]]; then break; fi
 		((tmpcouuntnew++))
-		eval $cmd
+		alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2  | tee $1
 		printf "."
-		sleep 1
+		sleep 2
 	done
 }
 # Fuction to check if file is there and download it if not
@@ -1539,6 +1595,7 @@ function GetFile_jalien(){
 	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
 		cat $3 | tee -a $LogFile
 	fi
+
 }
 function GetFile(){
 

@@ -2272,7 +2272,9 @@ void ExtractSignalV2(
 
     if (!fIsMC && meson.Contains("Pi0") ){
         fHaveCocktailInputForSec     = LoadSecondaryPionsFromCocktailFile(cutSelection,optionEnergy);
+        cout << "SECONDARIES: LoadSecondaryPionsFromCocktailFile" << endl;
         if(!fHaveCocktailInputForSec)
+            cout << "SECONDARIES: LoadSecondaryPionsFromExternalFile" << endl;
             fHaveToyMCInputForSec     = LoadSecondaryPionsFromExternalFile();
         if (fHaveCocktailInputForSec){
             cout << "SECONDARIES: I am gonna add the cocktail output to the uncorrected file" << endl;
@@ -5096,21 +5098,26 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
 
                       fMesonLambdaTail                = 0.015;
                       fMesonLambdaTailRange[0]        = 0.01;
-                      fMesonLambdaTailRange[1]        = 0.03;
-
-                      if ( fBinsPt[ptBin] > 5.) {
-                          fMesonWidthExpect               = 0.00168025 + fBinsPt[ptBin] * 0.000841804;
-                          fMesonWidthRange[0]             = fMesonWidthExpect * 0.8;
-                          fMesonWidthRange[1]             = fMesonWidthExpect * 1.2;
+                      fMesonLambdaTailRange[1]        = 0.04;
+                      if ( fBinsPt[ptBin] >= 30.) {
+                          fMesonLambdaTail                = 0.035;
+                          fMesonLambdaTailRange[0]        = 0.03;
+                          fMesonLambdaTailRange[1]        = 0.04;
                       }
-                      if ( fBinsPt[ptBin] > 15.) {
-                          fMesonLambdaTail               = -0.00178933 + fBinsPt[ptBin] * 0.00134097;
-                          fMesonLambdaTailRange[0]             = 0.01;
-                          fMesonLambdaTailRange[1]             = 0.2;
 
-                          fMesonWidthRange[0]             = fMesonWidthExpect * 0.5;
-                          fMesonWidthRange[1]             = fMesonWidthExpect * 1.5;
-                      }
+                      // if ( fBinsPt[ptBin] > 5.) {
+                      //     fMesonWidthExpect               = 0.00168025 + fBinsPt[ptBin] * 0.000841804;
+                      //     fMesonWidthRange[0]             = fMesonWidthExpect * 0.8;
+                      //     fMesonWidthRange[1]             = fMesonWidthExpect * 1.2;
+                      // }
+                      // if ( fBinsPt[ptBin] > 15.) {
+                      //     fMesonLambdaTail               = -0.00178933 + fBinsPt[ptBin] * 0.00134097;
+                      //     fMesonLambdaTailRange[0]             = 0.01;
+                      //     fMesonLambdaTailRange[1]             = 0.2;
+                      //
+                      //     fMesonWidthRange[0]             = fMesonWidthExpect * 0.5;
+                      //     fMesonWidthRange[1]             = fMesonWidthExpect * 1.5;
+                      // }
                 } else {
                     mesonAmplitudeMin = mesonAmplitude*98./100.;
                     mesonAmplitudeMax = mesonAmplitude*600./100.;
@@ -5294,6 +5301,8 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
     if (fMode == 4 && fPrefix.Contains("Pi0")){
         if (fEnergyFlag.BeginsWith("5TeV") && (trigger.CompareTo("a1") == 0 || trigger.CompareTo("a2") == 0))
             doDoubleExp = kTRUE;
+        // else if( fEnergyFlag.CompareTo("13TeV") == 0 && (trigger.CompareTo("8d") == 0 || trigger.CompareTo("8e") == 0 || trigger.CompareTo("9b") == 0) )
+        //     doDoubleExp = kTRUE;
         else if (fEnergyFlag.Contains("pPb_8TeV") && trigger.CompareTo("8d") == 0)
             doDoubleExp = kTRUE;
         else if ( fEnergyFlag.Contains("pPb_5.023TeV") && (trigger.CompareTo("83") || trigger.CompareTo("85")))
@@ -6478,6 +6487,22 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
                 mesonAmplitudeMin                   = mesonAmplitude*90./100.;
                 if( fPrefix.CompareTo("Eta") == 0) {
                     mesonAmplitudeMin               = mesonAmplitude*70./100.;
+                }
+            } else if (fEnergyFlag.Contains("13TeV")  ){
+                mesonAmplitudeMin = mesonAmplitude*98./100.;
+                mesonAmplitudeMax = mesonAmplitude*600./100.;
+
+                fMesonWidthExpect               = 0.005;
+                fMesonWidthRangeMC[0]             = 0.0045;
+                fMesonWidthRangeMC[1]             = 0.04;
+
+                fMesonLambdaTailMC                = 0.015;
+                fMesonLambdaTailRangeMC[0]        = 0.01;
+                fMesonLambdaTailRangeMC[1]        = 0.04;
+                if ( fBinsPt[ptBin] >= 30.) {
+                    fMesonLambdaTailMC                = 0.035;
+                    fMesonLambdaTailRangeMC[0]        = 0.03;
+                    fMesonLambdaTailRangeMC[1]        = 0.04;
                 }
             }
         } else if (fMode == 4 || fMode == 12 || fMode == 5 || fMode==14) {

@@ -312,6 +312,13 @@ if [[ "$1" == *-*pi0Only* ]]; then
     echo "Pi0 calculation only"
 fi
 
+if [[ "$1" == *-*pi0Off* ]]; then
+    DOPI0=0
+    DOETA=1
+    DOPI0INETABINS=1
+    echo "Pi0 calculation only"
+fi
+
 if [[ "$1" == *-*gammaOnly* ]]; then
     DOPI0=0
     DOETA=0

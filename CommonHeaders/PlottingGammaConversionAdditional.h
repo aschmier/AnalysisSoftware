@@ -3097,6 +3097,12 @@
                 return kCyan+3;
             } else if (generator.Contains("LHC17r") ||generator.Contains("LHC18p")) {
                 return kMagenta+2;
+            } else if (generator.Contains("LHC16")){
+                return kGreen-2;
+            } else if (generator.Contains("LHC17")){
+                return kRed+1;
+            } else if (generator.Contains("LHC18")){
+                return kMagenta+2;
             } else {
                 return kRed;
             }
@@ -4582,11 +4588,11 @@
             return kYellow+2;
         if ( variationName.CompareTo("Qt") == 0 )
             return kOrange+2;
-        if ( variationName.CompareTo("Alpha") == 0 || variationName.CompareTo("Asym") == 0)
+        if ( variationName.CompareTo("Alpha") == 0 || variationName.CompareTo("Asym") == 0 || variationName.CompareTo("Smearing") == 0)
             return kBlue+2;
         if ( variationName.CompareTo("Rapidity") == 0 )
             return kPink-3;
-        if ( variationName.CompareTo("ConvPhi") == 0 )
+        if ( variationName.CompareTo("ConvPhi") == 0 || variationName.CompareTo("ExoticCluster") == 0 )
             return kCyan-2;
         if ( variationName.CompareTo("DoubleCount") == 0)
             return kGray+2;
@@ -4772,6 +4778,8 @@
             return "#eta_{#gamma, e^{#pm}}";
         if ( variationName.CompareTo("MCSmearing") == 0 )
             return "MC smearing";
+        if ( variationName.CompareTo("ExoticCluster") == 0 )
+            return "Exotic cluster";
         if ( variationName.CompareTo("PsiPair") == 0 )
             return "#psi_{pair} #gamma";
         if ( variationName.CompareTo("YieldExtraction") == 0 )

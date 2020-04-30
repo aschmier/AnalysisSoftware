@@ -1313,6 +1313,11 @@
                         fMesonWidthExpect               = 0.010;
                         fMesonWidthRange[1]             = 0.050;
                     }
+                }else if( fEnergyFlag.CompareTo("13TeV") == 0){
+                        // fMesonLambdaTail                = 0.017;
+                        // fMesonLambdaTailRange[0]        = 0.01;
+                        // fMesonWidthExpect               = 0.010;
+                        fMesonWidthRange[1]             = 0.050;
                 }else if( fEnergyFlag.BeginsWith("8TeV")){
                     if( trigger.CompareTo("81") == 0){
                         fMesonLambdaTail                = 0.017;
@@ -1471,10 +1476,10 @@
             if(mode ==0){
                 fPeakRange[0]           = 0.48;
                 fPeakRange[1]           = 0.58;
-            if (fEnergyFlag.Contains("13TeV")){
-                fPeakRange[0]           = 0.5;
-                fPeakRange[1]           = 0.57;
-            }
+                if (fEnergyFlag.Contains("13TeV")){
+                    fPeakRange[0]           = 0.5;
+                    fPeakRange[1]           = 0.57;
+                }
             }else if (mode == 2 || mode == 13){
                 fPeakRange[0]           = 0.48;
                 fPeakRange[1]           = 0.58;

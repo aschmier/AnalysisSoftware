@@ -442,6 +442,10 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
                 nameCorrectedYield                              = "CorrectedYieldNormEff";
                 nameEfficiency                                  = "MesonEffiPt";
             }
+            if ( (mode == 2) && optionEnergy.Contains("13TeV")){
+                nameCorrectedYield                              = "CorrectedYieldNormEff";
+                nameEfficiency                                  = "MesonEffiPt";
+            }
 //             if ((mode == 2 || mode == 3) && !meson.Contains("Pi0")){
 //                 nameCorrectedYield                                 = "CorrectedYieldNormEff";
 //                 nameEfficiency                                     = "MesonEffiPt";

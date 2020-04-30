@@ -42,6 +42,35 @@ then
 					forcemerge=1
 					printf "\e[33m|-> is specific Runlist (no download)" | tee -a $LogFile
 				fi
+				if [[ $OptZip = 1 ]]; then
+					filename="root_archive.zip"
+					printf "\e[33m|-> Found files:\e[0m $RunlistName $ChildName $filename" | tee -a $LogFile
+					outFile="$Dirout/$filename"
+					inFile="$Dirin/$filename"
+					downlogFile="$Dirout/${filename%%.root}.downlog"
+					if [[ $isjalien = 1 ]]; then
+						GetFile_jalien $inFile $outFile $downlogFile
+					else
+						GetFile $inFile $outFile $downlogFile
+					fi
+					if [[ -f $outFile ]]; then
+						if [[ ! -f "$outFile.zipped" ]]; then
+							if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+							then
+								unzip -o $outFile -d $Dirout/ | tee -a $LogFile
+							else
+								unzip -o $outFile -d $Dirout/ >> $LogFile
+							fi
+							touch "$outFile.zipped"
+							echo;
+						else
+							printf "\e[33m|-> Files was unzipped already :\e[0m $RunlistName $ChildName $filename\n" | tee -a $LogFile
+						fi
+					else
+						echo;
+					fi
+				fi
+
 				# Download all relevant files
 				for filename in `cat $FilenamesinTrain`
 				do
@@ -62,7 +91,7 @@ then
 							else
 								GetFile $inFile $outFile $downlogFile
 							fi
-							if [[ $UseMerge = 1 ]]
+							if [[ $UseMerge = 1 ]] && [[ ! $filename = *".zip" ]]
 							then
 								doMergeFiles $filename $Dirout $Dirin $DirMerged
 							else
@@ -192,9 +221,40 @@ then
 								if [[ `grep "_$childID/$Search" $RunPathList | wc -c` -gt 0 ]]; then
 									for runinFile in `grep "_$childID/$Search" $RunPathList`
 									do
+										if [[ $OptZip = 1 ]]; then
+											filenameZip="root_archive.zip"
+											# outdirZiptmp=${outFile/%%$Search}
+											# outdirZip=${outdirZiptmp/%%$filenameZip}
+											outFileZip="$runDir/$filenameZip"
+											inFileZip="${runinFile%%$filename}/$filenameZip"
+											downlogFileZip="$runDir/${filenameZip}.downlog"
+											if [[ ! -f $outFileZip ]]; then
+											printf "\e[33m|-> download $filenameZip:\e[0m  " | tee -a $LogFile
+												if [[ $isjalien = 1 ]]; then
+													GetFile_jalien $inFileZip $outFileZip $downlogFileZip
+												else
+													GetFile $inFileZip $outFileZip $downlogFileZip
+												fi
+												if [[ -f $outFileZip ]]; then
+													if [[ ! -f "$outFileZip.zipped" ]]; then
+														if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+														then
+															unzip -o $outFileZip -d ${runDir}/ | tee -a $LogFile
+														else
+															unzip -o $outFileZip -d ${runDir}/ >> $LogFile
+														fi
+														touch "$outFileZip.zipped"
+														echo;
+													# else
+														# printf "\e[33m|-> Files was unzipped already :\e[0m " | tee -a $LogFile
+													fi
+												fi
+												printf "\t\t\t\t\t\t  " | tee -a $LogFile
+											fi
+										fi
 										# printf "\t$runoutFile" | tee -a $LogFile
 										if [[ $isjalien = 1 ]]; then
-											GetFile_jalien $runinFile $runoutFile $rundownlogFile
+											GetFile_jalien $runinFile $outFile $rundownlogFile
 										else
 											GetFile $runinFile $runoutFile $rundownlogFile
 										fi
@@ -232,6 +292,37 @@ then
 										subrundownlogFile=$subrunDir/.${Search%%.root}.downlog
 										((tmpsubruncount++))
 										printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$runName|$subrunname\t$Search " | tee -a $LogFile
+										if [[ $OptZip = 1 ]]; then
+											filenameZip="root_archive.zip"
+											# outdirZiptmp=${outFile/%%$Search}
+											# outdirZip=${outdirZiptmp/%%$filenameZip}
+											outFileZip="$subrunDir/$filenameZip"
+											inFileZip="${subruninFile%%$Search}/$filenameZip"
+											downlogFileZip="$subrunDir/${filenameZip}.downlog"
+											if [[ ! -f $outFileZip ]]; then
+												printf "\e[33m|-> download $filenameZip:\e[0m  " | tee -a $LogFile
+												if [[ $isjalien = 1 ]]; then
+													GetFile_jalien $inFileZip $outFileZip $downlogFileZip
+												else
+													GetFile $inFileZip $outFileZip $downlogFileZip
+												fi
+												if [[ -f $outFileZip ]]; then
+													if [[ ! -f "$outFileZip.zipped" ]]; then
+														if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+														then
+															unzip -o $outFileZip -d ${subrunDir}/ | tee -a $LogFile
+														else
+															unzip -o $outFileZip -d ${subrunDir}/ >> $LogFile
+														fi
+														touch "$outFileZip.zipped"
+														echo;
+													# else
+														# printf "\e[33m|-> Files was unzipped already :\e[0m " | tee -a $LogFile
+													fi
+												fi
+												printf "\t\t\t\t\t\t  " | tee -a $LogFile
+											fi
+										fi
 										if [[ $isjalien = 1 ]]; then
 											GetFile_jalien $subruninFile $subrunoutFile $subrundownlogFile
 										else
