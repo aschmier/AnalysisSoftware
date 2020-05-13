@@ -913,12 +913,12 @@ void ExtractSignalV2(
         fFileDataLog << "----------------------------------new pT bin ------------------------------------" << endl;
         fFileDataLog << "---------------------------------------------------------------------------------" << endl;
 
-        if (fEnergyFlag.Contains("pPb_5.023TeV") && meson.Contains("Pi0") && (mode == 4 || mode == 12) ){
-            if (fBinsPt[iPt] > 10.0)
-                fBGFitRange[0]      = 0.24;
-            else if (fBinsPt[iPt] > 10.0)
-                fBGFitRange[0]      = 0.26;
-        }
+//         if (fEnergyFlag.Contains("pPb_5.023TeV") && meson.Contains("Pi0") && (mode == 4 || mode == 12) ){
+//             if (fBinsPt[iPt] > 10.0)
+//                 fBGFitRange[0]      = 0.24;
+//             else if (fBinsPt[iPt] > 10.0)
+//                 fBGFitRange[0]      = 0.26;
+//         }
         
         ProcessEM_switch( fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[iPt], fBGFitRange);
         fHistoMappingSignalInvMassPtBin[iPt]            = fSignal;
@@ -968,7 +968,7 @@ void ExtractSignalV2(
               if (fFitReco)
                   fMesonChi2[0][iPt]                      = fFitReco->GetChisquare()/fFitReco->GetNDF();
               else
-                  fMesonChi2[0][iPt];
+                  fMesonChi2[0][iPt]                      = -1  ;
             } else {
               FitSubtractedInvMassInPtBins(fHistoMappingSignalInvMassPtBin[iPt], fMesonIntDeltaRange,iPt,kFALSE);
               fFitSignalInvMassPtBin[iPt]                 = fFitReco;
@@ -4872,7 +4872,9 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
 
     Double_t mesonAmplitudeMin  = mesonAmplitude*10./100.;
     Double_t mesonAmplitudeMax  = mesonAmplitude*400./100.;
-
+    TString mesonBGString       = fMesonCutSelection(GetMesonBGSchemeCutPosition(),1);    
+    Bool_t doNoLinearFit        = kFALSE;
+    
     // Settings specific for PbPb collisions
     if (fEnergyFlag.Contains("PbPb")){
         if (fPrefix.Contains("Pi0")){
@@ -5000,6 +5002,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                         fMesonFitRange[1] = 0.29;
                     }
                 } else {
+                    if (mesonBGString.CompareTo("r") == 0) doNoLinearFit = kTRUE;
                     mesonAmplitudeMin = mesonAmplitude*10./100.;
                     mesonAmplitudeMax = mesonAmplitude*1000./100.;
                     TString trigger = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
@@ -5044,6 +5047,9 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                     fMesonLambdaTailRange[0]    = 0.033;
                     fMesonLambdaTailRange[1]    = 0.033;
                 }
+                if (fEnergyFlag.Contains("pPb_5.023TeV"))
+                    if (mesonBGString.CompareTo("r") == 0) doNoLinearFit = kTRUE;
+                
             } else if (fMode == 5) {                                // PHOS
                 mesonAmplitudeMin = mesonAmplitude*10./100.;
                 mesonAmplitudeMax = mesonAmplitude*1000./100.;
@@ -5318,7 +5324,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
             doDoubleExp = kTRUE;
     }
 
-    Bool_t doNoLinearFit = kFALSE;
+    
     if (fMode == 4 && fPrefix.Contains("Pi0")){
       if(fEnergyFlag.Contains("13TeV") && GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1))){
         doNoLinearFit = kTRUE;
@@ -5380,9 +5386,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                 }
                 fFitReco->SetParLimits(1,fMesonMassExpect*0.5,fMesonMassExpect*2);
                 fFitReco->SetParLimits(2,fMesonWidthRange[0]*0.5,fMesonWidthRange[1]*2.);
-                if(ptBin >= 31) {
-                    if(!fEnergyFlag.Contains("pPb_8TeV"))
-                        fFitReco->FixParameter(3,0.015);
+                if(fBinsPt[ptBin] >= 10) {
                     fFitReco->SetParameter(1,0.156);
                 }
             }else if(fMode == 3) {
@@ -5457,18 +5461,19 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
     //--------------------------------------------------------------------------------------
     fFitReco->SetParLimits(0,mesonAmplitudeMin,mesonAmplitudeMax);
 
+    if(doNoLinearFit){
+      fFitReco->FixParameter(4,0.);
+      fFitReco->FixParameter(5,0.);
+      fFitReco->SetParError(4,0.);
+      fFitReco->SetParError(5,0.);
+    }
+
     //--------------------------------------------------------------------------------------
     //------------------------- start fitting & set style fit ------------------------------
     //--------------------------------------------------------------------------------------
     histoMappingSignalInvMassPtBinSingle->Fit(fFitReco,"QRME0");
     histoMappingSignalInvMassPtBinSingle->Fit(fFitReco,"QRME0");
 
-    if(doNoLinearFit){
-      fFitReco->SetParameter(4,0.);
-      fFitReco->SetParameter(5,0.);
-      fFitReco->SetParError(4,0.);
-      fFitReco->SetParError(5,0.);
-    }
 
     fFitReco->SetLineColor(3);
     fFitReco->SetLineWidth(1);
@@ -5532,6 +5537,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
     fFitLinearBck->SetParError(0,fFitReco->GetParError(4));
     fFitLinearBck->SetParError(1,fFitReco->GetParError(5));
 
+
     Int_t binCenterStart;
     Double_t startBinEdge;
     Int_t binCenterEnd;
@@ -5559,13 +5565,13 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
         fFileDataLog << "Parameter for bin " << ptBin << endl;
         fFileDataLog << "Gausexp: \t" << fFitReco->GetParameter(0) <<"+-" << fFitReco->GetParError(0) << "\t " << fFitReco->GetParameter(1)<<"+-" << fFitReco->GetParError(1) << "\t "<< fFitReco->GetParameter(2) <<"+-" << fFitReco->GetParError(2)<< "\t "<< fFitReco->GetParameter(3) <<"+-" << fFitReco->GetParError(3)<<endl;
         fFileDataLog << "Linear: \t"<<fFitReco->GetParameter(4)<<"+-" << fFitReco->GetParError(4) << "\t "<<fFitReco->GetParameter(5) <<"+-" << fFitReco->GetParError(5)<< endl;
-
+        
         fIntLinearBck           = intLinearBack/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
         fIntLinearBckError      = errorLinearBck/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
-        // if(doNoLinearFit){
-        //   fIntLinearBck = 0.;
-        //   fIntLinearBckError = 0.;
-        // }
+        if(doNoLinearFit){
+          fIntLinearBck = 0.;
+          fIntLinearBckError = 0.;
+        }
 
     } else {
         fFileErrLog << "Fitting failed in " << ptBin << " with status " << gMinuit->fCstatu.Data() <<endl << endl;
@@ -6464,6 +6470,9 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
     Double_t mesonAmplitude         = histoMappingSignalInvMassPtBinSingle->GetMaximum();
     Double_t mesonAmplitudeMin      = 0;
     Double_t mesonAmplitudeMax      = 0;
+    TString mesonBGString           = fMesonCutSelection(GetMesonBGSchemeCutPosition(),1);    
+    Bool_t doNoLinearFit            = kFALSE;
+
     if (fEnergyFlag.CompareTo("PbPb_2.76TeV") == 0 || fEnergyFlag.Contains("XeXe")){
         mesonAmplitudeMin = mesonAmplitude*99./100.;
         mesonAmplitudeMax = mesonAmplitude*110./100.;
@@ -6519,6 +6528,13 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
             } else if (fEnergyFlag.Contains("pPb_5.023TeV")  ){
                 mesonAmplitudeMin = mesonAmplitude*90./100.;
                 mesonAmplitudeMax = mesonAmplitude*700./100.;
+                if (mesonBGString.CompareTo("r") == 0 && fPrefix.Contains("Pi0")){
+                    doNoLinearFit = kTRUE;
+                    mesonAmplitudeMin = mesonAmplitude;
+                    mesonAmplitudeMax = mesonAmplitude*2000./100.;
+                }
+                if (fBinsPt[ptBin] > 10 && fPrefix.Contains("Pi0"))
+                    doNoLinearFit = kTRUE;
                 if( !fPrefix.CompareTo("Eta")) {
                     mesonAmplitudeMin           = mesonAmplitude*80./100.;
                     if (fBinsPt[ptBin] >= 2 ){
@@ -6608,11 +6624,9 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
     }
     fFitReco->SetParLimits(0,mesonAmplitudeMin,mesonAmplitudeMax);
 
-    if ( (fMode == 4 || fMode == 12 || fMode==14) && !doDoubleExp){
-        if (fBinsPt[ptBin] > 10 && fEnergyFlag.Contains("pPb_5.023TeV")  ){
-            fFitReco->FixParameter(4,0);
-            fFitReco->FixParameter(5,0);
-        }
+    if (doNoLinearFit && !doDoubleExp){
+        fFitReco->FixParameter(4,0);
+        fFitReco->FixParameter(5,0);        
     }
 
     fFitReco->SetNpx(10000);
@@ -6894,63 +6908,76 @@ void MakeBGFitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
     fFitGausExp = fFitSignalPeakPosInvMassPtBin[ptBin];
     fFitLinearBck = fFitBckInvMassPtBin[ptBin];
 
-    fFitLinearBckExcl = NULL;
-    fFitLinearBckExcl = new TF1("LinearEx",LinearBGExclusionnew,fMesonMassPlotRange[0],fMesonMassPlotRange[1],2);
-    fCopyOnlyBG->Fit(fFitLinearBckExcl,"QRME0","",fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
-    TVirtualFitter * fitter2 = TVirtualFitter::GetFitter();
-    Int_t nFreePar2 = fFitLinearBckExcl->GetNumberFreeParameters();
-    double * covMatrix2 = fitter2->GetCovarianceMatrix();
-    for (Int_t i = 1; i < fCopySignal->GetXaxis()->FindBin(fMesonMassRange[1])+1; i++){
-        Double_t startBinEdge = fCopySignal->GetXaxis()->GetBinLowEdge(i);
-        Double_t endBinEdge = fCopySignal->GetXaxis()->GetBinUpEdge(i);
-        Double_t intLinearBack = fFitLinearBck->Integral(startBinEdge, endBinEdge)/(endBinEdge-startBinEdge) ;
-        Double_t errorLinearBck = TMath::Power((TMath::Power( (endBinEdge-startBinEdge)*fFitLinearBckExcl->GetParError(0),2)+TMath::Power(0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)*fFitLinearBckExcl->GetParError(1),2)+2*covMatrix2[nFreePar2*nFreePar2-2]*(endBinEdge-startBinEdge)*0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)),0.5)/(endBinEdge-startBinEdge);
-        fCopyOnlyBG->SetBinContent(i,intLinearBack);
-        fCopyOnlyBG->SetBinError(i,errorLinearBck);
-        fCopySignal->SetBinContent(i,fCopySignal->GetBinContent(i)-intLinearBack);
-        fCopySignal->SetBinError(i,TMath::Sqrt(errorLinearBck*errorLinearBck+ fCopySignal->GetBinError(i)*fCopySignal->GetBinError(i)));
+    Bool_t bgNonZero     = kFALSE;
+    for (Int_t i = 0; i< fFitLinearBck->GetNpar(); i++){
+        if (fFitLinearBck->GetParameter(i) != 0.) bgNonZero = kTRUE;
     }
-
-    fFitReco->SetLineColor(3);
-    fFitReco->SetLineWidth(1);
-    fFitReco->SetLineStyle(1);
-    fFitReco->SetNpx(10000);
-
-    Int_t binCenterStart;
-    Double_t startBinEdge;
-    Int_t binCenterEnd;
-    Double_t endBinEdge;
-
-    TVirtualFitter * fitter = TVirtualFitter::GetFitter();
-
-    if(TString(gMinuit->fCstatu.Data()).CompareTo("CONVERGED") == 0 || TString(gMinuit->fCstatu.Data()).CompareTo("SUCCESSFUL") == 0 ){
-        binCenterStart = histoMappingSignalInvMassPtBinSingle->GetXaxis()->FindBin(fFitReco->GetParameter(1)+mesonIntDeltaRangeFit[0]);
-        startBinEdge = histoMappingSignalInvMassPtBinSingle->GetBinCenter(binCenterStart)- 0.5*histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
-        binCenterEnd = histoMappingSignalInvMassPtBinSingle->GetXaxis()->FindBin(fFitReco->GetParameter(1)+mesonIntDeltaRangeFit[1]);
-        endBinEdge = histoMappingSignalInvMassPtBinSingle->GetBinCenter(binCenterEnd)+ 0.5*histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
-
-        Int_t nFreePar = fFitReco->GetNumberFreeParameters();
-        double * covMatrix = fitter->GetCovarianceMatrix();
-
-        if (!kMC){
-            Float_t intLinearBack = fFitLinearBck->GetParameter(0)*(endBinEdge-startBinEdge)+
-                0.5*fFitLinearBck->GetParameter(1)*(endBinEdge*endBinEdge-startBinEdge*startBinEdge);
-
-            Double_t errorConst = fFitReco->GetParError(5);
-            Double_t errorLin = fFitReco->GetParError(6);
-            if (errorConst == 0) errorConst = fFitLinearBck->GetParError(0);
-            if (errorLin == 0) errorLin = fFitLinearBck->GetParError(1);
-            if (errorConst == 0) errorConst = TMath::Abs(fFitLinearBck->GetParameter(0)*0.005);
-            if (errorLin == 0) errorLin = TMath::Abs(fFitLinearBck->GetParameter(1)*0.005);
-            Float_t errorLinearBck = TMath::Power((TMath::Power( (endBinEdge-startBinEdge)*errorConst,2)+TMath::Power(0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)*errorLin,2)+2*covMatrix[nFreePar*nFreePar-2]*(endBinEdge-startBinEdge)*0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)),0.5);
-
-            fIntLinearBck = intLinearBack/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
-            fIntLinearBckError = errorLinearBck/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
-
-        } else {
-            fIntLinearBck = 0;
-            fIntLinearBckError = 0;
+    if (bgNonZero){
+        fFitLinearBckExcl = NULL;
+        fFitLinearBckExcl = new TF1("LinearEx",LinearBGExclusionnew,fMesonMassPlotRange[0],fMesonMassPlotRange[1],2);
+        fCopyOnlyBG->Fit(fFitLinearBckExcl,"QRME0","",fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
+        TVirtualFitter * fitter2 = TVirtualFitter::GetFitter();
+        Int_t nFreePar2 = fFitLinearBckExcl->GetNumberFreeParameters();
+        double * covMatrix2 = fitter2->GetCovarianceMatrix();
+        for (Int_t i = 1; i < fCopySignal->GetXaxis()->FindBin(fMesonMassRange[1])+1; i++){
+            Double_t startBinEdge = fCopySignal->GetXaxis()->GetBinLowEdge(i);
+            Double_t endBinEdge = fCopySignal->GetXaxis()->GetBinUpEdge(i);
+            Double_t intLinearBack = fFitLinearBck->Integral(startBinEdge, endBinEdge)/(endBinEdge-startBinEdge) ;
+            Double_t errorLinearBck = TMath::Power((TMath::Power( (endBinEdge-startBinEdge)*fFitLinearBckExcl->GetParError(0),2)+TMath::Power(0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)*fFitLinearBckExcl->GetParError(1),2)+2*covMatrix2[nFreePar2*nFreePar2-2]*(endBinEdge-startBinEdge)*0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)),0.5)/(endBinEdge-startBinEdge);
+            fCopyOnlyBG->SetBinContent(i,intLinearBack);
+            fCopyOnlyBG->SetBinError(i,errorLinearBck);
+            fCopySignal->SetBinContent(i,fCopySignal->GetBinContent(i)-intLinearBack);
+            fCopySignal->SetBinError(i,TMath::Sqrt(errorLinearBck*errorLinearBck+ fCopySignal->GetBinError(i)*fCopySignal->GetBinError(i)));
         }
+
+        fFitReco->SetLineColor(3);
+        fFitReco->SetLineWidth(1);
+        fFitReco->SetLineStyle(1);
+        fFitReco->SetNpx(10000);
+
+        Int_t binCenterStart;
+        Double_t startBinEdge;
+        Int_t binCenterEnd;
+        Double_t endBinEdge;
+
+        TVirtualFitter * fitter = TVirtualFitter::GetFitter();
+
+        if(TString(gMinuit->fCstatu.Data()).CompareTo("CONVERGED") == 0 || TString(gMinuit->fCstatu.Data()).CompareTo("SUCCESSFUL") == 0 ){
+            binCenterStart = histoMappingSignalInvMassPtBinSingle->GetXaxis()->FindBin(fFitReco->GetParameter(1)+mesonIntDeltaRangeFit[0]);
+            startBinEdge = histoMappingSignalInvMassPtBinSingle->GetBinCenter(binCenterStart)- 0.5*histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+            binCenterEnd = histoMappingSignalInvMassPtBinSingle->GetXaxis()->FindBin(fFitReco->GetParameter(1)+mesonIntDeltaRangeFit[1]);
+            endBinEdge = histoMappingSignalInvMassPtBinSingle->GetBinCenter(binCenterEnd)+ 0.5*histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+
+            Int_t nFreePar = fFitReco->GetNumberFreeParameters();
+            double * covMatrix = fitter->GetCovarianceMatrix();
+
+            if (!kMC){
+                Float_t intLinearBack = fFitLinearBck->GetParameter(0)*(endBinEdge-startBinEdge)+
+                    0.5*fFitLinearBck->GetParameter(1)*(endBinEdge*endBinEdge-startBinEdge*startBinEdge);
+
+                Double_t errorConst = fFitReco->GetParError(5);
+                Double_t errorLin = fFitReco->GetParError(6);
+                if (errorConst == 0) errorConst = fFitLinearBck->GetParError(0);
+                if (errorLin == 0) errorLin = fFitLinearBck->GetParError(1);
+                if (errorConst == 0) errorConst = TMath::Abs(fFitLinearBck->GetParameter(0)*0.005);
+                if (errorLin == 0) errorLin = TMath::Abs(fFitLinearBck->GetParameter(1)*0.005);
+                Float_t errorLinearBck = TMath::Power((TMath::Power( (endBinEdge-startBinEdge)*errorConst,2)+TMath::Power(0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)*errorLin,2)+2*covMatrix[nFreePar*nFreePar-2]*(endBinEdge-startBinEdge)*0.5*(endBinEdge*endBinEdge-startBinEdge*startBinEdge)),0.5);
+
+                fIntLinearBck = intLinearBack/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+                fIntLinearBckError = errorLinearBck/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+
+            } else {
+                fIntLinearBck = 0;
+                fIntLinearBckError = 0;
+            }
+        }
+    } else {
+        for (Int_t i = 1; i < fCopyOnlyBG->GetNbinsX()+1; i++){
+            fCopyOnlyBG->SetBinContent(i, 0);
+            fCopyOnlyBG->SetBinError(i, 0);
+        }
+        fIntLinearBck       = 0;
+        fIntLinearBckError  = 0;
     }
     fFitReco->DrawCopy("same");
 }

@@ -1001,25 +1001,25 @@
 
 
     TGraphErrors* CalculateCombinedSysAndStatError( TGraphErrors* graphStat, TGraphErrors* graphSys){
-    TGraphErrors* graphStatCopy          = (TGraphErrors*)graphStat->Clone("graphStatCopy");
-    TGraphErrors* graphSysCopy           = (TGraphErrors*)graphSys->Clone("graphSysCopy");
-    Double_t* xValue                     = graphStatCopy->GetX();
-    Double_t* xError                     = graphStatCopy->GetEX();
-    Double_t* yValueStat                 = graphStatCopy->GetY();
-    Double_t* yErrorStat                 = graphStatCopy->GetEY();
-    Double_t* yErrorSys                  = graphSysCopy->GetEY();
-    Int_t nPoints                        = graphStatCopy->GetN();
+        TGraphErrors* graphStatCopy          = (TGraphErrors*)graphStat->Clone("graphStatCopy");
+        TGraphErrors* graphSysCopy           = (TGraphErrors*)graphSys->Clone("graphSysCopy");
+        Double_t* xValue                     = graphStatCopy->GetX();
+        Double_t* xError                     = graphStatCopy->GetEX();
+        Double_t* yValueStat                 = graphStatCopy->GetY();
+        Double_t* yErrorStat                 = graphStatCopy->GetEY();
+        Double_t* yErrorSys                  = graphSysCopy->GetEY();
+        Int_t nPoints                        = graphStatCopy->GetN();
 
-    Double_t yErrorComb[nPoints];
-    // Double_t yErrorComb[nPoints];
-    for (Int_t i = 0; i < nPoints; i++){
-        yErrorComb[i]                 = TMath::Sqrt((TMath::Power(yErrorStat[i],2) + TMath::Power(yErrorSys[i],2)));
-    }
+        Double_t yErrorComb[nPoints];
+        // Double_t yErrorComb[nPoints];
+        for (Int_t i = 0; i < nPoints; i++){
+            yErrorComb[i]                 = TMath::Sqrt((TMath::Power(yErrorStat[i],2) + TMath::Power(yErrorSys[i],2)));
+        }
 
-    TGraphErrors* graphSysAndComb   = new TGraphErrors(nPoints,xValue,yValueStat,xError,yErrorComb);
+        TGraphErrors* graphSysAndComb   = new TGraphErrors(nPoints,xValue,yValueStat,xError,yErrorComb);
 
-    graphSysAndComb->SetName(graphSys->GetName());
-    return graphSysAndComb;
+        graphSysAndComb->SetName(graphSys->GetName());
+        return graphSysAndComb;
     }
 
     TGraphAsymmErrors* CalculateCombinedSysAndStatError( TGraphAsymmErrors* graphStat, TGraphAsymmErrors* graphSys){
@@ -1207,6 +1207,77 @@
         return returnGraph;
     }
 
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    TGraphAsymmErrors* TransformGraphFromPtToXt(TGraphAsymmErrors* tg, double E=1){
+        TGraphAsymmErrors* dummyGraph    = (TGraphAsymmErrors*)tg->Clone(Form("%s_Xt",tg->GetName()));
+
+        Double_t* xValue                = dummyGraph->GetX();
+        Double_t* yValue                = dummyGraph->GetY();
+        Double_t* xErrorLow             = dummyGraph->GetEXlow();
+        Double_t* xErrorHigh            = dummyGraph->GetEXhigh();
+        Double_t* yErrorLow             = dummyGraph->GetEYlow();
+        Double_t* yErrorHigh            = dummyGraph->GetEYhigh();
+
+        for(int i = 0; i < dummyGraph->GetN(); i++){
+            xValue[i] = 2.0 * xValue[i] / E;
+            xErrorLow[i] = 2.0 * xErrorLow[i] / E;
+            xErrorHigh[i] = 2.0 * xErrorHigh[i] / E;
+        }
+        return dummyGraph;
+    }
+    
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    TGraphAsymmErrors* CalculateNForTwoGraphsAsFunctionOfXT( TGraphAsymmErrors* tgAXt, 
+                                                             TGraphAsymmErrors* tgBXt, 
+                                                             TGraphAsymmErrors* tgRelBXt, 
+                                                             TF1* fitBPt,
+                                                             Double_t energyA       =   1,
+                                                             Double_t energyB       =   1,
+                                                             Double_t scaleFacFit   =   1.
+    ){
+        TGraphAsymmErrors* dummyGraph    = (TGraphAsymmErrors*)tgAXt->Clone(Form("%s_Ratio",tgAXt->GetName()));
+
+        // find applicable range for ratio
+        cout << "min \t" << dummyGraph->GetX()[0] << "\t" << tgRelBXt->GetX()[0] << endl;
+        cout << "max \t" << dummyGraph->GetX()[dummyGraph->GetN()-1] << "\t" << tgRelBXt->GetX()[tgRelBXt->GetN()-1] << endl;
+        while(dummyGraph->GetX()[0] < tgRelBXt->GetX()[0]) dummyGraph->RemovePoint(0);
+        while(dummyGraph->GetX()[dummyGraph->GetN()-1] > tgRelBXt->GetX()[tgRelBXt->GetN()-1]) dummyGraph->RemovePoint(dummyGraph->GetN()-1);
+        
+//         dummyGraph->Print();
+        
+        Double_t* xValue                = dummyGraph->GetX();
+        Double_t* yValue                = dummyGraph->GetY();
+        Double_t* xErrorLow             = dummyGraph->GetEXlow();
+        Double_t* xErrorHigh            = dummyGraph->GetEXhigh();
+        Double_t* yErrorLow             = dummyGraph->GetEYlow();
+        Double_t* yErrorHigh            = dummyGraph->GetEYhigh();
+        
+        for(int i = 0; i < dummyGraph->GetN(); i++){
+            Double_t currentfitValueB       = fitBPt->Eval(xValue[i]*energyB/2.)*scaleFacFit;
+            Double_t currentfitValueBSimple = tgBXt->Eval(xValue[i], 0, "S");
+            Double_t currentErrorRelErrB    = tgRelBXt->Eval(xValue[i], 0, "S");
+            Double_t currentAbsErrB         = currentErrorRelErrB/100.* currentfitValueB;   
+            Double_t currentValueA          = yValue[i];
+            Double_t currentErrorA          = yErrorLow[i];
+//             cout << xValue[i] << "\t" << currentfitValueB << "\t" << currentfitValueBSimple << "\t" << currentErrorRelErrB << "\t" << currentValueA << endl;
+            yValue[i]                       = -1./TMath::Log(energyA/energyB)*TMath::Log( currentValueA/currentfitValueB);
+            yErrorLow[i]                    = TMath::Abs(1./TMath::Log(energyA/energyB)* TMath::Sqrt(TMath::Power(currentErrorA/currentValueA,2)+ TMath::Power(currentAbsErrB/currentfitValueB,2)));
+            yErrorHigh[i]                   = TMath::Abs(1./TMath::Log(energyA/energyB)* TMath::Sqrt(TMath::Power(currentErrorA/currentValueA,2)+ TMath::Power(currentAbsErrB/currentfitValueB,2)));
+            xErrorHigh[i]                   = 0.;
+            xErrorLow[i]                    = 0.;
+        }
+        
+        dummyGraph->Print();
+        
+        return dummyGraph;
+    }
+    
+
+    
     // ****************************************************************************************************************
     // ****************************************************************************************************************
     // ****************************************************************************************************************

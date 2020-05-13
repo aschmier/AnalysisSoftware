@@ -3169,13 +3169,13 @@
                                 break;
                             case 2:
                                 if ( centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG2Pt,binning,24);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG2Pt,binning,28);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG2CentPt,binning,15);
                                 break;
                             case 3:
                                 if ( centrality.CompareTo("0-100%") == 0 || energy.CompareTo("5TeVRefpPb")==0)
-                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG1Pt,binning,21);
+                                    maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG1Pt,binning,25);
                                 else
                                     maxNBins    = CopyVectorToArray(binningMax,fBinsPi0pPb5TeVEMCTrigEG1CentPt,binning,13);
                                 break;

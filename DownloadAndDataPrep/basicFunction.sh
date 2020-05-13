@@ -272,6 +272,7 @@ function CopyRunwiseAndMergeAccordingToRunlistJJMC()
                 nCurrRunCount=$((nCurrRunCount+1))
                 echo -e "\n****************************************\n run $runNumber is $nCurrRunCount/$nRunNumber \n****************************************\n"
                 bins=`cat ${11}`
+                firstbin=`head -n1 ${11}`
                 mkdir -p $3/$runNumber
                 rm $3/$runNumber/copyFile.log
                 for bin in $bins; do
@@ -279,7 +280,7 @@ function CopyRunwiseAndMergeAccordingToRunlistJJMC()
                 done
 #                 if [ $MERGEONSINGLEMCJJ == 1 ]; then 
                 if [ $MERGEONSINGLEMCJJ == 1 ] || [ -f $3/$runNumber/copyFile.log ]; then 
-                    ls $3/1/$runNumber/${10}\_*.root > filebins$1.txt
+                    ls $3/$firstbin/$runNumber/${10}\_*.root > filebins$1.txt
                     filesToMerge=`cat filebins$1.txt`
                     for fileToMerge in $filesToMerge; do
                         nSlashesCurr=`expr $8 + 1`

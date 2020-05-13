@@ -275,7 +275,7 @@ void CombineMesonMeasurementspPb5TeVCentV2(   TString fileNamePCM             = 
         nCollErrpPb[cent]                       = GetNCollErrFromName(centArrayOutput[cent]+addCentString[cent], "pPb_5.023TeV");
         tpPb[cent]                              = GetTAAFromName(centArrayOutput[cent]+addCentString[cent], "pPb_5.023TeV");
         tpPbErr[cent]                           = GetTAAErrFromName(centArrayOutput[cent]+addCentString[cent], "pPb_5.023TeV");
-        clog << cent << "\t" << centArrayOutput[cent]+addCentString[cent] << "\t"<< nCollpPb[cent] << "\t" << nCollErrpPb[cent] << "\t"<< tpPb[cent] << "\t"<< tpPbErr[cent] << endl;;
+        std::clog << cent << "\t" << centArrayOutput[cent]+addCentString[cent] << "\t"<< nCollpPb[cent] << "\t" << nCollErrpPb[cent] << "\t"<< tpPb[cent] << "\t"<< tpPbErr[cent] << std::endl;;
     }
     Double_t xSection5TeV                       = ReturnCorrectXSection("5TeV", 1);; // option is wrong fix when possible
     Double_t xSection5TeVErr                    = xSection5023GeVINELErr*1e-3;
@@ -2658,7 +2658,7 @@ void CombineMesonMeasurementspPb5TeVCentV2(   TString fileNamePCM             = 
                                             { 0,  7,  0,  0,  0,  0,  0,  0,  0,  0,  0 }  // 80-100
                                           };
     Int_t offSetsEtaSys[9][11]          = {
-                                            { 1,  12,  12,  5,  8,  0,  0,  0,  0,  0, 0 },  // MB R1
+                                            { 1,  12,  14,  5,  8,  0,  0,  0,  0,  0, 0 },  // MB R1
                                             { 3,  10,  6,  5,  5,  0,  0,  0,  0,  0, 0 },  // MB R1 cent binning
                                             { 3,  10,  6,  5,  5,  0,  0,  0,  0,  0, 0 },  // 0-5
                                             { 3,  10,  6,  5,  5,  0,  0,  0,  0,  0, 0 },  // 5-10
@@ -2669,7 +2669,7 @@ void CombineMesonMeasurementspPb5TeVCentV2(   TString fileNamePCM             = 
                                             { 3,  10,  6,  5,  5,  0,  0,  0,  0,  0, 0 }   // 80-100
                                             };
     Int_t offSetEtaShifting[9][11]      = {
-                                            { 0,  0,  11,  2,  7,  0,  0,  0,  0,  0,  0 },  // MB R1
+                                            { 0,  0,  13,  2,  7,  0,  0,  0,  0,  0,  0 },  // MB R1
                                             { 0,  0,  3,  2,  2,  0,  0,  0,  0,  21, 0 },  // MB R1 cent binning
                                             { 0,  0,  3,  2,  2,  0,  0,  0,  0,  21, 0 },  // 0-5
                                             { 0,  0,  3,  2,  2,  0,  0,  0,  0,  21, 0 },  // 5-10
@@ -3588,7 +3588,7 @@ void CombineMesonMeasurementspPb5TeVCentV2(   TString fileNamePCM             = 
                                                 { 0,  7,  0,  0,  0,  0,  0,  0,  0,  0,  0 }  // 80-100
                                               };
     Int_t offSetsEtaToPi0Sys[9][11]        = {
-                                                { 1,  12,  12,  5,  8,  0,  0,  0,  0,  0, 0 },  // MB R1
+                                                { 1,  12,  14,  5,  8,  0,  0,  0,  0,  0, 0 },  // MB R1
                                                 { 3,  7,  6,  5,  5,  0,  0,  0,  0,  0, 0 },  // MB R1 cent binning
                                                 { 3,  7,  6,  5,  5,  0,  0,  0,  0,  0, 0 },  // 0-5
                                                 { 3,  7,  6,  5,  5,  0,  0,  0,  0,  0, 0 },  // 5-10
@@ -4485,8 +4485,8 @@ void CombineMesonMeasurementspPb5TeVCentV2(   TString fileNamePCM             = 
         // *******************************************************************************************************
         rCPNColl[cent]      = nCollpPb[cent]/(nCollpPb[rCPRefInt[cent]]);
         rCPNCollErr[cent]   = rCPNColl[cent]* TMath::Sqrt(TMath::Power(nCollErrpPb[cent]/nCollpPb[cent],2) + TMath::Power(nCollErrpPb[rCPRefInt[cent]]/nCollpPb[rCPRefInt[cent]],2));
-        clog << nCollpPb[cent] << "\t" << nCollpPb[rCPRefInt[cent]] << endl;
-        clog << rCPNColl[cent] << "\t" << rCPNCollErr[cent] << endl;
+        std::clog << nCollpPb[cent] << "\t" << nCollpPb[rCPRefInt[cent]] << std::endl;
+        std::clog << rCPNColl[cent] << "\t" << rCPNCollErr[cent] << std::endl;
         for (Int_t meth = 0; meth < 11; meth++){
             cout << "RCP calc for pi0 " << centArray[cent].Data() << addCentString[cent].Data() << "\t" << runArray[cent].Data() << "\t" << nameMeasGlobal[meth].Data() << endl;
             graphWeightsPi0RCP[cent][meth]                              = NULL;
@@ -5045,8 +5045,8 @@ void CombineMesonMeasurementspPb5TeVCentV2(   TString fileNamePCM             = 
         if ( !enableCentRMB[cent] ) continue;
         rMBNColl[cent]      = nCollpPb[cent]/(nCollpPb[rMBRefInt[cent]]);
         rMBNCollErr[cent]   = rMBNColl[cent]* TMath::Sqrt(TMath::Power(nCollErrpPb[cent]/nCollpPb[cent],2) + TMath::Power(nCollErrpPb[rMBRefInt[cent]]/nCollpPb[rMBRefInt[cent]],2));
-        clog << nCollpPb[cent] << "\t" << nCollpPb[rMBRefInt[cent]] << endl;
-        clog << rMBNColl[cent] << "\t" << rMBNCollErr[cent] << endl;
+        std::clog << nCollpPb[cent] << "\t" << nCollpPb[rMBRefInt[cent]] << std::endl;
+        std::clog << rMBNColl[cent] << "\t" << rMBNCollErr[cent] << std::endl;
 
         // *******************************************************************************************************
         // *************************** RMB calculation for pi0 for individual measurements **********************

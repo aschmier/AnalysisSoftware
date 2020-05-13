@@ -2125,11 +2125,14 @@
     */
     void DrawGammaLines(Float_t startX, Float_t endX,
                     Float_t startY, Float_t endY,
-                    Float_t linew, Float_t lineColor = 4, Style_t lineStyle = 1){
+                    Float_t linew, Float_t lineColor = 4, Style_t lineStyle = 1, Float_t opacity = 1.){
         TLine * l1 = new TLine (startX,startY,endX,endY);
         l1->SetLineColor(lineColor);
         l1->SetLineWidth(linew);
         l1->SetLineStyle(lineStyle);
+        if (opacity != 1.)
+            l1->SetLineColorAlpha(lineColor,opacity);
+
         l1->Draw("same");
     }
 

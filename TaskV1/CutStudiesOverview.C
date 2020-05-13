@@ -75,6 +75,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
     Double_t    nColls                  [50];
     TString     prefix2                                         = "";
     Bool_t      doMassRatio                                     = kTRUE;
+    Bool_t      doMass                                          = kTRUE;
     Bool_t      doWidthRatio                                    = kTRUE;
     Bool_t      correctionFilesAvail                            = kTRUE;
 
@@ -474,8 +475,8 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             if (histoMassMeson[i] == NULL)
                 histoMassMeson[i]                            = (TH1D*)Cutcorrfile[i]->Get("histoMassGaussianMeson");
             if (histoMassMeson[i] == NULL )
-                doMassRatio                                     = kFALSE;
-            if (doMassRatio) histoMassMeson[i]->SetName(Form("histoMass_%s", cutNumber[i].Data()));
+                doMass                                       = kFALSE;
+            if (doMass) histoMassMeson[i]->SetName(Form("histoMass_%s", cutNumber[i].Data()));
 
             histoMassRatioCut[i]                                = (TH1D*)Cutcorrfile[i]->Get("histoRatioRecMass");
             if (histoMassRatioCut[i] == NULL)
@@ -550,10 +551,11 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             histoRatioAcceptanceCut[i]                          = (TH1D*) histoAcceptanceCut[i]->Clone(Form("histoRatioAcceptanceCut_%s", cutNumber[i].Data()));
             histoRatioAcceptanceCut[i]->Divide(histoRatioAcceptanceCut[i],histoAcceptanceCut[0],1.,1.,"B");
             // cout << "line " << __LINE__ << endl;
-            if (doMassRatio){
+            if (doMass){
                 histoRatioMassCut[i]                       = (TH1D*) histoMassMeson[i]->Clone(Form("histoRatioMassMeson_%s", cutNumber[i].Data()));
                 histoRatioMassCut[i]->Divide(histoRatioMassCut[i],histoMassMeson[0],1.,1.,"B");
-                
+            }
+            if (doMassRatio){
                 histoRatioMassRatioCut[i]                       = (TH1D*) histoMassRatioCut[i]->Clone(Form("histoRatioMassRatio_%s", cutNumber[i].Data()));
                 histoRatioMassRatioCut[i]->Divide(histoRatioMassRatioCut[i],histoMassRatioCut[0],1.,1.,"B");
             }
@@ -712,7 +714,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         canvasRawYieldMeson->Update();
         canvasRawYieldMeson->SaveAs(Form("%s/%s_%s_RAWYield%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
         delete canvasRawYieldMeson;
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
     if (cutVariationName.Contains("SpecialTrigg") || cutVariationName.Contains("Cent") ){
         //**************************************************************************************
         //********************* Plotting RAW-Yield for special triggers  ***********************
@@ -766,7 +768,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         //**************************************************************************************
         //********************* Plotting RAW-Yield for special triggers  ***********************
         //**************************************************************************************
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
         TCanvas* canvasRelUncRawYieldsTrigg = new TCanvas("canvasRawYieldsTrigg","",1000,1000);  // gives the page size
         DrawGammaCanvasSettings( canvasRelUncRawYieldsTrigg,  0.1, 0.02, 0.04, 0.08);
 
@@ -812,7 +814,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         delete canvasRelUncRawYieldsTrigg;
 
         //     }
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
 //     if (cutVariationName.Contains("SpecialTrigg")){
         //**************************************************************************************
         //***************** Plotting RAW-Yield ratios for special triggers  ********************
@@ -864,7 +866,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         canvasRatioRawYields->SaveAs(Form("%s/%s_%s_TriggerYieldRatio%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
         delete canvasRatioRawYields;
     }
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
     //**************************************************************************************
     //************************ Plotting Width  *********************************************
     //**************************************************************************************
@@ -945,6 +947,8 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         canvasWidthMeson->SaveAs(Form("%s/%s_%s_Width%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
         delete canvasWidthMeson;
 
+cout << "line " << __LINE__ << endl;
+        
         TCanvas* canvasMassMeson = new TCanvas("canvasMassMeson","",1350,1500);
         DrawGammaCanvasSettings( canvasMassMeson,  0.13, 0.02, 0.02, 0.09);
         // Upper pad definition
@@ -970,6 +974,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         for(Int_t i = 0; i< NumberOfCuts; i++){
             if(i == 0){
                 DrawGammaSetMarker(histoMassMeson[i], 20, 1., color[0], color[0]);
+                cout << "line " << __LINE__ << histoMassMeson[i]<< endl;
                 DrawAutoGammaMesonHistos( histoMassMeson[i],
                                       "", "#it{p}_{T} (GeV/#it{c})", Form("%s mass",textMeson.Data()),
                                       kFALSE, 0., 1e-4, kTRUE,
@@ -991,7 +996,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         legendMass->Draw();
         // Labeling of plot
         PutProcessLabelAndEnergyOnPlot( 0.94, 0.95, 0.032, collisionSystem, process, detectionProcess, 42, 0.03, optionPeriod, 1, 1.25, 31);
-
+cout << "line " << __LINE__ << endl;
         padMassRatios->cd();
         for(Int_t i = 0; i< NumberOfCuts; i++){
             if(i==0){
@@ -1002,6 +1007,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
                   minYRatio = 0.01;
                   maxYRatio = 1.99;
                 }
+                cout << "line " << __LINE__ << histoRatioMassCut[i] << endl;
                 SetStyleHistoTH1ForGraphs(histoRatioMassCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
                 DrawGammaSetMarker(histoRatioMassCut[i], 20, 1.,color[0],color[0]);
                 histoRatioMassCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
@@ -1016,11 +1022,11 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             }
             DrawGammaLines(0., maxPt,1., 1.,0.1);
         }
-
+cout << "line " << __LINE__ << endl;
         canvasMassMeson->Update();
         canvasMassMeson->SaveAs(Form("%s/%s_%s_Mass%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
         delete canvasMassMeson;
-
+cout << "line " << __LINE__ << endl;
         
     //**************************************************************************************
     //************************ Plotting SB  ************************************************
@@ -1074,7 +1080,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         legendSB->Draw();
         // Labeling of plot
         PutProcessLabelAndEnergyOnPlot( 0.94, 0.95, 0.032, collisionSystem, process, detectionProcess, 42, 0.03, optionPeriod, 1, 1.25, 31);
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
         padSBRatios->cd();
         for(Int_t i = 0; i< NumberOfCuts; i++){
             if(i==0){
@@ -1109,7 +1115,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         canvasSBMeson->SaveAs(Form("%s/%s_%s_SB%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
         delete canvasSBMeson;
 
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
     //**************************************************************************************
     //************************ Plotting SBNarrow  ************************************************
     //**************************************************************************************
@@ -1200,7 +1206,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
     //**************************************************************************************
     //************************ Plotting SignNarrow  ************************************************
     //**************************************************************************************
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
         TCanvas* canvasSignNarrowMeson = new TCanvas("canvasSignNarrowMeson","",1350,1500);
         DrawGammaCanvasSettings( canvasSignNarrowMeson,  0.13, 0.02, 0.02, 0.09);
         // Upper pad definition
@@ -1283,7 +1289,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         canvasSignNarrowMeson->SaveAs(Form("%s/%s_%s_SignNarrow%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
         delete canvasSignNarrowMeson;
 
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
 
     //**************************************************************************************
     //************************ Plotting Sign  ************************************************
@@ -1337,7 +1343,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         legendSign->Draw();
         // Labeling of plot
         PutProcessLabelAndEnergyOnPlot( 0.94, 0.95, 0.032, collisionSystem, process, detectionProcess, 42, 0.03, optionPeriod, 1, 1.25, 31);
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
         padSignRatios->cd();
         for(Int_t i = 0; i< NumberOfCuts; i++){
             if(!histoRatioSignCut[i]) continue;
@@ -1373,7 +1379,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         canvasSignMeson->SaveAs(Form("%s/%s_%s_Sign%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
         delete canvasSignMeson;
 
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
     if (mode == 2 || mode == 3 || mode == 4 || mode == 5){
         //**************************************************************************************
         //********************* Plotting RAW-Cluster Yield *********************************************
@@ -1475,7 +1481,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
                 }
                 DrawGammaLines(0., maxPt,1., 1.,0.1);
             }
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
             canvasRawClusterPt->Update();
             canvasRawClusterPt->SaveAs(Form("%s/%s_%s_RAWYieldCluster%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
             delete canvasRawClusterPt;
@@ -1579,7 +1585,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             delete ClusterFile;
         }
     }
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
 
     if (correctionFilesAvail){
         //*****************************************************************************************
@@ -1634,7 +1640,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
 
         // plot ratio of corrected yields in lower panel
         padCorrectedYieldRatios->cd();
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
 
         for(Int_t i = 0; i< NumberOfCuts; i++){
             if(!histoRatioCorrectedYieldCut[i]) continue;
@@ -1943,7 +1949,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
 
         // Acceptance plot labeling
         PutProcessLabelAndEnergyOnPlot( 0.94, 0.20, 0.032, collisionSystem, process, detectionProcess, 42, 0.03, optionPeriod, 1, 1.25, 31);
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
         // Draw ratio of efficiencies in lower panel
         padAcceptanceRatios->cd();
         if( optionEnergy.Contains("Pb") ) padAcceptanceRatios->SetLogy(0);
@@ -2071,7 +2077,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             canvasMassRatioMeson->SaveAs(Form("%s/%s_%s_MassRatio%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
             delete canvasMassRatioMeson;
         }
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
         if (doWidthRatio){
             //**************************************************************************************
             //********************* Plotting MassRatio *********************************************
@@ -2161,7 +2167,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             canvasWidthRatioMeson->SaveAs(Form("%s/%s_%s_WidthRatio.%s",outputDir.Data(),meson.Data(),prefix2.Data(),suffix.Data()));
             delete canvasWidthRatioMeson;
         }
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
         if (isEta){
             //**************************************************************************************
             //********************* Plotting Eta to pi0 ratio  *************************************
@@ -2254,7 +2260,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             delete canvasEtaToPi0Meson;
 
         }
-// cout << "line " << __LINE__ << endl;
+cout << "line " << __LINE__ << endl;
         //*************************************************************************************************
         //******************** Output of the systematic Error due to Signal extraction for Meson ************
         //*************************************************************************************************

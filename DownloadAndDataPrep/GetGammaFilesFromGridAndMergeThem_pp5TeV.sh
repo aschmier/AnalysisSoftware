@@ -28,7 +28,7 @@ SINGLERUN=1
 SEPARATEON=0
 MERGEONSINGLEData=1
 MERGEONSINGLEMC=1
-MERGEONSINGLEMCJJ=0
+MERGEONSINGLEMCJJ=1
 CLEANUP=1
 CLEANUPMAYOR=$2
 jALIEN=1
@@ -80,7 +80,7 @@ if [ $1 = "fbock" ]; then
     BASEDIR=/mnt/additionalStorageExternal/OutputLegoTrains/pp5TeV
 elif [ $1 = "fbockExt" ]; then
 #     BASEDIR=/media/fbock/2fba62ae-79f7-469c-bca3-385d6f6261da/OutputLegoTrains/pp5TeV
-    BASEDIR=/media/fbock/Samsung_T5/OutputLegoTrains/pp5TeV
+    BASEDIR=/media/fbock/externalppStorag/OutputLegoTrains/pp5TeV
 fi
 
 if [ $3 = "AOD" ]; then
@@ -170,9 +170,15 @@ elif [ $3 = "AODmcp" ]; then
 #     LHC17pqData="1309";
 #     LHC17pDataFast="child_1";
 #     LHC17qDataFast="child_2";
-    TRAINDIR=20200316-RerunSysPHOS
-    LHC15nData="1324"
-    LHC17pqData="1325";
+#     TRAINDIR=20200316-RerunSysPHOS
+#     LHC15nData="1324"
+#     LHC17pqData="1325";
+#     LHC17pDataFast="child_1";
+#     LHC17qDataFast="child_2";
+    
+    TRAINDIR=20200323-EMCandDMC
+    LHC15nData="1336"
+    LHC17pqData="1337";
     LHC17pDataFast="child_1";
     LHC17qDataFast="child_2";
 elif [ $3 = "AODmcpSKIMEMCFull" ]; then
@@ -275,9 +281,35 @@ else
 #     LHC18b8MCF="child_1";
 #     LHC18b8MC="child_3";
 #     LHC18l2MCMother="2411"; 
-#     LHC18l2MCMother="2419"; 
+    LHC18l2MCMother="2419"; 
+    LHC18l2MCE="child_1";
+    LHC18l2MCD="child_2";
+
+#     TRAINDIR=20200323-EMCandDMC
+#     LHC15nData="1338"
+#     LHC17pqData="1339";
+#     LHC17pDataFast="child_1";
+#     LHC17pData="child_2";
+#     LHC17qDataFast="child_3";
+#     LHC17qData="child_4";
+#     LHC15nMC="2493" #
+#     LHC15nMC="2498" #
+#     LHC17e2MC="child_1"
+#     LHC18j3MC="child_2"
+#     LHC17pqMC="2494"; 
+#     LHC17pqMC="2499"; 
+#     LHC17l3bMC="child_2";
+#     LHC18j2MC="child_4";
+#     LHC17l3bMCFast="child_1";
+#     LHC18j2MCFast="child_3";
+#     LHC18b8MCMother="2496"; 
+#     LHC18b8MCF="child_1";
+#     LHC18b8MC="child_3";
+#     LHC16h3MC="2495"; 
+#     LHC18l2MCMother="2497"; 
 #     LHC18l2MCE="child_1";
 #     LHC18l2MCD="child_2";
+    
 
 fi
 

@@ -13,19 +13,20 @@
     // ****************************************************************************************************************
     //********************* Enums *************************************************************************************
     // ****************************************************************************************************************
-    enum Mesons {
-        kPi0,
-        kEta,
-        kEtaPrime,
-        kOmega,
-        kCKaon,
-        kCPion,
-        kLambda,
-        kRho0,
-        kPhi,
-        kK0Star,
-        kProton
-    };
+//     enum Mesons {
+//         kPi0,
+//         kEta,
+//         kEtaPrime,
+//         kOmega,
+//         kCKaon,
+//         kCPion,
+//         kLambda,
+//         kRho0,
+//         kPhi,
+//         kK0Star,
+//         kProton
+//     };
+
     enum Modes {
         // Standard gamma-gamma analysis modes
         kModePCMPCM         = 0,
@@ -124,22 +125,22 @@
                 return kModePCMPCM;
         }
     }
-    Mesons ReturnMesonEnum( TString meson ) {
-        if (meson.EqualTo("Pi0"))      return kPi0;
-        if (meson.EqualTo("Eta"))      return kEta;
-        if (meson.EqualTo("EtaPrim"))  return kEtaPrime;
-        if (meson.EqualTo("EtaPrime")) return kEtaPrime;
-        if (meson.EqualTo("Omega"))    return kOmega;
-        if (meson.EqualTo("CKaon"))    return kCKaon;
-        if (meson.EqualTo("CPion"))    return kCPion;
-        if (meson.EqualTo("Lambda"))   return kLambda;
-        if (meson.EqualTo("Rho0"))     return kRho0;
-        if (meson.EqualTo("Phi"))      return kPhi;
-        if (meson.EqualTo("K0Star"))   return kK0Star;
-        if (meson.EqualTo("Proton"))   return kProton;
-        std::cout << "Warning: particle \"" << meson << "\" not defined" << std:: endl;
-        return kPi0;
-    }
+//     Mesons ReturnMesonEnum( TString meson ) {
+//         if (meson.EqualTo("Pi0"))      return kPi0;
+//         if (meson.EqualTo("Eta"))      return kEta;
+//         if (meson.EqualTo("EtaPrim"))  return kEtaPrime;
+//         if (meson.EqualTo("EtaPrime")) return kEtaPrime;
+//         if (meson.EqualTo("Omega"))    return kOmega;
+//         if (meson.EqualTo("CKaon"))    return kCKaon;
+//         if (meson.EqualTo("CPion"))    return kCPion;
+//         if (meson.EqualTo("Lambda"))   return kLambda;
+//         if (meson.EqualTo("Rho0"))     return kRho0;
+//         if (meson.EqualTo("Phi"))      return kPhi;
+//         if (meson.EqualTo("K0Star"))   return kK0Star;
+//         if (meson.EqualTo("Proton"))   return kProton;
+//         std::cout << "Warning: particle \"" << meson << "\" not defined" << std:: endl;
+//         return kPi0;
+//     }
 
 
     // ****************************************************************************************************************
@@ -940,24 +941,24 @@
     //************************************************************************************
     //************************ return latex writing of meson name ************************
     //************************************************************************************
-    const char* ReturnMesonPlainString ( Mesons meson ){
-        switch(meson) {
-            case kPi0      : return "Pi0";
-            case kEta      : return "Eta";
-            case kEtaPrime : return "EtaPrime";
-            case kOmega    : return "Omega";
-            case kCKaon    : return "CKaon";
-            case kCPion    : return "CPion";
-            case kLambda   : return "Lambda";
-            case kRho0     : return "Rho0";
-            case kPhi      : return "Phi";
-            case kK0Star   : return "K0Star";
-            case kProton   : return "Proton";
-            default :
-                std::cout << "ERROR: meson enum " << meson << " not defined" << std::endl;
-                return "";
-        }
-    }
+//     const char* ReturnMesonPlainString ( Mesons meson ){
+//         switch(meson) {
+//             case kPi0      : return "Pi0";
+//             case kEta      : return "Eta";
+//             case kEtaPrime : return "EtaPrime";
+//             case kOmega    : return "Omega";
+//             case kCKaon    : return "CKaon";
+//             case kCPion    : return "CPion";
+//             case kLambda   : return "Lambda";
+//             case kRho0     : return "Rho0";
+//             case kPhi      : return "Phi";
+//             case kK0Star   : return "K0Star";
+//             case kProton   : return "Proton";
+//             default :
+//                 std::cout << "ERROR: meson enum " << meson << " not defined" << std::endl;
+//                 return "";
+//         }
+//     }
 
     //************************************************************************************
     //**** Decodes from the mode the respective reco process and return correct label ****

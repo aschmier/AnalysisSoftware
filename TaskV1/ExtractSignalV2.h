@@ -827,6 +827,7 @@
         fFullPt[0]                  = 0.4;
         fFullPt[1]                  = 15;
 
+        TString mesonBGString       = fMesonCutSelection(1,1);    
         //****************************************************************************************************
         // Initialization for pi0 meson
         //****************************************************************************************************
@@ -949,13 +950,20 @@
                     fBGFitRange[1]              = 0.3;
                     fBGFitRangeLeft[0]          = 0.26;
                     fBGFitRangeLeft[1]          = 0.30;
-                } else if ( fEnergyFlag.Contains("pPb_5.023TeV") ){
+                } else if ( fEnergyFlag.Contains("pPb_5.023TeV") ){   
+                    cout << "configuring for pPb with BG option: " << mesonBGString.Data() << endl;
                     if( trigger.CompareTo("85") == 0 || triggerSet == 2 ){
                         fBGFitRange[0] = 0.25;
                     } else if ( trigger.CompareTo("83")==0 || triggerSet == 3 ){
                         fBGFitRange[0] = 0.26;
                     } else {
                         fBGFitRange[0] = 0.22;
+                    }
+                    if (mesonBGString.CompareTo("r") == 0){
+                        fBGFitRange[0]              = 0.3;
+                        fBGFitRange[1]              = 0.38;
+                        fBGFitRangeLeft[0]          = 0.35;
+                        fBGFitRangeLeft[1]          = 0.38;
                     }
                 } else if ( fEnergyFlag.Contains("pPb_8TeV") ){
                     if( trigger.CompareTo("8e") == 0 || triggerSet == 1 ){
@@ -1150,9 +1158,14 @@
             fMesonMassPlotRange[1]      = 0.3;
             fMesonMassRange[0]          = 0.;
             fMesonMassRange[1]          = 0.3;
-            if (mode == 0 && fEnergyFlag.CompareTo("pPb_5.023TeV") == 0 )
-                fMesonMassRange[1]      = 0.14;
 
+            if (mesonBGString.CompareTo("r") == 0 && mode == 4){
+                fMesonMassRange[0]          = 0.;
+                fMesonMassRange[1]          = 0.4;
+                fMesonMassPlotRange[0]      = 0.;
+                fMesonMassPlotRange[1]      = 0.4;
+            }
+            
             // Set Meson fit range
             if (mode == 0){
                 if( fEnergyFlag.Contains("PbPb")){                      // PCM

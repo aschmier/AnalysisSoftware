@@ -53,7 +53,9 @@
 
 void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
                                        TString outputFileName   = "",
-                                       Int_t mode               = 0
+                                       Int_t mode               = 0, 
+                                       Double_t scaleFactorA    = -1,
+                                       Double_t scaleFactorB    = -1
                                      ){
 
     
@@ -97,6 +99,7 @@ void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
     TList *listInter1        = new TList();
     listInter1->SetName(listNameOutMain.Data());
     TList *listToCopyInter1[40]   = {NULL};        
+    TList *listSubDirCopy1[200]   = {NULL};
     
     for (Int_t i = 0; i < Number-1; i++){
         cout << "reading config " << i << endl;
@@ -126,8 +129,35 @@ void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
                 TString listName = l3->GetName();
                 if (listName.BeginsWith(cutNumber1[i].Data())){
                     listName.ReplaceAll(cutNumber1[i].Data(), cutNumberOut[i].Data());
-                    l3->SetName(listName.Data());
-                    listToCopyInter1[i]->Add(l3);
+                    if (scaleFactorA > 0.){
+                        Int_t cEnt = i*(Int_t)(((TList*) list1->At(refNr))->GetEntries()) + k;
+                        listSubDirCopy1[cEnt] = new TList();                        
+                        listSubDirCopy1[cEnt]->SetName(listName.Data());
+                        Int_t maxObjects = l3->GetEntries();
+                        for (Int_t m = 0; m < maxObjects; m++ ){
+                            TObject* o1 = (TObject*)l3->At(m);
+                            TString objectName = o1->GetName();
+                            TString className = o1->ClassName();
+                            cout << objectName.Data() << "\t" << className.Data() << endl;
+                            if (className.Contains("TH1") == 0){
+                                TH1* h1 = ((TH1*)l3->At(m));
+                                h1->Sumw2();
+                                h1->Scale(scaleFactorA);
+                                listSubDirCopy1[cEnt]->Add(h1);
+                            } else if (className.Contains("TH2") == 0){
+                                TH2* h1 = ((TH2*)l3->At(m));
+                                h1->Sumw2();
+                                h1->Scale(scaleFactorA);
+                                listSubDirCopy1[cEnt]->Add(h1);
+                            } else {
+                                listSubDirCopy1[cEnt]->Add(o1);
+                            }
+                        }
+                        listToCopyInter1[i]->Add(listSubDirCopy1[cEnt]);
+                    } else {
+                        l3->SetName(listName.Data());
+                        listToCopyInter1[i]->Add(l3);
+                    }
                 }
             }
         } else {
@@ -149,6 +179,7 @@ void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
     TFile* filesIn2[40] = {NULL};
     TTree *treeCopyPhotonInter2[40]   = {NULL};        
     TTree *treeCopyMesonInter2[40]   = {NULL};        
+    TList *listSubDirCopy2[200]   = {NULL};
     for (Int_t i = 0; i < Number-1; i++){
         filesIn2[i] = new TFile(fileName2[i].Data());
         treeCopyPhotonInter2[i] = (TTree*)filesIn2[i]->Get(Form("%s Photon DCA tree",cutNumber2[i].Data() ));
@@ -194,8 +225,35 @@ void MergeFilesWithDifferentCutnumber( TString fileNameConfig   = "",
                 TString listName = l3->GetName();
                 if (listName.BeginsWith(cutNumber2[i].Data())){
                     listName.ReplaceAll(cutNumber2[i].Data(), cutNumberOut[i].Data());
-                    l3->SetName(listName.Data());
-                    listToCopyInter2[i]->Add(l3);
+                    if (scaleFactorB > 0.){
+                        Int_t cEnt = i*(Int_t)(((TList*) list1->At(refNr))->GetEntries()) + k;
+                        listSubDirCopy2[cEnt] = new TList();                        
+                        listSubDirCopy2[cEnt]->SetName(listName.Data());
+                        Int_t maxObjects = l3->GetEntries();
+                        for (Int_t m = 0; m < maxObjects; m++ ){
+                            TObject* o1 = (TObject*)l3->At(m);
+                            TString objectName = o1->GetName();
+                            TString className = o1->ClassName();
+                            cout << objectName.Data() << "\t" << className.Data() << endl;
+                            if (className.Contains("TH1") == 0){
+                                TH1* h1 = ((TH1*)l3->At(m));
+                                if (h1->GetSumw2N() == 0) h1->Sumw2();
+                                h1->Scale(scaleFactorB);
+                                listSubDirCopy2[cEnt]->Add(h1);
+                            } else if (className.Contains("TH2") == 0){
+                                TH2* h1 = ((TH2*)l3->At(m));
+                                if (h1->GetSumw2N() == 0) h1->Sumw2();
+                                h1->Scale(scaleFactorB);
+                                listSubDirCopy2[cEnt]->Add(h1);
+                            } else {
+                                listSubDirCopy2[cEnt]->Add(o1);
+                            }
+                        }
+                        listToCopyInter2[i]->Add(listSubDirCopy2[cEnt]);
+                    } else {
+                        l3->SetName(listName.Data());
+                        listToCopyInter2[i]->Add(l3);
+                    }
                 }
             }
         } else {

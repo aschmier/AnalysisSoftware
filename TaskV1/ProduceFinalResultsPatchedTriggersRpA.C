@@ -157,7 +157,7 @@ Int_t GetOrderedTrigger(TString triggerNameDummy){
 //***************************************************************************************************************
 //***************************** Main function *******************************************************************
 //***************************************************************************************************************
-void  ProduceFinalResultsPatchedTriggers_incRpA(
+void  ProduceFinalResultsPatchedTriggersRpA(
     TString fileListNamePi0     = "triggerFileListPi0.txt",
     Int_t   mode                = 4,
     Int_t   numberOfTrigg       = 6,
@@ -247,17 +247,21 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
         cout<< "Eta: " << ptFromSpecEta[nrOfTrigToBeComb][0] << " < pT < " << ptFromSpecEta[nrOfTrigToBeComb][1] << "\t sys input: " << sysFileEta[nrOfTrigToBeComb]<<endl;
         nrOfTrigToBeComb++;
     }
+    nrOfTrigToBeCombPi0Red      = nrOfTrigToBeComb;
+    nrOfTrigToBeCombEtaRed      = nrOfTrigToBeComb;
 
     for (Int_t i = 0; i < nrOfTrigToBeComb; i++){
         // figure out which triggers are fully masked for the pi0
         if ((ptFromSpecPi0[i][1] == -1 && ptFromSpecPi0[i][0] == -1 )|| (ptFromSpecPi0[i][0] == 0 && ptFromSpecPi0[i][1] == 0)){
             maskedFullyPi0[i]       = kTRUE;
+            nrOfTrigToBeCombPi0Red--;
         } else {
             maskedFullyPi0[i]       = kFALSE;
         }
         // figure out which triggers are fully masked for the eta
         if ((ptFromSpecEta[i][1] == -1 && ptFromSpecEta[i][0] == -1 )|| (ptFromSpecEta[i][0] == 0 && ptFromSpecEta[i][1] == 0)){
             maskedFullyEta[i]       = kTRUE;
+            nrOfTrigToBeCombEtaRed--;
         } else {
             maskedFullyEta[i]       = kFALSE;
         }
@@ -594,6 +598,7 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     TH1D*               histoStatPi0    [MaxNumberOfFiles];
     TGraphAsymmErrors*  graphSystPi0    [MaxNumberOfFiles];
     TH1D*               histoRelStatPi0 [MaxNumberOfFiles];
+    TGraphAsymmErrors*  graphRelStatPi0 [MaxNumberOfFiles];
     TGraphAsymmErrors*  graphRelSystPi0 [MaxNumberOfFiles];
 
     Int_t offSetsPi0[MaxNumberOfFiles];
@@ -926,6 +931,273 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
     while (graphNuclModFactorWeightedAveragePi0Tot->GetY()[0] <= 0.0000001) graphNuclModFactorWeightedAveragePi0Tot->RemovePoint(0);
     while (graphNuclModFactorWeightedAveragePi0Stat->GetY()[0] <= 0.0000001) graphNuclModFactorWeightedAveragePi0Stat->RemovePoint(0);
     while (graphNuclModFactorWeightedAveragePi0Sys->GetY()[0] <= 0.0000001) graphNuclModFactorWeightedAveragePi0Sys->RemovePoint(0);
+    
+    
+    if (averagedPi0){
+             // preparations for weight readout
+        Double_t xValuesReadPi0[400];
+        Double_t weightsReadPi0[MaxNumberOfFiles][400];
+        Int_t availableMeasPi0[MaxNumberOfFiles];
+            for(Int_t set=0;set<MaxNumberOfFiles;set++) availableMeasPi0[set]= -1;
+        Int_t nMeasSetPi0               = nrOfTrigToBeCombPi0Red;
+        Int_t nPtBinsReadPi0            = 0;
+
+        // labeling and plotting settings
+        Color_t colorTriggWeighted[MaxNumberOfFiles];
+            for(Int_t set=0;set<MaxNumberOfFiles;set++) colorTriggWeighted[set]= GetDefaultTriggerColorName(nameTriggerWeighted[set], 0);
+        Marker_t markerTriggWeighted[MaxNumberOfFiles];
+            for(Int_t set=0;set<MaxNumberOfFiles;set++) markerTriggWeighted[set]= GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[set], 0);
+
+        // Reading weights from output file for plotting
+        ifstream fileWeightsPi0;
+        fileWeightsPi0.open(nameWeightsLogFilePi0,ios_base::in);
+        cout << "reading" << nameWeightsLogFilePi0 << endl;
+
+        while(!fileWeightsPi0.eof() && nPtBinsReadPi0 < 400){
+            TString garbage = "";
+            if (nPtBinsReadPi0 == 0){
+                fileWeightsPi0 >> garbage ;//>> availableMeas[0] >> availableMeas[1] >> availableMeas[2] >> availableMeas[3];
+                for (Int_t i = 0; i < nMeasSetPi0; i++){
+                    fileWeightsPi0 >> availableMeasPi0[i] ;
+                }
+                cout << "read following measurements: ";
+                for (Int_t i = 0; i < nMeasSetPi0; i++){
+                    cout << availableMeasPi0[i] << "\t" ;
+                }
+                cout << endl;
+            } else {
+                fileWeightsPi0 >> xValuesReadPi0[nPtBinsReadPi0-1];
+                for (Int_t i = 0; i < nMeasSetPi0; i++){
+                    fileWeightsPi0 >> weightsReadPi0[availableMeasPi0[i]][nPtBinsReadPi0-1] ;
+                }
+                cout << "read: "<<  nPtBinsReadPi0 << "\t"<< xValuesReadPi0[nPtBinsReadPi0-1] << "\t" ;
+                for (Int_t i = 0; i < nMeasSetPi0; i++){
+                    cout << weightsReadPi0[availableMeasPi0[i]][nPtBinsReadPi0-1] << "\t";
+                }
+                cout << endl;
+            }
+            nPtBinsReadPi0++;
+        }
+        nPtBinsReadPi0 = nPtBinsReadPi0-2 ;
+        fileWeightsPi0.close();
+
+        // creating & filling the weight graphs
+        TGraph* graphWeightsPi0[MaxNumberOfFiles];
+        for (Int_t i = 0; i < MaxNumberOfFiles; i++){
+            graphWeightsPi0[i]                    = NULL;
+        }
+        for (Int_t i = 0; i < nMeasSetPi0; i++){
+            cout << i << "\t" << availableMeasPi0[i] << endl;
+            graphWeightsPi0[availableMeasPi0[i]]  = new TGraph(nPtBinsReadPi0,xValuesReadPi0,weightsReadPi0[availableMeasPi0[i]]);
+            Int_t bin = 0;
+            for (Int_t n = 0; n< nPtBinsReadPi0; n++){
+                if (graphWeightsPi0[availableMeasPi0[i]]->GetY()[bin] == 0) graphWeightsPi0[availableMeasPi0[i]]->RemovePoint(bin);
+                else bin++;
+            }
+            graphWeightsPi0[availableMeasPi0[i]]->Print();
+        }
+
+
+        //  **********************************************************************************************************************
+        //  ******************************************* Plotting weights Pi0 *****************************************************
+        //  **********************************************************************************************************************
+        Int_t textSizeLabelsPixel = 900*0.04;
+
+        TCanvas* canvasWeights = new TCanvas("canvasWeights","",200,10,1350,900);// gives the page size
+        DrawGammaCanvasSettings( canvasWeights, 0.08, 0.02, 0.035, 0.09);
+
+        TH2F * histo2DWeights;
+        histo2DWeights = new TH2F("histo2DWeights","histo2DWeights",11000,0.,maxPtGlobalPi0,1000,-0.5,1.1);
+        SetStyleHistoTH2ForGraphs(histo2DWeights, "#it{p}_{T} (GeV/#it{c})","#omega_{a} for BLUE",0.035,0.04, 0.035,0.04, 1.,1.);
+        histo2DWeights->Draw("copy");
+
+            TLegend* legendWeightsPi0 = GetAndSetLegend2(0.12, 0.14, 0.55, 0.14+(0.035*nMeasSetPi0/2*1.35), 32);
+            legendWeightsPi0->SetNColumns(2);
+            for (Int_t i = 0; i < nMeasSetPi0; i++){
+                DrawGammaSetMarkerTGraph(graphWeightsPi0[availableMeasPi0[i]],markerTriggWeighted[availableMeasPi0[i]], 1.5*sizeTrigg[availableMeasPi0[i]],
+                                         colorTriggWeighted[availableMeasPi0[i]], colorTriggWeighted[availableMeasPi0[i]]);
+                graphWeightsPi0[availableMeasPi0[i]]->Draw("p,same,e1");
+                legendWeightsPi0->AddEntry(graphWeightsPi0[availableMeasPi0[i]],nameTriggerWeighted[availableMeasPi0[i]],"p");
+            }
+            legendWeightsPi0->Draw();
+
+            TLatex *labelWeightsEnergy = new TLatex(0.95,0.24,collisionSystem.Data());
+            SetStyleTLatex( labelWeightsEnergy, 0.85*textSizeLabelsPixel,4,1,42,kTRUE, 31);
+            labelWeightsEnergy->SetTextFont(43);
+            labelWeightsEnergy->Draw();
+            TLatex *labelWeightsPi0 = new TLatex(0.95,0.20,"#pi^{0} #it{R}_{pA}");
+            SetStyleTLatex( labelWeightsPi0, 0.85*textSizeLabelsPixel,4,1,42,kTRUE, 31);
+            labelWeightsPi0->SetTextFont(43);
+            labelWeightsPi0->Draw();
+            TLatex *labelDetProcWeights    = new TLatex(0.95, 0.16,detectionProcess.Data());
+            SetStyleTLatex( labelDetProcWeights, 0.85*textSizeLabelsPixel,4,1,42,kTRUE, 31);
+            labelDetProcWeights->SetTextFont(43);
+            labelDetProcWeights->Draw();
+
+
+    //      DrawGammaLines(0.23, 70. , 0.8, 0.8,1, kGray, 3);
+            DrawGammaLines(0.23, 70. , 0.5, 0.5,1, kGray, 7);
+            DrawGammaLines(0.23, 70. , 0.4, 0.4,1, kGray, 1);
+            DrawGammaLines(0.23, 70. , 0.3, 0.3,1, kGray, 7);
+            DrawGammaLines(0.23, 70. , 0.2, 0.2,1, kGray, 3);
+
+        canvasWeights->SaveAs(Form("%s/%s_WeightsPi0RpATriggers.%s",outputDir.Data(), isMC.Data(), suffix.Data()));
+        delete canvasWeights;
+
+        // Calculating relative error for pi0
+        for (Int_t i = 0; i < MaxNumberOfFiles; i++){
+            if (histoStatPi0[i]){
+                histoRelStatPi0[i]      = CalculateRelErrUpTH1D( histoStatPi0[i], Form("relativeStatErrorPi0_%s", nameTriggerWeighted[i].Data()));
+                graphRelStatPi0[i]      = new TGraphAsymmErrors(histoRelStatPi0[i]);
+                while (graphRelStatPi0[i]->GetY()[0] < 0  || graphRelStatPi0[i]->GetY()[0] == 0) graphRelStatPi0[i]->RemovePoint(0);
+                graphRelStatPi0[i]->Print();
+            }
+            if (graphSystPi0[i])
+                graphRelSystPi0[i]      = CalculateRelErrUpAsymmGraph( graphSystPi0[i], Form("relativeSysErrorPi0_%s", nameTriggerWeighted[i].Data()));
+        }
+
+        TGraphAsymmErrors* graphRelErrorPi0Tot        = CalculateRelErrUpAsymmGraph( graphNuclModFactorWeightedAveragePi0Tot, "relativeTotalErrorPi0");
+        while (graphRelErrorPi0Tot->GetY()[0] < 0  || graphRelErrorPi0Tot->GetY()[0] == 0) graphRelErrorPi0Tot->RemovePoint(0);
+
+        TGraphAsymmErrors* graphRelErrorPi0Stat       = CalculateRelErrUpAsymmGraph( graphNuclModFactorWeightedAveragePi0Stat, "relativeStatErrorPi0");
+        while (graphRelErrorPi0Stat->GetY()[0] < 0 || graphRelErrorPi0Stat->GetY()[0] == 0) graphRelErrorPi0Stat->RemovePoint(0);
+
+        TGraphAsymmErrors* graphRelErrorPi0Sys        = CalculateRelErrUpAsymmGraph( graphNuclModFactorWeightedAveragePi0Sys, "relativeSysErrorPi0");
+        while (graphRelErrorPi0Sys->GetY()[0] < 0 || graphRelErrorPi0Sys->GetY()[0] == 0 ) graphRelErrorPi0Sys->RemovePoint(0);
+
+        const char *SysErrDatnameMeanSingleErrCheck = Form("%s/SystematicErrorAveragedSingle%s_Pi0RpA_%s_Check.dat",outputDir.Data(),sysStringComb.Data(),optionEnergy.Data());
+        fstream SysErrDatAverSingleCheck;
+        SysErrDatAverSingleCheck.precision(4);
+        cout << SysErrDatnameMeanSingleErrCheck << endl;
+        if(sysAvailSinglePi0[0]){
+          SysErrDatAverSingleCheck.open(SysErrDatnameMeanSingleErrCheck, ios::out);
+          SysErrDatAverSingleCheck << "pt \t Stat err \t sys err \t tot err " << endl;
+          for (Int_t i = 0; i < graphRelErrorPi0Tot->GetN(); i++){
+              if (graphRelErrorPi0Stat->GetY()[i] > 0) SysErrDatAverSingleCheck << graphRelErrorPi0Stat->GetX()[i] << "\t" << graphRelErrorPi0Stat->GetY()[i] <<"\t" << graphRelErrorPi0Sys->GetY()[i] <<  "\t" << graphRelErrorPi0Tot->GetY()[i] << endl;
+          }
+          SysErrDatAverSingleCheck << endl;
+          SysErrDatAverSingleCheck.close();
+        }
+
+        // plot sys relative errors for individual triggers
+        TCanvas* canvasRelSysErr            = new TCanvas("canvasRelSysErr","",200,10,1350,900);  // gives the page size
+        DrawGammaCanvasSettings( canvasRelSysErr, 0.08, 0.02, 0.035, 0.09);
+
+        TH2F * histo2DRelSysErr;
+        histo2DRelSysErr                    = new TH2F("histo2DRelSysErr","histo2DRelSysErr",11000,0.,maxPtGlobalPi0,1000,0,60.5);
+        SetStyleHistoTH2ForGraphs(histo2DRelSysErr, "#it{p}_{T} (GeV/#it{c})","sys Err (%)",0.035,0.04, 0.035,0.04, 1.,1.);
+        histo2DRelSysErr->Draw("copy");
+            TLegend* legendRelSysErr        = GetAndSetLegend2(0.62, 0.92-(0.035*(nMeasSetPi0+1)/2), 0.95, 0.92, 32);
+            legendRelSysErr->SetNColumns(2);
+            for (Int_t i = 0; i < nMeasSetPi0; i++){
+                cout << "plotting graph: " << availableMeasPi0[i] << "\t" <<graphRelSystPi0[availableMeasPi0[i]]->GetName() << endl;
+                DrawGammaSetMarkerTGraph(graphRelSystPi0[availableMeasPi0[i]], markerTriggWeighted[availableMeasPi0[i]], sizeTrigg[availableMeasPi0[i]],
+                                         colorTriggWeighted[availableMeasPi0[i]], colorTriggWeighted[availableMeasPi0[i]]);
+                graphRelSystPi0[availableMeasPi0[i]]->Draw("p,same,z");
+                legendRelSysErr->AddEntry(graphRelSystPi0[availableMeasPi0[i]],nameTriggerWeighted[availableMeasPi0[i]],"p");
+            }
+            legendRelSysErr->Draw();
+
+            TLatex *labelRelErrEnergy    = new TLatex(0.15,0.89,collisionSystem.Data());
+            SetStyleTLatex( labelRelErrEnergy, 0.85*textSizeLabelsPixel,4);
+            labelRelErrEnergy->SetTextFont(43);
+            labelRelErrEnergy->Draw();
+            TLatex *labelRelErrPi0       = new TLatex(0.15,0.85,"#pi^{0} #rightarrow #gamma#gamma");
+            SetStyleTLatex( labelRelErrPi0, 0.85*textSizeLabelsPixel,4);
+            labelRelErrPi0->SetTextFont(43);
+            labelRelErrPi0->Draw();
+            TLatex *labelDetProcRelErr    = new TLatex(0.15, 0.81,detectionProcess.Data());
+            SetStyleTLatex( labelDetProcRelErr, 0.85*textSizeLabelsPixel,4);
+            labelDetProcRelErr->SetTextFont(43);
+            labelDetProcRelErr->Draw();
+
+        canvasRelSysErr->SaveAs(Form("%s/Pi0RpA_RelSysErr_SingleMeas.%s",outputDir.Data(),suffix.Data()));
+
+
+            DrawGammaSetMarkerTGraphAsym(graphRelErrorPi0Sys, 24, 1.5, kGray+1 , kGray+1);
+//             graphRelErrorPi0Sys->SetLineStyle(7);
+            graphRelErrorPi0Sys->Draw("same,pze1");
+            legendRelSysErr->AddEntry(graphRelErrorPi0Sys,"average","p");
+            legendRelSysErr->Draw();
+
+            labelRelErrEnergy->Draw();
+            labelRelErrPi0->Draw();
+            labelDetProcRelErr->Draw();
+
+        canvasRelSysErr->SaveAs(Form("%s/Pi0RpA_RelSysErrWithAverage_SingleMeas.%s",outputDir.Data(),suffix.Data()));
+
+
+        // plot stat relative errors for individual triggers
+        TCanvas* canvasRelStatErr           = new TCanvas("canvasRelStatErr","",200,10,1350,900);  // gives the page size
+        DrawGammaCanvasSettings( canvasRelStatErr, 0.08, 0.02, 0.035, 0.09);
+
+        TH2F * histo2DRelStatErr;
+        histo2DRelStatErr                   = new TH2F("histo2DRelStatErr","histo2DRelStatErr",11000,0.,maxPtGlobalPi0,1000,0,60.5);
+        SetStyleHistoTH2ForGraphs(histo2DRelStatErr, "#it{p}_{T} (GeV/#it{c})","stat Err (%)",0.035,0.04, 0.035,0.04, 1.,1.);
+        histo2DRelStatErr->Draw("copy");
+
+            TLegend* legendRelStatErr       = GetAndSetLegend2(0.62, 0.92-(0.035*nMeasSetPi0/2), 0.95, 0.92, 32);
+            legendRelStatErr->SetNColumns(2);
+            for (Int_t i = 0; i < nMeasSetPi0; i++){
+                 cout << "plotting graph: " << availableMeasPi0[i] << "\t" <<graphRelStatPi0[availableMeasPi0[i]]->GetName() << endl;
+                if (graphRelStatPi0[availableMeasPi0[i]] ){
+//                     TGraphAsymmErrors* dummyGraph = new TGraphAsymmErrors(histoRelStatPi0[availableMeasPi0[i]]);
+                    graphRelStatPi0[availableMeasPi0[i]]->Print();
+                    DrawGammaSetMarkerTGraph(graphRelStatPi0[availableMeasPi0[i]], markerTriggWeighted[availableMeasPi0[i]], sizeTrigg[availableMeasPi0[i]],
+                                         colorTriggWeighted[availableMeasPi0[i]], colorTriggWeighted[availableMeasPi0[i]]);
+                    graphRelStatPi0[availableMeasPi0[i]]->Draw("p,same");
+                    legendRelStatErr->AddEntry(graphRelStatPi0[availableMeasPi0[i]],nameTriggerWeighted[availableMeasPi0[i]],"p");
+
+                     for (Int_t j = 1; j < histoRelStatPi0[availableMeasPi0[i]]->GetNbinsX()+1; j++){
+                        cout << j << ": " << histoRelStatPi0[availableMeasPi0[i]]->GetBinContent(j) << endl;
+                     }
+                } else if (histoRelStatPi0[availableMeasPi0[i]]) {
+                    DrawGammaSetMarker(histoRelStatPi0[availableMeasPi0[i]],markerTriggWeighted[availableMeasPi0[i]], sizeTrigg[availableMeasPi0[i]],
+                                            colorTriggWeighted[availableMeasPi0[i]], colorTriggWeighted[availableMeasPi0[i]]);
+                    histoRelStatPi0[availableMeasPi0[i]]->DrawCopy("p,same,z");
+                    legendRelStatErr->AddEntry(histoRelStatPi0[availableMeasPi0[i]],nameTriggerWeighted[availableMeasPi0[i]],"p");
+                }
+            }
+            legendRelStatErr->Draw();
+
+            labelRelErrEnergy->Draw();
+            labelRelErrPi0->Draw();
+            labelDetProcRelErr->Draw();
+
+        canvasRelStatErr->SaveAs(Form("%s/Pi0RpA_RelStatErr_SingleMeas.%s",outputDir.Data(),suffix.Data()));
+
+        // plot full error for final result decomposed
+        TCanvas* canvasRelTotErr            = new TCanvas("canvasRelTotErr","",200,10,1350,900);  // gives the page size
+        DrawGammaCanvasSettings( canvasRelTotErr, 0.08, 0.02, 0.035, 0.09);
+
+        TH2F * histo2DRelTotErrPi0;
+        histo2DRelTotErrPi0                 = new TH2F("histo2DRelTotErrPi0","histo2DRelTotErrPi0",11000,0.,maxPtGlobalPi0,1000,0,40.5);
+        SetStyleHistoTH2ForGraphs(histo2DRelTotErrPi0, "#it{p}_{T} (GeV/#it{c})","Err (%)",0.035,0.04, 0.035,0.04, 1.,1.);
+        histo2DRelTotErrPi0->Draw("copy");
+
+            DrawGammaSetMarkerTGraphAsym(graphRelErrorPi0Tot, 20, 1.5, kBlack , kBlack);
+            graphRelErrorPi0Tot->Draw("p,same,z");
+            DrawGammaSetMarkerTGraphAsym(graphRelErrorPi0Stat, 24, 1.5, kGray+2 , kGray+2);
+            graphRelErrorPi0Stat->Draw("l,x0,same,e1");
+            DrawGammaSetMarkerTGraphAsym(graphRelErrorPi0Sys, 24, 1.5, kGray+1 , kGray+1);
+            graphRelErrorPi0Sys->SetLineStyle(7);
+            graphRelErrorPi0Sys->Draw("l,x0,same,e1");
+
+            TLegend* legendRelTotErr2       = GetAndSetLegend2(0.72, 0.92-(0.035*3), 0.9, 0.92, 32);
+            legendRelTotErr2->AddEntry(graphRelErrorPi0Tot,"tot","p");
+            legendRelTotErr2->AddEntry(graphRelErrorPi0Stat,"stat","l");
+            legendRelTotErr2->AddEntry(graphRelErrorPi0Sys,"sys","l");
+            legendRelTotErr2->Draw();
+
+            labelRelErrEnergy->Draw();
+            labelRelErrPi0->Draw();
+            labelDetProcRelErr->Draw();
+
+        canvasRelTotErr->SaveAs(Form("%s/Pi0RpA_RelErrorsFulldecomp.%s",outputDir.Data(),suffix.Data()));
+           
+    }
+    
+    
     // return;
     //***************************************************************************************************************
     //************************************Plotting nuclear modification factors  *************************************
@@ -1399,6 +1671,274 @@ void  ProduceFinalResultsPatchedTriggers_incRpA(
         while (graphNuclModFactorWeightedAverageEtaTot->GetY()[0] <= 0) graphNuclModFactorWeightedAverageEtaTot->RemovePoint(0);
         while (graphNuclModFactorWeightedAverageEtaStat->GetY()[0] <= 0) graphNuclModFactorWeightedAverageEtaStat->RemovePoint(0);
         while (graphNuclModFactorWeightedAverageEtaSys->GetY()[0] <= 0) graphNuclModFactorWeightedAverageEtaSys->RemovePoint(0);
+
+
+
+        if (averagedEta){
+                // preparations for weight readout
+            Double_t xValuesReadEta[400];
+            Double_t weightsReadEta[MaxNumberOfFiles][400];
+            Int_t availableMeasEta[MaxNumberOfFiles];
+                for(Int_t set=0;set<MaxNumberOfFiles;set++) availableMeasEta[set]= -1;
+            Int_t nMeasSetEta               = nrOfTrigToBeCombEtaRed;
+            Int_t nPtBinsReadEta            = 0;
+
+            // labeling and plotting settings
+            Color_t colorTriggWeighted[MaxNumberOfFiles];
+                for(Int_t set=0;set<MaxNumberOfFiles;set++) colorTriggWeighted[set]= GetDefaultTriggerColorName(nameTriggerWeighted[set], 0);
+            Marker_t markerTriggWeighted[MaxNumberOfFiles];
+                for(Int_t set=0;set<MaxNumberOfFiles;set++) markerTriggWeighted[set]= GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[set], 0);
+
+            // Reading weights from output file for plotting
+            ifstream fileWeightsEta;
+            fileWeightsEta.open(nameWeightsLogFileEta,ios_base::in);
+            cout << "reading" << nameWeightsLogFileEta << endl;
+
+            while(!fileWeightsEta.eof() && nPtBinsReadEta < 400){
+                TString garbage = "";
+                if (nPtBinsReadEta == 0){
+                    fileWeightsEta >> garbage ;//>> availableMeas[0] >> availableMeas[1] >> availableMeas[2] >> availableMeas[3];
+                    for (Int_t i = 0; i < nMeasSetEta; i++){
+                        fileWeightsEta >> availableMeasEta[i] ;
+                    }
+                    cout << "read following measurements: ";
+                    for (Int_t i = 0; i < nMeasSetEta; i++){
+                        cout << availableMeasEta[i] << "\t" ;
+                    }
+                    cout << endl;
+                } else {
+                    fileWeightsEta >> xValuesReadEta[nPtBinsReadEta-1];
+                    for (Int_t i = 0; i < nMeasSetEta; i++){
+                        fileWeightsEta >> weightsReadEta[availableMeasEta[i]][nPtBinsReadEta-1] ;
+                    }
+                    cout << "read: "<<  nPtBinsReadEta << "\t"<< xValuesReadEta[nPtBinsReadEta-1] << "\t" ;
+                    for (Int_t i = 0; i < nMeasSetEta; i++){
+                        cout << weightsReadEta[availableMeasEta[i]][nPtBinsReadEta-1] << "\t";
+                    }
+                    cout << endl;
+                }
+                nPtBinsReadEta++;
+            }
+            nPtBinsReadEta = nPtBinsReadEta-2 ;
+            fileWeightsEta.close();
+
+            // creating & filling the weight graphs
+            TGraph* graphWeightsEta[MaxNumberOfFiles];
+            for (Int_t i = 0; i < MaxNumberOfFiles; i++){
+                graphWeightsEta[i]                    = NULL;
+            }
+            for (Int_t i = 0; i < nMeasSetEta; i++){
+                cout << i << "\t" << availableMeasEta[i] << endl;
+                graphWeightsEta[availableMeasEta[i]]  = new TGraph(nPtBinsReadEta,xValuesReadEta,weightsReadEta[availableMeasEta[i]]);
+                Int_t bin = 0;
+                for (Int_t n = 0; n< nPtBinsReadEta; n++){
+                    if (graphWeightsEta[availableMeasEta[i]]->GetY()[bin] == 0) graphWeightsEta[availableMeasEta[i]]->RemovePoint(bin);
+                    else bin++;
+                }
+                graphWeightsEta[availableMeasEta[i]]->Print();
+            }
+
+
+            //  **********************************************************************************************************************
+            //  ******************************************* Plotting weights Eta *****************************************************
+            //  **********************************************************************************************************************
+            Int_t textSizeLabelsPixel = 900*0.04;
+
+            TCanvas* canvasWeights = new TCanvas("canvasWeights","",200,10,1350,900);// gives the page size
+            DrawGammaCanvasSettings( canvasWeights, 0.08, 0.02, 0.035, 0.09);
+
+            TH2F * histo2DWeights;
+            histo2DWeights = new TH2F("histo2DWeights","histo2DWeights",11000,0.,maxPtGlobalEta,1000,-0.5,1.1);
+            SetStyleHistoTH2ForGraphs(histo2DWeights, "#it{p}_{T} (GeV/#it{c})","#omega_{a} for BLUE",0.035,0.04, 0.035,0.04, 1.,1.);
+            histo2DWeights->Draw("copy");
+
+                TLegend* legendWeightsEta = GetAndSetLegend2(0.12, 0.14, 0.55, 0.14+(0.035*nMeasSetEta/2*1.35), 32);
+                legendWeightsEta->SetNColumns(2);
+                for (Int_t i = 0; i < nMeasSetEta; i++){
+                    DrawGammaSetMarkerTGraph(graphWeightsEta[availableMeasEta[i]],markerTriggWeighted[availableMeasEta[i]], 1.5*sizeTrigg[availableMeasEta[i]],
+                                            colorTriggWeighted[availableMeasEta[i]], colorTriggWeighted[availableMeasEta[i]]);
+                    graphWeightsEta[availableMeasEta[i]]->Draw("p,same,e1");
+                    legendWeightsEta->AddEntry(graphWeightsEta[availableMeasEta[i]],nameTriggerWeighted[availableMeasEta[i]],"p");
+                }
+                legendWeightsEta->Draw();
+
+                TLatex *labelWeightsEnergy = new TLatex(0.95,0.24,collisionSystem.Data());
+                SetStyleTLatex( labelWeightsEnergy, 0.85*textSizeLabelsPixel,4,1,42,kTRUE, 31);
+                labelWeightsEnergy->SetTextFont(43);
+                labelWeightsEnergy->Draw();
+                TLatex *labelWeightsEta = new TLatex(0.95,0.20,"#pi^{0} #it{R}_{pA}");
+                SetStyleTLatex( labelWeightsEta, 0.85*textSizeLabelsPixel,4,1,42,kTRUE, 31);
+                labelWeightsEta->SetTextFont(43);
+                labelWeightsEta->Draw();
+                TLatex *labelDetProcWeights    = new TLatex(0.95, 0.16,detectionProcess.Data());
+                SetStyleTLatex( labelDetProcWeights, 0.85*textSizeLabelsPixel,4,1,42,kTRUE, 31);
+                labelDetProcWeights->SetTextFont(43);
+                labelDetProcWeights->Draw();
+
+
+        //      DrawGammaLines(0.23, 70. , 0.8, 0.8,1, kGray, 3);
+                DrawGammaLines(0.23, 70. , 0.5, 0.5,1, kGray, 7);
+                DrawGammaLines(0.23, 70. , 0.4, 0.4,1, kGray, 1);
+                DrawGammaLines(0.23, 70. , 0.3, 0.3,1, kGray, 7);
+                DrawGammaLines(0.23, 70. , 0.2, 0.2,1, kGray, 3);
+
+            canvasWeights->SaveAs(Form("%s/%s_WeightsEtaRpATriggers.%s",outputDir.Data(), isMC.Data(), suffix.Data()));
+            delete canvasWeights;
+
+            // Calculating relative error for pi0
+            for (Int_t i = 0; i < MaxNumberOfFiles; i++){
+                if (histoStatEta[i]){
+                    histoRelStatEta[i]      = CalculateRelErrUpTH1D( histoStatEta[i], Form("relativeStatErrorEta_%s", nameTriggerWeighted[i].Data()));
+                    graphRelStatEta[i]      = new TGraphAsymmErrors(histoRelStatEta[i]);
+                    while (graphRelStatEta[i]->GetY()[0] < 0  || graphRelStatEta[i]->GetY()[0] == 0) graphRelStatEta[i]->RemovePoint(0);
+                    graphRelStatEta[i]->Print();
+                }
+                if (graphSystEta[i])
+                    graphRelSystEta[i]      = CalculateRelErrUpAsymmGraph( graphSystEta[i], Form("relativeSysErrorEta_%s", nameTriggerWeighted[i].Data()));
+            }
+
+            TGraphAsymmErrors* graphRelErrorEtaTot        = CalculateRelErrUpAsymmGraph( graphNuclModFactorWeightedAverageEtaTot, "relativeTotalErrorEta");
+            while (graphRelErrorEtaTot->GetY()[0] < 0  || graphRelErrorEtaTot->GetY()[0] == 0) graphRelErrorEtaTot->RemovePoint(0);
+
+            TGraphAsymmErrors* graphRelErrorEtaStat       = CalculateRelErrUpAsymmGraph( graphNuclModFactorWeightedAverageEtaStat, "relativeStatErrorEta");
+            while (graphRelErrorEtaStat->GetY()[0] < 0 || graphRelErrorEtaStat->GetY()[0] == 0) graphRelErrorEtaStat->RemovePoint(0);
+
+            TGraphAsymmErrors* graphRelErrorEtaSys        = CalculateRelErrUpAsymmGraph( graphNuclModFactorWeightedAverageEtaSys, "relativeSysErrorEta");
+            while (graphRelErrorEtaSys->GetY()[0] < 0 || graphRelErrorEtaSys->GetY()[0] == 0 ) graphRelErrorEtaSys->RemovePoint(0);
+
+            const char *SysErrDatnameMeanSingleErrCheck = Form("%s/SystematicErrorAveragedSingle%s_EtaRpA_%s_Check.dat",outputDir.Data(),sysStringComb.Data(),optionEnergy.Data());
+            fstream SysErrDatAverSingleCheck;
+            SysErrDatAverSingleCheck.precision(4);
+            cout << SysErrDatnameMeanSingleErrCheck << endl;
+            if(sysAvailSingleEta[0]){
+            SysErrDatAverSingleCheck.open(SysErrDatnameMeanSingleErrCheck, ios::out);
+            SysErrDatAverSingleCheck << "pt \t Stat err \t sys err \t tot err " << endl;
+            for (Int_t i = 0; i < graphRelErrorEtaTot->GetN(); i++){
+                if (graphRelErrorEtaStat->GetY()[i] > 0) SysErrDatAverSingleCheck << graphRelErrorEtaStat->GetX()[i] << "\t" << graphRelErrorEtaStat->GetY()[i] <<"\t" << graphRelErrorEtaSys->GetY()[i] <<  "\t" << graphRelErrorEtaTot->GetY()[i] << endl;
+            }
+            SysErrDatAverSingleCheck << endl;
+            SysErrDatAverSingleCheck.close();
+            }
+
+            // plot sys relative errors for individual triggers
+            TCanvas* canvasRelSysErr            = new TCanvas("canvasRelSysErr","",200,10,1350,900);  // gives the page size
+            DrawGammaCanvasSettings( canvasRelSysErr, 0.08, 0.02, 0.035, 0.09);
+
+            TH2F * histo2DRelSysErr;
+            histo2DRelSysErr                    = new TH2F("histo2DRelSysErr","histo2DRelSysErr",11000,0.,maxPtGlobalEta,1000,0,60.5);
+            SetStyleHistoTH2ForGraphs(histo2DRelSysErr, "#it{p}_{T} (GeV/#it{c})","sys Err (%)",0.035,0.04, 0.035,0.04, 1.,1.);
+            histo2DRelSysErr->Draw("copy");
+                TLegend* legendRelSysErr        = GetAndSetLegend2(0.62, 0.92-(0.035*(nMeasSetEta+1)/2), 0.95, 0.92, 32);
+                legendRelSysErr->SetNColumns(2);
+                for (Int_t i = 0; i < nMeasSetEta; i++){
+                    cout << "plotting graph: " << availableMeasEta[i] << "\t" <<graphRelSystEta[availableMeasEta[i]]->GetName() << endl;
+                    DrawGammaSetMarkerTGraph(graphRelSystEta[availableMeasEta[i]], markerTriggWeighted[availableMeasEta[i]], sizeTrigg[availableMeasEta[i]],
+                                            colorTriggWeighted[availableMeasEta[i]], colorTriggWeighted[availableMeasEta[i]]);
+                    graphRelSystEta[availableMeasEta[i]]->Draw("p,same,z");
+                    legendRelSysErr->AddEntry(graphRelSystEta[availableMeasEta[i]],nameTriggerWeighted[availableMeasEta[i]],"p");
+                }
+                legendRelSysErr->Draw();
+
+                TLatex *labelRelErrEnergy    = new TLatex(0.15,0.89,collisionSystem.Data());
+                SetStyleTLatex( labelRelErrEnergy, 0.85*textSizeLabelsPixel,4);
+                labelRelErrEnergy->SetTextFont(43);
+                labelRelErrEnergy->Draw();
+                TLatex *labelRelErrEta       = new TLatex(0.15,0.85,"#pi^{0} #rightarrow #gamma#gamma");
+                SetStyleTLatex( labelRelErrEta, 0.85*textSizeLabelsPixel,4);
+                labelRelErrEta->SetTextFont(43);
+                labelRelErrEta->Draw();
+                TLatex *labelDetProcRelErr    = new TLatex(0.15, 0.81,detectionProcess.Data());
+                SetStyleTLatex( labelDetProcRelErr, 0.85*textSizeLabelsPixel,4);
+                labelDetProcRelErr->SetTextFont(43);
+                labelDetProcRelErr->Draw();
+
+            canvasRelSysErr->SaveAs(Form("%s/EtaRpA_RelSysErr_SingleMeas.%s",outputDir.Data(),suffix.Data()));
+
+
+                DrawGammaSetMarkerTGraphAsym(graphRelErrorEtaSys, 24, 1.5, kGray+1 , kGray+1);
+    //             graphRelErrorEtaSys->SetLineStyle(7);
+                graphRelErrorEtaSys->Draw("same,pze1");
+                legendRelSysErr->AddEntry(graphRelErrorEtaSys,"average","p");
+                legendRelSysErr->Draw();
+
+                labelRelErrEnergy->Draw();
+                labelRelErrEta->Draw();
+                labelDetProcRelErr->Draw();
+
+            canvasRelSysErr->SaveAs(Form("%s/EtaRpA_RelSysErrWithAverage_SingleMeas.%s",outputDir.Data(),suffix.Data()));
+
+
+            // plot stat relative errors for individual triggers
+            TCanvas* canvasRelStatErr           = new TCanvas("canvasRelStatErr","",200,10,1350,900);  // gives the page size
+            DrawGammaCanvasSettings( canvasRelStatErr, 0.08, 0.02, 0.035, 0.09);
+
+            TH2F * histo2DRelStatErr;
+            histo2DRelStatErr                   = new TH2F("histo2DRelStatErr","histo2DRelStatErr",11000,0.,maxPtGlobalEta,1000,0,60.5);
+            SetStyleHistoTH2ForGraphs(histo2DRelStatErr, "#it{p}_{T} (GeV/#it{c})","stat Err (%)",0.035,0.04, 0.035,0.04, 1.,1.);
+            histo2DRelStatErr->Draw("copy");
+
+                TLegend* legendRelStatErr       = GetAndSetLegend2(0.62, 0.92-(0.035*nMeasSetEta/2), 0.95, 0.92, 32);
+                legendRelStatErr->SetNColumns(2);
+                for (Int_t i = 0; i < nMeasSetEta; i++){
+                    cout << "plotting graph: " << availableMeasEta[i] << "\t" <<graphRelStatEta[availableMeasEta[i]]->GetName() << endl;
+                    if (graphRelStatEta[availableMeasEta[i]] ){
+    //                     TGraphAsymmErrors* dummyGraph = new TGraphAsymmErrors(histoRelStatEta[availableMeasEta[i]]);
+                        graphRelStatEta[availableMeasEta[i]]->Print();
+                        DrawGammaSetMarkerTGraph(graphRelStatEta[availableMeasEta[i]], markerTriggWeighted[availableMeasEta[i]], sizeTrigg[availableMeasEta[i]],
+                                            colorTriggWeighted[availableMeasEta[i]], colorTriggWeighted[availableMeasEta[i]]);
+                        graphRelStatEta[availableMeasEta[i]]->Draw("p,same");
+                        legendRelStatErr->AddEntry(graphRelStatEta[availableMeasEta[i]],nameTriggerWeighted[availableMeasEta[i]],"p");
+
+                        for (Int_t j = 1; j < histoRelStatEta[availableMeasEta[i]]->GetNbinsX()+1; j++){
+                            cout << j << ": " << histoRelStatEta[availableMeasEta[i]]->GetBinContent(j) << endl;
+                        }
+                    } else if (histoRelStatEta[availableMeasEta[i]]) {
+                        DrawGammaSetMarker(histoRelStatEta[availableMeasEta[i]],markerTriggWeighted[availableMeasEta[i]], sizeTrigg[availableMeasEta[i]],
+                                                colorTriggWeighted[availableMeasEta[i]], colorTriggWeighted[availableMeasEta[i]]);
+                        histoRelStatEta[availableMeasEta[i]]->DrawCopy("p,same,z");
+                        legendRelStatErr->AddEntry(histoRelStatEta[availableMeasEta[i]],nameTriggerWeighted[availableMeasEta[i]],"p");
+                    }
+                }
+                legendRelStatErr->Draw();
+
+                labelRelErrEnergy->Draw();
+                labelRelErrEta->Draw();
+                labelDetProcRelErr->Draw();
+
+            canvasRelStatErr->SaveAs(Form("%s/EtaRpA_RelStatErr_SingleMeas.%s",outputDir.Data(),suffix.Data()));
+
+            // plot full error for final result decomposed
+            TCanvas* canvasRelTotErr            = new TCanvas("canvasRelTotErr","",200,10,1350,900);  // gives the page size
+            DrawGammaCanvasSettings( canvasRelTotErr, 0.08, 0.02, 0.035, 0.09);
+
+            TH2F * histo2DRelTotErrEta;
+            histo2DRelTotErrEta                 = new TH2F("histo2DRelTotErrEta","histo2DRelTotErrEta",11000,0.,maxPtGlobalEta,1000,0,40.5);
+            SetStyleHistoTH2ForGraphs(histo2DRelTotErrEta, "#it{p}_{T} (GeV/#it{c})","Err (%)",0.035,0.04, 0.035,0.04, 1.,1.);
+            histo2DRelTotErrEta->Draw("copy");
+
+                DrawGammaSetMarkerTGraphAsym(graphRelErrorEtaTot, 20, 1.5, kBlack , kBlack);
+                graphRelErrorEtaTot->Draw("p,same,z");
+                DrawGammaSetMarkerTGraphAsym(graphRelErrorEtaStat, 24, 1.5, kGray+2 , kGray+2);
+                graphRelErrorEtaStat->Draw("l,x0,same,e1");
+                DrawGammaSetMarkerTGraphAsym(graphRelErrorEtaSys, 24, 1.5, kGray+1 , kGray+1);
+                graphRelErrorEtaSys->SetLineStyle(7);
+                graphRelErrorEtaSys->Draw("l,x0,same,e1");
+
+                TLegend* legendRelTotErr2       = GetAndSetLegend2(0.72, 0.92-(0.035*3), 0.9, 0.92, 32);
+                legendRelTotErr2->AddEntry(graphRelErrorEtaTot,"tot","p");
+                legendRelTotErr2->AddEntry(graphRelErrorEtaStat,"stat","l");
+                legendRelTotErr2->AddEntry(graphRelErrorEtaSys,"sys","l");
+                legendRelTotErr2->Draw();
+
+                labelRelErrEnergy->Draw();
+                labelRelErrEta->Draw();
+                labelDetProcRelErr->Draw();
+
+            canvasRelTotErr->SaveAs(Form("%s/EtaRpA_RelErrorsFulldecomp.%s",outputDir.Data(),suffix.Data()));
+            
+        }
+
+
         // return;
         //***************************************************************************************************************
         //************************************Plotting nuclear modification factors  *************************************

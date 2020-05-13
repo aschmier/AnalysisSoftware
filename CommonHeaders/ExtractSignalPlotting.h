@@ -542,15 +542,21 @@
         }
 
         // set parameters according to BG part of signal+BG fit
+        Bool_t hasAdditionalBG = kTRUE;
         if(!(optionOtherResBckAsStd == -2 && fMesonType.Contains("Pi0"))){
           fitPi0InvMassBG->SetParameter(0, fitPi0InvMassSig->GetParameter(4));
           fitPi0InvMassBG->SetParError(0, fitPi0InvMassSig->GetParError(4));
           fitPi0InvMassBG->SetParameter(1, fitPi0InvMassSig->GetParameter(5));
           fitPi0InvMassBG->SetParError(1, fitPi0InvMassSig->GetParError(5));
+          if (fitPi0InvMassBG->GetParameter(0) == 0. && fitPi0InvMassBG->GetParameter(1) == 0.)
+              hasAdditionalBG   = kFALSE;
+          
         }
         if(optionOtherResBckAsStd == 0){
             fitPi0InvMassBG->SetParameter(2, fitPi0InvMassSig->GetParameter(6));
             fitPi0InvMassBG->SetParError(2, fitPi0InvMassSig->GetParError(6));
+            if (!hasAdditionalBG && fitPi0InvMassBG->GetParameter(2) != 0)
+                hasAdditionalBG   = kTRUE;
         }
 
         TVirtualFitter * fitter                             = TVirtualFitter::GetFitter();
@@ -562,7 +568,7 @@
             histoPi0InvMassRemBG->SetBinContent(j,0);
             histoPi0InvMassRemBG->SetBinError(j,0);
         }
-        if((fMesonType.CompareTo("Pi0") == 0 || fMesonType.CompareTo("Pi0EtaBinning") == 0 ) && optionOtherResBckAsStd != -2){
+        if((fMesonType.CompareTo("Pi0") == 0 || fMesonType.CompareTo("Pi0EtaBinning") == 0 ) && optionOtherResBckAsStd != -2 && hasAdditionalBG){
             for (Int_t j = histoPi0InvMassSig->GetXaxis()->FindBin(0.01); j < histoPi0InvMassSig->GetXaxis()->FindBin(0.30)+1; j++){
                 Double_t startBinEdge                                   = histoPi0InvMassSig->GetXaxis()->GetBinLowEdge(j);
                 Double_t endBinEdge                                     = histoPi0InvMassSig->GetXaxis()->GetBinUpEdge(j);
@@ -578,7 +584,7 @@
                 histoPi0InvMassRemBG->SetBinContent(j,intRemBack);
                 histoPi0InvMassRemBG->SetBinError(j,errorRemBack);
             }
-        } else if(fMesonType.CompareTo("Eta") == 0){
+        } else if(fMesonType.CompareTo("Eta") == 0 && hasAdditionalBG){
             Double_t lowBin  = 0.30;
             Double_t highBin = 0.70;
             if(decayChannel.CompareTo("#pi^{+} #pi^{-} #pi^{0}") == 0){
@@ -600,7 +606,7 @@
                 histoPi0InvMassRemBG->SetBinContent(j,intRemBack);
                 histoPi0InvMassRemBG->SetBinError(j,errorRemBack);
             }
-        } else if(fMesonType.CompareTo("EtaPrime") == 0){
+        } else if(fMesonType.CompareTo("EtaPrime") == 0 && hasAdditionalBG){
             Double_t lowBin  = 0.70;
             Double_t highBin = 1.20;
             for (Int_t j = histoPi0InvMassSig->GetXaxis()->FindBin(lowBin); j < histoPi0InvMassSig->GetXaxis()->FindBin(highBin)+1; j++){
@@ -617,7 +623,7 @@
                 histoPi0InvMassRemBG->SetBinContent(j,intRemBack);
                 histoPi0InvMassRemBG->SetBinError(j,errorRemBack);
             }
-        } else if(optionOtherResBckAsStd != -2){ //omega
+        } else if(optionOtherResBckAsStd != -2 && hasAdditionalBG){ //omega
           Double_t lowBin = 0.65;
           Double_t highBin = 0.9;
             for (Int_t j = histoPi0InvMassSig->GetXaxis()->FindBin(lowBin); j < histoPi0InvMassSig->GetXaxis()->FindBin(highBin)+1; j++){

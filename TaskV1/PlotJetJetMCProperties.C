@@ -46,6 +46,7 @@
 #include "../CommonHeaders/PlottingGammaConversionHistos.h"
 #include "../CommonHeaders/PlottingGammaConversionAdditional.h"
 #include "../CommonHeaders/FittingGammaConversion.h"
+#include "../CommonHeaders/ExtractSignalBinning.h"
 #include "../CommonHeaders/ConversionFunctionsBasicsAndLabeling.h"
 #include "../CommonHeaders/ConversionFunctions.h"
 
@@ -59,11 +60,6 @@ extern TBenchmark*	gBenchmark;
 extern TSystem*	gSystem;
 extern TMinuit*  	gMinuit;
 
-struct SysErrorConversion {
-    Double_t value;
-    Double_t error;
-    //	TString name;
-};
 
 //**********************************************************************************
 //******************* return minimum for 2 D histo  ********************************
@@ -101,7 +97,7 @@ Double_t FindLargestEntryIn2D(TH2F* histo){
 //**********************************************************************************
 //******************* return minimum for 1 D histo  ********************************
 //**********************************************************************************
-Double_t FindSmallestEntryIn1D(TH1F* histo){
+Double_t FindSmallestEntryIn1D(TH1* histo){
     if(!histo){cout << "WARNING: FindSmallestEntryIn1D, NULL pointer - returning 1... " << endl; return 1;}
     Double_t minimum = 1;
     for (Int_t i = 1; i<histo->GetNbinsX(); i++){
@@ -115,7 +111,7 @@ Double_t FindSmallestEntryIn1D(TH1F* histo){
 //**********************************************************************************
 //******************* return maximum for 1 D histo  ********************************
 //**********************************************************************************
-Double_t FindLargestEntryIn1D(TH1F* histo){
+Double_t FindLargestEntryIn1D(TH1* histo){
     if(!histo){cout << "WARNING: FindLargestEntry1D, NULL pointer - returning 1... " << endl; return 1;}
     Double_t maximum = 1;
     for (Int_t i = 1; i<histo->GetNbinsX(); i++){
@@ -210,21 +206,46 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     StyleSettingsThesis();
     SetPlotStyle();
 
-    const Int_t MaxNumberOfFiles = 21;
+    TString fCent = "";
+    if ((optionEnergy.Contains("Pb") || optionEnergy.Contains("Xe")) )
+        fCent = "0-100%";
+    
+    Double_t binningPi0[400];
+    Int_t maxNBinsPi0Abs            = 0;
+    Int_t maxNBinsPi0               = GetBinning( binningPi0, maxNBinsPi0Abs, "Pi0", optionEnergy, mode, -1, kFALSE, fCent, kFALSE );
+    Int_t maxNAllowedPi0            = 0;
+    Int_t nRealTriggers             = 0;
+    cout << "binning pi0" << endl;
+    for (Int_t i= 0; i< maxNBinsPi0+1; i++){
+        cout << binningPi0[i] << ", ";
+    }
+    cout << endl;
 
-    Color_t colorBins[21]       = { kBlack, kRed+2, kBlue+2, kGreen+2, kCyan+2,
+    Double_t binningEta[400];
+    Int_t maxNBinsEtaAbs            = 0;
+    Int_t maxNBinsEta               = GetBinning( binningEta, maxNBinsEtaAbs, "Eta", optionEnergy, mode, -1, kFALSE, fCent, kFALSE );
+    cout << "binning eta" << endl;
+    for (Int_t i= 0; i< maxNBinsEta+1; i++){
+        cout << binningEta[i] << ", ";
+    }
+    cout << endl;
+
+    
+    const Int_t MaxNumberOfFiles = 22;
+
+    Color_t colorBins[22]       = { kBlack, kRed+2, kBlue+2, kGreen+2, kCyan+2,
                                     kViolet, kMagenta+2, kGray+1, kRed-2, kBlue-2,
                                     kViolet+2, kCyan-2, kTeal+2, kOrange+2, kSpring+2,
-                                    kMagenta-2, kPink+2, kRed, kBlue, kTeal, kGreen};
-    Color_t colorBinsShade[21]  = { kGray+1, kRed-6, kBlue-6, kGreen-8, kCyan-6,
+                                    kMagenta-2, kPink+2, kRed, kBlue, kTeal, kGreen, kGreen-5};
+    Color_t colorBinsShade[22]  = { kGray+1, kRed-6, kBlue-6, kGreen-8, kCyan-6,
                                     kViolet-8, kMagenta-8, kGray, kRed-8, kBlue-8,
                                     kViolet-6, kCyan-8, kTeal-6, 807, kSpring-6,
-                                    kMagenta-9, kPink-8, kRed-9, kBlue-9, kTeal-7, kGreen-4 };
-    Marker_t markerBins[21]     = { 20, 21, 33, 34, 29,
+                                    kMagenta-9, kPink-8, kRed-9, kBlue-9, kTeal-7, kGreen-4, kGreen-9 };
+    Marker_t markerBins[22]     = { 20, 21, 33, 34, 29,
                                     24, 25, 27, 28, 30,
                                     20, 21, 33, 34, 29,
                                     24, 25, 27, 28, 30,
-                                    20};
+                                    20, 21};
 
     TString outputDir =	Form("%s/%s/%s/JetJetMCProperties_%s", cutSelection.Data(), optionEnergy.Data(), suffix.Data(), period.Data());
     gSystem->Exec("mkdir -p "+outputDir);
@@ -295,6 +316,12 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     TH1F* histoMCEtaInputAcc        [MaxNumberOfFiles];
     TH2F* histoMCPi0vsJetPt         [MaxNumberOfFiles];
     TH2F* histoMCEtavsJetPt         [MaxNumberOfFiles];
+    TH2F* histoTruePi0InvMassPt     [MaxNumberOfFiles];
+    TH1D* histoTruePi0Pt            [MaxNumberOfFiles];
+    TH1D* histoTruePi0PtWOWeight    [MaxNumberOfFiles];
+    TH2F* histoTrueEtaInvMassPt     [MaxNumberOfFiles];
+    TH1D* histoTrueEtaPt            [MaxNumberOfFiles];
+    TH1D* histoTrueEtaPtWOWeight    [MaxNumberOfFiles];
     Double_t nTrials                [MaxNumberOfFiles];
     Double_t nGeneratedEvents       [MaxNumberOfFiles];
     Double_t nWeightedEvents        [MaxNumberOfFiles];
@@ -416,6 +443,25 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         weightNew[i]                                = xSection[i]/(nTrials[i]/(nGeneratedEvents[i]-nTriggered));
         weightApplied[i]                            = histoNEventsWWeight[i]->GetBinContent(1)/histoNEvents[i]->GetBinContent(1);
 
+        
+        TList *TrueContainer                        = (TList*)HistosGammaConversion->FindObject(Form("%s True histograms",cutSelection.Data()));
+        if(TrueContainer == NULL){
+            cout<<"ERROR: " << Form("True histograms %s",cutSelection.Data()) << " not Found in File"<<endl;
+            return;
+        }
+        histoTruePi0InvMassPt[i]                    = (TH2F*)TrueContainer->FindObject(Form("ESD_True%s_InvMass_Pt",mesonName.Data()));
+        histoTruePi0Pt[i]                           = (TH1D*)histoTruePi0InvMassPt[i]->ProjectionY("TruePi0Pt",histoTruePi0InvMassPt[i]->GetXaxis()->FindBin(0.05),histoTruePi0InvMassPt[i]->GetXaxis()->FindBin(0.18),"e");
+        histoTruePi0PtWOWeight[i]                   = (TH1D*)histoTruePi0Pt[i]->Clone("TruePi0PtWOWeight");
+        histoTruePi0PtWOWeight[i]->Scale(1./weightApplied[i]);
+        histoTruePi0PtWOWeight[i]                   = (TH1D*)histoTruePi0PtWOWeight[i]->Rebin(maxNBinsPi0,"TruePi0PtWOWeight",binningPi0); // 
+        
+        if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) ){
+            histoTrueEtaInvMassPt[i]                    = (TH2F*)TrueContainer->FindObject("ESD_TrueEta_InvMass_Pt");
+            histoTrueEtaPt[i]                           = (TH1D*)histoTrueEtaInvMassPt[i]->ProjectionY("TrueEtaPt",histoTrueEtaInvMassPt[i]->GetXaxis()->FindBin(0.45),histoTrueEtaInvMassPt[i]->GetXaxis()->FindBin(0.6),"e");
+            histoTrueEtaPtWOWeight[i]                   = (TH1D*)histoTrueEtaPt[i]->Clone("TrueEtaPtWOWeight");
+            histoTrueEtaPtWOWeight[i]->Scale(1./weightApplied[i]);
+            histoTrueEtaPtWOWeight[i]                   = (TH1D*)histoTrueEtaPtWOWeight[i]->Rebin(maxNBinsEta,"TrueEtaPtWOWeight",binningEta); // 
+        }
         TList *MCContainer                          = (TList*)HistosGammaConversion->FindObject(Form("%s MC histograms",cutSelection.Data()));
         if(MCContainer == NULL){
             cout<<"ERROR: " << Form("MC histograms %s",cutSelection.Data()) << " not Found in File"<<endl;
@@ -435,7 +481,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         }
         histoMCPi0InputW0EvtWeigth[i]               = new TH1F(*temp);
         histoMCPi0InputW0EvtWeigth[i]->SetName(Form("MC_%s_WOEventWeights_Pt%d",mesonName.Data(),i));
-        if (optionEnergy.CompareTo("pPb_5.023TeVRun2") == 0 || optionEnergy.CompareTo("13TeV") == 0|| optionEnergy.Contains("pPb_8TeV")){
+        if (optionEnergy.Contains("pPb_5.023TeV") || optionEnergy.CompareTo("13TeV") == 0|| optionEnergy.Contains("pPb_8TeV")){
             histoMCPi0Input[i]->Rebin(8);
             histoMCPi0InputAcc[i]->Rebin(8);
             histoMCPi0InputW0EvtWeigth[i]->Rebin(8);
@@ -499,6 +545,15 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
 
     }
 
+    histoTruePi0PtWOWeight[0]   = (TH1D*)histoTruePi0PtWOWeight[1]->Clone("TruePi0PtWOWeight");
+    if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) )
+        histoTrueEtaPtWOWeight[0]   = (TH1D*)histoTrueEtaPtWOWeight[1]->Clone("TrueEtaPtWOWeight");
+    for (Int_t i=2; i< nrOfPtHardBins; i++){
+        histoTruePi0PtWOWeight[0]->Add(histoTruePi0PtWOWeight[i]);
+        if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) )
+            histoTrueEtaPtWOWeight[0]->Add(histoTrueEtaPtWOWeight[i]);
+    }
+    
     //***************************************************************************************************************
     //************************************Plotting unscaled inputs **************************************************
     //***************************************************************************************************************
@@ -679,10 +734,10 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) ){
         Float_t maximumEtaScaled = FindLargestEntryIn1D(histoMCEtaInput[0])*10;
         if(optionEnergy.CompareTo("8TeV")==0) maximumEtaScaled*=2;
-        Float_t minimumEtaScaled = FindSmallestEntryIn1D(histoMCEtaInput[nrOfPtHardBins-1]);
+        Float_t minEtaRec = FindSmallestEntryIn1D(histoMCEtaInput[nrOfPtHardBins-1]);
 
         TH2F * histo2DInputScaledEta;
-        histo2DInputScaledEta = new TH2F("histo2DInputScaledEta","histo2DInputScaledEta",1000,0., maxPt,10000,minimumEtaScaled,maximumEtaScaled);
+        histo2DInputScaledEta = new TH2F("histo2DInputScaledEta","histo2DInputScaledEta",1000,0., maxPt,10000,minEtaRec,maximumEtaScaled);
         SetStyleHistoTH2ForGraphs(histo2DInputScaledEta, "#it{p}_{T} (GeV/#it{c})","N_{#eta} reweighted",
                                 0.032,0.04, 0.032,0.04, 0.8,1.1);
         histo2DInputScaledEta->GetXaxis()->SetRangeUser(0,maxPt);
@@ -788,8 +843,137 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
             canvasInputScaled->SaveAs(Form("%s/Eta_MC_InputScaledInAcceptanceDlog.%s",outputDir.Data(),suffix.Data()));
         }
     }
-    delete canvasInputScaled;
 
+    //***************************************************************************************************************
+    //************************************Plotting scaled inputs **************************************************
+    //***************************************************************************************************************
+    TCanvas* canvasReconstructed = new TCanvas("canvasReconstructed","",0,0,1000,1350);  // gives the page size
+    DrawGammaCanvasSettings( canvasReconstructed, 0.1, 0.015, 0.015, 0.07);
+    canvasReconstructed->SetLogy();
+    Float_t maxPi0Rec = FindLargestEntryIn1D(histoTruePi0Pt[0])*10;
+    Float_t minPi0Rec = FindSmallestEntryIn1D(histoTruePi0Pt[nrOfPtHardBins-1]);
+
+    TH2F * histo2DReconstructedPi0;
+    histo2DReconstructedPi0 = new TH2F("histo2DReconstructedPi0","histo2DReconstructedPi0",1000,0., binningPi0[maxNBinsPi0],10000,minPi0Rec*0.001,maxPi0Rec*10);
+    SetStyleHistoTH2ForGraphs(histo2DReconstructedPi0, "#it{p}_{T} (GeV/#it{c})","N_{#pi^{0}} reweighted",
+                            0.032,0.04, 0.032,0.04, 0.8,1.2);
+    histo2DReconstructedPi0->GetXaxis()->SetRangeUser(0,maxPt);
+    histo2DReconstructedPi0->DrawCopy();
+
+    for (Int_t i = 0; i< nrOfPtHardBins; i++){
+        for(Int_t j=1;j<histoTruePi0Pt[i]->GetNbinsX()+1;j++){
+            histoTruePi0Pt[i]->SetBinContent(j,histoTruePi0Pt[i]->GetBinContent(j)/histoTruePi0Pt[i]->GetBinWidth(j));
+            histoTruePi0Pt[i]->SetBinError(j,histoTruePi0Pt[i]->GetBinError(j)/histoTruePi0Pt[i]->GetBinWidth(j));
+        }
+        DrawGammaSetMarker(histoTruePi0Pt[i], markerBins[i], 1., colorBins[i], colorBins[i]);
+        histoTruePi0Pt[i]->DrawCopy("e1,same");
+    }
+    legendScaled->Draw();
+    labelMCName->Draw();
+    labelAcceptance->Draw();
+
+
+    canvasReconstructed->Update();
+    canvasReconstructed->SaveAs(Form("%s/%s_MC_Reconstructed.%s",outputDir.Data(),mesonName.Data(),suffix.Data()));
+
+    if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) ){
+        Float_t maxEtaRec = FindLargestEntryIn1D(histoTrueEtaPt[0])*100;
+        if(optionEnergy.CompareTo("8TeV")==0) maxEtaRec*=2;
+        Float_t minimumEtaScaled = FindSmallestEntryIn1D(histoTrueEtaPt[nrOfPtHardBins-1]);
+
+        TH2F * histo2DReconstructedEta;
+        histo2DReconstructedEta = new TH2F("histo2DReconstructedEta","histo2DReconstructedEta",1000,0., binningEta[maxNBinsEta],10000,minimumEtaScaled,maxEtaRec);
+        SetStyleHistoTH2ForGraphs(histo2DReconstructedEta, "#it{p}_{T} (GeV/#it{c})","N_{#eta} reweighted",
+                                0.032,0.04, 0.032,0.04, 0.8,1.1);
+        histo2DReconstructedEta->GetXaxis()->SetRangeUser(0,maxPt);
+        histo2DReconstructedEta->DrawCopy();
+
+        legendScaled->Draw();
+        for (Int_t i = 0; i< nrOfPtHardBins; i++){
+            for(Int_t j=1;j<histoTrueEtaPt[i]->GetNbinsX()+1;j++){
+                histoTrueEtaPt[i]->SetBinContent(j,histoTrueEtaPt[i]->GetBinContent(j)/histoTrueEtaPt[i]->GetBinWidth(j));
+                histoTrueEtaPt[i]->SetBinError(j,histoTrueEtaPt[i]->GetBinError(j)/histoTrueEtaPt[i]->GetBinWidth(j));
+            }
+            DrawGammaSetMarker(histoTrueEtaPt[i], markerBins[i], 1., colorBins[i], colorBins[i]);
+            histoTrueEtaPt[i]->DrawCopy("e1,same");
+        }
+
+        labelMCName->Draw();
+
+        canvasReconstructed->Update();
+        canvasReconstructed->SaveAs(Form("%s/Eta_MC_Reconstructed.%s",outputDir.Data(),suffix.Data()));
+    }
+    
+    canvasReconstructed->Clear();
+    maxPi0Rec = FindLargestEntryIn1D(histoTruePi0PtWOWeight[nrOfPtHardBins-1])*1000;
+    minPi0Rec = FindSmallestEntryIn1D(histoTruePi0PtWOWeight[1]);
+
+    TH2F * histo2DRecUnscaledPi0;
+    histo2DRecUnscaledPi0 = new TH2F("histo2DRecUnscaledPi0","histo2DRecUnscaledPi0",1000,0., binningPi0[maxNBinsPi0],10000,minPi0Rec*0.001,maxPi0Rec*10);
+    SetStyleHistoTH2ForGraphs(histo2DRecUnscaledPi0, "#it{p}_{T} (GeV/#it{c})","N_{#pi^{0}} reweighted",
+                            0.032,0.04, 0.032,0.04, 0.8,1.2);
+    histo2DRecUnscaledPi0->GetXaxis()->SetRangeUser(0,maxPt);
+    histo2DRecUnscaledPi0->DrawCopy();
+
+    TLegend* legendRecUnsc = GetAndSetLegend2(0.2, 0.96-(1.*nrOfPtHardBins/2*0.026), 0.95, 0.96,22);
+    legendRecUnsc->SetMargin(0.12);
+    legendRecUnsc->SetNColumns(2);
+
+    for (Int_t i = 1; i< nrOfPtHardBins; i++){
+        DrawGammaSetMarker(histoTruePi0PtWOWeight[i], markerBins[i], 1., colorBins[i], colorBins[i]);
+        histoTruePi0PtWOWeight[i]->DrawCopy("e1,same");
+        legendRecUnsc->AddEntry(histoTruePi0PtWOWeight[i],Form("%1.0f GeV/#it{c} < #it{p}^{hard}_{T} < %1.0f GeV/#it{c}", minPtHard[i], maxPtHard[i]),"p");
+    }
+    legendRecUnsc->Draw();
+    labelMCName->Draw();
+    labelAcceptance->Draw();
+
+
+    canvasReconstructed->Update();
+    canvasReconstructed->SaveAs(Form("%s/%s_MC_ReconstructedUnscaled.%s",outputDir.Data(),mesonName.Data(),suffix.Data()));
+
+    canvasReconstructed->Clear();
+    if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) ){
+        Float_t maxEtaRec = FindLargestEntryIn1D(histoTrueEtaPtWOWeight[nrOfPtHardBins-1])*1000;
+        if(optionEnergy.CompareTo("8TeV")==0) maxEtaRec*=2;
+        Float_t minimumEtaScaled = FindSmallestEntryIn1D(histoTrueEtaPtWOWeight[1]);
+
+        TH2F * histo2DRecUnscaledEta;
+        histo2DRecUnscaledEta = new TH2F("histo2DRecUnscaledEta","histo2DRecUnscaledEta",1000,0., binningEta[maxNBinsEta],10000,minimumEtaScaled,maxEtaRec);
+        SetStyleHistoTH2ForGraphs(histo2DRecUnscaledEta, "#it{p}_{T} (GeV/#it{c})","N_{#eta} reweighted",
+                                0.032,0.04, 0.032,0.04, 0.8,1.1);
+        histo2DRecUnscaledEta->GetXaxis()->SetRangeUser(0,maxPt);
+        histo2DRecUnscaledEta->DrawCopy();
+
+        legendRecUnsc->Draw();
+        for (Int_t i = 1; i< nrOfPtHardBins; i++){
+            DrawGammaSetMarker(histoTrueEtaPtWOWeight[i], markerBins[i], 1., colorBins[i], colorBins[i]);
+            histoTrueEtaPtWOWeight[i]->DrawCopy("e1,same");
+        }
+
+        labelMCName->Draw();
+
+        canvasReconstructed->Update();
+        canvasReconstructed->SaveAs(Form("%s/Eta_MC_ReconstructedUnscaled.%s",outputDir.Data(),suffix.Data()));
+    }    delete canvasInputScaled;
+    delete canvasReconstructed;
+
+    
+    for (Int_t i = 1; i < nrOfPtHardBins; i++){
+        Double_t maxPtTrustPi0 = 100;
+        Double_t maxPtTrustEta = 100;
+        Int_t k = histoTruePi0PtWOWeight[i]->GetNbinsX();
+        while (histoTruePi0PtWOWeight[i]->GetBinContent(k) < 10 && k > 0) {
+          k--;   
+        }
+        maxPtTrustPi0 = histoTruePi0PtWOWeight[i]->GetXaxis()->GetBinUpEdge(k);
+        k = histoTrueEtaPtWOWeight[i]->GetNbinsX();
+        while (histoTrueEtaPtWOWeight[i]->GetBinContent(k) < 10 && k > 0) {
+          k--;   
+        }
+        maxPtTrustEta = histoTrueEtaPtWOWeight[i]->GetXaxis()->GetBinUpEdge(k);
+        cout << i << "\t" << maxPtTrustPi0 << "\t" << maxPtTrustEta << endl; 
+    }
     //**************************************************************************************************************
     //*************************** Cross sections for pi0 and eta **************************************************
     //**************************************************************************************************************

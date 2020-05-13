@@ -570,7 +570,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                     else if (optionEnergy.Contains("PbPb_5") && meson.Contains("Pi0") )
                         histoTrueEffiCut[i]->GetYaxis()->SetRangeUser(-0.05,0.25);
                     else if (optionEnergy.Contains("pPb") && meson.Contains("Pi0") )
-                        histoTrueEffiCut[i]->GetYaxis()->SetRangeUser(0.1,0.4);
+                        histoTrueEffiCut[i]->GetYaxis()->SetRangeUser(0.,0.4);
                     else if (optionEnergy.Contains("PbPb_2.76TeV") )
                         histoTrueEffiCut[i]->GetYaxis()->SetRangeUser(0,0.6);
                     else
