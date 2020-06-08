@@ -3179,6 +3179,7 @@
                                                     Double_t* xPtLimits,  Int_t nPtLimits,
                                                     Int_t maxNMeasurements
                                                 ){
+        Int_t DebugOutputLevel=0;
         Double_t xValue[nPtLimits];
         Double_t xErr[nPtLimits];
         Double_t values     [nPtLimits];
@@ -3190,6 +3191,7 @@
         Int_t binCounters   [maxNMeasurements][2];
         Bool_t stopped      [maxNMeasurements];
 
+        if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
         for (Int_t meas = 0; meas < maxNMeasurements; meas++){
             available[meas]         = kFALSE;
             cout << "\n" << endl;
@@ -3198,6 +3200,7 @@
             cout << weights[meas] << endl;
 
             if (graphs[meas] && weights[meas]){
+                if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
                 cout << "measurement :" << meas << endl;
                 graphs[meas]->Print();
                 cout << "weights :" << meas << endl;
@@ -3226,6 +3229,7 @@
             }
         }
 
+        if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
         for (Int_t ptBin = 0; ptBin < nPtLimits; ptBin++){
             values[ptBin]   = 0;
             errors[ptBin]   = 0.;
@@ -3233,13 +3237,14 @@
             xErr[ptBin]     = xValue[ptBin]- xPtLimits[ptBin];
             Int_t nMeas     = 0;
             for (Int_t meas = 0; meas < maxNMeasurements; meas++){
+                if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
                 if (graphs[meas] && weights[meas] && !(ptBin < offsets[meas]) && !stopped[meas] ){
                     cout << meas<< " meas " << endl;
                     cout << "pt bin meas " <<": " << binCounters[meas][0] << "\t weight: " << binCounters[meas][1] << endl;
                     cout << "pt expected: " <<  xValue[ptBin] << "\t meas: " << graphs[meas]->GetX()[binCounters[meas][0]] <<  "\t weight: " << weights[meas]->GetX()[binCounters[meas][1]] << endl;
 
                     if (TMath::Abs(graphs[meas]->GetX()[binCounters[meas][0]] - weights[meas]->GetX()[binCounters[meas][1]]) > 0.00001 ){
-    //                     cout << "failed at "<< meas << ":\t" << graphs[meas]->GetX()[binCounters[meas][0]] << "\t" << weights[meas]->GetX()[binCounters[meas][1]] << endl;
+                        if (DebugOutputLevel>=1){cout << "failed at "<< meas << ":\t" << graphs[meas]->GetX()[binCounters[meas][0]] << "\t" << weights[meas]->GetX()[binCounters[meas][1]] << endl;}
                         cout << "something went wrong with the offsets" << endl;
         //                         return NULL;
                         while ( (graphs[meas]->GetX()[binCounters[meas][0]] - weights[meas]->GetX()[binCounters[meas][1]] ) < 0 && !stopped[meas] ){
@@ -3252,6 +3257,7 @@
                     if (   TMath::Abs(graphs[meas]->GetX()[binCounters[meas][0]] - graphs[meas]->GetErrorXlow(binCounters[meas][0]) - xPtLimits[ptBin] ) < 0.000001 &&
                         TMath::Abs(graphs[meas]->GetX()[binCounters[meas][0]] + graphs[meas]->GetErrorXhigh(binCounters[meas][0]) - xPtLimits[ptBin+1] ) < 0.000001
                     ){
+                        if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
                         cout << meas << " entered" << endl;
                         // increase weight graph bin counter
                         cout << "measured: " << graphs[meas]->GetY()[binCounters[meas][0]] <<  "\t weight: " << weights[meas]->GetY()[binCounters[meas][1]] << endl;
@@ -3268,6 +3274,7 @@
                         if (stopped[meas]) cout << "This is last bin of measurement " << meas << endl;
 
                     } else {
+                        if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
                         if (binCounters[meas][0] == graphs[meas]->GetN()){
                             stopped[meas] = kTRUE;
                             cout << "bin counter for " << meas << " is at " << binCounters[meas][0] << " while the graph is only " << graphs[meas]->GetN() << endl;
@@ -3291,15 +3298,18 @@
                     }
                 }
             }
+            if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
 
             if (nMeas == 0)
                 values[ptBin] = -10000;
             cout << values[ptBin] << "+-"<< errors[ptBin] << endl << endl << endl << endl;;
 
         }
+        if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
 
         TGraphAsymmErrors* graphWeighted = new TGraphAsymmErrors(nPtLimits,xValue,values,xErr,xErr,errors,errors);
         graphWeighted->Print();
+        if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
         return graphWeighted;
     }
 
