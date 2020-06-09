@@ -129,12 +129,18 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
     TString trigger         = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
     fTriggerInt = trigger.Atoi();
+    if (!(trigger.CompareTo("8d"))){
+        fTriggerInt=83;
+    } else if (!(trigger.CompareTo("8e"))){
+        fTriggerInt=85;
+    }
     StyleSettingsThesis();
     SetPlotStyle();
 
     fEnergyFlag             = optionEnergy;
     fPrefix                 = meson;
     fThesis                 = "wip";
+    fThesis                 = "performance";
 
     fPeriodFlag             = optionPeriod;
 
@@ -3213,19 +3219,34 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
 
     // get cov matrix of total fit ( all parameters)
     if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; get cov matrix of total fit ( all parameters)"<<endl;}
-    TMatrixDSym covTot = resultBckFitTotal->GetCovarianceMatrix();    
+    TMatrixDSym* covTot = NULL;
+    if(resultBckFitTotal!=-1){
+        cout << "jumped where i should not be" << endl;
+        // covTot = new TMatrixDSym(0,resultBckFitTotal->GetCovarianceMatrix().GetNrows(),resultBckFitTotal->GetCovarianceMatrix().GetMatrixArray());
+        covTot = new TMatrixDSym(resultBckFitTotal->GetCovarianceMatrix());
+    }
 
     // make sub matrix with first three elements
     Int_t nrows = 2; 
     if(fTotalBackFitMode==2) nrows =1 ;
     
     TMatrixDSym* covGG = NULL;
-    if(fTotalBackFitMode==2 || fTotalBackFitMode==3){ // get subcovariance matrix since total fit had more parameters
-        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; get subcovariance matrix since total fit had more parameters"<<endl;}
-        covGG = new TMatrixDSym(0,nrows, covTot.GetMatrixArray() );
-    } else if(fTotalBackFitMode==1){ // use normal matrix in case pol was fitted directly
-        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; use normal matrix in case pol was fitted directly"<<endl;}
-        covGG = &covTot;
+    if((fTotalBackFitMode==2 || fTotalBackFitMode==3) && resultBckFitTotal!=-1){ // get subcovariance matrix since total fit had more parameters
+        // get it in original size
+        covGG = new TMatrixDSym(nrows+1); // create empty matrix
+
+        // loop over tot matrix but only get needed part
+        for (Int_t m = 0; m <= nrows; m++)
+        {
+            for (Int_t n = 0; n <= nrows; n++)
+            {
+                covGG->operator()(m,n) = covTot->operator()(m,n);
+            }
+
+        }
+
+    } else if(fTotalBackFitMode==1 && resultBckFitTotal!=-1){ // use normal matrix in case pol was fitted directly
+        covGG = covTot;
     }
 
     // Set parameters for pol2 background function
@@ -3285,22 +3306,19 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
           if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
               Double_t area = fBackgroundFitPol[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                              (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
-              Double_t area_err = fBackgroundFitPol[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
+              Double_t area_err = 0.;
+              if(resultBckFitTotal!=-1) area_err= fBackgroundFitPol[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                                      (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx),
                                                                       fBackgroundFitPol[i]->GetParameters(), covGG->GetMatrixArray() );
-              fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
-              
-              if (!useTestingErrors) {fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));}
-              
-              // For testing
-              if (useTestingErrors) {fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,TMath::Sqrt(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx)));}
 
+              fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+              fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
           }
-          // Clone histo for error band
-          fHistoBckFitConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_%i",i));
-          fHistoBckFitWithGaussConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_%i",i));
       }
-   
+      // Clone histo for error band
+      fHistoBckFitConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_%i",i));
+      fHistoBckFitWithGaussConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_%i",i));
+
       TCanvas* c1 = new TCanvas();
 
       fHistoMappingGGInvMassBackFitPtBin[i] = (TH1D*) fGammaGamma->Clone(Form("fHistoMappingGGInvMassBackFit_in_Pt_Bin%i",i));
@@ -3344,19 +3362,20 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
 
               Double_t area = fBackgroundFitPol_SubPiZero[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                              (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
-              Double_t area_err = fBackgroundFitPol_SubPiZero[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
+              Double_t area_err = 0.;
+              if(resultBckFitTotal!=-1)
+              area_err= fBackgroundFitPol_SubPiZero[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                                      (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx),
                                                                       fBackgroundFitPol_SubPiZero[i]->GetParameters(), covGG->GetMatrixArray() );
+            cout << "area error =" << area_err << endl;
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
-              if (!useTestingErrors) {fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));}
-              // For testing
-              if (useTestingErrors) {fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,TMath::Sqrt(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx)));}
-
+              fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
           }
-          // Clone histo for error band
-          fHistoBckFitConfidence_SubPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_SubPiZero_%i",i));
-          fHistoBckFitWithGaussConfidence_SubPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_SubPiZero_%i",i));
       }
+      // Clone histo for error band
+      fHistoBckFitConfidence_SubPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_SubPiZero_%i",i));
+      fHistoBckFitWithGaussConfidence_SubPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_SubPiZero_%i",i));
+
       fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i] = (TH1D*) fGammaGamma->Clone(Form("fHistoMappingGGInvMassBackFit_SubPiZero_in_Pt_Bin%i",i));
       fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i]->Sumw2();
       fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i]->Add(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i],-1);
@@ -3385,22 +3404,21 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
       for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
           if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
 
-              Double_t area = fBackgroundFitPol_FixedPzPiZero[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
+          Double_t area = fBackgroundFitPol_FixedPzPiZero[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                              (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
-              Double_t area_err = fBackgroundFitPol_FixedPzPiZero[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
+          Double_t area_err = 0.;
+          if(resultBckFitTotal!=-1) area_err= fBackgroundFitPol_FixedPzPiZero[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                                      (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx),
-                                                                      fBackgroundFitPol_FixedPzPiZero[i]->GetParameters(), covGG->GetMatrixArray() );
-              fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
-              if (!useTestingErrors) {fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));}
-              
-              // For testing
-              if (useTestingErrors) {fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,TMath::Sqrt(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx)));}
- 
+                                                                      fBackgroundFitPol[i]->GetParameters(), covGG->GetMatrixArray() );
+          fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+          fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+
           }
-          // Clone histo for error band
-          fHistoBckFitConfidence_FixedPzPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_FixedPzPiZero_%i",i));
-          fHistoBckFitWithGaussConfidence_FixedPzPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_FixedPzPiZero_%i",i));
       }
+       // Clone histo for error band
+      fHistoBckFitConfidence_FixedPzPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_FixedPzPiZero_%i",i));
+      fHistoBckFitWithGaussConfidence_FixedPzPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_FixedPzPiZero_%i",i));
+
       fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i] = (TH1D*) fGammaGamma->Clone(Form("fHistoMappingGGInvMassBackFit_FixedPzPiZero_in_Pt_Bin%i",i));
       fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i]->Sumw2();
       fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i]->Add(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i],-1);
