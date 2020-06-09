@@ -214,6 +214,7 @@
     Double_t*    fMidPt                                                     = nullptr;
     Double_t*    fFullPt                                                    = nullptr;
     Double_t     FitRangeSigBckRatioOption                                  = 0;
+    Double_t     usePolNForBackgroundScaling                                = 0;
 
     //****************************************************************************
     //************************ correction histograms *****************************
@@ -228,6 +229,13 @@
     Double_t FitFunctionPHOSBck(Double_t *, Double_t *);
     Double_t FitFunctionPHOSBckPol1(Double_t *, Double_t *);
     Double_t FitFunctionPHOSBckPol2(Double_t *, Double_t *);
+    Double_t FitFunctionPHOSBckPol3(Double_t *, Double_t *);
+    Double_t FitFunctionPHOSBckPol1_withGaus(Double_t *, Double_t *);
+    Double_t FitFunctionPHOSBckPol2_withGaus(Double_t *, Double_t *);
+    Double_t FitFunctionPHOSBckPol3_withGaus(Double_t *, Double_t *);
+    Double_t FitFunctionPHOSBckPol1_withGausExp(Double_t *, Double_t *);
+    Double_t FitFunctionPHOSBckPol2_withGausExp(Double_t *, Double_t *);
+    Double_t FitFunctionPHOSBckPol3_withGausExp(Double_t *, Double_t *);
     void ProcessEM_FitBins(TH1D*,TH1D*,Double_t *);                                                             // Normalization of Signal and BG For PHOS
     void ProcessRatioSignalBackground(TH1D* , TH1D* );                                                          // Calculate Ratio of Signal and BG in momentum slices
     void FillMassHistosArray(TH2D*);                                                                            // Fill invariant mass histograms for Signal and Backgrounf
@@ -370,7 +378,7 @@
     //************************ sample histograms for inv Mass ********************
     //****************************************************************************
     Int_t       iBckSwitch                                                  = 0;
-    Int_t       iNumberOfOtherSigToBckRatioFits                             = 1; //If u change this value remember to also change: fHistoChi2SigToBckFit, fHistoChi2SigToBckFit, colorFitSigToBckFit, styleFitSigToBckFit, fSigToBckFitChi2, fFitPHOSAllOtherSigToBckFits, labelsOtherFitsRatio
+    const Int_t       iNumberOfOtherSigToBckRatioFits                             = 2; //If u change this value remember to also change: fHistoChi2SigToBckFit, fHistoChi2SigToBckFit, colorFitSigToBckFit, styleFitSigToBckFit, fSigToBckFitChi2, fFitPHOSAllOtherSigToBckFits, labelsOtherFitsRatio
     TH1D*       fBckNorm                                                    = nullptr;
     TH1D*       fSignal                                                     = nullptr;
     TH1D*       fRatioSB                                                    = nullptr;
@@ -438,6 +446,13 @@
     TF1 *       fFitLinearBckOut                                            = nullptr;
     TF1 *       fFitPHOSPol1                                                = nullptr;
     TF1 *       fFitPHOSPol2                                                = nullptr;
+    TF1 *       fFitPHOSPol3                                                = nullptr;
+    TF1 *       fFitPHOSPol1_Prefit                                         = nullptr;
+    TF1 *       fFitPHOSPol2_Prefit                                         = nullptr;
+    TF1 *       fFitPHOSPol3_Prefit                                         = nullptr;
+    TF1 *       fFitPHOSPol1_withGaus                                       = nullptr;
+    TF1 *       fFitPHOSPol2_withGaus                                       = nullptr;
+    TF1 *       fFitPHOSPol3_withGaus                                       = nullptr;
     Double_t    fYields;
     Double_t    fYieldsError;
     Double_t    fFWHMFunc;
@@ -506,8 +521,10 @@
     TF1**       fFitTrueSignalInvMassPtBin                                  = nullptr;
     TF1**       fFitTrueSignalInvMassPtReweightedBin                        = nullptr;
     TF1**       fFitTrueSignalInvMassPtUnweightedBin                        = nullptr;
-    TF1**       fFitPHOSAllOtherSigToBckFits[1]                             = { nullptr };
-    TF1**       fFitPHOSPol2PtBin                                           = nullptr;
+    TF1**       fFitPHOSAllOtherSigToBckFits[iNumberOfOtherSigToBckRatioFits] = { nullptr, nullptr };
+    TF1**       fFitPHOSAllOtherSigToBckFits_withGaus[iNumberOfOtherSigToBckRatioFits] = { nullptr, nullptr };
+    TF1**       fFitPHOSPolSigToBckFitPtBin                                 = nullptr;
+    TF1**       fFitPHOSPolSigToBckFitPtBin_withGaus                        = nullptr;
     TF1**       fFitBGSubtractedSignalInvMassPtBin                          = nullptr;
     Double_t*   fMesonMass                                                  = nullptr;
     Double_t*   fMesonMassError                                             = nullptr;
@@ -534,7 +551,7 @@
     Double_t*   fMesonResidualBGcon                                         = nullptr;
     Double_t*   fMesonResidualBGconError                                    = nullptr;
     Double_t*   fMesonChi2[4]                                               = {nullptr, nullptr, nullptr, nullptr};  // array of size nOtherFits+1
-    Double_t*   fSigToBckFitChi2[2]                                         = {nullptr, nullptr};
+    Double_t*   fSigToBckFitChi2[iNumberOfOtherSigToBckRatioFits+1]         = {nullptr, nullptr, nullptr};
 
 
     TH1D*       fHistoMassMeson                                             = nullptr;
@@ -665,7 +682,7 @@
     TH1D*       fHistoResidualBGlin                                         = nullptr;
     TH1D*       fHistoResidualBGcon                                         = nullptr;
     TH1D*       fHistoChi2[4]                                               = { nullptr, nullptr, nullptr, nullptr };   // array of size nOtherFits+1
-    TH1D*       fHistoChi2SigToBckFit[2]                                    = { nullptr, nullptr };
+    TH1D*       fHistoChi2SigToBckFit[iNumberOfOtherSigToBckRatioFits+1]    = { nullptr, nullptr, nullptr };
     TH1D*       fHistoRatioResBGYield                                       = nullptr;
     TH1D*       fHistoRatioResBGYieldToSPlusResBG                           = nullptr;
     TH1D*       fHistoResBGYield[4]                                         = { nullptr, nullptr, nullptr, nullptr };   // array of size nOtherFits+1
@@ -1366,13 +1383,19 @@
                 fMesonWidthExpect           = 0.006;
                 fMesonLambdaTail            = 0.012;
                 fMesonWidthRange[0]         = 0.001;
-                fMesonWidthRange[1]         = 0.015;
+                fMesonWidthRange[1]         = 0.030;
                 fMesonLambdaTailRange[0]    = 0.001;
                 fMesonLambdaTailRange[1]    = 0.02;
                 if( fEnergyFlag.CompareTo("XeXe_5.44TeV") == 0 ){
                     fMesonLambdaTail            = 0.007;
                     fMesonLambdaTailRange[0]    = 0.007;
                     fMesonLambdaTailRange[1]    = 0.007;
+                }else if(fEnergyFlag.Contains("13TeV")){
+                    FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+                    usePolNForBackgroundScaling = 2;
+                    fMesonLambdaTail            = 0.012;
+                    fMesonLambdaTailRange[0]    = 0.004;
+                    fMesonLambdaTailRange[1]    = 0.016;
                 }
             } else if (mode == 4 || mode == 12 ) {                      // EMC
                 fMesonWidthExpect               = 0.01;
@@ -1456,6 +1479,12 @@
                     fMesonLambdaTail            = 0.007;
                     fMesonLambdaTailRange[0]    = 0.007;
                     fMesonLambdaTailRange[1]    = 0.007;
+                }else if (fEnergyFlag.Contains("13TeV")){
+                    FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+                    usePolNForBackgroundScaling = 2;
+                    fMesonLambdaTail            = 0.006;
+                    fMesonLambdaTailRange[0]    = 0.006;
+                    fMesonLambdaTailRange[1]    = 0.006;
                 }
             } else {                                                    // default
                 fMesonWidthExpect           = 0.003;
@@ -1879,6 +1908,16 @@
                 fMesonLambdaTail                = 0.007;
                 fMesonLambdaTailRange[0]        = 0.006;
                 fMesonLambdaTailRange[1]        = 0.009;
+                } else if(fEnergyFlag.Contains("13TeV")){
+                    FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+                    usePolNForBackgroundScaling = 2;
+                    fMesonWidthExpect           = 0.017;
+                    fMesonWidthRange[0]         = 0.010;
+                    fMesonWidthRange[1]         = 0.032;
+                    fMesonLambdaTail                = 0.006;
+                    fMesonLambdaTailRange[0]        = 0.006;
+                    fMesonLambdaTailRange[1]        = 0.006;
+
                 }
             } else if (mode == 4 || mode == 12 ) {
                 if (fEnergyFlag.CompareTo("2.76TeV") == 0 || fEnergyFlag.CompareTo("7TeV") == 0 || fEnergyFlag.BeginsWith("8TeV") ){
@@ -1916,6 +1955,24 @@
                     fMesonLambdaTailRange[0]    = 0.001;
                     fMesonLambdaTailRange[1]    = 0.025;
                 }
+            } else if (mode == 5){
+                fMesonWidthExpect           = 0.005;
+                fMesonLambdaTail            = 0.007;
+                fMesonWidthRange[0]         = 0.002;
+                fMesonWidthRange[1]         = 0.020;
+                fMesonLambdaTailRange[0]    = 0.004;
+                fMesonLambdaTailRange[1]    = 0.03;
+                if(fEnergyFlag.Contains("13TeV")){
+                    FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+                    usePolNForBackgroundScaling = 2;
+                    fMesonWidthExpect           = 0.017;
+                    fMesonWidthRange[0]         = 0.008;
+                    fMesonWidthRange[1]         = 0.040;
+                    fMesonLambdaTail            = 0.006;
+                    fMesonLambdaTailRange[0]    = 0.006;
+                    fMesonLambdaTailRange[1]    = 0.006;
+                }
+
             } else {
                 fMesonWidthExpect           = 0.005;
                 fMesonLambdaTail            = 0.007;
