@@ -1542,10 +1542,24 @@
 
         Int_t doDebugOutputLevel    =   0;
         if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<" "<<endl;}
+        Int_t doBiggerLines=0;
+        if (doBiggerLines>=1){
+            gStyle->SetLineWidth(3);
+            gStyle->SetHistLineWidth(3);
+        }
         cout << "Trigger set: " << triggerSet << endl;
         cout << "fCollisionSystemDummy: " << fCollisionSystemDummy << endl;
         TString triggerStr2             = ReturnTriggerName(triggerSet,fCollisionSystemDummy);
         TString triggerStr              = Form("%s triggered", triggerStr2.Data());
+        if (!(triggerStr2.CompareTo("INT7"))){
+            triggerStr              = Form("MB triggered");
+        } else if (triggerStr2.Contains("EG2")){
+            triggerStr              = Form("EMC-L1 (low) triggered");
+        } else if (triggerStr2.Contains("EG1")){
+            triggerStr              = Form("EMC-L1 (high) triggered");
+        } else if (triggerStr2.Contains("PHI7")){
+            triggerStr              = Form("PHOS-L0 triggered");
+        }
         TString methodStr               = ReturnTextReconstructionProcess(detMode);
         TString methodStrOut            = ReturnTextReconstructionProcessWrite(detMode);
         if (addSig)
@@ -1646,7 +1660,7 @@
             ptLabel             =  "#it{p}_{T,#gamma_{conv}}";
 
         // Set range for fits and labels
-        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<";Set range for fits and labels"<<endl;}
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<";Set range for fits and labels for fMesonType: "<<fMesonType<<endl<<"startPt: "<<startPt<<"; ptLabel: "<<ptLabel<<"; endPt: "<<endPt<<endl;}
         TLatex *labelInvMassPtRange;
         if(fMesonType.CompareTo("Pi0") == 0 || fMesonType.CompareTo("Pi0EtaBinning") == 0){
             labelInvMassPtRange = new TLatex(0.95,0.9, Form("#pi^{0}: %3.1f GeV/#it{c} < %s< %3.1f GeV/#it{c}",startPt,ptLabel.Data(),endPt));
@@ -1667,7 +1681,7 @@
             fitPi0InvMassSig->SetRange(lowBin,highBin);
         } else { // omega
           if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<"; Omega"<<endl;}
-          labelInvMassPtRange = new TLatex(0.95,0.9, Form("#omega: %3.1f GeV/#it{c} < %s< %3.1f GeV/#it{c}",startPt,ptLabel.Data(),endPt));
+          labelInvMassPtRange = new TLatex(0.95,0.9, Form("#omega: %.6g GeV/#it{c} < %s< %.6g GeV/#it{c}",startPt,ptLabel.Data(),endPt));
           fitPi0InvMassSig->SetRange(0.645,0.89);
           fitOmegaInvMassBG->SetRange(0.645,0.89);
         }
@@ -1679,10 +1693,15 @@
         // Set fit colors
         fitPi0InvMassSig_scaled->SetNpx(10000);
         fitPi0InvMassSig_scaled->SetLineColor(fitColorInvMassSG);
-        fitPi0InvMassSig_scaled->SetLineWidth(3);
+        if (doBiggerLines>=1){
+            fitPi0InvMassSig_scaled->SetLineWidth(3);
+        }
         fitOmegaInvMassBG->SetNpx(10000);
         fitOmegaInvMassBG->SetLineColor(fitColorInvMassSG2);
         fitOmegaInvMassBG->SetLineWidth(1);
+        if (doBiggerLines>=1){
+            fitOmegaInvMassBG->SetLineWidth(3);
+        }
 
         fitOmegaInvMassBGConfidence->SetFillColorAlpha(kGreen+2,0.4);
 
@@ -1727,7 +1746,19 @@
         Double_t minimum = histoPi0InvMassSig->GetMinimum();
         if (minimum < 0) minimum = 1.3*minimum;
         else minimum = 0.7*minimum;
-        histo1DInvMassDummy->GetYaxis()->SetRangeUser(minimum,1.15*histoPi0InvMassSigPlusBG->GetMaximum());
+        if (detMode == 60 ){ //Omega PCM
+            histo1DInvMassDummy->GetYaxis()->SetRangeUser(minimum,1.1*histoPi0InvMassSigPlusBG->GetMaximum());
+        } else if (detMode == 61 ){ //Omega PCMEMCAL
+            histo1DInvMassDummy->GetYaxis()->SetRangeUser(minimum,1.15*histoPi0InvMassSigPlusBG->GetMaximum());
+        } else if (detMode == 62 ){ //Omega PCMPHOS
+            histo1DInvMassDummy->GetYaxis()->SetRangeUser(minimum,1.15*histoPi0InvMassSigPlusBG->GetMaximum());
+        } else if (detMode == 64 ){ //Omega EMCAL
+            histo1DInvMassDummy->GetYaxis()->SetRangeUser(minimum,0.8*histoPi0InvMassSigPlusBG->GetMaximum());
+        } else if (detMode == 65 ){ //Omega PHOS
+            histo1DInvMassDummy->GetYaxis()->SetRangeUser(minimum,1.15*histoPi0InvMassSigPlusBG->GetMaximum());
+        } else {
+            histo1DInvMassDummy->GetYaxis()->SetRangeUser(minimum,1.15*histoPi0InvMassSigPlusBG->GetMaximum());
+        }
         if (fMesonType.Contains("Pi0") && fCollisionSystemDummy.Contains("p-Pb")){
             histo1DInvMassDummy->GetXaxis()->SetRangeUser(0.02,0.255);
             histo1DInvMassDummy->GetXaxis()->SetNdivisions(510);
@@ -1737,6 +1768,9 @@
 
         DrawGammaSetMarker(histoPi0InvMassSigPlusBG, markerStyleInvMassSGBG, markerSizeInvMassSGBG, markerColorInvMassSGBG, markerColorInvMassSGBG);
         histoPi0InvMassSigPlusBG->SetLineWidth(1);
+        if (doBiggerLines>=1){
+            histoPi0InvMassSigPlusBG->SetLineWidth(3);
+        }
         fitOmegaInvMassBGConfidence->Draw("e3 same");
         histoPi0InvMassSigPlusBG->Draw("hist,e,same");
         fitOmegaInvMassBG->Draw("same");
@@ -1815,6 +1849,15 @@
         cout << "Trigger set: " << triggerSet << endl;
         TString triggerStr2             = ReturnTriggerName(triggerSet);
         TString triggerStr              = Form("%s triggered", triggerStr2.Data());
+        if (triggerStr2.Contains("INT7")){
+            triggerStr              = Form("MB triggered");
+        } else if (triggerStr2.Contains("EG2")){
+            triggerStr              = Form("EMC-L1 (low) triggered");
+        } else if (triggerStr2.Contains("EG1")){
+            triggerStr              = Form("EMC-L1 (high) triggered");
+        } else if (triggerStr2.Contains("PHI7")){
+            triggerStr              = Form("PHOS-L0 triggered");
+        }
         TString methodStr               = ReturnTextReconstructionProcess(mode);
         if (addSig)
             methodStr                   = methodStr+"AddSig";
