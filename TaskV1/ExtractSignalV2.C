@@ -4520,7 +4520,7 @@ Double_t FitFunctionPHOSBckPol3_withGausExp(Double_t *x, Double_t *par){
 
 
 void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) {
-    Int_t debugOutputLevel=2;
+    Int_t debugOutputLevel=0;
     Double_t NumberOfZeroesRatioLimit=0.5;
     Double_t CurrentNumberOfZeroesRatio;
     Double_t FitRangeSigBckRatioMin;
