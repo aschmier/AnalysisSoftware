@@ -137,7 +137,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     gROOT->Reset();
     gROOT->SetStyle("Plain");
-    //cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; fileListNamePi0: "<<fileListNamePi0.Data()<<"; mode: "<<mode<<"; numberOfTrigg: "<<numberOfTrigg<<"; suffix: "<<suffix.Data()<<"; MC: "<<isMC.Data()<<"; optionEnergy: "<<optionEnergy.Data()<<"; period: "<<period.Data()<<"; pileUpApplied: "<<pileUpApplied<<"; maxPtGlobalPi0: "<<maxPtGlobalPi0<<"; averagedPi0: "<<averagedPi0<<"; enableEta: "<<enableEta<<"; maxPtGlobalEta: "<<maxPtGlobalEta<<"; averagedEta: "<<averagedEta<<"; v2ClusterizerMerged: "<<v2ClusterizerMerged<<"; nameFileFitsShift: "<<nameFileFitsShift.Data()<<"; hasClusterOutput: "<<hasClusterOutput<<"; fileInputCorrFactors: "<<fileInputCorrFactors.Data()<<endl;
+    Int_t DebugOutputLevel=0;
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; fileListNamePi0: "<<fileListNamePi0.Data()<<"; mode: "<<mode<<"; numberOfTrigg: "<<numberOfTrigg<<"; suffix: "<<suffix.Data()<<"; MC: "<<isMC.Data()<<"; optionEnergy: "<<optionEnergy.Data()<<"; period: "<<period.Data()<<"; pileUpApplied: "<<pileUpApplied<<"; maxPtGlobalPi0: "<<maxPtGlobalPi0<<"; averagedPi0: "<<averagedPi0<<"; enableEta: "<<enableEta<<"; maxPtGlobalEta: "<<maxPtGlobalEta<<"; averagedEta: "<<averagedEta<<"; v2ClusterizerMerged: "<<v2ClusterizerMerged<<"; nameFileFitsShift: "<<nameFileFitsShift.Data()<<"; hasClusterOutput: "<<hasClusterOutput<<"; fileInputCorrFactors: "<<fileInputCorrFactors.Data()<<endl;}
 
     StyleSettingsThesis();
     SetPlotStyle();
@@ -182,9 +183,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxPtGlobalCluster          = 100;
         } else if (mode == 10){
             maxPtGlobalCluster          = 200;
-        } else if (mode == 5){
+        } else if (mode ==3 || mode == 5){
             doLinesTriggerMimicking  = kTRUE;
-            maxPtGlobalCluster          = 30.;
+            maxPtGlobalCluster          = 60.;
         }
     } else if (optionEnergy.Contains("pPb_8TeV") || optionEnergy.Contains("pPb_5.023TeV")){
       if(mode==2 || mode==4 || mode==3 || mode==5){
@@ -216,7 +217,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     if (optionEnergy.Contains("5TeV2017"))
         strINT7NLM1 = "INT7_CF";
     TString nameTriggerWeighted[MaxNumberOfFiles]  = {  "INT1", "INT7", "EMC1", "EMC7", strEG2_A.Data(), "EG1",
-                                                        "INT1_NLM1", strINT7NLM1, "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1"};
+                                                        "INT1_NLM1", strINT7NLM1, "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1", "PHI7"};
     if(optionEnergy.CompareTo("2.76TeV")!=0){
         nameTriggerWeighted[10] = "EJ2";
         nameTriggerWeighted[11] = "EJ1";
@@ -264,7 +265,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             nameEfficiency                              = "TrueMesonEffiPt";
         }
         if(optionEnergy.Contains("13TeV") ){
-            nameCorrectedYield                          = "CorrectedYieldNormEff";
+            //nameCorrectedYield                          = "CorrectedYieldNormEff"; /if rec. effi is used
+            nameCorrectedYield                          = "CorrectedYieldTrueEff"; //if scaling of true eff. is used
             nameEfficiency                              = "MesonEffiPt";
             nameMassMC                                  = "histoMassMesonRecMC";
             nameWidthMC                                 = "histoFWHMMesonRecMC";
@@ -384,6 +386,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         minPtGlobalEta              = 12;
 
 
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     for (Int_t j = 1; j < nrOfTrigToBeComb; j++){
         if (minPtGlobalPi0 > ptFromSpecPi0[j][0] && !maskedFullyPi0[j] )
             minPtGlobalPi0 = ptFromSpecPi0[j][0];
@@ -630,6 +633,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     // defining output directory
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     TString outputDir =    Form("%s/%s/%s/FinalResultsTriggersPatched%s%s", suffix.Data(),optionEnergy.Data(),dateForOutput.Data(),fNLMStringOutput.Data(),system.Data());
     TString outputDirDay =    Form("%s/%s/%s", suffix.Data(),optionEnergy.Data(),dateForOutput.Data());
     if(optionEnergy.CompareTo("900GeV") == 0 || optionEnergy.CompareTo("7TeV") == 0 || optionEnergy.BeginsWith("8TeV")){
@@ -669,6 +673,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //******************************** Load Pi0 histograms **********************************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     TString FileNameCorrectedPi0    [MaxNumberOfFiles];
     TFile*  fileCorrectedPi0        [MaxNumberOfFiles];
     TString FileNameUnCorrectedPi0  [MaxNumberOfFiles];
@@ -751,7 +756,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     Int_t nBinsArrayCluster=111-7;
     Double_t BinsArrayCluster[112-7];
     BinsArrayCluster[0]=0.7;
-    if (mode == 2 && optionEnergy.BeginsWith("13TeV") ){
+    if (((mode == 2)||(mode == 3)||(mode == 5))&& optionEnergy.BeginsWith("13TeV") ){
         printf("BinsArrayCluster:\n%0.2f, ", BinsArrayCluster[0]);
         for (Int_t i = 1; i <= nBinsArrayCluster; i++) {
             if (i<=73) {  // 0.7 - 8
@@ -957,6 +962,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             if (fitInvMassSig[i]) fitInvMassSig[i]->SetName(Form("Pi0_InvMassSigFit_Example_%s",triggerName[i].Data()));
         }
         if (cutNumberBaseEff[i].CompareTo("bla") != 0){
+            if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; cutNumberBaseEff[i].CompareTo(\"bla\") != 0"<<endl;}
             FileNameEffBasePi0[i]                           = Form("%s/%s/Pi0_MC_GammaConvV1Correction_%s.root", cutNumber[i].Data(), optionEnergy.Data(), cutNumberBaseEff[i].Data());
             if (mode == 10) FileNameEffBasePi0[i]           = Form("%s/%s/Pi0_MC_GammaMergedCorrection_%s.root", cutNumber[i].Data(), optionEnergy.Data(), cutNumberBaseEff[i].Data());
             fileEffBasePi0[i]                               = new TFile(FileNameEffBasePi0[i]);
@@ -969,6 +975,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 enableTriggerEffPi0[i]                         = kTRUE;
                 enableTriggerEffPi0All                         = kTRUE;
             }
+            if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
             if (enableTriggerEffPi0[i]){
                 TString effiNameBase                        = "TrueMesonEffiPt";
                 if (mode == 10)
@@ -980,6 +987,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 histoTriggerEffPi0[i]                       = (TH1D*)histoEffiPi0Temp->Clone(Form("TriggerEfficiency_%s", cutNumber[i].Data()));
                 histoTriggerEffPi0[i]->Divide(histoTriggerEffPi0[i],histoEffiBasePi0Temp,1.,1.,"B");
 
+                if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
             //    limit trigger efficiency to 1
                 if(optionEnergy.BeginsWith("8TeV")){
                   for(Int_t j = 1; j<histoTriggerEffPi0[i]->GetNbinsX()+1; j++){
@@ -990,6 +998,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     }
                   }
                 }
+                if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
 
                 histoEffTimesAccPi0[i]                      = (TH1D*)histoEffBasePi0[i]->Clone(Form("EffTimeAcc_%s",  cutNumber[i].Data()));
                 if(histoAcceptancePi0WOEvtWeights[i]){
@@ -1005,7 +1014,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 histoEffBasePi0[i]                          = NULL;
                 histoTriggerEffPi0[i]                       = NULL;
             }
+            if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; cutNumberBaseEff[i].CompareTo(\"bla\") != 0 ended"<<endl;}
         } else {
+            if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; cutNumberBaseEff[i].CompareTo(\"bla\") == 0"<<endl;}
             histoEffTimesAccPi0[i]                      = (TH1D*)histoEfficiencyPi0[i]->Clone(Form("EffTimeAcc_%s",  cutNumber[i].Data()));
             if(histoAcceptancePi0WOEvtWeights[i]){
               histoAcceptancePi0WOEvtWeights[i]->Sumw2();
@@ -1046,7 +1057,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 triggRejecFac[i][trigSteps[i][0]]       = 1;
                 triggRejecFacErr[i][trigSteps[i][0]]    = 0;
             } else {
-                if (mode == 2 && optionEnergy.BeginsWith("13TeV") ){
+                if (((mode == 2)||(mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
                     histoRawClusterPt[i]=(TH1D*)histoRawClusterPt[i]->Rebin(nBinsArrayCluster,Form("ClusterPtPerEvent_%s",cutNumber[i].Data()),BinsArrayCluster);
                     histoRawClusterPt[i]->Scale(1.,"width");
                     // histoRawClusterPt[i]->Rebin(5);
@@ -1056,7 +1067,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 histoRatioRawClusterPt[i]->Divide(histoRatioRawClusterPt[i],histoRawClusterPt[trigSteps[i][0]],1.,1.,"");
 
                 if (histoRawClusterE[i]){
-                    if (mode == 2 && optionEnergy.BeginsWith("13TeV") ){
+                    if (((mode == 2)||(mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
                         histoRawClusterE[i]=(TH1D*)histoRawClusterE[i]->Rebin(nBinsArrayCluster,Form("ClusterEPerEvent_%s",cutNumber[i].Data()),BinsArrayCluster);
                         histoRawClusterE[i]->Scale(1.,"width");
                         // histoRawClusterE[i]->Rebin(5);
@@ -1100,7 +1111,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
                 if (enableTriggerRejecCompMC){
                     histoMCRawClusterPt[i]                  = (TH1D*)fileUnCorrectedMCPi0[i]->Get("ClusterPtPerEvent");
-                    if (mode == 2 && optionEnergy.BeginsWith("13TeV") ){
+                    if (((mode == 2)||(mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
                         histoMCRawClusterPt[i]=(TH1D*)histoMCRawClusterPt[i]->Rebin(nBinsArrayCluster,Form("MCClusterPtPerEvent_%s",cutNumber[i].Data()),BinsArrayCluster);
                         histoMCRawClusterPt[i]->Scale(1.,"width");
                     }
@@ -1141,6 +1152,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //*******************************Plotting trigger rejection factors = fits log scale all in one *****************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (hasClusterOutput){
         Size_t textSizeSpectra2         = 0.0415;
         Int_t textPixelPP               = textSizeSpectra2*1100;
@@ -1164,8 +1176,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxTriggReject = 9000;
             minTriggReject = 1.0;
         } else if (optionEnergy.CompareTo("13TeV") == 0){
-            if (mode ==5){
-                maxTriggReject = 6000;
+            if (mode == 3 || mode ==5){
+                maxTriggReject = 9000;
             } else {
                 maxTriggReject = 4200;
             }
@@ -1375,7 +1387,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         } else if( optionEnergy.CompareTo("13TeV")==0 ){
             if (mode == 2 || mode == 4 || mode == 10 ){
                 maxTriggRejectLin = 1005;
-            } else if (mode == 5){
+            } else if (mode ==3 || mode == 5){
                 maxTriggRejectLin = 10000;
             }
         } else if( optionEnergy.Contains("pPb_8TeV") ){
@@ -1858,6 +1870,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************Plotting efficiencies Pi0 *************************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     TCanvas* canvasEffi = new TCanvas("canvasEffi","",0,0,1000,900);// gives the page size
     DrawGammaCanvasSettings( canvasEffi, 0.09, 0.017, 0.015, 0.08);
     canvasEffi->SetLogy(1);
@@ -2061,6 +2074,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************ Plotting trigger efficiencies Pi0 ****************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (enableTriggerEffPi0All){
         TCanvas* canvasTriggerEffi = new TCanvas("canvasTriggerEffi","",0,0,1000,900);// gives the page size
         DrawGammaCanvasSettings( canvasTriggerEffi, 0.09, 0.017, 0.015, 0.08);
@@ -2139,6 +2153,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************Plotting acceptance Pi0 *************************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     TCanvas* canvasAcc = new TCanvas("canvasAcc","",0,0,1000,900);// gives the page size
     DrawGammaCanvasSettings( canvasAcc, 0.1, 0.017, 0.015, 0.08);
     canvasAcc->SetLogy(0);
@@ -2274,6 +2289,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //**************************** Mass and Width general plotting definitions **************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     TCanvas* canvasMass         = new TCanvas("canvasMass","",0,0,1000,900);// gives the page size
     DrawGammaCanvasSettings( canvasMass, 0.11, 0.017, 0.015, 0.08);
     Double_t minMassPi0         = 0.120;
@@ -2363,7 +2379,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                (optionEnergy.CompareTo("pPb_5.023TeV")==0) ||
                (optionEnergy.CompareTo("pPb_8TeV")==0) ||
                (optionEnergy.CompareTo("XeXe_5.44TeV")==0) ||
-               (optionEnergy.BeginsWith("5TeV"))
+               (optionEnergy.BeginsWith("5TeV")) ||
+               (optionEnergy.BeginsWith("13TeV"))
                ){
                 DrawGammaSetMarker(histoMassPi0Data[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
                 histoMassPi0Data[i]->DrawCopy("e1,same");
@@ -2476,6 +2493,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************Plotting unscaled invariant raw-yield Pi0 *********************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     textSizePixelSpectra = textSizeSpectra*1000;
 
     TCanvas* canvasRawUnscaled = new TCanvas("canvasRawUnscaled","",0,0,1000,1350);// gives the page size
@@ -2558,6 +2576,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************Plotting unscaled invariant yield Pi0 *************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     TCanvas* canvasCorrUnscaled = new TCanvas("canvasCorrUnscaled","",0,0,1000,1350);// gives the page size
     DrawGammaCanvasSettings( canvasCorrUnscaled, 0.15, 0.017, 0.015, 0.07);
     canvasCorrUnscaled->SetLogy();
@@ -2629,6 +2648,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //******************************* Scaling corrected yield by trigger rejection factors **************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
 
     TH1D*     histoCorrectedYieldPi0Scaled                  [MaxNumberOfFiles];
     TH1D*     histoCorrectedYieldPi0ScaledMasked            [MaxNumberOfFiles];
@@ -2779,8 +2799,26 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsPi0[1] = 0; //INT7
             offSetsPi0[4] = 32; //EG2
             offSetsPi0[5] = 52; //EG1
+        }else if(mode == 4){
+            offSetsPi0[1] = 0; //INT7
+            offSetsPi0[4] = 30; //EG2
+            offSetsPi0[5] = 50; //EG1
+        }else if(mode == 10){
+            offSetsPi0[1] = 20; //INT7
+            offSetsPi0[4] = 20; //EG2
+            offSetsPi0[5] = 20; //EG1
+        }else if(mode == 3){
+            offSetsPi0[1] = 2; //INT7
+            offSetsPi0[3] = 37; //EMC7
+            offSetsPi0[12] = offSetsPi0[3]; //PHI7
+        }else if(mode == 5){
+            offSetsPi0[1] = 4; //INT7
+            offSetsPi0[3] = 37; //EMC7
+            offSetsPi0[12] = offSetsPi0[3]; //PHI7
         }
+
     }
+
 
     // set all graphs to NULL first
     for (Int_t j = 0; j< MaxNumberOfFiles; j++){
@@ -2806,6 +2844,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //****************************************************************************************************************
     //************* Processing of each individual trigger, reducing ranges & adding systematics **********************
     //****************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
         // read systematics, if fileName is set to "bla" no action has to be performed and systematics will be disabled for the rest of the analysis
         if (sysFilePi0[i].CompareTo("bla") != 0){
@@ -3251,10 +3290,27 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsPi0Sys[4]+=0;
             offSetsPi0Sys[5]+=0;
         }
+    } else  if (optionEnergy.CompareTo("13TeV")==0){
+        if(mode == 4){
+            offSetsPi0Sys[4]=48;//29 + offSetsPi0Sys[1];
+            offSetsPi0Sys[5]=62 + offSetsPi0Sys[1];
+        } else if(mode == 10){
+            offSetsPi0Sys[1]=11;
+            offSetsPi0Sys[4]=17;
+            offSetsPi0Sys[5]=17;
+        } else if(mode == 3 ){
+            offSetsPi0Sys[1]+=2;
+            offSetsPi0Sys[3]+=37;
+            offSetsPi0Sys[12]=offSetsPi0Sys[3];
+        } else if(mode == 5 ){
+            offSetsPi0Sys[1]+=4;
+            offSetsPi0Sys[3]=58;
+            offSetsPi0Sys[12]=offSetsPi0Sys[3];
+        }
     }
 
 
-
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     // create weighted graphs for spectra and supporting graphs
     TString nameWeightsLogFilePi0 =     Form("%s/weightsPi0_%s.dat",outputDir.Data(),isMC.Data());
     TGraphAsymmErrors* graphCorrectedYieldWeightedAveragePi0Stat    = NULL;
@@ -3272,11 +3328,13 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TGraphAsymmErrors* graphEffectSecCorrPi0Weighted[4]             = {NULL, NULL, NULL, NULL};
     TGraphAsymmErrors* graphEfficiencySecPi0Weighted[4]             = {NULL, NULL, NULL, NULL};
 
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     for (Int_t k = 0; k < 30; k++){
         graphRelSysErrPi0SourceWeighted[k]                          = NULL;
     }
     // Calculate averaged pi0 spectrum & respective supporting graphs according to statistical and systematic errors taking correctly into account the cross correlations
     if (averagedPi0){
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         cout << maxNAllowedPi0 << endl;
         // Calculate average pi0 spectrum
         graphCorrectedYieldWeightedAveragePi0Tot        = CombinePtPointsSpectraTriggerCorrMat(    histoStatPi0, graphSystPi0,
@@ -3288,6 +3346,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                                                                                                    fileInputCorrFactors
                                                                                                );
 
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         // preparations for weight readout
         Double_t xValuesReadPi0[400];
         Double_t weightsReadPi0[MaxNumberOfFiles][400];
@@ -3296,17 +3355,20 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         Int_t nMeasSetPi0               = nrOfTrigToBeCombPi0Red;
         Int_t nPtBinsReadPi0            = 0;
 
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         // labeling and plotting settings
         Color_t colorTriggWeighted[MaxNumberOfFiles];
             for(Int_t set=0;set<MaxNumberOfFiles;set++) colorTriggWeighted[set]= GetDefaultTriggerColorName(nameTriggerWeighted[set], 0);
         Marker_t markerTriggWeighted[MaxNumberOfFiles];
             for(Int_t set=0;set<MaxNumberOfFiles;set++) markerTriggWeighted[set]= GetDefaultTriggerMarkerStyleName(nameTriggerWeighted[set], 0);
 
+            if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         // Reading weights from output file for plotting
         ifstream fileWeightsPi0;
         fileWeightsPi0.open(nameWeightsLogFilePi0,ios_base::in);
         cout << "reading" << nameWeightsLogFilePi0 << endl;
 
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         while(!fileWeightsPi0.eof() && nPtBinsReadPi0 < 400){
             TString garbage = "";
             if (nPtBinsReadPi0 == 0){
@@ -3335,6 +3397,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         nPtBinsReadPi0 = nPtBinsReadPi0-2 ;
         fileWeightsPi0.close();
 
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         // creating & filling the weight graphs
         TGraph* graphWeightsPi0[MaxNumberOfFiles];
         for (Int_t i = 0; i < MaxNumberOfFiles; i++){
@@ -3357,6 +3420,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         //  **********************************************************************************************************************
         //  ******************************************* Plotting weights Pi0 *****************************************************
         //  **********************************************************************************************************************
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         Int_t textSizeLabelsPixel = 900*0.04;
 
         TCanvas* canvasWeights = new TCanvas("canvasWeights","",200,10,1350,900);// gives the page size
@@ -3400,6 +3464,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         canvasWeights->SaveAs(Form("%s/%s_WeightsPi0Triggers.%s",outputDir.Data(), isMC.Data(), suffix.Data()));
         delete canvasWeights;
 
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         // Calculating relative error for pi0
         for (Int_t i = 0; i < MaxNumberOfFiles; i++){
             if (histoStatPi0[i])
@@ -3431,6 +3496,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
           SysErrDatAverSingleCheck.close();
         }
 
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         // plot sys relative errors for individual triggers
         TCanvas* canvasRelSysErr            = new TCanvas("canvasRelSysErr","",200,10,1350,900);  // gives the page size
         DrawGammaCanvasSettings( canvasRelSysErr, 0.08, 0.02, 0.035, 0.09);
@@ -3466,6 +3532,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         canvasRelSysErr->SaveAs(Form("%s/Pi0_RelSysErr_SingleMeas.%s",outputDir.Data(),suffix.Data()));
 
 
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
             DrawGammaSetMarkerTGraphAsym(graphRelErrorPi0Sys, 24, 1.5, kGray+1 , kGray+1);
 //             graphRelErrorPi0Sys->SetLineStyle(7);
             graphRelErrorPi0Sys->Draw("same,pze1");
@@ -3480,6 +3547,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
 
         // plot stat relative errors for individual triggers
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         TCanvas* canvasRelStatErr           = new TCanvas("canvasRelStatErr","",200,10,1350,900);  // gives the page size
         DrawGammaCanvasSettings( canvasRelStatErr, 0.08, 0.02, 0.035, 0.09);
 
@@ -3519,6 +3587,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         canvasRelStatErr->SaveAs(Form("%s/Pi0_RelStatErr_SingleMeas.%s",outputDir.Data(),suffix.Data()));
 
         // plot full error for final result decomposed
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         TCanvas* canvasRelTotErr            = new TCanvas("canvasRelTotErr","",200,10,1350,900);  // gives the page size
         DrawGammaCanvasSettings( canvasRelTotErr, 0.08, 0.02, 0.035, 0.09);
 
@@ -3549,26 +3618,33 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
 
         // Calculate relative sys error weighted
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         if (sysAvailSinglePi0[0]){
             cout << "calculating CalculateWeightedQuantity for graphRelSysErrPi0SourceWeighted" << endl;
             for (Int_t k = 0; k< nRelSysErrPi0Sources ; k++ ){
+                if (DebugOutputLevel>=2){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
                 graphRelSysErrPi0SourceWeighted[k]      = CalculateWeightedQuantity(    graphOrderedRelSysErrPi0Source[k],
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
                                                                                         MaxNumberOfFiles
                                                                                    );
+                if (DebugOutputLevel>=2){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
                 if (!graphRelSysErrPi0SourceWeighted[k]){
+                    if (DebugOutputLevel>=2){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
                     cout << "Aborted in CalculateWeightedQuantity for " << endl;
                     return;
                 } else {
+                    if (DebugOutputLevel>=2){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
                     graphRelSysErrPi0SourceWeighted[k]->SetName(Form("RelSysErrPi0SourceWeighted%s", ((TString)ptSysDetail[0][0].at(k+1)).Data()));
                     while (graphRelSysErrPi0SourceWeighted[k]->GetY()[0] == -10000 )   graphRelSysErrPi0SourceWeighted[k]->RemovePoint(0);
                 }
             }
+            if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         }
 //         return;
 
         // Calculation of averaged supporting plots with weights from spectra
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         if (mode != 10){
             cout << "calculating CalculateWeightedQuantity for graphMassPi0DataWeighted" << endl;
             graphMassPi0DataWeighted                    = CalculateWeightedQuantity(    graphOrderedMassPi0Data,
@@ -3615,6 +3691,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         }
 
         cout << "weighting Pi0 acceptance" << endl;
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         graphAcceptancePi0Weighted                      = CalculateWeightedQuantity(    graphOrderedAcceptancePi0,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
@@ -3656,6 +3733,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
 
         cout << "weighting Pi0 efficiency" << endl;
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         graphEfficiencyPi0Weighted                      = CalculateWeightedQuantity(    graphOrderedEfficiencyPi0,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
@@ -3691,6 +3769,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         }
 
         // remove points in spectrum which should have been masked
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         if (mode != 10){
             if (graphMassPi0DataWeighted)
                 while (graphMassPi0DataWeighted->GetY()[0] == -10000 )   graphMassPi0DataWeighted->RemovePoint(0);
@@ -3733,6 +3812,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         else
             cout << "I don't have a weighted Pi0 acceptance x efficiency graph" << endl;
 
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         for (Int_t k = 0; k< 4; k++){
             if (graphEffectSecCorrPi0Weighted[k])
                 while (graphEffectSecCorrPi0Weighted[k]->GetY()[0] == -10000)    graphEffectSecCorrPi0Weighted[k]->RemovePoint(0);
@@ -3748,6 +3828,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         //  **************************************** Combine+write detailed Systematics ******************************************
         //  **********************************************************************************************************************
 
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         const char *SysErrDatnameMeanSingleErr = Form("%s/SystematicErrorAveragedSingle%s_Pi0_%s.dat",outputDir.Data(),sysStringComb.Data(),optionEnergy.Data());
         fstream SysErrDatAverSingle;
         SysErrDatAverSingle.precision(4);
@@ -3780,6 +3861,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         // ***************************************************************************************************
         // ********************* Plot all mean erros separately after smoothing ******************************
         // ***************************************************************************************************
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         if(sysAvailSinglePi0[0] && graphRelSysErrPi0SourceWeighted[0]){
             TCanvas* canvasNewSysErrMean = new TCanvas("canvasNewSysErrMean","",200,10,1350,900);// gives the page size
             DrawGammaCanvasSettings( canvasNewSysErrMean, 0.08, 0.01, 0.015, 0.09);
@@ -3850,6 +3932,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
     // if averaging wasn't enabled pick values according to predefined ranges ("cherry picking points")
     } else {
+        if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
        graphCorrectedYieldWeightedAveragePi0Stat        = new TGraphAsymmErrors(nPointFinalPi0, xValueFinalPi0, yValueFinalPi0,
                                                                                 xErrorLowFinalPi0, xErrorHighFinalPi0,yErrorLowFinalPi0, yErrorHighFinalPi0);
        graphCorrectedYieldWeightedAveragePi0Sys         = new TGraphAsymmErrors(nPointFinalPi0, xValueFinalPi0, yValueFinalPi0,
@@ -3895,24 +3978,29 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         SysErrDatAverSingleCheck.close();
 
     }
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     // print final graphs
     cout << "stat pi0" << endl;
     graphCorrectedYieldWeightedAveragePi0Stat->Print();
     cout << "sys pi0" << endl;
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (graphCorrectedYieldWeightedAveragePi0Sys) graphCorrectedYieldWeightedAveragePi0Sys->Print();
 
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (graphCorrectedYieldWeightedAveragePi0Stat){
         while (graphCorrectedYieldWeightedAveragePi0Stat->GetX()[0]< minPtGlobalPi0){
             graphCorrectedYieldWeightedAveragePi0Stat->RemovePoint(0);
         }
     }
 
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (graphCorrectedYieldWeightedAveragePi0Sys){
         while (graphCorrectedYieldWeightedAveragePi0Sys->GetX()[0]< minPtGlobalPi0){
             graphCorrectedYieldWeightedAveragePi0Sys->RemovePoint(0);
         }
     }
 
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (mode != 10){
         //***************************************************************************************************************
         //************************************Plotting Mass Pi0 reduced range  ******************************************
@@ -3928,7 +4016,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
              (optionEnergy.CompareTo("pPb_5.023TeV")==0) ||
              (optionEnergy.CompareTo("pPb_8TeV")==0) ||
              (optionEnergy.CompareTo("XeXe_5.44TeV")==0) ||
-             (optionEnergy.BeginsWith("5TeV"))
+             (optionEnergy.BeginsWith("5TeV")) ||
+             (optionEnergy.BeginsWith("13TeV"))
              ){
                 if (graphMassPi0Data[i] && !maskedFullyPi0[i]) {
                     DrawGammaSetMarkerTGraphAsym(graphMassPi0Data[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
@@ -4129,10 +4218,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     }
     if (!enableEta) delete canvasMass;
     if (!enableEta) delete canvasWidth;
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
 
     //***************************************************************************************************************
     //************************************* Efficiency weighted *****************************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (graphEfficiencyPi0Weighted){
         DrawGammaCanvasSettings( canvasEffi, 0.09, 0.017, 0.015, 0.08);
         canvasEffi->SetLogy(1);
@@ -4162,6 +4253,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************* Efficiency weighted *****************************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (graphEffTimesAccPi0Weighted){
       DrawGammaCanvasSettings( canvasEffi, 0.09, 0.017, 0.015, 0.08);
       canvasEffi->SetLogy(1);
@@ -4199,6 +4291,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //***************************** Secondary corr factors weighted all separate ************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     for (Int_t k = 0; k< 4; k++ ){
         if (graphEfficiencySecPi0Weighted[k]){
             canvasEffi->cd();
@@ -4265,6 +4358,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //***************************** Secondary corr factors weighted all separate ************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     Int_t nSecEffis = 0;
     Int_t nSecCorrs = 0;
     for (Int_t k = 0; k<4; k++){
@@ -4348,6 +4442,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //***************************************** Purity weighted *****************************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (graphPurityPi0Weighted){
         TCanvas* canvasPurity = new TCanvas("canvasPurity","",0,0,1000,900);// gives the page size
         DrawGammaCanvasSettings( canvasPurity, 0.09, 0.017, 0.015, 0.08);
@@ -4386,6 +4481,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************* Acceptance weighted *****************************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (graphAcceptancePi0Weighted){
         DrawGammaCanvasSettings( canvasAcc, 0.1, 0.017, 0.015, 0.08);
         canvasAcc->cd();
@@ -4415,6 +4511,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************Plotting scaled invariant yield *****************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     TCanvas* canvasCorrScaled = new TCanvas("canvasCorrScaled","",0,0,1000,1350);// gives the page size
     DrawGammaCanvasSettings( canvasCorrScaled, 0.15, 0.017, 0.015, 0.07);
     canvasCorrScaled->SetLogy(1);
@@ -4521,6 +4618,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************Plotting final invariant yield ********************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
 
     histo2DInvYieldScaled->DrawCopy();
     DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldWeightedAveragePi0Sys, 24, 2, kGray+1 , kGray+1, 1, kTRUE);
@@ -4567,6 +4665,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //****************************** Ratio to fit for individual spectra full range *********************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     TCanvas* canvasRatioSpec = new TCanvas("canvasRatioSpec","",0,0,1000,900);// gives the page size
     DrawGammaCanvasSettings( canvasRatioSpec, 0.09, 0.017, 0.015, 0.08);
     canvasRatioSpec->SetLogy(0);
@@ -4620,6 +4719,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //****************************** Ratio to fit for individual spectra used range *********************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
 
     histo2DRatioToFitPi0->DrawCopy();
 
@@ -4655,6 +4755,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //****************************** Ratio to fit for final spectrum ************************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
 
     histo2DRatioToFitPi0->DrawCopy();
 
@@ -4718,6 +4819,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //************************************Loading eta histograms ****************************************************
     //***************************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     TString FileNameCorrectedEta        [MaxNumberOfFiles];
     TFile* fileCorrectedEta             [MaxNumberOfFiles];
     TString FileNameCorrectedPi0EtaBin  [MaxNumberOfFiles];
@@ -5348,7 +5450,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
              (optionEnergy.BeginsWith("13TeV")) ||
              (optionEnergy.CompareTo("pPb_5.023TeV")==0) ||
              (optionEnergy.CompareTo("pPb_8TeV")==0) ||
-             (optionEnergy.Contains("5TeV2017"))
+             (optionEnergy.Contains("5TeV2017"))||
+             (optionEnergy.Contains("13TeV"))
              ){
                 DrawGammaSetMarker(histoMassEtaData[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
                 histoMassEtaData[i]->DrawCopy("e1,same");
@@ -5698,6 +5801,18 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 offSetsEta[1] = 0; //INT7
                 offSetsEta[4] = 10; //EG2
                 offSetsEta[5] = 16; //EG1
+            } else if(mode == 4){
+                offSetsEta[1] = 11; //INT7
+                offSetsEta[4] = 19; //EG2
+                offSetsEta[5] = 29; //EG1
+            } else if(mode == 3){
+                offSetsEta[1] = 3; //INT7
+                offSetsEta[3] = 15; //EMC7
+                offSetsEta[12] = offSetsEta[3]; //PHI7
+            } else if(mode == 5){
+                offSetsEta[1]  = 11; //INT7
+                offSetsEta[3] = 13; //EMC7
+                offSetsEta[12] = offSetsEta[3]; //PHI7
             }
         }
 
@@ -6035,6 +6150,20 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsEtaSys[1]+=-1; //EG1
             offSetsEtaSys[4]+=-2; //EG1
             offSetsEtaSys[5]+=-2; //EG1
+        } else if(optionEnergy.Contains("13TeV")){
+            if(mode == 4){
+                offSetsEtaSys[1] = 11; //INT7
+                offSetsEtaSys[4] = 19; //EG2
+                offSetsEtaSys[5] = 29; //EG1
+            } else if(mode == 3){
+                offSetsEtaSys[1] = 4; //INT7
+                offSetsEtaSys[3] = 20; //EMC7
+                offSetsEtaSys[12] = offSetsEta[12]; //PHI7
+            } else if(mode == 5){
+                offSetsEtaSys[1]  = 12; //INT7
+                offSetsEtaSys[3] = 19; //EMC7
+                offSetsEtaSys[12] = offSetsEta[12]; //PHI7
+            }
         }
         //
 
@@ -6567,7 +6696,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
              (optionEnergy.BeginsWith("13TeV")) ||
              (optionEnergy.CompareTo("pPb_5.023TeV")==0) ||
              (optionEnergy.CompareTo("pPb_8TeV")==0) ||
-             (optionEnergy.BeginsWith("5TeV"))
+             (optionEnergy.BeginsWith("5TeV"))||
+             (optionEnergy.Contains("13TeV"))
              ){
                 if (graphMassEtaData[i] && !maskedFullyEta[i]) {
                     DrawGammaSetMarkerTGraphAsym(graphMassEtaData[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
@@ -7134,6 +7264,20 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     offSetsEtaToPi0[4] = -2; //EMC7
                     offSetsEtaToPi0[5] = -2; //EGA
                 }
+            } else if(optionEnergy.CompareTo("13TeV")==0){
+                if(mode == 4){
+                    offSetsEtaToPi0[1] = 11; //INT7
+                    offSetsEtaToPi0[4] = 19; //EG2
+                    offSetsEtaToPi0[5] = 29; //EG1
+                } else if(mode == 3){
+                    offSetsEtaToPi0[1] = 3; //INT7
+                    offSetsEtaToPi0[3] = 15; //EMC7
+                    offSetsEtaToPi0[12] = offSetsEtaToPi0[3]; //PHI7
+                } else if(mode == 5){
+                    offSetsEtaToPi0[1]  = 11; //INT7
+                    offSetsEtaToPi0[3] = 13; //EMC7
+                    offSetsEtaToPi0[12] = offSetsEtaToPi0[3]; //PHI7
+                }
             }
 
             Bool_t hasSysEtaToPi0            = kFALSE;
@@ -7419,6 +7563,24 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 offSetsEtaToPi0Sys[1]+=-1; //INT7
                 offSetsEtaToPi0Sys[4]+=-1; //EMC7
                 offSetsEtaToPi0Sys[5]+=-2; //EGA
+            } else  if (optionEnergy.CompareTo("13TeV")==0){
+                if(mode == 4){
+                    offSetsPi0Sys[4]=48;//29 + offSetsPi0Sys[1];
+                    offSetsPi0Sys[5]=62 + offSetsPi0Sys[1];
+                }
+                if(mode == 10){
+                    offSetsEtaToPi0Sys[1]=11;
+                    offSetsEtaToPi0Sys[4]=17;
+                    offSetsEtaToPi0Sys[5]=17;
+                } else if(mode == 3 ){
+                    offSetsEtaToPi0Sys[1]=4;
+                    offSetsEtaToPi0Sys[3]=20;
+                    offSetsEtaToPi0Sys[12]=offSetsEtaToPi0Sys[3];
+                } else if(mode == 5 ){
+                    offSetsEtaToPi0Sys[1]=12;
+                    offSetsEtaToPi0Sys[3]=19;
+                    offSetsEtaToPi0Sys[12]=offSetsEtaToPi0Sys[3];
+                }
             }
             TString nameWeightsLogFileEtaToPi0                  = Form("%s/weightsEtaToPi0_%s.dat",outputDir.Data(),isMC.Data());
             TGraphAsymmErrors* graphEtaToPi0WeightedAverageTot  = NULL;
@@ -8060,6 +8222,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //*********************************************************************************************************
     //********************** ComparisonFile Output ************************************************************
     //*********************************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     cout << "starting to write out data" << endl;
     TGraphAsymmErrors* graphInvXSectionWeightedAveragePi0Stat   = NULL;
     TH1D* histoInvXSectionWeightedAveragePi0Stat                = NULL;
