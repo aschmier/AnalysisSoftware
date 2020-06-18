@@ -2281,9 +2281,10 @@ void ExtractSignalV2(
     if (!fIsMC && meson.Contains("Pi0") ){
         fHaveCocktailInputForSec     = LoadSecondaryPionsFromCocktailFile(cutSelection,optionEnergy);
         cout << "SECONDARIES: LoadSecondaryPionsFromCocktailFile" << endl;
-        if(!fHaveCocktailInputForSec)
+        if(!fHaveCocktailInputForSec){
             cout << "SECONDARIES: LoadSecondaryPionsFromExternalFile" << endl;
             fHaveToyMCInputForSec     = LoadSecondaryPionsFromExternalFile();
+        }
         if (fHaveCocktailInputForSec){
             cout << "SECONDARIES: I am gonna add the cocktail output to the uncorrected file" << endl;
         } else if (fHaveToyMCInputForSec){
