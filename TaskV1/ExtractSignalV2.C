@@ -1209,7 +1209,8 @@ void ExtractSignalV2(
             fMesonTrueYieldFixedWindow[iPt]         = fYields;
             fMesonTrueYieldErrorFixedWindow[iPt]    = fYieldsError;
 
-            FitTrueInvMassPureGaussianInPtBins(fHistoMappingTrueMesonInvMassPtBins[iPt],iPt);
+            TFitResultPtr lFitResult = nullptr;
+            FitTrueInvMassPureGaussianInPtBins(fHistoMappingTrueMesonInvMassPtBins[iPt],iPt,lFitResult);
             if (fHistoMappingTrueMesonInvMassPtBins[iPt]->GetEntries() !=0){
                 fFitTrueSignalGaussianInvMassPtBin[iPt] = fFitReco;
                 if (fFitTrueSignalGaussianInvMassPtBin[iPt] !=0x00){
@@ -1225,7 +1226,7 @@ void ExtractSignalV2(
                 }
                 for (Int_t k = 0; k< 3;k++){
                     // cout<< endl <<"True histo " << nameIntRange[k].Data() << " integration from fit, range" << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1]<< endl;
-                    IntegrateFitFuncAndError( fFitTrueSignalGaussianInvMassPtBin[iPt], fHistoMappingTrueMesonInvMassPtBins[iPt], fMesonTrueIntRange[k]);
+                    IntegrateFitFuncAndError( fFitTrueSignalGaussianInvMassPtBin[iPt], lFitResult, fHistoMappingTrueMesonInvMassPtBins[iPt], fMesonTrueIntRange[k]);
                     fMesonTrueYieldsFromFit[k][iPt]                        = fYieldsFunc;
                     fMesonTrueYieldsFromFitError[k][iPt]                   = fYieldsFuncError;
                     // cout << "Integrated value: \t" << fYieldsFunc <<"+-" <<fYieldsFuncError<<endl;
@@ -6690,7 +6691,7 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
 //****************************************************************************
 //*** Fit of Pure MC Signal with Gaussian ************************************
 //****************************************************************************
-void FitTrueInvMassPureGaussianInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Int_t ptBin){
+void FitTrueInvMassPureGaussianInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Int_t ptBin, TFitResultPtr& theFitResult ){
 
     histoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
     Double_t mesonAmplitude         = histoMappingSignalInvMassPtBinSingle->GetMaximum();
@@ -6740,10 +6741,10 @@ void FitTrueInvMassPureGaussianInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
     }
     fFitReco->SetParLimits(2,fMesonWidthRange[0],fMesonWidthRange[1]*2);
 
-    histoMappingSignalInvMassPtBinSingle->Fit(fFitReco,"QRME0");
+    theFitResult = histoMappingSignalInvMassPtBinSingle->Fit(fFitReco,"SQRME0");
     //exclude second iteration of fitting, otherwise fits go completely wrong in 8 TeV
 
-    fFitReco->SetLineColor(5);
+fFitReco->SetLineColor(5);
     fFitReco->SetLineWidth(1);
     fFitReco->SetLineStyle(1);
 
@@ -7035,9 +7036,15 @@ void IntegrateFitFunc(TF1 * fFunc, TH1D *  histoMappingSignalInvMassPtBinSingle,
 //****************************************************************************
 //********* Integration of Fit function in given integration window **********
 //****************************************************************************
-void IntegrateFitFuncAndError(TF1 * fFunc, TH1D *  histoMappingSignalInvMassPtBinSingle,Double_t * fMesonIntRangeInt) {
-    fYieldsFunc = fFunc->Integral(fMesonIntRangeInt[0],fMesonIntRangeInt[1])/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
-    fYieldsFuncError = fFunc->IntegralError(fMesonIntRangeInt[0],fMesonIntRangeInt[1])/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+void IntegrateFitFuncAndError(TF1 * fFunc, TFitResultPtr theFitResult,  TH1D *  histoMappingSignalInvMassPtBinSingle,Double_t * fMesonIntRangeInt) {
+
+    Double_t binWidth = histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+    fYieldsFunc = fFunc->Integral(fMesonIntRangeInt[0],fMesonIntRangeInt[1])/ binWidth;
+    fYieldsFuncError = fFunc->IntegralError(fMesonIntRangeInt[0],
+                                            fMesonIntRangeInt[1],
+                                            nullptr,
+                                            theFitResult->GetCovarianceMatrix().GetMatrixArray()) / binWidth;
+
 }
 
 

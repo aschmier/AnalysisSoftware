@@ -259,7 +259,7 @@
     void FitSubtractedExp2InvMassInPtBins(TH1D* , Double_t* , Int_t , Bool_t );                                 // Fits the invariant mass histos with a gaussian plus exponential plus exp BG
     void FitSubtractedPureGaussianInvMassInPtBins(TH1D*, Int_t);                                                // Fits the invariant mass histos with a pure gaussian plus lin BG
     void FitTrueInvMassInPtBins(TH1D * ,Double_t *, Int_t, Bool_t);                                             // Fits the true invariant mass histos with a gaussian plus exponential plus lin BG
-    void FitTrueInvMassPureGaussianInPtBins(TH1D * , Int_t);                                                    // Fits the true invariant mass histos with a gaussian plus lin BG
+    void FitTrueInvMassPureGaussianInPtBins(TH1D * , Int_t, TFitResultPtr&);                                    // Fits the true invariant mass histos with a gaussian plus lin BG
     void FitCBSubtractedInvMassInPtBins(TH1D* ,Double_t * , Int_t ,Bool_t,TString, Bool_t );                    // Fits the invariant mass histos with a CB function
     void MakeBGFitSubtractedInvMassInPtBins(TH1D* ,Double_t * , Int_t ,Bool_t,TString, Bool_t );                 // Fits the invariant mass histos with a gaussian plus exponential plus lin BG
     void ProduceBckProperWeighting(TList*, TList*, TList*, TList* ,Bool_t);                                     // Create BG with proper weighting
@@ -267,7 +267,7 @@
     void IntegrateHistoInvMassStream(TH1D * , Double_t *);                                                      // Integrate invariant mass histogram with output to ifstream
     void IntegrateHistoInvMass(TH1D * , Double_t *);                                                            // Integrate invariant mass histogram
     void IntegrateFitFunc(TF1 * , TH1D *, Double_t *);                                                          // Integrate fit function
-    void IntegrateFitFuncAndError(TF1 * , TH1D *, Double_t *);                                                          // Integrate fit function
+    void IntegrateFitFuncAndError(TF1 * , TFitResultPtr, TH1D *, Double_t *);                                   // Integrate fit function
     void FillHistosArrayMC(TH1D* , TH1D*, TH1D*);                                                               // Fill MC input histograms
     void FillHistosArrayMCWOWeights(TH1D* , TH1D*, TH1D*);                                                      // Fill MC input histograms
     void FillHistosArrayMCWOEvtWeights(TH1D* , TH1D*, TH1D*);                                                   // Fill MC input histograms
@@ -827,7 +827,7 @@
         fFullPt[0]                  = 0.4;
         fFullPt[1]                  = 15;
 
-        TString mesonBGString       = fMesonCutSelection(1,1);    
+        TString mesonBGString       = fMesonCutSelection(1,1);
         //****************************************************************************************************
         // Initialization for pi0 meson
         //****************************************************************************************************
@@ -950,7 +950,7 @@
                     fBGFitRange[1]              = 0.3;
                     fBGFitRangeLeft[0]          = 0.26;
                     fBGFitRangeLeft[1]          = 0.30;
-                } else if ( fEnergyFlag.Contains("pPb_5.023TeV") ){   
+                } else if ( fEnergyFlag.Contains("pPb_5.023TeV") ){
                     cout << "configuring for pPb with BG option: " << mesonBGString.Data() << endl;
                     if( trigger.CompareTo("85") == 0 || triggerSet == 2 ){
                         fBGFitRange[0] = 0.25;
@@ -1165,7 +1165,7 @@
                 fMesonMassPlotRange[0]      = 0.;
                 fMesonMassPlotRange[1]      = 0.4;
             }
-            
+
             // Set Meson fit range
             if (mode == 0){
                 if( fEnergyFlag.Contains("PbPb")){                      // PCM
