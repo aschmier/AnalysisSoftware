@@ -7930,6 +7930,11 @@ void CalculateFWHM(TF1 * fFunc){
 
         //FWHM
         fFWHMFunc = fFunc_def->GetX(fFunc_def->GetParameter(0)*0.5,fFunc_def->GetParameter(1), fMesonFitRange[1]) - fFunc_def->GetX(fFunc_def->GetParameter(0)*0.5,fMesonFitRange[0],fFunc_def->GetParameter(1));
+        if(isnan(fFWHMFunc)){
+            cout << "ERROR in ExtractSignalV2.C CalculateFWHM(): fFWHMFunc is nan!\n";
+            fFWHMFuncError = 1e+12;
+            return;
+        }
 
         //FWHM error +
         TF1* fFunc_plus;
@@ -7950,10 +7955,20 @@ void CalculateFWHM(TF1 * fFunc){
         fFunc_minus->SetParameter(3,fFunc->GetParameter(3) - fFunc->GetParError(3));
 
         Double_t FWHM_minus =  fFunc_minus->GetX(fFunc_minus->GetParameter(0)*0.5,fFunc_minus->GetParameter(1), fMesonFitRange[1]) -fFunc_minus->GetX(fFunc_minus->GetParameter(0)*0.5,fMesonFitRange[0],fFunc_minus->GetParameter(1));
-        Double_t Error1 = TMath::Abs(fFWHMFunc-FWHM_plus);
-        Double_t Error2 = TMath::Abs(fFWHMFunc-FWHM_minus);
-        if(Error1>=Error2) fFWHMFuncError = Error1;
-        if(Error1<Error2) fFWHMFuncError = Error2;
+
+        if(isnan(FWHM_plus) || isnan(FWHM_minus)){
+            cout << "ERROR in ExtractSignalV2.C CalculateFWHM(): fFWHMFuncError can not be calculated. Most likely, the reason is that one of fFunc_plus or fFunc_minus ";
+            cout << "does not drop to half of its maximum value in both windows provided.\nSetting fFWHMFuncError to 1e+12!\n";
+            fFWHMFuncError = 1e+12;
+            return;
+        }
+        else{
+            Double_t Error1 = TMath::Abs(fFWHMFunc-FWHM_plus);
+            Double_t Error2 = TMath::Abs(fFWHMFunc-FWHM_minus);
+            if(Error1>=Error2) fFWHMFuncError = Error1;
+            if(Error1<Error2) fFWHMFuncError = Error2;
+        }
+
 
         if (fMode == 3){
             fFWHMFunc = fFunc->GetParameter(2)*2.35;
