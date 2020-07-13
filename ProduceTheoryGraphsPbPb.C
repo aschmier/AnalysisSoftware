@@ -1371,7 +1371,14 @@ void ProduceTheoryGraphsPbPb(TString specifier = "", TString energy = ""){
 
 
         fileTheoryGraphsPbPb.Close();
+
     } else if(energy.CompareTo("PbPb_5.02TeV")==0){
+
+        // Paquet
+        // Begun
+        // Djordjevic
+        // Vitev
+        // Dai
 
         TString outputFileName = Form("ExternalInputPbPb/Theory/TheoryCompilationPbPb.root");
         TFile fileTheoryGraphsPbPb(outputFileName,"UPDATE");
@@ -1394,7 +1401,9 @@ void ProduceTheoryGraphsPbPb(TString specifier = "", TString energy = ""){
             fileTheoryGraphsPbPb.mkdir("KCh_PbPb_5.02TeV");
         }
 
+        // -----------------------------------------
         // Paquet Pi0 and Eta spectra at midrapidity
+        //------------------------------------------
         TString filePaquetPi0 = "ExternalInputPbPb/Theory/McGill_5TeV/spectra_pi0_5020GeV_PbPb_Paquet.dat";
         TString filePaquetEta = "ExternalInputPbPb/Theory/McGill_5TeV/spectra_etas_5020GeV_PbPb_Paquet.dat";
         readFilePaquet(filePaquetPi0, fileTheoryGraphsPbPb, "Pi0_PbPb_5.02TeV", "Spectra_Paquet", "#it{p}_{T} (GeV/#it{c})", "d#it{N}/(2#pi d#it{y} #it{p}_{T} d#it{p}_{T})" ,kFALSE);
@@ -1412,13 +1421,18 @@ void ProduceTheoryGraphsPbPb(TString specifier = "", TString energy = ""){
                 etaToPi0RatioCurr->Write(Form("EtaToPi0_Paquet_%s", centArrayPaquet[i].Data()));
             }
         }
+
+        //--------------------------
         // Begun Pi0 and Eta spectra
+        //--------------------------
         TString fileBegunEQ  = "ExternalInputPbPb/Theory/CracowModel_5TeV/Begun_EQ.txt";
         TString fileBegunNEQ = "ExternalInputPbPb/Theory/CracowModel_5TeV/Begun_NEQ.txt";
         readFileBegun(fileBegunEQ, fileTheoryGraphsPbPb,  "Pi0_PbPb_5.02TeV", "Eta_PbPb_5.02TeV", "Spectra_SHM_EQ", "EtaToPi0_SHM_EQ", "#it{p}_{T} (GeV/#it{c})", "d#it{N}/(2#pi d#it{y} #it{p}_{T} d#it{p}_{T})", "#eta/#pi^{0}", kFALSE);
         readFileBegun(fileBegunNEQ, fileTheoryGraphsPbPb,  "Pi0_PbPb_5.02TeV", "Eta_PbPb_5.02TeV", "Spectra_SHM_NEQ", "EtaToPi0_SHM_NEQ", "#it{p}_{T} (GeV/#it{c})", "d#it{N}/(2#pi d#it{y} #it{p}_{T} d#it{p}_{T})", "#eta/#pi^{0}", kFALSE);
 
+        //--------------------------------------------------------
         // Djordjevic Pi0 RAA  (one file per cent class and model)
+        //--------------------------------------------------------
         TString fileDjordjevicBjorken0010 = "ExternalInputPbPb/Theory/Djordjevic_5TeV/PionRaa_5TeV_Bjorken_010.txt";
         TString fileDjordjevicBjorken1020 = "ExternalInputPbPb/Theory/Djordjevic_5TeV/PionRaa_5TeV_Bjorken_1020.txt";
         TString fileDjordjevicBjorken2040 = "ExternalInputPbPb/Theory/Djordjevic_5TeV/PionRaa_5TeV_Bjorken_2040.txt";
@@ -1440,7 +1454,9 @@ void ProduceTheoryGraphsPbPb(TString specifier = "", TString energy = ""){
         readFileDjordjevic(fileDjordjevicConstTemp4060, fileTheoryGraphsPbPb, "Pi0_PbPb_5.02TeV", "RAA_DjordjevicConstTemp_4060", "#it{p}_{T} (GeV/#it{c})", "#it{R}_{AA}", kFALSE);
         readFileDjordjevic(fileDjordjevicConstTemp6080, fileTheoryGraphsPbPb, "Pi0_PbPb_5.02TeV", "RAA_DjordjevicConstTemp_6080", "#it{p}_{T} (GeV/#it{c})", "#it{R}_{AA}", kFALSE);
 
+        //--------------------------------------------------------
         // Vitev Pi0 RAA  (two files, min and max, per cent class)
+        //--------------------------------------------------------
         TString fileVitevMin0010 = "ExternalInputPbPb/Theory/Vitev_5TeV/R-N.aa_010_cron1.5_eloss0.5100GeVpi.g2.1";
         TString fileVitevMin2040 = "ExternalInputPbPb/Theory/Vitev_5TeV/R-N.aa_2040_cron1.5_eloss0.5100GeVpi.g2.1";
         TString fileVitevMin4060 = "ExternalInputPbPb/Theory/Vitev_5TeV/R-N.aa_4060_cron1.5_eloss0.5100GeVpi.g2.1";
@@ -1460,28 +1476,27 @@ void ProduceTheoryGraphsPbPb(TString specifier = "", TString energy = ""){
             TH1D* histoPi0HIJING            = (TH1D*)fileHIJING->Get(Form("%s/MC_Pi0_Pt", hijingDir.Data()));
             TH1D* histoPi0ToPiCHHIJING      = (TH1D*)fileHIJING->Get(Form("%s/MCPi0ToPiCh", hijingDir.Data()));
             directory5TeVPi0->cd();
-                histoPi0HIJING->Write(Form("Spectra_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
-                histoPi0ToPiCHHIJING->Write(Form("Pi0ToPiCh_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
-//             TH1D* histoPi0HIJINGReb         = (TH1D*)fileHIJING->Get("MC_Pi0_Pt_Rebinned");
+            histoPi0HIJING->Write(Form("Spectra_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
+            histoPi0ToPiCHHIJING->Write(Form("Pi0ToPiCh_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
+            // TH1D* histoPi0HIJINGReb         = (TH1D*)fileHIJING->Get("MC_Pi0_Pt_Rebinned");
             TH1D* histoPiChHIJING           = (TH1D*)fileHIJING->Get(Form("%s/MC_PiCh_All_Pt", hijingDir.Data()));
             directory5TeVPiCh->cd();
-                histoPiChHIJING->Write(Form("Spectra_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
+            histoPiChHIJING->Write(Form("Spectra_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
 
             TH1D* histoKChHIJING            = (TH1D*)fileHIJING->Get(Form("%s/MC_KCh_All_Pt", hijingDir.Data()));
             directory5TeVKCh->cd();
-                histoKChHIJING->Write(Form("Spectra_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
+            histoKChHIJING->Write(Form("Spectra_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
 
             TH1D* histoEtaHIJING            = (TH1D*)fileHIJING->Get(Form("%s/MC_Eta_Pt", hijingDir.Data()));
             TH1D* histoEtaToPi0HIJING       = (TH1D*)fileHIJING->Get(Form("%s/MCEtaToPi0", hijingDir.Data()));
             TH1D* histoEtaToKChHIJING       = (TH1D*)fileHIJING->Get(Form("%s/MCEtaToKCh", hijingDir.Data()));
             directory5TeVEta->cd();
             histoEtaHIJING->Write(Form("Spectra_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
-                histoEtaToPi0HIJING->Write(Form("EtaToPi0_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
-                histoEtaToKChHIJING->Write(Form("EtaToKCh_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
+            histoEtaToPi0HIJING->Write(Form("EtaToPi0_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
+            histoEtaToKChHIJING->Write(Form("EtaToKCh_HIJING_MCGen_%s",centArrayOutHIJING[j].Data()), TObject::kOverwrite);
 
-            //             TH1D* histoEtaHIJINGReb         = (TH1D*)fileHIJING->Get("MC_Eta_Pt_Rebinned");
+            // TH1D* histoEtaHIJINGReb         = (TH1D*)fileHIJING->Get("MC_Eta_Pt_Rebinned");
 
         }
-
     }
 }
