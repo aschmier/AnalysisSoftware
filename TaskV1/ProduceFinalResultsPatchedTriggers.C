@@ -148,6 +148,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TString detectionProcess        = ReturnFullTextReconstructionProcess(mode);
     TString detectionProcessClus    = ReturnFullTextReconstructionProcess(mode,2);
     Bool_t doLinesTriggerMimicking  = kFALSE;
+    Bool_t doTF1TriggerRejection    = kFALSE;
 
     if (isMC.CompareTo("MC") == 0) collisionSystem = "MC, "+collisionSystem;
 
@@ -185,6 +186,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxPtGlobalCluster          = 200;
         } else if (mode ==3 || mode == 5){
             doLinesTriggerMimicking  = kTRUE;
+            doTF1TriggerRejection    = kTRUE;
             maxPtGlobalCluster          = 60.;
         }
     } else if (optionEnergy.Contains("pPb_8TeV") || optionEnergy.Contains("pPb_5.023TeV")){
@@ -778,6 +780,34 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         printf("\nnBinsArrayCluster: %i\n\n", nBinsArrayCluster);
     }
 
+    Int_t nBinsArrayClusterVariation1=56; //30-2+10+4+3+6+5+10=56
+    const Int_t nBinsArrayClusterVariation1const=nBinsArrayClusterVariation1; //30-2+4+3+6+5+10=56
+    Double_t BinsArrayClusterVariation1[nBinsArrayClusterVariation1const+1];
+    BinsArrayClusterVariation1[0]=0.4;
+    if (((mode == 2)||(mode == 3)||(mode == 5))&& optionEnergy.BeginsWith("13TeV") ){
+        printf("BinsArrayClusterVariation1:\n%0.2f, ", BinsArrayClusterVariation1[0]);
+        for (Int_t i = 1; i <= nBinsArrayClusterVariation1; i++) {
+            if (i<=30-2) { //                   28      0.4 - 6
+                BinsArrayClusterVariation1[i]=BinsArrayClusterVariation1[i-1]+0.2;
+            } else if (i<=30-2+10) { //         38      6-10
+                BinsArrayClusterVariation1[i]=BinsArrayClusterVariation1[i-1]+0.4;
+            } else if (i<=30-2+10+4) { //       42      10-14
+                BinsArrayClusterVariation1[i]=BinsArrayClusterVariation1[i-1]+1.0;
+            } else if (i<=30-2+10+4+3) { //     45      14-20
+                BinsArrayClusterVariation1[i]=BinsArrayClusterVariation1[i-1]+2.0;
+            } else if (i<=30-2+4+10+3+6) { //   51      20-50
+                BinsArrayClusterVariation1[i]=BinsArrayClusterVariation1[i-1]+5.;
+            } else if (i<=30-2+4+10+3+6+5) { // 56      50-100
+                BinsArrayClusterVariation1[i]=BinsArrayClusterVariation1[i-1]+10.;
+            }
+            if (BinsArrayClusterVariation1[i] > maxPtGlobalCluster) {
+                nBinsArrayClusterVariation1=i;
+            }
+            printf("%0.2f, ", BinsArrayClusterVariation1[i]);
+        }
+        printf("\nnBinsArrayCluster: %i\n\n", nBinsArrayClusterVariation1);
+    }
+
     if (doBinShiftForEtaToPi0){
         TFile *fileFitsBinShift                         = new TFile(nameFileFitsShift);
         fitBinShiftPi0                                  = (TF1*)fileFitsBinShift->Get("TsallisFitPi0");
@@ -1048,6 +1078,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         //***************************************************************************************************************
         //****************************** Calculate trigger rejection factors ********************************************
         //***************************************************************************************************************
+
         if ((mode == 0 || mode == 2 || mode == 3 || mode == 4 || mode == 5 || mode == 10) && hasClusterOutput ){
             histoRawClusterPt[i]                        = (TH1D*)fileUnCorrectedPi0[i]->Get("ClusterPtPerEvent");
             histoRawClusterE[i]                         = (TH1D*)fileUnCorrectedPi0[i]->Get("ClusterEPerEvent");
@@ -1057,8 +1088,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 triggRejecFac[i][trigSteps[i][0]]       = 1;
                 triggRejecFacErr[i][trigSteps[i][0]]    = 0;
             } else {
-                if (((mode == 2)||(mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
+                if (((mode == 2)) && optionEnergy.BeginsWith("13TeV") ){
                     histoRawClusterPt[i]=(TH1D*)histoRawClusterPt[i]->Rebin(nBinsArrayCluster,Form("ClusterPtPerEvent_%s",cutNumber[i].Data()),BinsArrayCluster);
+                    histoRawClusterPt[i]->Scale(1.,"width");
+                    // histoRawClusterPt[i]->Rebin(5);
+                } else if (((mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
+                    histoRawClusterPt[i]=(TH1D*)histoRawClusterPt[i]->Rebin(nBinsArrayClusterVariation1,Form("ClusterPtPerEvent_%s",cutNumber[i].Data()),BinsArrayClusterVariation1);
                     histoRawClusterPt[i]->Scale(1.,"width");
                     // histoRawClusterPt[i]->Rebin(5);
                 }
@@ -1067,8 +1102,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 histoRatioRawClusterPt[i]->Divide(histoRatioRawClusterPt[i],histoRawClusterPt[trigSteps[i][0]],1.,1.,"");
 
                 if (histoRawClusterE[i]){
-                    if (((mode == 2)||(mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
+                    if (((mode == 2)) && optionEnergy.BeginsWith("13TeV") ){
                         histoRawClusterE[i]=(TH1D*)histoRawClusterE[i]->Rebin(nBinsArrayCluster,Form("ClusterEPerEvent_%s",cutNumber[i].Data()),BinsArrayCluster);
+                        histoRawClusterE[i]->Scale(1.,"width");
+                        // histoRawClusterE[i]->Rebin(5);
+                    } else if (((mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
+                        histoRawClusterE[i]=(TH1D*)histoRawClusterE[i]->Rebin(nBinsArrayClusterVariation1,Form("ClusterEPerEvent_%s",cutNumber[i].Data()),BinsArrayClusterVariation1);
                         histoRawClusterE[i]->Scale(1.,"width");
                         // histoRawClusterE[i]->Rebin(5);
                     }
@@ -1111,8 +1150,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
                 if (enableTriggerRejecCompMC){
                     histoMCRawClusterPt[i]                  = (TH1D*)fileUnCorrectedMCPi0[i]->Get("ClusterPtPerEvent");
-                    if (((mode == 2)||(mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
+                    if (((mode == 2)) && optionEnergy.BeginsWith("13TeV") ){
                         histoMCRawClusterPt[i]=(TH1D*)histoMCRawClusterPt[i]->Rebin(nBinsArrayCluster,Form("MCClusterPtPerEvent_%s",cutNumber[i].Data()),BinsArrayCluster);
+                        histoMCRawClusterPt[i]->Scale(1.,"width");
+                    } else if (((mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
+                        histoMCRawClusterPt[i]=(TH1D*)histoMCRawClusterPt[i]->Rebin(nBinsArrayClusterVariation1,Form("MCClusterPtPerEvent_%s",cutNumber[i].Data()),BinsArrayClusterVariation1);
                         histoMCRawClusterPt[i]->Scale(1.,"width");
                     }
                     histoMCRawClusterPt[i]->SetName(Form("MCClusterPtPerEvent_%s",cutNumber[i].Data()));
@@ -1152,6 +1194,24 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     //*******************************Plotting trigger rejection factors = fits log scale all in one *****************
     //***************************************************************************************************************
+
+    //FitFunction To Plot in Trigger Rejection Factors
+    const Int_t iNumberOfTriggerRejectionFactorFunctionsToPlotArray             = 1;
+    Int_t iNumberOfTriggerRejectionFactorFunctionsToPlot                        = 1;
+    if (iNumberOfTriggerRejectionFactorFunctionsToPlot>iNumberOfTriggerRejectionFactorFunctionsToPlotArray){
+        iNumberOfTriggerRejectionFactorFunctionsToPlot=iNumberOfTriggerRejectionFactorFunctionsToPlotArray;
+    }
+    TString TStrTriggerRejectionFactorFunction[iNumberOfTriggerRejectionFactorFunctionsToPlotArray];
+    TF1* TF1TriggerRejectionFactorFunction[iNumberOfTriggerRejectionFactorFunctionsToPlotArray];
+
+    TStrTriggerRejectionFactorFunction[0]="[0]*(9.882274e-01/(TMath::Exp((3.722347e+00-x)/3.297609e-01)+1.)+(1.-9.882274e-01)/(TMath::Exp((7.667186e+00-x)/3.297609e-01)+1.))";
+
+    for(Int_t iNumberOfPlot=0; iNumberOfPlot<iNumberOfTriggerRejectionFactorFunctionsToPlot; iNumberOfPlot++){
+        TF1TriggerRejectionFactorFunction[iNumberOfPlot]    =   new TF1( Form("TF1TriggerRejectionFactorFunction_%d", iNumberOfPlot), Form("%s", TStrTriggerRejectionFactorFunction[iNumberOfPlot].Data()), 0, 100 );
+        TF1TriggerRejectionFactorFunction[iNumberOfPlot]    ->  SetParameter(0, 1);
+    }
+
+
     if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (hasClusterOutput){
         Size_t textSizeSpectra2         = 0.0415;
@@ -1256,6 +1316,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 histoRatioRawClusterPt[i]->Fit(pol1,"NRME0+","",minPt[i],maxPt[i]);
                 fileFitsOutput << WriteParameterToFile(pol1) << endl;
 
+                for(Int_t iNumberOfPlot=0; iNumberOfPlot<iNumberOfTriggerRejectionFactorFunctionsToPlot; iNumberOfPlot++){
+                    TF1TriggerRejectionFactorFunction[iNumberOfPlot]->SetParameter(0, triggRejecFac[i][trigSteps[i][0]]);
+                }
+
             }
         }
         legendTriggReject->Draw();
@@ -1280,6 +1344,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         TLatex *labelPerfTriggRejecFac = new TLatex(0.753, 0.12+(0.9*(nrOfTrigToBeComb-2+1)*textSizeSpectra2)+0.01, "Trigger rejection");
         SetStyleTLatex( labelPerfTriggRejecFac, textSizeSpectra2,4);
         labelPerfTriggRejecFac->Draw();
+        if (doTF1TriggerRejection == kTRUE){
+            for(Int_t iNumberOfPlot=0; iNumberOfPlot<iNumberOfTriggerRejectionFactorFunctionsToPlot; iNumberOfPlot++){
+                TF1TriggerRejectionFactorFunction[iNumberOfPlot]->SetLineColor(kRed+iNumberOfPlot);
+                TF1TriggerRejectionFactorFunction[iNumberOfPlot]->Draw("same");
+            }
+        }
 
         canvasTriggerReject->Update();
         canvasTriggerReject->SaveAs(Form("%s/%s_TriggerRejectionFactors.%s",outputDir.Data(),isMC.Data(),suffix.Data()));
@@ -1334,6 +1404,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     triggRejecCLPol0->SetFillColor(colorTriggShade[i]);
                     triggRejecCLPol0->SetMarkerSize(0);
                     triggRejecCLPol0->Draw("e3,same");
+                    if (doTF1TriggerRejection == kTRUE){
+                        for(Int_t iNumberOfPlot=0; iNumberOfPlot<iNumberOfTriggerRejectionFactorFunctionsToPlot; iNumberOfPlot++){
+                            TF1TriggerRejectionFactorFunction[iNumberOfPlot]->SetLineColor(kRed+iNumberOfPlot);
+                            TF1TriggerRejectionFactorFunction[iNumberOfPlot]->Draw("same");
+                        }
+                    }
 
                     pol0->SetParameter(0,triggRejecFac[i][trigSteps[i][0]]);
                     pol0->SetParError(0,triggRejecFacErr[i][trigSteps[i][0]]);
@@ -1466,6 +1542,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 if (doLinesTriggerMimicking == kTRUE){
                     lineFitParameter0Pol0Div3XValue[i]->Draw("same");
                 }
+                if (doTF1TriggerRejection == kTRUE){
+                    for(Int_t iNumberOfPlot=0; iNumberOfPlot<iNumberOfTriggerRejectionFactorFunctionsToPlot; iNumberOfPlot++){
+                        TF1TriggerRejectionFactorFunction[iNumberOfPlot]->SetLineColor(kRed+iNumberOfPlot);
+                        TF1TriggerRejectionFactorFunction[iNumberOfPlot]->Draw("same");
+                    }
+                }
                 pol0->SetParameter(0,triggRejecFac[i][trigSteps[i][0]]);
                 pol0->SetParError(0,triggRejecFacErr[i][trigSteps[i][0]]);
                 pol0->SetLineColor(colorTrigg[i]-1);
@@ -1585,12 +1667,19 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     legendTriggRejectSingle->AddEntry((TObject*)0,Form("     %3.2f #pm %3.2f",triggRejecFac[i][trigSteps[i][0]], triggRejecFacErr[i][trigSteps[i][0]]),"");
 
                 legendTriggRejectSingle->Draw();
+                if (doTF1TriggerRejection == kTRUE){
+                    for(Int_t iNumberOfPlot=0; iNumberOfPlot<iNumberOfTriggerRejectionFactorFunctionsToPlot; iNumberOfPlot++){
+                        TF1TriggerRejectionFactorFunction[iNumberOfPlot]->SetLineColor(kRed+iNumberOfPlot);
+                        TF1TriggerRejectionFactorFunction[iNumberOfPlot]->Draw("same");
+                    }
+                }
 
                 histo2DTriggRejectLinear->Draw("same,axis");
-
                 canvasTriggerRejectLinear->Update();
                 canvasTriggerRejectLinear->SaveAs(Form("%s/%s_TriggerRejectionFactorsLinY_Single_%s_%s.%s",outputDir.Data(), isMC.Data(), triggerName[i].Data(),
                                                     triggerName[trigSteps[i][0]].Data(), suffix.Data()));
+
+
 
                 if (enableTriggerRejecCompMC) {
                     histo2DTriggRejectLinear->DrawCopy();
@@ -1607,6 +1696,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     legendTriggRejectSingle->Draw();
 
                     histo2DTriggRejectLinear->Draw("same,axis");
+                    if (doTF1TriggerRejection == kTRUE){
+                        for(Int_t iNumberOfPlot=0; iNumberOfPlot<iNumberOfTriggerRejectionFactorFunctionsToPlot; iNumberOfPlot++){
+                            TF1TriggerRejectionFactorFunction[iNumberOfPlot]->SetLineColor(kRed+iNumberOfPlot);
+                            TF1TriggerRejectionFactorFunction[iNumberOfPlot]->Draw("same");
+                        }
+                    }
 
                     canvasTriggerRejectLinear->Update();
                     canvasTriggerRejectLinear->SaveAs(Form("%s/%s_TriggerRejectionFactorsLinY_SingleWithMC_%s_%s.%s",outputDir.Data(), isMC.Data(), triggerName[i].Data(),
@@ -1707,6 +1802,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 legendTriggRejectSingle->Draw();
 
                 histo2DTriggRejectLinear->Draw("same,axis");
+                if (doTF1TriggerRejection == kTRUE){
+                    for(Int_t iNumberOfPlot=0; iNumberOfPlot<iNumberOfTriggerRejectionFactorFunctionsToPlot; iNumberOfPlot++){
+                        TF1TriggerRejectionFactorFunction[iNumberOfPlot]->SetLineColor(kRed+iNumberOfPlot);
+                        TF1TriggerRejectionFactorFunction[iNumberOfPlot]->Draw("same");
+                    }
+                }
 
                 canvasTriggerRejectLinear->Update();
                 canvasTriggerRejectLinear->SaveAs(Form("%s/%s_TriggerRejectionFactorsLinY_E_Single_%s_%s.%s",outputDir.Data(), isMC.Data(), triggerName[i].Data(),
@@ -1727,6 +1828,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     legendTriggRejectSingle->Draw();
 
                     histo2DTriggRejectLinear->Draw("same,axis");
+                    if (doTF1TriggerRejection == kTRUE){
+                        for(Int_t iNumberOfPlot=0; iNumberOfPlot<iNumberOfTriggerRejectionFactorFunctionsToPlot; iNumberOfPlot++){
+                            TF1TriggerRejectionFactorFunction[iNumberOfPlot]->SetLineColor(kRed+iNumberOfPlot);
+                            TF1TriggerRejectionFactorFunction[iNumberOfPlot]->Draw("same");
+                        }
+                    }
 
                     canvasTriggerRejectLinear->Update();
                     canvasTriggerRejectLinear->SaveAs(Form("%s/%s_TriggerRejectionFactorsLinY_E_SingleWithMC_%s_%s.%s",outputDir.Data(), isMC.Data(), triggerName[i].Data(),
