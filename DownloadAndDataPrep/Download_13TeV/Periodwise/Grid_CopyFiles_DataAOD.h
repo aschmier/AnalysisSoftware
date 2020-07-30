@@ -1,3 +1,9 @@
+/*******************************************************************************
+ ******  provided by Gamma Conversion Group, PWGGA,                        *****
+ ******     Daniel Muehlheim, d.muehlheim@cern.ch                          *****
+ ******     adjusted by Jens Luehder, jens.luhder@cern.ch                  *****
+ *******************************************************************************/
+
 #include <algorithm>
 #include <vector>
 #include <iterator>
