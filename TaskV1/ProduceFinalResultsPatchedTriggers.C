@@ -784,7 +784,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     const Int_t nBinsArrayClusterVariation1const=nBinsArrayClusterVariation1; //30-2+4+3+6+5+10=56
     Double_t BinsArrayClusterVariation1[nBinsArrayClusterVariation1const+1];
     BinsArrayClusterVariation1[0]=0.4;
-    if (((mode == 2)||(mode == 3)||(mode == 5))&& optionEnergy.BeginsWith("13TeV") ){
+    if (((mode == 3)||(mode == 5))&& optionEnergy.BeginsWith("13TeV") ){
         printf("BinsArrayClusterVariation1:\n%0.2f, ", BinsArrayClusterVariation1[0]);
         for (Int_t i = 1; i <= nBinsArrayClusterVariation1; i++) {
             if (i<=30-2) { //                   28      0.4 - 6
