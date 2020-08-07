@@ -86,6 +86,8 @@
     Double_t            Chi2ForNullHypoPValue(TGraphErrors*, TGraphAsymmErrors* ,  Bool_t , TString );
     Int_t               ModeMapping(Int_t);
     void                RecalculateErrorsBasedOnDetailedInputFile (TGraphAsymmErrors* , TString );
+    TGraph*             AverageNGraphs(TGraph*&, const Int_t );
+
     // ****************************************************************************************************************
     // ********************** definition of functions defined in this header ******************************************
     // ****************************************************************************************************************
@@ -584,7 +586,7 @@
 
         for (Int_t i = 0; i < nPoints; i++){
             yValue[i]                   = yValue[i]/graphB->GetY()[i];
-            cout<<i<<" A EY "<< graphA->GetEY()[i]<<" A Y "<<graphA->GetY()[i]<<" B EY "<<graphB->GetEY()[i]<<" B Y"<<graphB->GetY()[i]<<endl;
+            //cout<<i<<" A EY "<< graphA->GetEY()[i]<<" A Y "<<graphA->GetY()[i]<<" B EY "<<graphB->GetEY()[i]<<" B Y"<<graphB->GetY()[i]<<endl;
             Double_t yErrorRatio        = yValue[i]*TMath::Sqrt( TMath::Power(graphA->GetEY()[i]/graphA->GetY()[i],2) + TMath::Power(graphB->GetEY()[i]/graphB->GetY()[i],2));
             yError[i] = TMath::Abs(yErrorRatio);
         }
@@ -2628,6 +2630,64 @@
     // ****************************************************************************************************************
     // ****************************************************************************************************************
     // ****************************************************************************************************************
+    // skip fitting and use fit which was given as an argument
+
+    Bool_t BinShiftTH1D(TH1D *UnshiftedYield,
+                        TH1D **ShiftedYield,
+                        TString mesonType           = "Pi0",
+                        TString NameBinShiftHist    = "DummyFit",
+                        TF1* CurrentFit             = NULL
+        ){
+
+        TH1D *CurrentHist           = (TH1D*)UnshiftedYield->Clone("");
+        (*ShiftedYield)             = (TH1D*)CurrentHist->Clone(NameBinShiftHist);
+
+        Int_t binNumber             = CurrentHist->GetXaxis()->GetNbins();
+        Double_t globalRatioBS      = 0;
+        Double_t testGlobalRatioBS  = 1;
+        Int_t colorBS               = 1;
+        Double_t maxPtPi0BS         = CurrentHist->GetXaxis()->GetBinUpEdge(CurrentHist->GetNbinsX());
+
+        while(globalRatioBS != testGlobalRatioBS){
+            if(colorBS == 200) break;
+            testGlobalRatioBS       = globalRatioBS;
+            globalRatioBS           = 0.;
+            colorBS++;
+
+            // apply bin shift correction
+            for (Int_t ib=2; ib<=binNumber; ib++) {
+                Double_t ptMin          = CurrentHist->GetBinLowEdge(ib);
+                Double_t ptMax          = ptMin + CurrentHist->GetBinWidth(ib);
+                // the bin shift affected value of the fit function in current bin
+                Double_t shiftedValue   = CurrentFit->Integral(ptMin,ptMax) / (ptMax - ptMin);
+                // the correct value at the bin center
+                Double_t trueValue      = CurrentFit->Eval((ptMax + ptMin)/2.);
+
+                // the bin shift correction factor
+                Double_t ratio          = shiftedValue / trueValue;
+
+                (*ShiftedYield)->SetBinContent(ib,  CurrentHist->GetBinContent(ib) / ratio);
+                (*ShiftedYield)->SetBinError(ib,  CurrentHist->GetBinError(ib) / ratio);
+                globalRatioBS           = globalRatioBS + ratio;
+            }
+
+            globalRatioBS           = globalRatioBS/(binNumber-1);
+
+            (*ShiftedYield)->SetMarkerStyle(24);
+            (*ShiftedYield)->SetMarkerSize(0.9);
+            (*ShiftedYield)->SetMarkerColor(kBlack);
+
+            DrawGammaSetMarkerTF1( CurrentFit, 1, 0.4, kBlue-4);
+
+            cout<<colorBS<<" ";
+        }
+        return kTRUE;
+
+    }
+
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
     TF1 *ApplyYShift(   TGraphAsymmErrors *UnshiftedYield,
                         TGraphAsymmErrors **ShiftedYield,
                         TString BinShiftType,
@@ -3166,8 +3226,8 @@
     //         cout <<  xBinsPP[i+firstBinPbPb] << "\t" << xBinsPbPb[i] << "\t" << xBinsErrPP[i+firstBinPbPb] << "\t" << xBinsErrPbPb[i] << endl;
             if (TMath::Abs(xBinsPP[i+firstBinPbPb] - xBinsPbPb[i]) < decisionBoundary && TMath::Abs(xBinsErrPP[i+firstBinPbPb] - xBinsErrPbPb[i]) < decisionBoundary && xBinsPP[i] < maxPtPPForSpec ){
                 cout << "loop with pp points for " << labelSystem.Data() << endl;
-    //          cout<< "xPP: "<< xBinsPP[i+firstBinPbPb]<< " xPPErr: " << xBinsErrPP[i+firstBinPbPb] << " yPP: " << yPP[i+firstBinPbPb]<< endl;
-    //          cout << "xPbPb: "<<xBinsPbPb[i]<< " xPbPbErr: " <<xBinsErrPbPb[i] <<"  yPbPb/Ncoll: " << yPbPb[i]/fNcoll<< " Raa: " << yPbPb[i] /(fNcoll*yPP[i+firstBinPbPb])<< endl;
+                if(!quiet) cout<< "xPP: "<< xBinsPP[i+firstBinPbPb]<< " xPPErr: " << xBinsErrPP[i+firstBinPbPb] << " yPP: " << yPP[i+firstBinPbPb]<< endl;
+                if(!quiet) cout << "xPbPb: "<<xBinsPbPb[i]<< " xPbPbErr: " <<xBinsErrPbPb[i] <<"  yPbPb/Ncoll: " << yPbPb[i]/fNcoll<< " Raa: " << yPbPb[i] /(fNcoll*yPP[i+firstBinPbPb])<< endl;
                 graphPPSpectrumExtended->SetPoint(i,xBinsPbPb[i],yPP[i+firstBinPbPb]);
                 graphPPSpectrumExtendedSys->SetPoint(i,xBinsPbPb[i],yPP[i+firstBinPbPb]);
                 graphPPSpectrumExtended->SetPointError(i, xBinsErrPbPb[i], xBinsErrPbPb[i], yErrLowPP[i+firstBinPbPb], yErrHighPP[i+firstBinPbPb]);
@@ -3292,10 +3352,12 @@
         graphPPSpectrum->Draw("p,same");
         DrawGammaSetMarkerTGraphAsym(graphPPCombinedSpectrum, 24,2.5, kRed, kRed);
         graphPPCombinedSpectrum->Draw("p,same");
-        DrawGammaSetMarkerTGraphAsym(graphPPSpectrumExtendedSys, 20,2, kBlack, kBlack,0,kTRUE, kGray);
-        // graphPPSpectrumExtendedSys->Draw("E2same");
+        DrawGammaSetMarkerTGraphAsym(graphPPSpectrumExtendedSys, 20,2, kBlack, kBlack, 0, kTRUE, kGray);
+        graphPPSpectrumExtendedSys->Draw("E2same");
         DrawGammaSetMarkerTGraphAsym(graphPPSpectrumExtended, 20,2, kBlack, kBlack);
         graphPPSpectrumExtended->Draw("p,same");
+        DrawGammaSetMarkerTGraphAsym(graphPPSpectrumSystNoMat, 34,2, kYellow, kYellow, 0,  kTRUE, kYellow);
+        graphPPSpectrumSystNoMat->Draw("E2,same");
 
         fitPPPowerlaw->SetLineColor(kOrange+2);
         fitPPPowerlaw2->SetLineColor(kGreen+2);
@@ -5783,6 +5845,75 @@
         return graph;
     }
 
+    //*****************************************************************************************************
+    //*****************************************************************************************************
+    //*****************************************************************************************************
+    TGraph* AverageNGraphs(TGraph** graphArr, Int_t n){
+        // graphArr should be an array of n pointers to TGraph objects
+        // the graphs will be summed up and and divided by n
+        // y = (y1 + y2 + ... ) / n
 
+        TGraph* graphArrCopy[n];  // working copy to preserve the original graphs
+        for(Int_t k = 0; k < n; k++){
+            graphArrCopy[k] = (TGraph*)graphArr[k]->Clone();
+        }
+
+        Double_t* xValue       = graphArrCopy[0]->GetX();
+        Int_t nPoints          = graphArrCopy[0]->GetN();
+        Double_t* yValue[n+1];
+        yValue[n]              = graphArrCopy[0]->GetY();  // will contain the sum
+
+        for(Int_t k = 0; k < n; k++){
+            yValue[k]       = graphArrCopy[k]->GetY();  // arrays with y values of graph_k
+        }
+
+        for (Int_t i = 0; i < nPoints; i++){
+            for(Int_t k = 1; k<n; k++){
+                yValue[n][i] = yValue[n][i] + yValue[k][i];  // summ up
+            }
+            yValue[n][i] = yValue[n][i] / n;    // divide by number of graphs
+        }
+        TGraph* graphEtaNew = new TGraph(nPoints,xValue,yValue[n]);
+        return graphEtaNew;
+    }
+
+    TGraphErrors* AverageNGraphs(TGraphErrors** graphArr, Int_t n){
+        // graphArr should be an array of n pointers to TGraphErrors objects
+        // the graphs will be summed up and and divided by n
+        // y = (y1 + y2 + ... ) / n
+        // e = sqrt( e1² + e2² + ... ) / n
+
+        TGraphErrors* graphArrCopy[n];  // working copy to preserve the original graphs
+        for(Int_t k = 0; k < n; k++){
+            graphArrCopy[k] = (TGraphErrors*)graphArr[k]->Clone();
+        }
+
+        Double_t* xValue       = graphArrCopy[0]->GetX();
+        Double_t* xError       = graphArrCopy[0]->GetEX();
+        Int_t nPoints          = graphArrCopy[0]->GetN();
+        Double_t* yValue[n+1];
+        Double_t* yError[n+1];
+        yValue[n]              = graphArrCopy[0]->GetY();  // will contain the sum
+        yError[n]              = graphArrCopy[0]->GetEY(); // initialization
+
+        for(Int_t k = 0; k < n; k++){
+            yValue[k] = graphArrCopy[k]->GetY();   // arrays with y values
+            yError[k] = graphArrCopy[k]->GetEY();  //             and y errors of graph_k
+        }
+
+        for (Int_t i = 0; i < nPoints; i++){
+            for(Int_t k = 0; k<n; k++){
+                if (k==0) yError[n][i] = yError[k][i] * yError[k][i];
+                else {
+                    yValue[n][i] = yValue[n][i] + yValue[k][i];                   // summ up
+                    yError[n][i] = yError[n][i] + (yError[k][i] * yError[k][i]);  // summ up squares
+                }
+            }
+            yValue[n][i] = yValue[n][i] / n;               // divide by number of graphs
+            yError[n][i] = TMath::Sqrt(yError[n][i]) / n;  // sqrt of sum of squares / n
+        }
+        TGraphErrors* graphEtaNew = new TGraphErrors(nPoints,xValue,yValue[n],xError,yError[n]);
+        return graphEtaNew;
+    }
 
 #endif
