@@ -3551,7 +3551,7 @@
             default:
                 cout << "pion line minimum pt cut unknown" << endl;
         }
-        return Form("%.2f #sigma_{#pi} (%.2f < p_{T} < %.2f GeV/c), %.2f #sigma_{#pi} (p_{T} > %.2f GeV/c)",fPIDnSigmaAbovePionLine, fPIDMinPnSigmaAbovePionLine,fPIDMaxPnSigmaAbovePionLine,fPIDnSigmaAbovePionLineHighPt,fPIDMaxPnSigmaAbovePionLine);
+        return Form("%.2f #sigma_{#pi} (%.2f < p < %.2f GeV/c), %.2f #sigma_{#pi} (p > %.2f GeV/c)",fPIDnSigmaAbovePionLine, fPIDMinPnSigmaAbovePionLine,fPIDMaxPnSigmaAbovePionLine,fPIDnSigmaAbovePionLineHighPt,fPIDMaxPnSigmaAbovePionLine);
     }
 
 
