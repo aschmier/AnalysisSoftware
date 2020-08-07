@@ -3411,6 +3411,8 @@
                 return "-7 < #sigma_{e} < 1";
             case 15: // -3,4
                 return "-3 < #sigma_{e} < 4";
+            case 16: // -2.5,2.5
+                return "-2.5 < #sigma_{e} < 2.5";
             default:
                 return "no dEdx cut defined";
         }
@@ -3421,6 +3423,7 @@
     //** Analyzes the TPC dEdx pion cuts, return correct cut label ***********************
     //************************************************************************************
     TString AnalyseTPCdEdxCutPionLine(TString sPionCut){
+
         cout << sPionCut << endl;
         TString sPidedxSigmaCut                 = sPionCut(0,1);
         Int_t pidedxSigmaCut                    = CutNumberToInteger(sPidedxSigmaCut);
@@ -3465,8 +3468,16 @@
                 fPIDnSigmaAbovePionLineHighPt   = 1.;
                 break;
             case 9:
-                fPIDnSigmaAbovePionLine         = 3.0; // We need a bit less tight cut on dE/dx
+                fPIDnSigmaAbovePionLine         = 3.0;
                 fPIDnSigmaAbovePionLineHighPt   = -10;
+                break;
+            case 10: //a
+                fPIDnSigmaAbovePionLine         = -3;
+                fPIDnSigmaAbovePionLineHighPt   = -14;
+                break;
+            case 11: //b
+                fPIDnSigmaAbovePionLine         = 3;
+                fPIDnSigmaAbovePionLineHighPt   = 2;
                 break;
             default:
                 cout << "pion line cut unknown" << endl;
@@ -3534,10 +3545,13 @@
             case 6:  // 2. GeV
                 fPIDMaxPnSigmaAbovePionLine     = 2.;
                 break;
+            case 7:  // 8. GeV
+                fPIDMaxPnSigmaAbovePionLine     = 8.;
+                break;
             default:
                 cout << "pion line minimum pt cut unknown" << endl;
         }
-        return Form("rejected #pi for #sigma_{#pi} < %.2f (%.2f GeV/c < p_{T}_{#pi} < %.2f GeV/c), #sigma_{#pi} < %.2f (p_{T}_{#pi} > %.2f GeV/c)",fPIDnSigmaAbovePionLine, fPIDMinPnSigmaAbovePionLine,fPIDMaxPnSigmaAbovePionLine,fPIDnSigmaAbovePionLineHighPt,fPIDMaxPnSigmaAbovePionLine);
+        return Form("%.2f #sigma_{#pi} (%.2f < p_{T} < %.2f GeV/c), %.2f #sigma_{#pi} (p_{T} > %.2f GeV/c)",fPIDnSigmaAbovePionLine, fPIDMinPnSigmaAbovePionLine,fPIDMaxPnSigmaAbovePionLine,fPIDnSigmaAbovePionLineHighPt,fPIDMaxPnSigmaAbovePionLine);
     }
 
 
@@ -3563,6 +3577,15 @@
                 break;
             case 5:
                 return "-3 < #sigma^{TOF}_{e} < 3";
+                break;
+            case 10:
+                return "-10 < #sigma^{TOF}_{e} < 6";
+                break;
+            case 11:
+                return "-4 < #sigma^{TOF}_{e} < 4 for p_{T} > 0.4 GeV/c";
+                break;
+            case 12:
+                return "-4 < #sigma^{TOF}_{e} < 4 for 0.4 < p_{T} < 2.5 GeV/c";
                 break;
             default:
                 return "no TOF cut defined";
@@ -3721,6 +3744,15 @@
         case 20:
             chi2CutString = "*exp(-0.055*#chi^{2}), #chi_{#gamma}^{2} < 20";
             break;
+        case 21:
+            chi2CutString = "*exp(-0.11*#chi^{2}), #chi_{#gamma}^{2} < 30";
+            break;
+        case 22:
+            chi2CutString = "*exp(-0.15*#chi^{2}), #chi_{#gamma}^{2} < 30";
+            break;
+        case 23:
+            chi2CutString = "*exp(-0.15*#chi^{2}), #chi_{#gamma}^{2} < 20";
+            break;
         default:
             chi2CutString = "#chi_{#gamma}^{2} cut unknown";
             break;
@@ -3783,6 +3815,8 @@
                 return "2D ellipse, q_{T,#gamma} < 0.25*p_{T,#gamma} && q_{T,#gamma} < 0.04 GeV/c, #alpha < 0.95";
             case 20:
                 return "2D ellipse, q_{T,#gamma} < 0.3*p_{T,#gamma} && q_{T,#gamma} < 0.045 GeV/c, #alpha < 0.95";
+            case 21:
+                return "2D ellipse, q_{T,#gamma} < 0.11*p_{T,#gamma} && q_{T,#gamma} < 0.03 GeV/c, #alpha < 0.95";
             default:
                 return "no q_{T}_{#gamma} cut defined";
         }
