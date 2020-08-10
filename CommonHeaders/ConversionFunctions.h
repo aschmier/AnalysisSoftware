@@ -1845,7 +1845,7 @@
                         Bool_t deltaPt          = kFALSE
                 ){
 
-        Double_t binArray[200];
+        Double_t binArray[500];
 
         TH1D *histo             = (TH1D*) histoV2->Clone(histoV2->GetName());
         TH1D *histoBinning      = (TH1D*) histoBinningV2->Clone(histoBinningV2->GetName());

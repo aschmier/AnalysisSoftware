@@ -5043,13 +5043,13 @@
                 return "n Cells #geq 5";
             case 6:
                 return "n Cells #geq 6";
-            case 17:    
+            case 17:
                 return "n Cells #geq 2, #epsilon_{P2} appl. to MC";
-            case 18:    
+            case 18:
                 return "n Cells #geq 2, #epsilon_{MC}";
-            case 19:    
+            case 19:
                 return "n Cells #geq 2, #epsilon_{P2} appl. to data";
-            case 20:    
+            case 20:
                 return "n Cells #geq 2, #epsilon_{TB} appl. to data";
             default:
                 return "n Cells cut not defined";
@@ -6634,7 +6634,7 @@
     //************************************************************************************
     Bool_t GetMesonBGSchemeIsRotation (TString cut){
         Int_t icut = ReturnSingleAlphaNumericCutAsInt(cut);
-        if(icut >= 27 || icut <= 33) return kTRUE;
+        if(icut >= 27 && icut <= 33) return kTRUE;
         return kFALSE;
     }
 
