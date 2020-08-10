@@ -786,6 +786,10 @@ do
         MODE=$answer
         # ADVMESONQA=""#"AdvancedMesonQA"
         CORRECT=1
+    elif [ $answer = "90" ]; then
+        echo -e "--> You are analysing EDC-EDC calibration output\n";
+        MODE=$answer
+        CORRECT=1
     else
         echo -e "--> Command \"$answer\" not found. Please try again.\n"
     fi
@@ -860,6 +864,14 @@ do
     elif [ $answer = "13TeV" ] || [ $answer = "13" ]; then
         ENERGY="13TeV";
         EXTINPUTFILE="ExternalInput/IdentifiedCharged/HIST_pp.13TeV.mb.INEL.PREL_12062017.root";
+        if [ $MODE = 10 ]; then
+          echo "Do you want to run in eta binning with merged? Yes/No?";
+          read answer
+          if [ $answer = "Yes" ] || [ $answer = "yes" ] || [ $answer = "Y" ]; then
+            DOPI0INETABINS=1;
+            DOPI0=0;
+          fi
+        fi
     elif [ $answer = "13TeVRBins" ] ; then
         ENERGY="13TeVRBins";
         EXTINPUTFILE="ExternalInput/IdentifiedCharged/ChargedIdentifiedSpectraPP_2016_08_14.root";
@@ -1081,7 +1093,7 @@ if [ $MODE -eq 0 ] || [ $MODE -eq 9 ] ; then
 fi
 
 echo "Checking if mode $MODE is standard mode...";
-if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  || [ $MODE = 14 ]; then
+if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  || [ $MODE = 14 ]  || [ $MODE = 90 ]; then
     echo -e "--> I went into standard modes\n";
     if [ $ONLYCORRECTION -eq 0 ];  then
         # echo "Extraction will be done using modified Gaussian.";
@@ -1742,6 +1754,28 @@ echo ""
                     fi
                 fi
 
+                if [ $DOPI0INETABINS -eq 1 ]; then
+                    if [ -f $DATAROOTFILE ]; then
+                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Pi0EtaBinning\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kFALSE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,0\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
+                    fi
+                    PI0ETADATARAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_data_GammaMergedWithoutCorrection_*.root`
+                    if [ $MCFILE -eq 1 ]; then
+                        root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Pi0EtaBinning\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,0\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
+                        PI0ETAMCRAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaMergedWithoutCorrection_*$CUTSELECTION*.root`
+                        PI0ETAMCCORRFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaMergedCorrectionHistos_*$CUTSELECTION*.root`
+                        if [ $MERGINGMC -eq 1 ]; then
+                            root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Pi0EtaBinning\"\,\"$MCROOTFILEGJ\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kTRUE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,1\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
+                            PI0ETAMCCORRFILEJJG=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaMergedCorrectionHistosJJGammaTrigg_*.root`
+                            root -b -x -q -l TaskV1/MergeCorrFactorsJJandJJGammaTrigMergedCluster.C\+\(\"$CUTSELECTION\"\,\"Pi0EtaBinning\"\,\"$SUFFIX\"\,\"$ENERGY\"\,\"$PI0ETAMCCORRFILE\"\,\"$CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaMergedCorrectionHistosJJ_$CUTSELECTION.root\"\,\"$PI0ETAMCCORRFILEJJG\"\)
+
+                        fi
+                        echo $PI0ETADATARAWFILE
+                        echo $PI0ETAMCRAWFILE
+                        echo $CUTSELECTION
+                        root -b -x -q -l TaskV1/CompareShapeMergedClusterQuantities.C\+\(\"$PI0ETADATARAWFILE\"\,\"$PI0ETAMCRAWFILE\"\,\"$CUTSELECTION\"\,\"Pi0EtaBinning\"\,\"$SUFFIX\"\,\"$ENERGY\"\,$BINSPTETA\,$MODE\)
+                    fi
+                fi
+
                 if [ $DOETA -eq 1 ]; then
                     if [ -f $DATAROOTFILE ]; then
                         root -b -x -q -l TaskV1/ExtractSignalMergedMesonV2.C\+\(\"Eta\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,kFALSE\,\"$ENERGY\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,$MODE\,0\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
@@ -1764,6 +1798,11 @@ echo ""
                 PI0MCRAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaMergedWithoutCorrection_$CUTSELECTION*.root`
                 PI0MCCORRFILE=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaMergedCorrectionHistos_$CUTSELECTION*.root`
             fi
+            if [ $DOPI0INETABINS -eq 1 ]; then
+                PI0ETADATARAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_data_GammaMergedWithoutCorrection_$CUTSELECTION*.root`
+                PI0ETAMCRAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaMergedWithoutCorrection_$CUTSELECTION*.root`
+                PI0ETAMCCORRFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaMergedCorrectionHistos_$CUTSELECTION*.root`
+            fi
             if [ $DOETA -eq 1 ]; then
                 ETADATARAWFILE=`ls $CUTSELECTION/$ENERGY/Eta_data_GammaMergedWithoutCorrection_$CUTSELECTION*.root`
                 ETAMCRAWFILE=`ls $CUTSELECTION/$ENERGY/Eta_MC_GammaMergedWithoutCorrection_$CUTSELECTION*.root`
@@ -1776,6 +1815,14 @@ echo ""
                 fi
                 if [ -f $PI0MCRAWFILE ] && [ -f $PI0MCCORRFILE ]; then
                     root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$PI0MCRAWFILE\"\,\"$PI0MCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Pi0\"\,kTRUE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\,$USEEXTACC\)
+                fi
+            fi
+            if [ $DOPI0INETABINS -eq 1 ]; then
+                if [ -f $PI0ETADATARAWFILE ] && [ -f $PI0ETAMCCORRFILE ]; then
+                      root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$PI0ETADATARAWFILE\"\,\"$PI0ETAMCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Pi0EtaBinning\"\,kFALSE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\,$USEEXTACC\)
+                fi
+                if [ -f $PI0ETAMCRAWFILE ] && [ -f $PI0ETAMCCORRFILE ]; then
+                    root -b -x -q -l TaskV1/CorrectSignalMergedV2.C\+\(\"$PI0ETAMCRAWFILE\"\,\"$PI0ETAMCCORRFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"Pi0EtaBinning\"\,kTRUE\,\"$ENERGY\"\,\"$PERIODNAME\"\,10\,$USEEXTACC\)
                 fi
             fi
             if [ $DOETA -eq 1 ]; then
@@ -1791,6 +1838,10 @@ echo ""
     done
 
     if [ $DOPI0 -eq 1 ]; then
+        root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0EtaBinning\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
+        root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0EtaBinning\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
+    fi
+    if [ $DOPI0INETABINS -eq 1 ]; then
         root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
         root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
     fi
