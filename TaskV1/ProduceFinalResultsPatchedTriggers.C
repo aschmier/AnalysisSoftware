@@ -183,7 +183,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             minPtGlobalCluster          = 0.7;
             maxPtGlobalCluster          = 100;
         } else if (mode == 10){
-            maxPtGlobalCluster          = 200;
+            maxPtGlobalCluster          = 400;
         } else if (mode ==3 || mode == 5){
             doLinesTriggerMimicking  = kTRUE;
             doTF1TriggerRejection    = kTRUE;
@@ -329,24 +329,27 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     }
     //***************************************************************************************************************
 
-    TString cutNumber       [MaxNumberOfFiles];
-    TString triggerName     [MaxNumberOfFiles];
-    TString triggerNameLabel[MaxNumberOfFiles];
-    Float_t minPt           [MaxNumberOfFiles];
-    Float_t maxPt           [MaxNumberOfFiles];
-    Int_t trigSteps         [MaxNumberOfFiles][3];
-    Float_t ptFromSpecPi0   [MaxNumberOfFiles][2];
-    Float_t ptFromSpecEta   [MaxNumberOfFiles][2];
-    Bool_t maskedFullyPi0   [MaxNumberOfFiles];
-    Bool_t maskedFullyEta   [MaxNumberOfFiles];
-    TString sysFilePi0      [MaxNumberOfFiles];
-    TString sysFileEta      [MaxNumberOfFiles];
-    TString sysFileEtaToPi0 [MaxNumberOfFiles];
-    TString cutNumberBaseEff[MaxNumberOfFiles];
+    TString cutNumber           [MaxNumberOfFiles];
+    TString triggerName         [MaxNumberOfFiles];
+    TString triggerNameLabel    [MaxNumberOfFiles];
+    Float_t minPt               [MaxNumberOfFiles];
+    Float_t maxPt               [MaxNumberOfFiles];
+    Int_t trigSteps             [MaxNumberOfFiles][3];
+    Float_t ptFromSpecPi0       [MaxNumberOfFiles][2];
+    Float_t ptFromSpecEta       [MaxNumberOfFiles][2];
+    Float_t ptFromAddMerged     [MaxNumberOfFiles][2];
+    Bool_t maskedFullyPi0       [MaxNumberOfFiles];
+    Bool_t maskedFullyEta       [MaxNumberOfFiles];
+    TString sysFilePi0          [MaxNumberOfFiles];
+    TString sysFileEta          [MaxNumberOfFiles];
+    TString sysFileEtaToPi0     [MaxNumberOfFiles];
+    TString cutNumberBaseEff    [MaxNumberOfFiles];
+    TString cutNumberMergedExt  [MaxNumberOfFiles];
     //***************************************************************************************************************
     //*************************** read setting from configuration file **********************************************
     //***************************************************************************************************************
     ifstream in(fileListNamePi0.Data());
+    cout<<"File: "<<fileListNamePi0.Data()<<endl;
     cout<<"Available Triggers:"<<endl;
     // general number of triggers set
     Int_t nrOfTrigToBeComb      = 0;
@@ -357,12 +360,13 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     while(!in.eof() && nrOfTrigToBeComb<numberOfTrigg ){
         in >> cutNumber[nrOfTrigToBeComb] >> minPt[nrOfTrigToBeComb] >> maxPt[nrOfTrigToBeComb] >> triggerName[nrOfTrigToBeComb]
         >> trigSteps[nrOfTrigToBeComb][0]  >> trigSteps[nrOfTrigToBeComb][1]  >> trigSteps[nrOfTrigToBeComb][2] >> ptFromSpecPi0[nrOfTrigToBeComb][0] >> ptFromSpecPi0[nrOfTrigToBeComb][1]
-        >> ptFromSpecEta[nrOfTrigToBeComb][0] >> ptFromSpecEta[nrOfTrigToBeComb][1] >> sysFilePi0[nrOfTrigToBeComb] >> sysFileEta[nrOfTrigToBeComb] >> sysFileEtaToPi0[nrOfTrigToBeComb] >>
-        cutNumberBaseEff[nrOfTrigToBeComb];
+        >> ptFromSpecEta[nrOfTrigToBeComb][0] >> ptFromSpecEta[nrOfTrigToBeComb][1] >> sysFilePi0[nrOfTrigToBeComb] >> sysFileEta[nrOfTrigToBeComb] >> sysFileEtaToPi0[nrOfTrigToBeComb]
+        >> cutNumberBaseEff[nrOfTrigToBeComb] >> cutNumberMergedExt[nrOfTrigToBeComb] >> ptFromAddMerged[nrOfTrigToBeComb][0] >> ptFromAddMerged[nrOfTrigToBeComb][1];
         cout<< cutNumber[nrOfTrigToBeComb]<< "\t"<< triggerName[nrOfTrigToBeComb] << "\t transverse momentum range: " << minPt[nrOfTrigToBeComb]<< "\t to "<< maxPt[nrOfTrigToBeComb] <<endl;
         cout << trigSteps[nrOfTrigToBeComb][0] << "\t" << trigSteps[nrOfTrigToBeComb][1] << "\t"<< trigSteps[nrOfTrigToBeComb][2] << endl;
         nrOfTrigToBeComb++;
         cout << cutNumberBaseEff[nrOfTrigToBeComb] << endl;
+        cout << ptFromAddMerged[nrOfTrigToBeComb][1] << endl;
     }
 
     for (Int_t i = 0; i < nrOfTrigToBeComb; i++){
@@ -597,7 +601,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             }
         }
     }
-
     //***************************************************************************************************************
     //*************************** set common binning ****************************************************************
     //***************************************************************************************************************
@@ -1115,8 +1118,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     histoRatioRawClusterE[i]                   = (TH1D*)histoRawClusterE[i]->Clone(Form("RatioCluster_%s_%s",triggerName[i].Data(), triggerName[trigSteps[i][0]].Data()));
                     histoRatioRawClusterE[i]->Divide(histoRatioRawClusterE[i],histoRawClusterE[trigSteps[i][0]],1.,1.,"");
                 }
-
-                Int_t binMinTrigg                           = histoRatioRawClusterPt[i]->FindBin(minPt[i]);
+                Int_t binMinTrigg                           = histoRatioRawClusterPt[i]->GetXaxis()->FindBin(minPt[i]);
                 minPt[i]                                    = histoRatioRawClusterPt[i]->GetBinCenter(binMinTrigg);
 
                 TF1* pol0                                   = new TF1("pol0","[0]",minPt[i],maxPt[i]); //
@@ -1888,6 +1890,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         if (mode == 10) {
             minClusYieldUnscaled         = 2e-10;
             maxClusYieldUnscaled         = 4;
+            if(optionEnergy.BeginsWith("13TeV")){
+              minClusYieldUnscaled         = 2e-17;
+            }
         } else if (mode == 4) {
             minClusYieldUnscaled         = 7e-10;
             maxClusYieldUnscaled         = 5;
@@ -2765,6 +2770,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         histoCorrectedYieldPi0Scaled[i] = (TH1D*)histoCorrectedYieldPi0[i]->Clone(Form("CorrectedYieldPi0Scaled_%s", triggerName[i].Data()));
         histoCorrectedYieldPi0Scaled[i]->Sumw2();
         histoCorrectedYieldPi0Scaled[i]->Scale(1./triggRejecFac[i][trigSteps[i][0]]);
+        // histoCorrectedYieldPi0Scaled[i]->Divide(histoTriggerEffPi0[i]);
         fileFitsOutput << trigSteps[i][0] << "\t" << trigSteps[i][1] << "\t" << trigSteps[i][2] << endl;
         if (trigSteps[i][1]!= trigSteps[i][0]){
             fileFitsOutput << triggRejecFac[i][trigSteps[i][0]] << "\t" << triggRejecFac[trigSteps[i][0]][trigSteps[i][1]] << endl;
@@ -2906,7 +2912,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsPi0[1] = 0; //INT7
             offSetsPi0[4] = 32; //EG2
             offSetsPi0[5] = 52; //EG1
-        }else if(mode == 4){
+        } else if(mode == 4){
             offSetsPi0[1] = 0; //INT7
             offSetsPi0[4] = 30; //EG2
             offSetsPi0[5] = 50; //EG1
@@ -3104,7 +3110,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 graphEfficiencyPi0[i]->RemovePoint(0);
             }
         }
-
         // check if trigger is supposed to be used for combination, otherwise put all graphs to NULL
         if ( maskedFullyPi0[i] ){
             graphMassPi0Data[i]     = NULL;
@@ -3275,6 +3280,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 Int_t counter = 0;
                 while(counter < 400 && TMath::Abs(xValueFinalPi0[nPointFinalPi0] - ptSysRelPi0[i][counter])> 0.001) counter++;
                 if (counter < 400){
+
                     cout << ptSysRelPi0[i][counter]<< "\t found it" << endl;
                     yErrorSysLowFinalPi0[nPointFinalPi0] = TMath::Abs(yErrorSysLowRelPi0[i][counter]/100*graphsCorrectedYieldShrunkPi0[i]->GetY()[j]);
                     yErrorSysHighFinalPi0[nPointFinalPi0] = yErrorSysHighRelPi0[i][counter]/100*graphsCorrectedYieldShrunkPi0[i]->GetY()[j];
@@ -3282,7 +3288,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 } else {
                     yErrorSysLowFinalPi0[nPointFinalPi0] = 0;
                     yErrorSysHighFinalPi0[nPointFinalPi0] = 0;
-
                 }
             } else {
                 yErrorSysLowFinalPi0[nPointFinalPi0] = 0;
@@ -3292,14 +3297,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphsCorrectedYieldSysShrunkPi0[i]->SetPointEYhigh(j,yErrorSysHighFinalPi0[nPointFinalPi0]);
             nPointFinalPi0++;
         }
-
         // Set correct trigger order for combination function
         Int_t nCorrOrder    = GetOrderedTrigger(triggerName[i]);
         if (nCorrOrder == -1){
             cout << "ERROR: trigger name not defined" << endl;
             return;
         }
-
         if ( graphsCorrectedYieldShrunkPi0[i]){
             histoStatPi0[nCorrOrder]    = histoCorrectedYieldPi0ScaledMasked[i];
             graphSystPi0[nCorrOrder]    = graphsCorrectedYieldSysShrunkPi0[i];
@@ -3754,6 +3757,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
         if (mode != 10){
             cout << "calculating CalculateWeightedQuantity for graphMassPi0DataWeighted" << endl;
+
             graphMassPi0DataWeighted                    = CalculateWeightedQuantity(    graphOrderedMassPi0Data,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
@@ -3850,6 +3854,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             cout << "Aborted in CalculateWeightedQuantity" << endl;
             return;
         }
+
         cout << "weighting Pi0 efficiency x acceptance" << endl;
         graphEffTimesAccPi0Weighted                     = CalculateWeightedQuantity(    graphOrderedEffTimesAccPi0,
                                                                                         graphWeightsPi0,
@@ -4667,6 +4672,12 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
       }
     }
 
+    if(optionEnergy.Contains("13TeV")){
+      if(mode == 10){
+        minCorrYield            = 2e-17;
+        maxCorrYield            = 1e-6;
+      }
+    }
 
 
     TH2F * histo2DInvYieldScaled;
@@ -4931,6 +4942,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TFile* fileCorrectedEta             [MaxNumberOfFiles];
     TString FileNameCorrectedPi0EtaBin  [MaxNumberOfFiles];
     TFile* fileCorrectedPi0EtaBin       [MaxNumberOfFiles];
+    TString FileNameCorrectedPi0Add     [MaxNumberOfFiles];
+    TFile*  fileCorrectedPi0Add         [MaxNumberOfFiles];
     Bool_t foundPi0EtaBinFile           [MaxNumberOfFiles];
     Bool_t doEtaToPi0                                               = kFALSE;
 
@@ -4946,7 +4959,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TH1D*   histoMCInputEta             [MaxNumberOfFiles];
     TH1D*   histoMCInputEtaPi0          [MaxNumberOfFiles];
     TH1D*   histoCorrectedYieldPi0EtaBin[MaxNumberOfFiles];
+    TH1D*   histoCorrectedYieldPi0Add   [MaxNumberOfFiles];
     TH1D*   histoEtaToPi0               [MaxNumberOfFiles];
+    TH1D*   histoEtaToPi0WOAdd          [MaxNumberOfFiles];
+    TH1D*   histoEtaToPi0Add            [MaxNumberOfFiles];
     TH1D*   histoMassEtaData            [MaxNumberOfFiles];
     TH1D*   histoMassEtaMC              [MaxNumberOfFiles];
     TH1D*   histoWidthEtaData           [MaxNumberOfFiles];
@@ -4957,6 +4973,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TF1*    fitEtaInvMassSig            [MaxNumberOfFiles];
 
     TH1D* histoCorrectedYieldPi0EtaBinBinShift[MaxNumberOfFiles];
+    TH1D* histoCorrectedYieldPi0AddBinBinShift[MaxNumberOfFiles];
     TH1D* histoCorrectedYieldEtaBinShift[MaxNumberOfFiles];
 
     // create pointers for weighted graphs and supporting figutes
@@ -5162,11 +5179,21 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 doEtaToPi0                                   = kTRUE;
             }
 
+            // extension of merged clusters for eta/pi0
+            if(cutNumberMergedExt[i].CompareTo("bla")){
+              FileNameCorrectedPi0Add[i]                          = Form("%s/%s/Pi0EtaBinning_%s_GammaMergedCorrection_%s.root", cutNumberMergedExt[i].Data(), optionEnergy.Data(), isMC.Data(),
+                                                                          cutNumberMergedExt[i].Data());
+
+              fileCorrectedPi0Add[i]                              = new TFile(FileNameCorrectedPi0Add[i]);
+              if (fileCorrectedPi0Add[i]->IsZombie()){cout<<"file for merged analysis extension not found"; return;}
+            }
+
             if (foundPi0EtaBinFile[i]){
 
                 if (! doBinShiftForEtaToPi0){
                     histoCorrectedYieldPi0EtaBin[i]             = (TH1D*)fileCorrectedPi0EtaBin[i]->Get(nameCorrectedYield.Data());
                     histoCorrectedYieldPi0EtaBin[i]->SetName(Form("CorrectedYieldPi0EtaBin_%s",cutNumber[i].Data()));
+
                     if(optionEnergy.BeginsWith("8TeV") && mode==4){
                         histoEtaToPi0[i]                            = (TH1D*)histoCorrectedYieldPi0EtaBin[i]->Clone(Form("EtaToPi0_%s", cutNumber[i].Data()));
                         for(Int_t iB=1; iB<=histoCorrectedYieldPi0EtaBin[i]->GetNbinsX(); iB++){histoEtaToPi0[i]->SetBinContent(iB,histoCorrectedYieldEta[i]->GetBinContent(iB));}
@@ -5174,6 +5201,13 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     }else{
                         histoEtaToPi0[i]                            = (TH1D*)histoCorrectedYieldEta[i]->Clone(Form("EtaToPi0_%s", cutNumber[i].Data()));
                         histoEtaToPi0[i]->Divide(histoEtaToPi0[i],histoCorrectedYieldPi0EtaBin[i],1.,1.,"");
+                    }
+                    if(cutNumberMergedExt[i].CompareTo("bla")){
+                      histoCorrectedYieldPi0Add[i]                           = (TH1D*)fileCorrectedPi0Add[i]->Get("CorrectedYieldTrueEff");
+                      histoCorrectedYieldPi0Add[i]->SetName(Form("CorrectedYield_%s",cutNumberMergedExt[i].Data()));
+                      histoEtaToPi0Add[i]                            = (TH1D*)histoCorrectedYieldEta[i]->Clone(Form("EtaToPi0_%s", cutNumber[i].Data()));
+                      // histoEtaToPi0Add[i]->Divide(histoEtaToPi0[i],histoCorrectedYieldPi0Add[i],1.,1.,"");
+                      histoEtaToPi0Add[i]->Divide(histoCorrectedYieldPi0Add[i]);
                     }
                 } else {
                     cout << fitBinShiftPi0 << " - " << fitBinShiftEta << endl;
@@ -5186,6 +5220,14 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     histoCorrectedYieldEtaBinShift[i]           = (TH1D*)histoCorrectedYieldEta[i]->Clone(Form("CorrectedYieldEtaBinShifted_%s",cutNumber[i].Data()));
                     histoCorrectedYieldEtaBinShift[i]           = ApplyYshiftIndividualSpectra( histoCorrectedYieldEtaBinShift[i], fitBinShiftEta);
 
+                    if(cutNumberMergedExt[i].CompareTo("bla")){
+                      histoCorrectedYieldPi0Add[i]                           = (TH1D*)fileCorrectedPi0Add[i]->Get("CorrectedYieldTrueEff");
+                      histoCorrectedYieldPi0Add[i]->SetName(Form("CorrectedYield_%s",cutNumberMergedExt[i].Data()));
+                      cout << "shifting additional merged pi0 in eta binning: " <<  cutNumberMergedExt[i].Data() << endl;
+                      histoCorrectedYieldPi0AddBinBinShift[i]     = (TH1D*)histoCorrectedYieldPi0Add[i]->Clone(Form("CorrectedYieldPi0EtaBinBinShifted_%s",cutNumber[i].Data()));
+                      histoCorrectedYieldPi0AddBinBinShift[i]     = ApplyYshiftIndividualSpectra( histoCorrectedYieldPi0AddBinBinShift[i], fitBinShiftPi0);
+                    }
+
                     if(optionEnergy.BeginsWith("8TeV") && mode==4){
                         histoEtaToPi0[i]                            = (TH1D*)histoCorrectedYieldPi0EtaBinBinShift[i]->Clone(Form("EtaToPi0_%s", cutNumber[i].Data()));
                         for(Int_t iB=1; iB<=histoCorrectedYieldPi0EtaBinBinShift[i]->GetNbinsX(); iB++){histoEtaToPi0[i]->SetBinContent(iB,histoCorrectedYieldEtaBinShift[i]->GetBinContent(iB));}
@@ -5193,6 +5235,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     }else{
                         histoEtaToPi0[i]                            = (TH1D*)histoCorrectedYieldEtaBinShift[i]->Clone(Form("EtaToPi0%s_%s", addNameBinshift.Data(), cutNumber[i].Data()));
                         histoEtaToPi0[i]->Divide(histoEtaToPi0[i],histoCorrectedYieldPi0EtaBinBinShift[i],1.,1.,"");
+
+                        if(cutNumberMergedExt[i].CompareTo("bla")){
+                          histoEtaToPi0Add[i]                            = (TH1D*)histoCorrectedYieldEtaBinShift[i]->Clone(Form("EtaToPi0Add%s_%s", addNameBinshift.Data(), cutNumber[i].Data()));
+                          histoEtaToPi0Add[i]->Divide(histoEtaToPi0Add[i],histoCorrectedYieldPi0AddBinBinShift[i],1.,1.,"");
+                        }
                     }
                 }
             } else {
@@ -5499,6 +5546,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 minAccEta = 0.05;
                 maxAccEta = 0.45;
             } else if (optionEnergy.Contains("pPb_8TeV") ){
+                minAccEta = 0.05;
+                maxAccEta = 0.81;
+            } else if (optionEnergy.Contains("13TeV") ){
                 minAccEta = 0.05;
                 maxAccEta = 0.81;
             }
@@ -5909,9 +5959,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 offSetsEta[4] = 10; //EG2
                 offSetsEta[5] = 16; //EG1
             } else if(mode == 4){
-                offSetsEta[1] = 11; //INT7
-                offSetsEta[4] = 19; //EG2
-                offSetsEta[5] = 29; //EG1
+                offSetsEta[1] = 1; //INT7
+                offSetsEta[4] = 9; //EG2
+                offSetsEta[5] = 14; //EG1
             } else if(mode == 3){
                 offSetsEta[1] = 3; //INT7
                 offSetsEta[3] = 15; //EMC7
@@ -6259,9 +6309,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsEtaSys[5]+=-2; //EG1
         } else if(optionEnergy.Contains("13TeV")){
             if(mode == 4){
-                offSetsEtaSys[1] = 11; //INT7
-                offSetsEtaSys[4] = 19; //EG2
-                offSetsEtaSys[5] = 29; //EG1
+                offSetsEtaSys[1]= offSetsEta[1] + 1; //INT7
+                offSetsEtaSys[4]=offSetsEta[4] + 4; //EG2
+                offSetsEtaSys[5]=offSetsEta[5] + 3; //EG1
             } else if(mode == 3){
                 offSetsEtaSys[1] = 4; //INT7
                 offSetsEtaSys[3] = 20; //EMC7
@@ -6599,11 +6649,13 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
                 return;
             }
+
             graphEffTimesAccEtaWeighted                     = CalculateWeightedQuantity(    graphOrderedEffTimesAccEta,
                                                                                             graphWeightsEta,
                                                                                             binningEta,  maxNAllowedEta,
                                                                                             MaxNumberOfFiles
                                                                                         );
+
             if (!graphEffTimesAccEtaWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
                 return;
@@ -7345,6 +7397,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     offSetsEtaToPi0[4] = 10; //EG2
                     offSetsEtaToPi0[5] = 16; //EG1
                 }
+                if(mode == 4){
+                  offSetsEtaToPi0[1] = 1; //INT7
+                  offSetsEtaToPi0[4] = 9; //EG2
+                  offSetsEtaToPi0[5] = 14; //EG1
+               }
             } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0 || optionEnergy.CompareTo("5TeVRefpPb")==0 ){
                 if(mode == 2){
                     offSetsEtaToPi0[1] = 0; //INT7
@@ -7385,6 +7442,19 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     offSetsEtaToPi0[3] = 13; //EMC7
                     offSetsEtaToPi0[12] = offSetsEtaToPi0[3]; //PHI7
                 }
+            }
+
+            // extend the eta/pi0 ratio with the merged extention
+            for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
+              if(cutNumberMergedExt[i].CompareTo("bla")){
+                histoEtaToPi0WOAdd[i] = (TH1D*) histoEtaToPi0[i]->Clone(Form("EtaToPi0_WO_mergedExt_%s", triggerName[i].Data()));
+                for(Int_t ii = histoEtaToPi0[i]->FindBin(ptFromAddMerged[i][0] + 0.001); ii < histoEtaToPi0[i]->FindBin(ptFromAddMerged[i][1] - 0.001) + 1; ++ii){
+                  cout<< "before: " <<histoEtaToPi0[i]->GetBinCenter(ii)<<  "  " << histoEtaToPi0[i]->GetBinContent(ii) <<  "  " << histoEtaToPi0Add[i]->GetBinContent(ii) << endl;
+                  histoEtaToPi0[i]->SetBinContent(ii, histoEtaToPi0Add[i]->GetBinContent(ii));
+                  histoEtaToPi0[i]->SetBinError(ii, histoEtaToPi0Add[i]->GetBinError(ii));
+                  cout<< "after: " <<histoEtaToPi0[i]->GetBinCenter(ii)<< "  " << histoEtaToPi0[i]->GetBinContent(ii) <<  "  " << histoEtaToPi0Add[i]->GetBinContent(ii) << endl;
+                }
+              }
             }
 
             Bool_t hasSysEtaToPi0            = kFALSE;
@@ -7468,7 +7538,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 histoEtaToPi0Masked[i]          = (TH1D*)histoEtaToPi0[i]->Clone(Form("EtaToPi0%s_Masked_%s",addNameBinshift.Data(), triggerName[i].Data()));
 
                 if(optionEnergy.BeginsWith("8TeV") && mode==4 && triggerName[i].Contains("EGA")) ptFromSpecEta[i][0] = 16.0;
-                cout << ptFromSpecEta[i][0] << endl;
                 // remove 0 bins at beginning according to ptFromSpecEta[i][0]
                 Int_t binsToMask = 1;
                 while (histoEtaToPi0Masked[i]->GetBinCenter(binsToMask) < ptFromSpecEta[i][0] ){
@@ -7567,17 +7636,15 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 if(optionEnergy.BeginsWith("8TeV") && mode == 4) ptFromSpecPi0[i][0]-= 0.5;
                 // remove unused bins at beginning
                 cout << "step 3" << endl;
-                while (graphsEtaToPi0Shrunk[i]->GetX()[0] < ptFromSpecEta[i][0] || graphsEtaToPi0Shrunk[i]->GetX()[0] < ptFromSpecPi0[i][0])
+                while (graphsEtaToPi0Shrunk[i]->GetX()[0] < ptFromSpecEta[i][0] )
                     graphsEtaToPi0Shrunk[i]->RemovePoint(0);
-                while (graphsEtaToPi0SysShrunk[i]->GetX()[0] < ptFromSpecEta[i][0] || graphsEtaToPi0SysShrunk[i]->GetX()[0] < ptFromSpecPi0[i][0])
+                while (graphsEtaToPi0SysShrunk[i]->GetX()[0] < ptFromSpecEta[i][0] )
                     graphsEtaToPi0SysShrunk[i]->RemovePoint(0);
                 // remove unused bins at end
-                while ( graphsEtaToPi0Shrunk[i]->GetX()[graphsEtaToPi0Shrunk[i]->GetN()-1] > ptFromSpecEta[i][1] ||
-                        graphsEtaToPi0Shrunk[i]->GetX()[graphsEtaToPi0Shrunk[i]->GetN()-1] > ptFromSpecPi0[i][1] )
+                while ( graphsEtaToPi0Shrunk[i]->GetX()[graphsEtaToPi0Shrunk[i]->GetN()-1] > ptFromSpecEta[i][1])
                     graphsEtaToPi0Shrunk[i]->RemovePoint(graphsEtaToPi0Shrunk[i]->GetN()-1);
                 graphsEtaToPi0Shrunk[i]->Print();
-                while ( graphsEtaToPi0SysShrunk[i]->GetX()[graphsEtaToPi0SysShrunk[i]->GetN()-1] > ptFromSpecEta[i][1] ||
-                        graphsEtaToPi0SysShrunk[i]->GetX()[graphsEtaToPi0SysShrunk[i]->GetN()-1] > ptFromSpecPi0[i][1] )
+                while ( graphsEtaToPi0SysShrunk[i]->GetX()[graphsEtaToPi0SysShrunk[i]->GetN()-1] > ptFromSpecEta[i][1])
                     graphsEtaToPi0SysShrunk[i]->RemovePoint(graphsEtaToPi0SysShrunk[i]->GetN()-1);
 
                 if(optionEnergy.BeginsWith("5TeV") && mode == 4){
@@ -7672,8 +7739,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 offSetsEtaToPi0Sys[5]+=-2; //EGA
             } else  if (optionEnergy.CompareTo("13TeV")==0){
                 if(mode == 4){
-                    offSetsPi0Sys[4]=48;//29 + offSetsPi0Sys[1];
-                    offSetsPi0Sys[5]=62 + offSetsPi0Sys[1];
+                    offSetsEtaToPi0Sys[1]= offSetsEtaToPi0[1] + 1; //INT7
+                    offSetsEtaToPi0Sys[4]= offSetsEtaToPi0[4] + 4; //EG2
+                    offSetsEtaToPi0Sys[5]= offSetsEtaToPi0[5] + 3; //EG1
                 }
                 if(mode == 10){
                     offSetsEtaToPi0Sys[1]=11;
@@ -7718,6 +7786,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                                                                                                 mode, optionEnergy, "EtaToPi0", kFALSE,
                                                                                                 fileInputCorrFactors
                                                                                               );
+
                 // Reading weights from output file for plotting
                 ifstream fileWeightsEtaToPi0;
                 fileWeightsEtaToPi0.open(nameWeightsLogFileEtaToPi0,ios_base::in);
@@ -7776,6 +7845,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 // Calculate relative sys error weighted
                 if (sysAvailSingleEtaToPi0[0]){
                     for (Int_t k = 0; k< nRelSysErrEtaToPi0Sources ; k++ ){
+
                         graphRelSysErrEtaToPi0SourceWeighted[k]      = CalculateWeightedQuantity(   graphOrderedRelSysErrEtaToPi0Source[k],
                                                                                                     graphWeightsEtaToPi0,
                                                                                                     binningEta,  maxNAllowedEtaToPi0,
@@ -8229,7 +8299,18 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                         DrawGammaSetMarkerTGraphAsym(graphsEtaToPi0SysRemoved0[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i], 1, kTRUE);
                         graphsEtaToPi0SysRemoved0[i]->Draw("p,E2,same");
                     }
-                    histoEtaToPi0[i]->Draw("e1,same");
+                    if(cutNumberMergedExt[i].CompareTo("bla")){
+                      DrawGammaSetMarker(histoEtaToPi0WOAdd[i], 27, sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
+                      DrawGammaSetMarker(histoEtaToPi0Add[i], 25, sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
+                      histoEtaToPi0WOAdd[i]->Draw("e1,same");
+                      if(histoEtaToPi0Add[i]){
+                        histoEtaToPi0Add[i]->Draw("e1,same");
+                        legendEtaToPi0->AddEntry(histoEtaToPi0Add[i],Form("%s ext.", triggerNameLabel[i].Data()),"p");
+                        legendEtaToPi0->AddEntry(histoEtaToPi0WOAdd[i],Form("%s std.", triggerNameLabel[i].Data()),"p");
+                      }
+                    } else {
+                      histoEtaToPi0[i]->Draw("e1,same");
+                    }
                     legendEtaToPi0->AddEntry(histoEtaToPi0[i],triggerNameLabel[i],"p");
                 }
             }
