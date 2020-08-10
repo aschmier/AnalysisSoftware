@@ -211,6 +211,7 @@
     Double_t*    fMesonLambdaTailRange                                      = nullptr;
     Double_t*    fMesonLambdaTailRangeNominal                               = nullptr;
     Double_t*    fMesonLambdaTailRangeMC                                    = nullptr;
+    Double_t*    fMesonLambdaTailRightRange                                 = nullptr;
     Double_t*    fMidPt                                                     = nullptr;
     Double_t*    fFullPt                                                    = nullptr;
     Double_t     FitRangeSigBckRatioOption                                  = 0;
@@ -241,6 +242,7 @@
     void FillMassHistosArray(TH2D*);                                                                            // Fill invariant mass histograms for Signal and Backgrounf
     TH1D* FillProjectionX (TH2*, TString, Double_t, Double_t, Int_t);                                           // Fill Projection in according to Y bins
     void FillMassMCTrueMesonHistosArray(TH2D*);                                                                 // Fill invariant mass histograms for validated mesons
+    void FillMassMCTrueAllMesonHistosArray(TH2D*);                                                              // Fill invariant mass histograms for all validated mesons
     void FillMassMCTrueFullMesonHistosArray(TH2D* );                                                            // Fill invariant mass histograms for validated mesons full momentum range
     void FillMassMCTrueMesonDCHistosArray(TH2D*);                                                               // Fill invariant mass histograms for double counted validated mesons
     void FillMassMCTrueMesonCaloPhotonHistosArray(TH2D*);                                                       // Fill invariant mass histograms for validated mesons true calo photons
@@ -313,6 +315,7 @@
     //****************************************************************************
     TH2D*       fHistoTrueMesonInvMassVSPt                                  = nullptr;
     TH2D*       fHistoTrueFullMesonInvMassVSPt                              = nullptr;
+    TH2D*       fHistoTrueAllMesonInvMassVSPt                               = nullptr;
     TH2D*       fHistoTrueMesonInvMassVSPtWOWeights                         = nullptr;
     TH2D*       fHistoTrueMesonInvMassVSPtReweighted                        = nullptr;
     TH2D*       fHistoTrueMesonInvMassVSPtUnweighted                        = nullptr;
@@ -407,6 +410,7 @@
     TH1D*       fHistoMotherZPsiProjMidPt                                   = nullptr;
     TH1D*       fHistoBckZPsiProjMidPt                                      = nullptr;
     TH1D**      fHistoMappingTrueMesonInvMassPtBins                         = nullptr;
+    TH1D**      fHistoMappingTrueAllMesonInvMassPtBins                      = nullptr;
     TH1D**      fHistoMappingTrueFullMesonInvMassPtBins                     = nullptr;
     TH1D**      fHistoMappingTrueMesonInvMassPtReweightedBins               = nullptr;
     TH1D**      fHistoMappingTrueMesonInvMassPtUnweightedBins               = nullptr;
@@ -536,8 +540,12 @@
     Double_t*   fMesonTrueFWHMError                                         = nullptr;
     Double_t*   fMesonLambdaTailpar                                         = nullptr;
     Double_t*   fMesonLambdaTailparError                                    = nullptr;
+    Double_t*   fMesonLambdaTailRightpar                                    = nullptr;
+    Double_t*   fMesonLambdaTailRightparError                               = nullptr;
     Double_t*   fMesonLambdaTailMCpar                                       = nullptr;
     Double_t*   fMesonLambdaTailMCparError                                  = nullptr;
+    Double_t*   fMesonLambdaTailRightMCpar                                  = nullptr;
+    Double_t*   fMesonLambdaTailRightMCparError                             = nullptr;
     Double_t*   fMesonAmplitudepar                                          = nullptr;
     Double_t*   fMesonAmplitudeparError                                     = nullptr;
     Double_t*   fMesonTrueAmplitudepar                                      = nullptr;
@@ -674,7 +682,9 @@
     TH1D*       fHistoTrueSignMeson                                         = nullptr;
     TH1D*       fHistoTrueSBMeson                                           = nullptr;
     TH1D*       fHistoLambdaTail                                            = nullptr;
+    TH1D*       fHistoLambdaTailRight                                       = nullptr;
     TH1D*       fHistoTrueLambdaTail                                        = nullptr;
+    TH1D*       fHistoTrueLambdaTailRight                                   = nullptr;
     TH1D*       fHistoAmplitude                                             = nullptr;
     TH1D*       fHistoTrueAmplitude                                         = nullptr;
     TH1D*       fHistoSigma                                                 = nullptr;
@@ -811,7 +821,7 @@
     //****************************************************************************************************
     //*************** Function to initalize different fitting, plotting and integration windows***********
     //****************************************************************************************************
-    void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t triggerSet = -1){
+    void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t triggerSet = -1, Bool_t isRotationBG = kFALSE){
 
         // Heavy meson analysis
         if(mode>=100) mode -= 100;
@@ -830,6 +840,7 @@
         fMesonFitRange              = new Double_t[2];
         fMesonWidthRange            = new Double_t[2];
         fMesonLambdaTailRange       = new Double_t[2];
+        fMesonLambdaTailRightRange  = new Double_t[2];
         fMesonLambdaTailRangeNominal= new Double_t[2];
         fMesonLambdaTailRangeMC     = new Double_t[2];
         fMesonWidthRangeMC          = new Double_t[2];
@@ -838,6 +849,8 @@
         fMesonWidthRangeMC[0]       = -10;
         fMesonWidthRangeMC[1]       = -10;
         fMesonLambdaTailMC          = -10;
+        fMesonLambdaTailRightRange[0] = 0.001;
+        fMesonLambdaTailRightRange[1] = 0.1;
         fMidPt                      = new Double_t[2];
 
         fFullPt                     = new Double_t[2];
@@ -950,23 +963,40 @@
                     } else if ( trigger.CompareTo("81")==0 || triggerSet == 2 ){
                         fBGFitRange[0] = 0.26;
                     }
-                } else if ( fEnergyFlag.CompareTo("13TeV") == 0 ){
-                    if( trigger.CompareTo("52") == 0 || triggerSet == 1 ){
+                }
+                if ( fEnergyFlag.Contains("pPb_8TeV") ){
+                    if( trigger.CompareTo("8e") == 0 || triggerSet == 1 ){
                         fBGFitRange[0] = 0.25;
-                    } else if ( trigger.CompareTo("85")==0 || trigger.CompareTo("8e")==0 || triggerSet == 3 ){
-                        fBGFitRange[0] = 0.25;
-                        fBGFitRange[1] = 0.29;
+                    } else if ( trigger.CompareTo("8d")==0 || triggerSet == 2 ){
+                        fBGFitRange[0] = 0.26;
+                    }
+                }
+                if ( fEnergyFlag.Contains("13TeV")){
+                  if(!isRotationBG){
+                      fBGFitRangeLeft[0]          = 0.23;
+                      fBGFitRangeLeft[1]          = 0.27;
+                      if ( trigger.CompareTo("85")==0 || trigger.CompareTo("8e")==0 || triggerSet == 3 ){
+                        fBGFitRange[0]              = 0.34;
+                        fBGFitRange[1]              = 0.42;
+                      } else if ( trigger.CompareTo("83")==0 || trigger.CompareTo("8d")==0 || triggerSet == 2 ){
+                        fBGFitRange[0]              = 0.34;
+                        fBGFitRange[1]              = 0.42;
+                      }
+                  } else {
+                      fBGFitRangeLeft[0]          = 0.24;
+                      fBGFitRangeLeft[1]          = 0.28;
+                    if ( trigger.CompareTo("85")==0 || trigger.CompareTo("8e")==0 || triggerSet == 3 ){
+                      fBGFitRange[0] = 0.25;
+                      fBGFitRange[1] = 0.29;
                     } else if ( trigger.CompareTo("83")==0 || trigger.CompareTo("8d")==0 || triggerSet == 2 ){
-                        fBGFitRange[0] = 0.24;
-                        fBGFitRange[1] = 0.30;
-                    } else {
-                      fBGFitRange[0] = 0.20;
-                      fBGFitRange[1] = 0.27;
+                      fBGFitRange[0] = 0.25;
+                      fBGFitRange[1] = 0.29;
                     }
                     fBGFitRange[0]              = 0.22;
                     fBGFitRange[1]              = 0.3;
                     fBGFitRangeLeft[0]          = 0.26;
                     fBGFitRangeLeft[1]          = 0.30;
+                  }
                 } else if ( fEnergyFlag.Contains("pPb_5.023TeV") ){
                     cout << "configuring for pPb with BG option: " << mesonBGString.Data() << endl;
                     if( trigger.CompareTo("85") == 0 || triggerSet == 2 ){
@@ -1155,6 +1185,23 @@
                         fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1]*0.8;
                     }
                 }
+                if(fEnergyFlag.Contains("13TeV")){
+                  if(!isRotationBG){
+                    fMesonIntDeltaRange[0]      = -0.05;
+                    fMesonIntDeltaRange[1]      = 0.06;
+                    fMesonIntDeltaRangeWide[0]  = fMesonIntDeltaRange[0]*1.2;
+                    fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1]*1.2;
+                    fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0]*0.8;
+                    fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1]*0.8;
+                  } else {
+                    fMesonIntDeltaRange[0]      = -0.05;
+                    fMesonIntDeltaRange[1]      = 0.07;
+                    fMesonIntDeltaRangeWide[0]  = fMesonIntDeltaRange[0]*1.2;
+                    fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1]*1.2;
+                    fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0]*0.8;
+                    fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1]*0.8;
+                  }
+                }
             } else if (mode == 5) {                                                 // PHOS
                 fMesonIntDeltaRange[0]      = -0.035;
                 fMesonIntDeltaRange[1]      = 0.023;
@@ -1175,6 +1222,19 @@
             fMesonMassPlotRange[1]      = 0.3;
             fMesonMassRange[0]          = 0.;
             fMesonMassRange[1]          = 0.3;
+            if(mode == 4 && fEnergyFlag.Contains("13TeV")){
+              if(!isRotationBG){
+                fMesonMassPlotRange[0]      = 0.;
+                fMesonMassPlotRange[1]      = 0.299;
+                fMesonMassRange[0]          = 0.;
+                fMesonMassRange[1]          = 0.299;
+            } else {
+              fMesonMassPlotRange[0]      = 0.;
+              fMesonMassPlotRange[1]      = 0.45;
+              fMesonMassRange[0]          = 0.;
+              fMesonMassRange[1]          = 0.45;
+            }
+          }
 
             if (mesonBGString.CompareTo("r") == 0 && mode == 4){
                 fMesonMassRange[0]          = 0.;
@@ -1307,9 +1367,30 @@
                 }
                 // if(fEnergyFlag.Contains("13TeV") && GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1)){
                 if(fEnergyFlag.Contains("13TeV")){
-                  fMesonFitRange[0]       = 0.08;
-                  fMesonFitRange[1]       = 0.26;
+                  if(!isRotationBG){
+                    fMesonFitRange[0]       = 0.06;
+                    fMesonFitRange[1]       = 0.23;
+                    if(trigger.CompareTo("8e") == 0){
+                      fMesonFitRange[0]       = 0.07;
+                      fMesonFitRange[1]       = 0.22;
+                    }
+                    if(trigger.CompareTo("8d") == 0){
+                      fMesonFitRange[0]       = 0.07;
+                      fMesonFitRange[1]       = 0.22;
+                    }
+                } else {
+                  fMesonFitRange[0]       = 0.07;
+                  fMesonFitRange[1]       = 0.29;
+                  if(trigger.CompareTo("8e") == 0){
+                    fMesonFitRange[0]       = 0.08;
+                    fMesonFitRange[1]       = 0.29;
+                  }
+                  if(trigger.CompareTo("8d") == 0){
+                    fMesonFitRange[0]       = 0.11;
+                    fMesonFitRange[1]       = 0.29;
+                  }
                 }
+              }
             } else if (mode == 5){                                      // PHOS
                 if (fEnergyFlag.CompareTo("XeXe_5.44TeV") == 0 ){
                     fMesonFitRange[0]       = 0.03;
@@ -1468,6 +1549,10 @@
                     fMesonWidthRange[0]         = 0.01;
                     fMesonWidthRange[1]         = 0.04;
                 }
+              if (fEnergyFlag.Contains("13TeV") ){
+                fMesonLambdaTailRightRange[0] = 0.008;
+                fMesonLambdaTailRightRange[1] = 0.04;
+              }
             } else if (mode == 5){                                      // PHOS
                 fMesonWidthExpect               = 0.005;
                 fMesonLambdaTail                = 0.012;
@@ -1601,10 +1686,23 @@
                     fBGFitRange[0]              = 0.67;
                     fBGFitRange[1]              = 0.79;
                 } else {
-                    fBGFitRangeLeft[0]          = 0.34;
+                    fBGFitRangeLeft[0]          = 0.38;
                     fBGFitRangeLeft[1]          = 0.44;
-                    fBGFitRange[0]              = 0.67;
-                    fBGFitRange[1]              = 0.79;
+                    fBGFitRange[0]              = 0.65;
+                    fBGFitRange[1]              = 0.74;
+                }
+                if(fEnergyFlag.Contains("13TeV")){
+                  if(!isRotationBG){
+                    fBGFitRangeLeft[0]          = 0.73;
+                    fBGFitRangeLeft[1]          = 0.78;
+                    fBGFitRange[0]              = 0.65;
+                    fBGFitRange[1]              = 0.75;
+                  } else {
+                    fBGFitRangeLeft[0]          = 0.3;
+                    fBGFitRangeLeft[1]          = 0.35;
+                    fBGFitRange[0]              = 0.34;
+                    fBGFitRange[1]              = 0.42;
+                  }
                 }
             } else if ( mode == 5) {
                 fBGFitRange[0]                  = 0.62;
@@ -1752,10 +1850,17 @@
             fMesonMassRange[1]          = 0.79;
             // if(GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1))){ // in case of rotation background
             if(fEnergyFlag.Contains("13TeV") && mode == 4){
-              fMesonMassPlotRange[0]      = 0.35;
-              fMesonMassPlotRange[1]      = 0.79;
-              fMesonMassRange[0]          = 0.35;
-              fMesonMassRange[1]          = 0.79;
+              if(!isRotationBG){
+                fMesonMassPlotRange[0]      = 0.35;
+                fMesonMassPlotRange[1]      = 0.79;
+                fMesonMassRange[0]          = 0.35;
+                fMesonMassRange[1]          = 0.79;
+              } else {
+                fMesonMassPlotRange[0]      = 0.3;
+                fMesonMassPlotRange[1]      = 0.79;
+                fMesonMassRange[0]          = 0.3;
+                fMesonMassRange[1]          = 0.79;
+              }
             }
 
 
@@ -1815,8 +1920,13 @@
                         fMesonFitRange[1]         = 0.74;
                     }
                 } else if(fEnergyFlag.Contains("13TeV")){
-                  fMesonFitRange[0]           = 0.25;
-                  fMesonFitRange[1]           = 0.73;
+                  if(!isRotationBG){
+                    fMesonFitRange[0]           = 0.38;
+                    fMesonFitRange[1]           = 0.73;
+                  } else {
+                    fMesonFitRange[0]           = 0.36;
+                    fMesonFitRange[1]           = 0.79;
+                  }
                 } else {
                     fMesonFitRange[0]           = 0.38;
                     fMesonFitRange[1]           = 0.73;
