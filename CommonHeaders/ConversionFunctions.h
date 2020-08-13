@@ -2681,6 +2681,7 @@
 
             cout<<colorBS<<" ";
         }
+        delete CurrentHist;
         return kTRUE;
 
     }
@@ -5855,7 +5856,7 @@
 
         TGraph* graphArrCopy[n];  // working copy to preserve the original graphs
         for(Int_t k = 0; k < n; k++){
-            graphArrCopy[k] = (TGraph*)graphArr[k]->Clone();
+            graphArrCopy[k] = (TGraph*)graphArr[k]->Clone(Form("%s_clone",graphArr[k]->GetName()));
         }
 
         Double_t* xValue       = graphArrCopy[0]->GetX();
@@ -5874,6 +5875,9 @@
             yValue[n][i] = yValue[n][i] / n;    // divide by number of graphs
         }
         TGraph* graphEtaNew = new TGraph(nPoints,xValue,yValue[n]);
+        for(Int_t k = 0; k < n; k++){
+            delete graphArrCopy[k];
+        }
         return graphEtaNew;
     }
 
@@ -5885,7 +5889,7 @@
 
         TGraphErrors* graphArrCopy[n];  // working copy to preserve the original graphs
         for(Int_t k = 0; k < n; k++){
-            graphArrCopy[k] = (TGraphErrors*)graphArr[k]->Clone();
+            graphArrCopy[k] = (TGraphErrors*)graphArr[k]->Clone(Form("%s_clone",graphArr[k]->GetName()));
         }
 
         Double_t* xValue       = graphArrCopy[0]->GetX();
@@ -5912,7 +5916,11 @@
             yValue[n][i] = yValue[n][i] / n;               // divide by number of graphs
             yError[n][i] = TMath::Sqrt(yError[n][i]) / n;  // sqrt of sum of squares / n
         }
+
         TGraphErrors* graphEtaNew = new TGraphErrors(nPoints,xValue,yValue[n],xError,yError[n]);
+        for(Int_t k = 0; k < n; k++){
+            delete graphArrCopy[k];
+        }
         return graphEtaNew;
     }
 
