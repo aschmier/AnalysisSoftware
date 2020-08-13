@@ -1122,8 +1122,8 @@ void ExtractSignalV2(
             fMesonMass[iPt]                 = fFitSignalInvMassPtBinStd[iPt]->GetParameter(1);
             fMesonMassError[iPt]            = fFitSignalInvMassPtBinStd[iPt]->GetParError(1);
 
-            fMesonLambdaTailpar[iPt]        = fFitSignalInvMassPtBinStd[iPt]->GetParameter(4);
-            fMesonLambdaTailparError[iPt]   = fFitSignalInvMassPtBinStd[iPt]->GetParError(4);
+            fMesonLambdaTailpar[iPt]        = fFitSignalInvMassPtBinStd[iPt]->GetParameter(3);
+            fMesonLambdaTailparError[iPt]   = fFitSignalInvMassPtBinStd[iPt]->GetParError(3);
 
             if(fFitSignalInvMassPtBinStd[iPt]->GetNpar() == 7){
               fMesonLambdaTailRightpar[iPt]        = fFitSignalInvMassPtBinStd[iPt]->GetParameter(4);
