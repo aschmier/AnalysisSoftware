@@ -5,7 +5,7 @@
 
 # Version: V5.5
 echo  -e "\e[36m+++++++++++++++++++++++++++++++++++++\e[0m"
-echo "DownScript.sh Version: V6.0"
+echo "DownScript.sh Version: V6.1"
 sleep 2
 
 # Author: Adrian Mechler (mechler@ikf.uni-frankfurt.de)
@@ -176,10 +176,12 @@ function GetWebpage(){
 	fi
 }
 # # if this is not working try
-# openssl pkcs12 -in myCertificate.p12 -out newcert.pem
-# openssl pkcs12 -in myCertificate.p12 -out $cacert -cacerts -nokeys
-# openssl pkcs12 -in myCertificate.p12 -out $clientca -clcerts -nokeys
-# openssl pkcs12 -in myCertificate.p12 -out $key -nocerts
+# openssl pkcs12 -in myCertificate.p12 -nodes -out newcert.pem
+# openssl pkcs12 -in myCertificate.p12 -nodes -out ca.pem -cacerts -nokeys
+# openssl pkcs12 -in myCertificate.p12 -nodes -out client.pem -clcerts -nokeys
+# openssl pkcs12 -in myCertificate.p12 -nodes -out key.pem -nocerts
+
+
 
 function AddToList(){
 	if [ -f $1 ]; then
@@ -205,7 +207,6 @@ function AddToList(){
 function Init(){
 
 	#####################################
-
 
 	if [[ $thisuser = "adrian" || $thisuser = "amechler" ]]
 	then
@@ -377,13 +378,17 @@ function InitilaizeChild(){
 	if [[ $ChildName = "" ]]; then ChildName=`grep "periodName=" "$GlobalVariablesPath" | awk -F "=" '{print $2}' | awk -F ";" '{print $1}' | awk -F "\"" '{print $2}'`; fi
 	echo -e " periodName = $ChildName" | tee -a $LogFile
 
-	if [[ $Usechildsareperiods = 1 ]]; then
-		ChildName=`grep "export ALIEN_JDL_child_${childID}_LPMPRODUCTIONTAG" $envFile | cut -d "'" -f 2`
-		# ChildName=`echo $(head -n 1 $PathtoRuns) | awk -F "/" '{print $7}' ` | tee -a $LogFile
-		if [[ $ChildName = "" ]]; then
-			ChildName=`grep "export TEST_DIR_child_${childID}=" $envFile | cut -d "'" -f 2 | cut -d "/" -f 5`
-		fi
-		echo -e "\e[33m|->\e[0m Changed periodName = $ChildName" | tee -a $LogFile
+	ChildName2=`grep "export ALIEN_JDL_child_${childID}_LPMPRODUCTIONTAG" $envFile | cut -d "'" -f 2`
+	# ChildName=`echo $(head -n 1 $PathtoRuns) | awk -F "/" '{print $7}' ` | tee -a $LogFile
+	if [[ $ChildName2 = "" ]]; then
+		ChildName2=`grep "export TEST_DIR_child_${childID}=" $envFile | cut -d "'" -f 2 | cut -d "/" -f 5`
+	fi
+	if [[ $ChildName2 = "" ]]; then
+		ChildName2=`grep "export ALIEN_JDL_LPMPRODUCTIONTAG=" $envFile | cut -d "'" -f 2 | cut -d "/" -f 5`
+	fi
+	if [[ $Usechildsareperiods = 1 ]] || [[ ! $ChildName == $ChildName2 ]]; then
+		echo -e "\e[33m|->\e[0m Changed periodName = $ChildName2" | tee -a $LogFile
+		ChildName=$ChildName2
 	fi
 
 	Type='data'
@@ -440,18 +445,28 @@ function InitilaizeTrain(){
 	fi
 
 	Childeone=""
+	tmphere=0
 	while [[ $Childeone = "" ]]; do
-		# get all childs involved in train run
 		GetChilds $List
-		if [[ $Usechildsareperiods = 1 ]]
+
+		if [[ $Childeone = "" ]]
 		then
-			# get one env.sh to get basic information about the train
 			Childeone=`sed '2q;d' $List`
-		else
-			# get one env.sh to get basic information about the train
+		fi
+		if [[ $Childeone = "" ]]
+		then
 			Childeone=`sed '1q;d' $List`
 		fi
+		if [[ $Childeone = "" ]]
+		then
+			Childeone=`sed '0q;d' $List`
+		fi
+		# if [[ $tmphere > 5 ]]; then
+		# 	return 0
+		# fi
 		printf "."
+		((tmphere++))
+		sleep 1
 	done
 	# cat $List
 	echo -e "\e[33m|->\e[0m $Childeone" | tee -a $LogFile
@@ -520,33 +535,14 @@ function InitilaizeRunlist(){
 	echo;
 	echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
 	echo -e "\e[36m|-> Runlist $RunlistID\tName = $RunlistName \e[0m" | tee -a $LogFile
-	if [[ ! "$OptRunlistName" = "useSpecificRunlist_"* ]]; then
+	if [[ ! "$OptRunlistName" = *"useSpecificRunlist_"* ]]; then
 		Runlist="$RunlistOnTrainpage"
 	fi
-	for runName in `cat $Runlist`
-	do
-		printf "$runName, " | tee -a $LogFile
-		((NumberOfRuns++))
-	done
-	printf "\n $NumberOfRuns Runs found \n" | tee -a $LogFile
-	Dirout=$OUTPUTDIR/$RunlistName/$ChildName
-	if [[ $OptNoRunlist = 0 ]]; then
-		Dirin=$AlienDir$child/merge_runlist_$RunlistID
-	else
-		Dirin=$AlienDir$child/merge
-	fi
-	DirMerged=$OUTPUTDIR/$RunlistName
-	mkdir -p $DirMerged
-	mkdir -p $Dirout
-	if [[ $NumberOfRuns = 0 ]] ; then
-		echo  -e "\e[33mWARNING:  No runs in Runlist\e[0m: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
-		return 1
-	fi
 
-	if [[ "$OptRunlistName" = "useSpecificRunlist_"* ]]; then
+	if [[ "$OptRunlistName" = *"useSpecificRunlist_"* ]]; then
 		if [[ ! $RunlistID = "1" ]]; then return 1; fi
 		useSpecificRunlist=1
-		SearchSpecificRunlist=${OptRunlistName#useSpecificRunlist_}
+		SearchSpecificRunlist=${RunlistName#*useSpecificRunlist_}
 		Runlist="${FrameworkDir}/DownloadAndDataPrep/runlists/runNumbers${ChildName}${SearchSpecificRunlist}.txt"
 		if [[ ! -f $Runlist ]] && [[ ! $Type = "data" ]]; then
 				AnchorChildName=`grep "export ALIEN_JDL_child_${childID}_LPMANCHORPRODUCTION" $envFile | cut -d "'" -f 2`
@@ -580,6 +576,26 @@ function InitilaizeRunlist(){
 		fi
 		echo;
 	fi
+	for runName in `cat $Runlist`
+	do
+		printf "$runName, " | tee -a $LogFile
+		((NumberOfRuns++))
+	done
+	printf "\n $NumberOfRuns Runs found \n" | tee -a $LogFile
+	Dirout=$OUTPUTDIR/$RunlistName/$ChildName
+	if [[ $OptNoRunlist = 0 ]]; then
+		Dirin=$AlienDir$child/merge_runlist_$RunlistID
+	else
+		Dirin=$AlienDir$child/merge
+	fi
+	DirMerged=$OUTPUTDIR/$RunlistName
+	mkdir -p $DirMerged
+	mkdir -p $Dirout
+	if [[ $NumberOfRuns = 0 ]] ; then
+		echo  -e "\e[33mWARNING:  No runs in Runlist\e[0m: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
+		return 1
+	fi
+
 
 
 	# prepare directory
@@ -769,6 +785,9 @@ function ParseSettings(){
 		elif [[ $setting = "-debugsoft" ]] ||  [[ $setting = "-debug3" ]]
 		then
 			debug=3
+		elif [[ $setting = "-debug4" ]]
+		then
+			debug=4
 		elif [[ $setting = "-newfiles" ]]
 		then
 			newfiles=1
@@ -1069,19 +1088,19 @@ function Parsehtml(){
 				fi
 
 				AddToList $foundRunlistNamefile.tmp $foundRunlistNamefile
-				useSpecificRunlist=0
+				# useSpecificRunlist=0
 				# printf "$RunlistName: " | tee -a $LogFile
 				for Searchedrunlist in `cat $OptRunlistNamefile`
 				do
-					if [[ "$RunlistName" = "$Searchedrunlist" ]] || [[ "$OptRunlistName" = "useSpecificRunlist_"* ]]
+					if [[ "$RunlistName" = "$Searchedrunlist" ]] || [[ "$Searchedrunlist" = *"useSpecificRunlist_"* ]]
 					then
 						if [[ $OptNoRunlist = 0 ]]; then
-							LIST_RunlistName+=($RunlistName)
+							LIST_RunlistName+=($Searchedrunlist)
 							LIST_RunlistID+=($RunlistID)
 							LIST_foundRunlists+=($foundRunlists)
 							LIST_RunlistOnTrainpage+=($RunlistOnTrainpage)
 							printf "$Searchedrunlist found \n" | tee -a $LogFile
-							# break
+							return
 						fi
 					fi
 				done
@@ -1399,11 +1418,16 @@ function FindPathsAndAddToList(){
 		# if [[ $isjalien = 1 ]]; then
 		# 	cmd="alien.py find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
 		# else
-			cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
+		# echo $childID
+			if (( `echo -n $childID | wc -c` > 3 )); then
+				cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep $childID/ > $2.tmp"
+			else
+				cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
+			fi
 		# fi
 		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
 		then
-			echo "alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp" | tee -a $LogFile
+			echo $cmd | tee -a $LogFile
 		fi
 		eval $cmd
 		tmpcouuntnew=0
@@ -1741,7 +1765,7 @@ function PrepMerge() {
 	if [[ -f $FileForAllMergeProcesses ]]; then
 		if [[ `grep "hadd -k $mergedFile.tmp" $FileForAllMergeProcesses | wc -l` < 1 ]] ; then
 			printf "\e[33m|-> \e[0m Add file for merging\n" | tee -a $LogFile
-			if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]] || [[ $debug = 4 ]]; then
 				printf "\t\e[33m|-> \e[0m from:$2/$1  to:$4/$1" | tee -a $LogFile
 			fi
 			echo "hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile" >> $FileForAllMergeProcesses
@@ -1759,7 +1783,7 @@ function PrepMerge() {
 					echo "$lineTmp" >> $FileForAllMergeProcesses.tmp
 				else
 					printf "\e[33m|-> \e[0m Add file to list for merging " | tee -a $LogFile
-					if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+					if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]] || [[ $debug = 4 ]]; then
 						printf "\t\e[33m|-> \e[0m from:$2/$1  to:$4/$1" | tee -a $LogFile
 					fi
 					printf "\n" | tee -a $LogFile
@@ -1774,7 +1798,7 @@ function PrepMerge() {
 		fi
 	else
 		printf "\e[33m|-> \e[0m Add first file for merging\n" | tee -a $LogFile
-		if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]] || [[ $debug = 4 ]]; then
 			printf "\t\e[33m|-> \e[0m from:$2/$1  to:$4/$1" | tee -a $LogFile
 		fi
 		echo "hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile" > $FileForAllMergeProcesses

@@ -10,9 +10,16 @@ then
 	for TrainNumber in `cat $TrainNumberFile`
 	do
 		InitilaizeTrain $TrainNumber
+		# safty=
+		# if [[ !$safty ]]; then
+		# 	return
+		# fi
+
 		# Loop over all childs
+		NChilds=0
 		for child in "${LIST_child[@]}"
 		do
+			((NChilds++))
 			InitilaizeChild $child
 			Parsehtml
 			if [[ $DoDown = 0 ]]; then continue;fi
@@ -38,37 +45,37 @@ then
 					fi
 					# merge
 					echo;
+					if [[ $OptZip = 1 ]]; then
+						filename="root_archive.zip"
+						printf "\e[33m|-> Found files:\e[0m $RunlistName $ChildName $filename" | tee -a $LogFile
+						outFile="$Dirout/$filename"
+						inFile="$Dirin/$filename"
+						downlogFile="$Dirout/${filename%%.root}.downlog"
+						if [[ $isjalien = 1 ]]; then
+							GetFile_jalien $inFile $outFile $downlogFile
+						else
+							GetFile $inFile $outFile $downlogFile
+						fi
+						if [[ -f $outFile ]]; then
+							if [[ ! -f "$outFile.zipped" ]]; then
+								if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+								then
+									unzip -o $outFile -d $Dirout/ | tee -a $LogFile
+								else
+									unzip -o $outFile -d $Dirout/ >> $LogFile
+								fi
+								touch "$outFile.zipped"
+								echo;
+							else
+								printf "\e[33m|-> Files was unzipped already :\e[0m $RunlistName $ChildName $filename\n" | tee -a $LogFile
+							fi
+						else
+							echo;
+						fi
+					fi
 				else
 					forcemerge=1
-					printf "\e[33m|-> is specific Runlist (no download)" | tee -a $LogFile
-				fi
-				if [[ $OptZip = 1 ]]; then
-					filename="root_archive.zip"
-					printf "\e[33m|-> Found files:\e[0m $RunlistName $ChildName $filename" | tee -a $LogFile
-					outFile="$Dirout/$filename"
-					inFile="$Dirin/$filename"
-					downlogFile="$Dirout/${filename%%.root}.downlog"
-					if [[ $isjalien = 1 ]]; then
-						GetFile_jalien $inFile $outFile $downlogFile
-					else
-						GetFile $inFile $outFile $downlogFile
-					fi
-					if [[ -f $outFile ]]; then
-						if [[ ! -f "$outFile.zipped" ]]; then
-							if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-							then
-								unzip -o $outFile -d $Dirout/ | tee -a $LogFile
-							else
-								unzip -o $outFile -d $Dirout/ >> $LogFile
-							fi
-							touch "$outFile.zipped"
-							echo;
-						else
-							printf "\e[33m|-> Files was unzipped already :\e[0m $RunlistName $ChildName $filename\n" | tee -a $LogFile
-						fi
-					else
-						echo;
-					fi
+					printf "\e[33m|-> is specific Runlist (no download)\n" | tee -a $LogFile
 				fi
 
 				# Download all relevant files
@@ -77,44 +84,49 @@ then
 					echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
 					MergeRuns=0
 
-					tmp=`grep $filename $AvailibleFiles | wc -l`
-					# completlymerged="$Dirout/${filename%%.root}.completlymerged"
-					if [[ $tmp > 0 ]]; then
-						printf "\e[33m|-> Found files:\e[0m $RunlistName $ChildName $filename" | tee -a $LogFile
-						outFile="$Dirout/$filename"
-						inFile="$Dirin/$filename"
-						downlogFile="$Dirout/${filename%%.root}.downlog"
+					if [[ ! $useSpecificRunlist = 1 ]]; then
 
-						if [[ $UseOnlyrunwise = 0 ]]; then
-							if [[ $isjalien = 1 ]]; then
-								GetFile_jalien $inFile $outFile $downlogFile
-							else
-								GetFile $inFile $outFile $downlogFile
-							fi
-							if [[ $UseMerge = 1 ]] && [[ ! $filename = *".zip" ]]
-							then
-								doMergeFiles $filename $Dirout $Dirin $DirMerged
+						tmp=`grep $filename $AvailibleFiles | wc -l`
+						# completlymerged="$Dirout/${filename%%.root}.completlymerged"
+						if [[ $tmp > 0 ]]; then
+							printf "\e[33m|-> Found files:\e[0m $RunlistName $ChildName $filename" | tee -a $LogFile
+							outFile="$Dirout/$filename"
+							inFile="$Dirin/$filename"
+							downlogFile="$Dirout/${filename%%.root}.downlog"
+
+							if [[ $UseOnlyrunwise = 0 ]]; then
+								if [[ $isjalien = 1 ]]; then
+									GetFile_jalien $inFile $outFile $downlogFile
+								else
+									GetFile $inFile $outFile $downlogFile
+								fi
+								if [[ $UseMerge = 1 ]] && [[ ! $filename = *".zip" ]]
+								then
+									doMergeFiles $filename $Dirout $Dirin $DirMerged
+								else
+									printf "\n" | tee -a $LogFile
+								fi
 							else
 								printf "\n" | tee -a $LogFile
 							fi
 						else
-							printf "\n" | tee -a $LogFile
+							if [[ $UseOnlyrunwise = 0 ]]; then
+								# if [[ ! -f $completlymerged ]] || [[ $newfiles = 1 ]]; then
+									MergeRuns=1
+									echo  -e "\e[33mWARNING: File $filename not found\e[0m, trying to merge from runwise output: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
+								# else
+									# echo  -e "\e[33mWARNING:\e[0m File was merged from runwise output previously: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
+								# fi
+							fi
+						fi
+
+						if [[ $DoSoftDown = 1 ]]; then
+							printf "\e[33m|-> Merging file:\e[0m $RunlistName $ChildName $filename " | tee -a $LogFile
+							doMergeFiles $filename $Dirout $Dirin $DirMerged
+							continue
 						fi
 					else
-						if [[ $UseOnlyrunwise = 0 ]]; then
-							# if [[ ! -f $completlymerged ]] || [[ $newfiles = 1 ]]; then
-								MergeRuns=1
-								echo  -e "\e[33mWARNING: File $filename not found\e[0m, trying to merge from runwise output: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
-							# else
-								# echo  -e "\e[33mWARNING:\e[0m File was merged from runwise output previously: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
-							# fi
-						fi
-					fi
-
-					if [[ $DoSoftDown = 1 ]]; then
-						printf "\e[33m|-> Merging file:\e[0m $RunlistName $ChildName $filename " | tee -a $LogFile
-						doMergeFiles $filename $Dirout $Dirin $DirMerged
-						continue
+						printf "\e[33m|-> Processing files:\e[0m $filename \n" | tee -a $LogFile
 					fi
 
 
@@ -214,12 +226,20 @@ then
 									runoutFile=$runDir/$Search
 									rundownlogFile=$runDir/.${Search%%.root}.downlog
 								fi
+								searchChildtmp="_$childID/$Search"
 								if [[ $OptIsJJ = 1 ]]; then
 									printf "\t $pthardbin/$maxpthardbins "| tee -a $LogFile
 								fi
+								if [[ `echo $childID | wc -c` -gt 4 ]]; then
+									searchChildtmp="$childID/$Search"
+								fi
 								printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$Search " | tee -a $LogFile
-								if [[ `grep "_$childID/$Search" $RunPathList | wc -c` -gt 0 ]]; then
-									for runinFile in `grep "_$childID/$Search" $RunPathList`
+								# printf "\n ************************\n"
+								# echo "$searchChildtmp"
+								# cat $RunPathList
+								# printf "\n ************************\n"
+								if [[ `grep "$searchChildtmp" $RunPathList | wc -c` -gt 0 ]]; then
+									for runinFile in `grep "$searchChildtmp" $RunPathList`
 									do
 										if [[ $OptZip = 1 ]]; then
 											filenameZip="root_archive.zip"
@@ -283,7 +303,11 @@ then
 									for subruninFile in `grep "$Search" $RunPathList`
 									do
 										subrunname=${subruninFile%%$Search}
-										subrunname="${subrunname#*child_*/}"
+										if [[ $OptIsJJ = 1 ]]; then
+											subrunname="${subrunname#*$childID/}"
+										else
+											subrunname="${subrunname#*child_*/}"
+										fi
 										subrunname="${subrunname%/*}"
 										if [[ $subrunname = "" ]]; then continue; fi
 										subrunDir=$runDir/$subrunname/
@@ -331,7 +355,12 @@ then
 										# if [[ $? -eq 1 ]]; then
 										# 	continue
 										# fi
-										PrepMerge $Search $subrunDir ${subruninFile/%%$Search} $runDir
+										runinFileTMP=${subruninFile#$subrunname*}
+										if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+										then
+											echo "doMergeFiles $Search | $subrunDir | ${subruninFile%%$Search} | $runDir" | tee -a $LogFile
+										fi
+										PrepMerge $Search $subrunDir ${subruninFile%%$Search} $runDir
 									done
 									printf "\t\t\t\e[33m|->\e[0m StartMergeProcess" #| tee -a $WARNINGLog | tee -a $LogFile
 									StartMergeProcess $runDir &> /dev/null
@@ -339,11 +368,12 @@ then
 									if [[ $MergeRuns = 1 ]]
 									then
 										printf "\t\t\e[33m|->\e[0m merging run " #| tee -a $WARNINGLog | tee -a $LogFile
+										runinFileTMP=${subruninFile#$subrunname*}
 										if [[ $debug = 1 ]] || [[ $debug = 2 ]]
 										then
-											echo "doMergeFiles $Search $runDir ${runinFile/%%$Search} $Dirout" | tee -a $LogFile
+											echo "doMergeFiles $Search, $runDir, ${runinFileTMP%%$Search}, $Dirout" | tee -a $LogFile
 										fi
-										PrepMerge $Search $runDir ${runinFile/%%$Search} $Dirout
+										PrepMerge $Search $runDir ${runinFileTMP/%%$Search} $Dirout
 									fi
 								fi
 							done
@@ -367,10 +397,15 @@ then
 						printf "\t" #| tee -a $WARNINGLog | tee -a $LogFile
 						StartMergeProcess $DiroutTmp
 					fi
-					if [[ $UseMerge = 1 ]] ; then
+					if [[ $MergeRuns = 1 ]] ; then
 						# touch $completlymerged
 						printf "\e[33m|-> Merging file:\e[0m $RunlistName $ChildName $filename " | tee -a $LogFile
 						doMergeFiles $filename $Dirout $Dirin $DirMerged
+					fi
+					if [[ $UseMerge = 0 ]] && [[ $NChilds = 1 ]] ; then
+						printf "\e[33m|-> Link file:\e[0m $RunlistName $ChildName $filename " | tee -a $LogFile
+						cmd="ln -sf $BASEDIR/$OutName/$RunlistName/$ChildName/$filename $BASEDIR/$OutName/$RunlistName/$filename"
+						eval $cmd
 					fi
 				done
 			done
@@ -379,18 +414,15 @@ then
 fi
 
 
-for RunlistName in `cat $OptRunlistNamefile`
-do
-	if [[ $RunlistName = "useSpecificRunlist_"* ]]
-	then
+if [[ $useSpecificRunlist = 1 ]]; then
+	for RunlistName in `cat $OptRunlistNamefile`
+	do
 		SpecificRunlist=${RunlistName#*useSpecificRunlist_}
 		echo $SpecificRunlist  | tee -a $OptRunlistNamefile.tmp | tee -a $LogFile
-	else
-		echo $RunlistName  | tee -a $OptRunlistNamefile.tmp | tee -a $LogFile
-	fi
-done
-new_rm $OptRunlistNamefile
-mv $OptRunlistNamefile.tmp $OptRunlistNamefile
+	done
+	new_rm $OptRunlistNamefile
+	mv $OptRunlistNamefile.tmp $OptRunlistNamefile
+fi
 
 echo;echo;echo;
 if [[ $MergeTrains = 1 ]]
