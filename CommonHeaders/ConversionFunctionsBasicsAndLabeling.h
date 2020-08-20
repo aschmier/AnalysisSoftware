@@ -5656,24 +5656,149 @@
     //************************************************************************************
     //** Analyzes the MC smearing cut for mesons, return correct cut label ***************
     //************************************************************************************
-    TString AnalyseMCSmearingCut(Int_t mcSmearingCut){
-        switch(mcSmearingCut){
-            case 0:
+    TString AnalyseMCSmearingCut(Int_t mcSmearingCut, Bool_t isPCMEDC = kFALSE){
+        if(isPCMEDC){
+            Double_t fUseMCPSmearing;
+            Double_t fPBremSmearing;
+            Double_t fPSigSmearing;
+            Double_t fPSigSmearingCte;
+            switch(mcSmearingCut){
+                case 0:
                 return "no additional smearing" ;
-            case 1:
+                case 1:
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1;
+                  fPSigSmearing     = 0.010;
+                  fPSigSmearingCte  = 0.010;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 2:
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1;
+                  fPSigSmearing     = 0.015;
+                  fPSigSmearingCte  = 0.010;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 3:
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.020;
+                  fPSigSmearingCte  = 0.010;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 4:
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.020;
+                  fPSigSmearingCte  = 0.020;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 5:
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.030;
+                  fPSigSmearingCte  = 0.020;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 6:
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.030;
+                  fPSigSmearingCte  = 0.030;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 7:
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1;
+                  fPSigSmearing     = 0.030;
+                  fPSigSmearingCte  = 0.050;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 8:
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.030;
+                  fPSigSmearingCte  = 0.060;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 9:
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.075;
+                  fPSigSmearingCte  = 0.050;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 10:     //a
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.0275;
+                  fPSigSmearingCte  = 0.025;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 11:     //b
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.025;
+                  fPSigSmearingCte  = 0.030;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 12:     //c
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.0275;
+                  fPSigSmearingCte  = 0.020;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 13:     //d
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.0275;
+                  fPSigSmearingCte  = 0.035;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 14:     //e
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.0275;
+                  fPSigSmearingCte  = 0.04;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 15:     //f
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.0275;
+                  fPSigSmearingCte  = 0.015;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                case 16:     //g
+                  fUseMCPSmearing   = 1;
+                  fPBremSmearing    = 1.;
+                  fPSigSmearing     = 0.025;
+                  fPSigSmearingCte  = 0.020;
+                  return Form("#sqrt{%.4f^{2} + %.4f^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)", (fPSigSmearing  / 2.0), (fPSigSmearingCte / 2.0) ) ;
+                  break;
+                default:
+                return Form("smearing cut not defined %i", mcSmearingCut);
+            }
+        } else {
+            switch(mcSmearingCut){
+                case 0:
+                return "no additional smearing" ;
+                case 1:
                 return "#sqrt{0.011^{2} + 0.007^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)" ;
-            case 2:
+                case 2:
                 return "#sqrt{0.022^{2} + 0.007^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)" ;
-            case 3:
+                case 3:
                 return "#sqrt{0.044^{2} + 0.007^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)" ;
-            case 7:
+                case 7:
                 return "#sqrt{0.011^{2} + 0.014^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)" ;
-            case 8:
+                case 8:
                 return "#sqrt{0.011^{2} + 0.0035^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)" ;
-            case 9:
+                case 9:
                 return "#sqrt{0.011^{2} + 0.028^{2} #times P_{#gamma}^{2}} #times Rand.Gaus(0,1)" ;
-            default:
-                return "smearing cut not defined";
+                default:
+                return Form("smearing cut not defined %i", mcSmearingCut);
+            }
         }
     }
 
