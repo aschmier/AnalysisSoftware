@@ -5929,7 +5929,20 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
             } else if (fMode == 3) {                                // PCM-PHOS
                 mesonAmplitudeMin = mesonAmplitude*98./100.;
                 mesonAmplitudeMax = mesonAmplitude*150./100.;
-            } else if (fMode == 4 || fMode == 12 || fMode == 5 || fMode==14) {   // EMC, DMC, PHOS
+            } else if (fMode == 14) {                                // Calo MIX
+
+                mesonAmplitudeMin = mesonAmplitude*98./100.;
+                mesonAmplitudeMax = mesonAmplitude*600./100.;
+
+                fMesonWidthExpect               = 0.01;
+                fMesonWidthRange[0]             = 0.004;
+                fMesonWidthRange[1]             = 0.015;
+
+                fMesonLambdaTail                = 0.015;
+                fMesonLambdaTailRange[0]        = 0.01;
+                fMesonLambdaTailRange[1]        = 0.04;
+
+            } else if (fMode == 4 || fMode == 12 || fMode == 5 ) {   // EMC, DMC, PHOS
                 if( fEnergyFlag.CompareTo("7TeV") == 0 || fEnergyFlag.BeginsWith("8TeV") ){
                     mesonAmplitudeMin = mesonAmplitude*90./100.;
                     mesonAmplitudeMax = mesonAmplitude*400./100.;
@@ -6059,7 +6072,19 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                     mesonAmplitudeMax = mesonAmplitude*150./100.;
                 else
                     mesonAmplitudeMax = mesonAmplitude*400./100.;
-            } else if (fMode == 4 || fMode == 12 || fMode == 5  || fMode==14){    // EMC, DMC, PHOS
+            } else if (fMode == 14) {                                // Calo MIX
+
+                mesonAmplitudeMin = mesonAmplitude*98./100.;
+                mesonAmplitudeMax = mesonAmplitude*600./100.;
+
+                fMesonWidthExpect               = 0.02;
+                fMesonWidthRange[0]             = 0.01;
+                fMesonWidthRange[1]             = 0.035;
+
+                fMesonLambdaTail                = 0.015;
+                fMesonLambdaTailRange[0]        = 0.01;
+                fMesonLambdaTailRange[1]        = 0.1;
+            } else if (fMode == 4 || fMode == 12 || fMode == 5 ){    // EMC, DMC, PHOS
                 mesonAmplitudeMin = mesonAmplitude*5./100.;
                 mesonAmplitudeMax = mesonAmplitude*300./100.;
                 if ( !((fMode == 5)&&(fEnergyFlag.Contains("13TeV"))) ){
