@@ -864,9 +864,9 @@ void ExtractSignalV2(
 
     if (debugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
     // make sure the rebin is independant of the input histogram
-    fFileErrLog << "changing the rebin factors by: "<< fBinWidthInvMass/fMesonFullPtSignal->GetXaxis()->GetBinWidth(2) <<endl;
-    cout        << "changing the rebin factors by: "<< fBinWidthInvMass/fMesonFullPtSignal->GetXaxis()->GetBinWidth(2) <<endl;
-    for(Int_t iPt=fStartPtBin;iPt<fNBinsPt;iPt++) fNRebin[iPt] = static_cast<Int_t>(fNRebin[iPt]*(fBinWidthInvMass/fMesonFullPtSignal->GetXaxis()->GetBinWidth(2)));
+    // fFileErrLog << "changing the rebin factors by: "<< fBinWidthInvMass/fMesonFullPtSignal->GetXaxis()->GetBinWidth(2) <<endl;
+    // cout        << "changing the rebin factors by: "<< fBinWidthInvMass/fMesonFullPtSignal->GetXaxis()->GetBinWidth(2) <<endl;
+    // for(Int_t iPt=fStartPtBin;iPt<fNBinsPt;iPt++) fNRebin[iPt] = static_cast<Int_t>(fNRebin[iPt]*(fBinWidthInvMass/fMesonFullPtSignal->GetXaxis()->GetBinWidth(2)));
 
     if(fCrysFitting==0){
         fFileErrLog << "Using exp fit"<<endl;
