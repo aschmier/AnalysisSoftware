@@ -3470,4 +3470,64 @@ TH2D* SwitchTF2DAxis(TH2D* HistogramToSwitchAxis){
     return OutputHistogram;
 }
 
+//_________________________________________________________________________________
+Int_t WhichDDL(Int_t module, Int_t cellx)
+{
+  const Int_t Nmod=5;//totally, 5 PHOS modules are designed.
+  Int_t ddl = -1;
+
+  if(cellx<1 || 64<cellx) return -1;
+
+  if(module<1 || 4<module){
+    return -1;
+  }
+  else{
+    ddl = (Nmod-module) * 4 + (cellx-1)/16;//convert offline module numbering to online.
+    return ddl;
+  }
+}
+//_________________________________________________________________________________
+Int_t WhichTRU(Int_t cellx, Int_t cellz) //TRU go from x to x
+{
+    Int_t tru = -1;
+    if(cellx<1 || 64<cellx){
+      AliError("cellx is wrong! tru=-1 will return.");
+      return -1;
+    }
+    if(cellz<1 || 56<cellz){
+      AliError("cellz is wrong! tru=-1 will return.");
+      return -1;
+    }
+
+    Int_t XID = (cellx -1) / 16 + 1;
+    Int_t ZID = (cellz -1) / 28;
+
+    tru = 2*XID - ZID;
+    //cout << "cellx = " << cellx << " , cellz = " << cellz << " , tru = " << tru << endl;
+
+    return tru;
+}
+//_________________________________________________________________________________
+Int_t WhichTRUChannel(Int_t cellx, Int_t cellz, Int_t &chX, Int_t &chZ)
+{
+  //this will return TRU channel 0-111.
+  Int_t ch = -1;
+  if(cellx<1 || 64<cellx){
+    AliError("cellx is wrong! tru=-1 will return.");
+    return -1;
+  }
+  if(cellz<1 || 56<cellz){
+    AliError("cellz is wrong! tru=-1 will return.");
+    return -1;
+  }
+
+  chX = ((cellx -1)/2) %  8;
+  chZ = ((cellz -1)/2) % 14;
+
+  ch = 8*chZ + chX;
+  //printf("cellx = %d , cellz = %d , chX = %d , chZ = %d , ch = %d.\n",cellx,cellz,chX,chZ,ch);
+
+  return ch;
+}
+//_________________________________________________________________________________
 #endif // QA_H
