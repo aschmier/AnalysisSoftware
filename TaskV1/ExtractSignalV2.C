@@ -1077,6 +1077,7 @@ void ExtractSignalV2(
             fFitBGSubtractedSignalInvMassPtBin[iPt]             = fFitReco;
             fFitRemainingBGInvMassPtBin[iPt]                    = fFitLinearBck;
             fFitBGSubtractedSignalPeakPosInvMassPtBin[iPt]      = fFitGausExp; //dfasd
+            if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
         } else {
             fFileErrLog << "Using Crystal Ball function"<<endl;
             FitCBSubtractedInvMassInPtBins(fHistoMappingSignalInvMassPtBin[iPt], fMesonIntDeltaRange,iPt,kFALSE,Form("CBFitFuncNormalBin%02d",iPt),kFALSE);
@@ -1090,6 +1091,7 @@ void ExtractSignalV2(
             fMesonYieldsResidualBckFuncError[0][iPt]            = 0;
 
         }
+
         if(optionOtherResBckAsStd > -1){ // non-standard remaining background
           cout << "Using non-standard remaining background:" << optionOtherResBckAsStd << endl;
             Int_t x = optionOtherResBckAsStd;
@@ -1105,6 +1107,7 @@ void ExtractSignalV2(
             fMesonYieldsResidualBckFuncStd[0][iPt]      = fMesonYieldsResidualBckFunc[0][iPt];
             fMesonYieldsResidualBckFuncErrorStd[0][iPt] = fMesonYieldsResidualBckFuncError[0][iPt];
         }
+        if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
 
         if(fEnableNormBckHistoComparisonToTrueBck){
             for (Int_t j = fHistoMappingBackNormAndRemainingBGInvMassPtBin[iPt]->GetXaxis()->FindBin(fMesonMassPlotRange[0]); j < fHistoMappingBackNormAndRemainingBGInvMassPtBin[iPt]->GetXaxis()->FindBin(fMesonMassPlotRange[1])+1; j++){
@@ -1114,6 +1117,7 @@ void ExtractSignalV2(
                 fHistoMappingBackNormAndRemainingBGInvMassPtBin[iPt]->SetBinContent(j,intLinearBack+fHistoMappingBackNormAndRemainingBGInvMassPtBin[iPt]->GetBinContent(j));
             }
         }
+
         //Get FWHM
         CalculateFWHM(fFitSignalInvMassPtBinStd[iPt]);
         fMesonFWHM[iPt] = fFWHMFunc;
@@ -1153,6 +1157,7 @@ void ExtractSignalV2(
             fMesonCurIntRange[2][1]         = fMesonMassExpect + fMesonIntDeltaRangeNarrow[1];
         }
 
+        if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
         for (Int_t k = 0; k < 3; k++){
             fMassWindowHigh[k][iPt]        = fMesonCurIntRange[k][1];
             fMassWindowLow[k][iPt]         = fMesonCurIntRange[k][0];
@@ -1171,6 +1176,7 @@ void ExtractSignalV2(
             fMesonWidthGaussian[iPt]        = 0.;
             fMesonWidthGaussianError[iPt]   = 0.;
         }
+        if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
 
         if (fCrysFitting == 0){
             for (Int_t k = 0; k < 3; k++){
@@ -1214,7 +1220,9 @@ void ExtractSignalV2(
         }
 
 
+        if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
         if(fIsMC){
+            if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
             fFileDataLog<< endl <<"True histo normal range" << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1]<< endl;
             fFitTrueSignalInvMassPtBin[iPt]=0x00;
             if(fCrysFitting==0){
@@ -1265,36 +1273,46 @@ void ExtractSignalV2(
                     fMesonTrueIntRange[2][1]        = fMesonMassExpect + fMesonIntDeltaRangeNarrow[1];
                 }
             }
+            if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
             IntegrateHistoInvMassStream( fHistoMappingTrueFullMesonInvMassPtBins[iPt], fIntFixedRange);
             fMesonTrueYieldFixedWindow[iPt]         = fYields;
             fMesonTrueYieldErrorFixedWindow[iPt]    = fYieldsError;
 
             TFitResultPtr lFitResult = nullptr;
             FitTrueInvMassPureGaussianInPtBins(fHistoMappingTrueMesonInvMassPtBins[iPt],iPt,lFitResult);
+            if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
             if (fHistoMappingTrueMesonInvMassPtBins[iPt]->GetEntries() !=0){
+                if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
                 fFitTrueSignalGaussianInvMassPtBin[iPt] = fFitReco;
                 if (fFitTrueSignalGaussianInvMassPtBin[iPt] !=0x00){
+                    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
                     fMesonTrueMassGaussian[iPt]         = fFitTrueSignalGaussianInvMassPtBin[iPt]->GetParameter(1);
                     fMesonTrueMassGaussianError[iPt]    = fFitTrueSignalGaussianInvMassPtBin[iPt]->GetParError(1);
                     fMesonTrueWidthGaussian[iPt]        = fFitTrueSignalGaussianInvMassPtBin[iPt]->GetParameter(2);
                     fMesonTrueWidthGaussianError[iPt]   = fFitTrueSignalGaussianInvMassPtBin[iPt]->GetParError(2);
                 } else {
+                    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
                     fMesonTrueMassGaussian[iPt]         = 0.;
                     fMesonTrueMassGaussianError[iPt]    = 0.;
                     fMesonTrueWidthGaussian[iPt]        = 0.;
                     fMesonTrueWidthGaussianError[iPt]   = 0.;
                 }
+                if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
                 for (Int_t k = 0; k< 3;k++){
+                    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
                     // cout<< endl <<"True histo " << nameIntRange[k].Data() << " integration from fit, range" << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1]<< endl;
                     IntegrateFitFuncAndError( fFitTrueSignalGaussianInvMassPtBin[iPt], lFitResult, fHistoMappingTrueMesonInvMassPtBins[iPt], fMesonTrueIntRange[k]);
+                    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
                     fMesonTrueYieldsFromFit[k][iPt]                        = fYieldsFunc;
+                    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
                     fMesonTrueYieldsFromFitError[k][iPt]                   = fYieldsFuncError;
                     // cout << "Integrated value: \t" << fYieldsFunc <<"+-" <<fYieldsFuncError<<endl;
                 }
+                if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
             }
 
             fFitTrueSignalInvMassPtReweightedBin[iPt]   = 0x00;
-            //cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;
+            if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; Line: "<<__LINE__<<" "<<endl;}
             if(fHistoMappingTrueMesonInvMassPtReweightedBins[iPt]){
                 cout << "Using exp fit"<<endl;
                 fFileErrLog << "Using exp fit"<<endl;
@@ -7214,6 +7232,7 @@ void FitSubtractedPureGaussianInvMassInPtBins(TH1D* histoMappingSignalInvMassPtB
 //****************************************************************************
 void GausFitSubtractedInvMassInPtBinsNew(TH1D* histoMappingSignalInvMassPtBinSingle,Double_t * mesonIntDeltaRangeFit, Int_t ptBin,Bool_t vary,TString functionname ,Bool_t kMC){
     if(vary){};
+    Int_t debugOutputLevel=0;
     cout <<"Start Fitting spectra"<<endl;
 
     fCopySignal = (TH1D*)histoMappingSignalInvMassPtBinSingle->Clone("fCopySignal");
@@ -7279,6 +7298,7 @@ void GausFitSubtractedInvMassInPtBinsNew(TH1D* histoMappingSignalInvMassPtBinSin
         }
         fCopySignal->Fit(fFitReco,"QRME0");
     } else {
+        if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; GausFitSubtractedInvMassInPtBinsNew(); Line: "<<__LINE__<<" "<<endl;}
         histoMappingSignalInvMassPtBinSingle->Fit(fFitReco,"QRME0");
     }
 
@@ -7349,10 +7369,13 @@ void GausFitSubtractedInvMassInPtBinsNew(TH1D* histoMappingSignalInvMassPtBinSin
 //****************************************************************************
 void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t* mesonIntDeltaRangeFit, Int_t ptBin, Bool_t vary)
 {
+    Int_t debugOutputLevel=0;
+    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; FitTrueInvMassInPtBins() Starts; Line: "<<__LINE__<<" "<<endl;}
     //    cout<<"Start Fitting spectra"<<endl;
     TString trigger = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
     histoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
     Double_t mesonAmplitude         = histoMappingSignalInvMassPtBinSingle->GetMaximum();
+    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; FitTrueInvMassInPtBins(); Line: "<<__LINE__<<"; mesonAmplitude: "<<mesonAmplitude<<endl;}
     Double_t mesonAmplitudeMin      = 0;
     Double_t mesonAmplitudeMax      = 0;
     TString mesonBGString           = fMesonCutSelection(GetMesonBGSchemeCutPosition(),1);
@@ -7780,6 +7803,8 @@ void FitCBSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle,D
 void MakeBGFitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle,Double_t * mesonIntDeltaRangeFit, Int_t ptBin,Bool_t vary,TString functionname ,Bool_t kMC){
     if(vary){};
     cout <<"Start making BG fit subtracted inv mass"<<endl;
+    Int_t debugOutputLevel=0;
+    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; MakeBGFitSubtractedInvMassInPtBins() Starts; Line: "<<__LINE__<<" "<<endl;}
 
     fCopySignal = (TH1D*)histoMappingSignalInvMassPtBinSingle->Clone("fCopySignal");
     fCopySignal->Sumw2();
@@ -7798,6 +7823,7 @@ void MakeBGFitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
         if (fFitLinearBck->GetParameter(i) != 0.) bgNonZero = kTRUE;
     }
     if (bgNonZero){
+        if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; MakeBGFitSubtractedInvMassInPtBins(); Line: "<<__LINE__<<" "<<endl;}
         fFitLinearBckExcl = NULL;
         fFitLinearBckExcl = new TF1("LinearEx",LinearBGExclusionnew,fMesonMassPlotRange[0],fMesonMassPlotRange[1],2);
         fCopyOnlyBG->Fit(fFitLinearBckExcl,"QRME0","",fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
@@ -7814,6 +7840,7 @@ void MakeBGFitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
             fCopySignal->SetBinContent(i,fCopySignal->GetBinContent(i)-intLinearBack);
             fCopySignal->SetBinError(i,TMath::Sqrt(errorLinearBck*errorLinearBck+ fCopySignal->GetBinError(i)*fCopySignal->GetBinError(i)));
         }
+        if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; MakeBGFitSubtractedInvMassInPtBins(); Line: "<<__LINE__<<" "<<endl;}
 
         fFitReco->SetLineColor(3);
         fFitReco->SetLineWidth(1);
@@ -7828,6 +7855,7 @@ void MakeBGFitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
         TVirtualFitter * fitter = TVirtualFitter::GetFitter();
 
         if(TString(gMinuit->fCstatu.Data()).CompareTo("CONVERGED") == 0 || TString(gMinuit->fCstatu.Data()).CompareTo("SUCCESSFUL") == 0 ){
+            if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; MakeBGFitSubtractedInvMassInPtBins(); Line: "<<__LINE__<<" "<<endl;}
             binCenterStart = histoMappingSignalInvMassPtBinSingle->GetXaxis()->FindBin(fFitReco->GetParameter(1)+mesonIntDeltaRangeFit[0]);
             startBinEdge = histoMappingSignalInvMassPtBinSingle->GetBinCenter(binCenterStart)- 0.5*histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
             binCenterEnd = histoMappingSignalInvMassPtBinSingle->GetXaxis()->FindBin(fFitReco->GetParameter(1)+mesonIntDeltaRangeFit[1]);
@@ -7837,6 +7865,7 @@ void MakeBGFitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
             double * covMatrix = fitter->GetCovarianceMatrix();
 
             if (!kMC){
+                if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; MakeBGFitSubtractedInvMassInPtBins(); Line: "<<__LINE__<<" "<<endl;}
                 Float_t intLinearBack = fFitLinearBck->GetParameter(0)*(endBinEdge-startBinEdge)+
                     0.5*fFitLinearBck->GetParameter(1)*(endBinEdge*endBinEdge-startBinEdge*startBinEdge);
 
@@ -7852,6 +7881,7 @@ void MakeBGFitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
                 fIntLinearBckError = errorLinearBck/histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
 
             } else {
+                if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; MakeBGFitSubtractedInvMassInPtBins(); Line: "<<__LINE__<<" "<<endl;}
                 fIntLinearBck = 0;
                 fIntLinearBckError = 0;
             }
@@ -7865,6 +7895,7 @@ void MakeBGFitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
         fIntLinearBckError  = 0;
     }
     fFitReco->DrawCopy("same");
+    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; MakeBGFitSubtractedInvMassInPtBins() Ends; Line: "<<__LINE__<<" "<<endl;}
 }
 
 //****************************************************************************
@@ -7901,13 +7932,18 @@ void IntegrateFitFunc(TF1 * fFunc, TH1D *  histoMappingSignalInvMassPtBinSingle,
 //********* Integration of Fit function in given integration window **********
 //****************************************************************************
 void IntegrateFitFuncAndError(TF1 * fFunc, TFitResultPtr theFitResult,  TH1D *  histoMappingSignalInvMassPtBinSingle,Double_t * fMesonIntRangeInt) {
+    Int_t debugOutputLevel=0;
+    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; IntegrateFitFuncAndError() Starts; Line: "<<__LINE__<<" "<<endl;}
 
     Double_t binWidth = histoMappingSignalInvMassPtBinSingle->GetBinWidth(10);
+    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; IntegrateFitFuncAndError(); Line: "<<__LINE__<<" "<<endl;}
     fYieldsFunc = fFunc->Integral(fMesonIntRangeInt[0],fMesonIntRangeInt[1])/ binWidth;
+    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; IntegrateFitFuncAndError(); Line: "<<__LINE__<<" "<<endl;}
     fYieldsFuncError = fFunc->IntegralError(fMesonIntRangeInt[0],
                                             fMesonIntRangeInt[1],
                                             nullptr,
                                             theFitResult->GetCovarianceMatrix().GetMatrixArray()) / binWidth;
+    if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; IntegrateFitFuncAndError(); Line: "<<__LINE__<<" "<<endl;}
 
 }
 
