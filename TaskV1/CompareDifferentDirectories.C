@@ -336,6 +336,9 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 } else if (cutVariationName.Contains("AODvalidation")){
                     minYRatio = 0.95;
                     maxYRatio = 1.05;
+                } else if (cutVariationName.Contains("PHOS_Combined")) {
+                   minYRatio = 0.90;
+                   maxYRatio = 1.10;
                 }
                 SetStyleHistoTH1ForGraphs(histoRatioRawYieldCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
                 DrawGammaSetMarker(histoRatioRawYieldCut[i], 20, 1.,color[0],color[0]);
@@ -421,6 +424,9 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                   } else if (cutVariationName.Contains("AODvalidation")){
                       minYRatio = 0.8;
                       maxYRatio = 1.2;
+                  } else if (cutVariationName.Contains("PHOS_Combined")) {
+                      minYRatio = 0.90;
+                      maxYRatio = 1.15;
                   }
                   SetStyleHistoTH1ForGraphs(histoRatioCorrectedYieldCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
                   DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20, 1.,color[0],color[0]);
@@ -507,6 +513,9 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                   } else if (cutVariationName.Contains("AODvalidation")){
                       minYRatio = 0.8;
                       maxYRatio = 1.2;
+                  } else if (cutVariationName.Contains("PHOS_Combined")) {
+                      minYRatio = 0.90;
+                      maxYRatio = 1.15;
                   }
                   SetStyleHistoTH1ForGraphs(histoRatioCorrectedYieldWOSecCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
                   DrawGammaSetMarker(histoRatioCorrectedYieldWOSecCut[i], 20, 1.,color[0],color[0]);
@@ -612,7 +621,10 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 }else if (cutVariationName.Contains("AODvalidation")){
                       minYRatio = 0.9;
                       maxYRatio = 1.09;
-                  }
+                } else if (cutVariationName.Contains("PHOS_Combined")) {
+                    minYRatio = 0.90;
+                    maxYRatio = 1.15;
+                }
                 SetStyleHistoTH1ForGraphs(histoRatioTrueEffiCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.05, 0.07, 0.05, 0.07, 0.75, 0.5, 510,505);
                 DrawGammaSetMarker(histoRatioTrueEffiCut[i], 20, 1.,color[0],color[0]);
                 histoRatioTrueEffiCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
