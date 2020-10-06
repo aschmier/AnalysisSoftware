@@ -186,7 +186,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxPtGlobalCluster          = 400;
         } else if (mode ==3 || mode == 5){
             doLinesTriggerMimicking  = kTRUE;
-            doTF1TriggerRejection    = kTRUE;
+            doTF1TriggerRejection    = kFALSE;
             maxPtGlobalCluster          = 60.;
         }
     } else if (optionEnergy.Contains("pPb_8TeV") || optionEnergy.Contains("pPb_5.023TeV")){
