@@ -376,11 +376,9 @@ void ClusterQA_CellCompareV2(TString configFileName  = "configFile.txt", TString
             TString name;
             if(runRange == 1){
                 cout << endl << "Creating Bad Cell log file for Run Range for Run " << runStart << " to Run " << runEnd << endl;
-                //name = outputPath + "/" +"BadCells_"+ DataSets[i].Data() + "_" + std::to_string(runStart) + "_" + std::to_string(runEnd) +".log";
                 name = Form("%s/BadCells_%s_%s_%s.log", outputPath.Data(), DataSets[i].Data(), ((TString)std::to_string(runStart)).Data(), ((TString)std::to_string(runEnd)).Data());
                 cout << "Log File Path: " << name << endl;
                 fLogRunRange.open(name, ios::out);
-                //name = outputPath + "/" +"BadCellsCleaned_"+ DataSets[i].Data() + "_" + std::to_string(runStart) + "_" + std::to_string(runEnd) +".log";
                 name = Form("%s/BadCellsCleaned_%s_%s_%s.log", outputPath.Data(), DataSets[i].Data(), ((TString)std::to_string(runStart)).Data(), ((TString)std::to_string(runEnd)).Data());
                 fLogRunRangeCleaned.open(name, ios::out);
             }
