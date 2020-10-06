@@ -6576,9 +6576,9 @@
                 triggerRejec    = 418.44*11.522;
             } else if (!strTrigger.CompareTo("62")){  // Phi7
                 if (mode == 5){
-                    triggerRejec=4613.97;
+                    triggerRejec=5274.00;
                 } else if (mode == 3){
-                    triggerRejec=6923.28;
+                    triggerRejec=5274.00;
                 }
             }
         }
