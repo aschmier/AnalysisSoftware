@@ -3491,11 +3491,11 @@ Int_t WhichTRU(Int_t cellx, Int_t cellz) //TRU go from x to x
 {
     Int_t tru = -1;
     if(cellx<1 || 64<cellx){
-      AliError("cellx is wrong! tru=-1 will return.");
+      cout<<"cellx is wrong! tru=-1 will return."<<endl;
       return -1;
     }
     if(cellz<1 || 56<cellz){
-      AliError("cellz is wrong! tru=-1 will return.");
+      cout<<"cellz is wrong! tru=-1 will return."<<endl;
       return -1;
     }
 
@@ -3513,11 +3513,11 @@ Int_t WhichTRUChannel(Int_t cellx, Int_t cellz, Int_t &chX, Int_t &chZ)
   //this will return TRU channel 0-111.
   Int_t ch = -1;
   if(cellx<1 || 64<cellx){
-    AliError("cellx is wrong! tru=-1 will return.");
+    cout<<"cellx is wrong! tru=-1 will return."<<endl;
     return -1;
   }
   if(cellz<1 || 56<cellz){
-    AliError("cellz is wrong! tru=-1 will return.");
+    cout<<"cellz is wrong! tru=-1 will return."<<endl;
     return -1;
   }
 
