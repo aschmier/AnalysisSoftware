@@ -537,10 +537,8 @@
                 } else if ( mode == 5 ) {//PHOS-PHOS
                     cout<<"Getting PHOS-PHOS("<<mode<<") Example Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<trigger<<", while triggerSet is: "<<triggerSet<<endl;
                     switch (trigger){
-                        case 62:
-                            return 20;
-                        case 6:
-                            return 20;
+                        case 62: case 6:
+                            return 56;
                         default:
                             return 6;
                     }
@@ -4025,6 +4023,10 @@
                             default: cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsEta13TeVEMCTrigCombPt"<<endl; maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVEMCTrigCombPt, binning, 155 ); break;
                         }
                         break;
+                }
+                if ((mode==3)||(mode==5)){
+                    for( Int_t i=0; i<binningMax+1; i++ ) cout << binning[i] << ", ";
+                    cout << endl;
                 }
             } else if (energy.CompareTo("13TeVLowB") == 0) {
                 if( mode==0 || mode == 4 || mode == 5 || mode == 12)
