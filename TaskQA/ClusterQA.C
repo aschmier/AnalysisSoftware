@@ -49,6 +49,8 @@ void ClusterQA(
     Int_t fMode                     = mode;
     Bool_t isPCMCalo                = kTRUE;
     Bool_t isMerged                 = kFALSE;
+    Bool_t hasClusGamma_E_DDL       = kFALSE;
+    Bool_t hasCaloTriggerHelper     = kFALSE;
     // mode:    0 // new output PCM-PCM
     //          1 // new output PCM dalitz
     //          2 // new output PCM-EMCal
@@ -66,6 +68,8 @@ void ClusterQA(
         isPCMCalo                   = kFALSE;
     if(fMode == 10 || fMode == 11)
         isMerged                    = kTRUE;
+    if ((fMode == 5)&&(fEnergyFlag.Contains("13TeV")))
+        hasClusGamma_E_DDL           = kTRUE;
 
     TString fDetectionProcess       = ReturnFullTextReconstructionProcess(fMode);
     TString fDate                   = ReturnDateString();
@@ -216,7 +220,7 @@ void ClusterQA(
     }
     TString fTriggerCut             = fEventCutSelection[0](3,2);
     fTrigger[0]                     = AnalyseSpecialTriggerCut(fTriggerCut.Atoi(), DataSets[0].Data()); //fTrigger[0]+=" ";
-    cout  << "'" << fTrigger[0].Data() << "' - was found!" << endl;
+    cout  << "'" << fTrigger[0].Data() << "' - was found! TriggerCut is: " << fTriggerCut << endl;
     if(fTrigger[0].Contains("not defined")){
         fTrigger[0]                 = "";
         cout << "INFO: Trigger cut not defined!" << endl;
@@ -602,6 +606,8 @@ void ClusterQA(
     std::vector<TH1D*> vecClusterTimingInCluster;
     std::vector<TH1D*> vecClusterDistanceRowWithin;
     std::vector<TH1D*> vecClusterDistanceColumnWithin;
+    std::vector<TH1D*> vecClusterEntriesPerDDL[2];
+    std::vector<TH1D*> vecGammaClusE_Trig[2];
 
     const Int_t nEM02_bins = 8;
     Double_t EM02_bins[nEM02_bins]={0.7,1.0,1.5,2.0,4.0,8.0,12.0,16.0};
@@ -699,6 +705,9 @@ void ClusterQA(
         TList* TrueContainer            = (TList*) TopContainer->FindObject(Form("%s True histograms",fCutSelection[i].Data()));
         if(TrueContainer == NULL) {isTrueContainer[i] = kFALSE; cout << "INFO: " << Form("%s True histograms",fCutSelection[i].Data()) << " not found in File, processing data?" << endl;}
             else TrueContainer->SetOwner(kTRUE);
+        TList* TriggerHelperContainer         = (TList*) TopDir->FindObject(Form("CaloTriggerHelper_%s", fEventCutSelection[i].Data()));
+        if( TriggerHelperContainer == NULL) {cout << "INFO: " << Form("CaloTriggerHelper_%s", fEventCutSelection[i].Data()) << " not found in File" << endl;}
+            else if(TriggerHelperContainer){ TriggerHelperContainer->SetOwner(kTRUE); hasCaloTriggerHelper = kTRUE;}
         //---------------------------------------------------------------------------------------------------------------
         nEvents[i]                      = 0;
         TH1D* fHistNEvents              = (TH1D*)ESDContainer->FindObject("NEventsWOWeight");
@@ -1003,7 +1012,73 @@ void ClusterQA(
             SaveCanvasAndWriteHistogram(canvas, fHistEnergyOfClusterAfterQA, Form("%s/EnergyOfCluster_%s_afterClusterQA.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
             vecClusterEnergy.push_back(new TH1D(*fHistEnergyOfClusterAfterQA));
         } else cout << "INFO: Object |fHistEnergyOfClusterAfterQA| could not be found! Skipping Draw..." << endl;
-
+        //---------------------------------------------------------------------------------------------------------------
+        if (hasClusGamma_E_DDL){
+            //---------------------------------------------------------------------------------------------------------------
+            // ClusGamma_E
+            TH1D* fHistClusGamma_E  = (TH1D*)ESDContainer->FindObject(Form("ClusGamma_E"));
+            if(fHistClusGamma_E){
+                fHistClusGamma_E    = (TH1D*)fHistClusGamma_E->Rebin(fNBinsClusterPt, "energyBefore", fBinsClusterPt);
+                fHistClusGamma_E->Divide(fDeltaPt);
+                GetMinMaxBin(fHistClusGamma_E,minB,maxB);
+                SetXRange(fHistClusGamma_E,minB,maxB);
+                DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kTRUE,kFALSE,
+                                    fHistClusGamma_E,"","#it{E}_{Cluster} (GeV)","#Clusters",1,1,
+                                    0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
+                SaveCanvasAndWriteHistogram(canvas, fHistClusGamma_E, Form("%s/ClusGamma_E_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+            } else cout << "INFO: Object |fHistClusGamma_E| could not be found! Skipping Draw..." << endl;
+            //---------------------------------------------------------------------------------------------------------------
+            const Int_t iNumberOfDDLs=20;
+            const Int_t iStartDDLs=6;
+            const Int_t TotalNumberOfDDLs=iNumberOfDDLs-iStartDDLs;
+            TH1D* fHistClusGamma_E_DDL[TotalNumberOfDDLs];
+            for (Int_t StartDDL_Loop=0; StartDDL_Loop<TotalNumberOfDDLs; StartDDL_Loop++){
+                fHistClusGamma_E_DDL[StartDDL_Loop]  = (TH1D*)ESDContainer->FindObject(Form("ClusGamma_E_DDL%d", StartDDL_Loop+iStartDDLs));
+                            if(fHistClusGamma_E_DDL[StartDDL_Loop]){
+                                fHistClusGamma_E_DDL[StartDDL_Loop]    = (TH1D*)fHistClusGamma_E_DDL[StartDDL_Loop]->Rebin(fNBinsClusterPt, "energyBefore", fBinsClusterPt);
+                                fHistClusGamma_E_DDL[StartDDL_Loop]->Divide(fDeltaPt);
+                                GetMinMaxBin(fHistClusGamma_E_DDL[StartDDL_Loop],minB,maxB);
+                                SetXRange(fHistClusGamma_E_DDL[StartDDL_Loop],minB,maxB);
+                                DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kTRUE,kFALSE,
+                                                    fHistClusGamma_E_DDL[StartDDL_Loop],"","#it{E}_{Cluster} (GeV)","#Clusters",1,1,
+                                                    0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
+                                SaveCanvasAndWriteHistogram(canvas, fHistClusGamma_E_DDL[StartDDL_Loop], Form("%s/ClusGamma_E_DDL%d_%s.%s", outputDir.Data(), StartDDL_Loop+iStartDDLs, DataSets[i].Data(), suffix.Data()));
+                            } else cout << "INFO: Object |fHistClusGamma_E_DDL"<<StartDDL_Loop+iStartDDLs<<"| could not be found! Skipping Draw..." << endl;
+            }
+        }
+        //---------------------------------------------------------------------------------------------------------------
+        if (hasCaloTriggerHelper){
+            // GammaClusE_Trig and notTrig
+            TH1D* fHistGammaClusE_Trig[2]; //0== Triggered; 1== not Triggered
+            for (Int_t GammaClusE_Trig_Loop=0; GammaClusE_Trig_Loop<2; GammaClusE_Trig_Loop++){//0== Triggered; 1== not Triggered
+                if (GammaClusE_Trig_Loop==0){
+                    fHistGammaClusE_Trig[GammaClusE_Trig_Loop]  = (TH1D*)TriggerHelperContainer->FindObject(Form("fHist_GammaClusE_Trig"));
+                } else if (GammaClusE_Trig_Loop==1) {
+                    fHistGammaClusE_Trig[GammaClusE_Trig_Loop]  = (TH1D*)TriggerHelperContainer->FindObject(Form("fHist_GammaClusE_notTrig"));
+                }
+                if(fHistGammaClusE_Trig[GammaClusE_Trig_Loop]){
+                    //fHistGammaClusE_Trig[GammaClusE_Trig_Loop]    = (TH1D*)fHistGammaClusE_Trig[GammaClusE_Trig_Loop]->Rebin(fNBinsClusterPt, "energyBefore", fBinsClusterPt);
+                    //fHistGammaClusE_Trig[GammaClusE_Trig_Loop]->Divide(fDeltaPt);
+                    GetMinMaxBin(fHistGammaClusE_Trig[GammaClusE_Trig_Loop],minB,maxB);
+                    SetXRange(fHistGammaClusE_Trig[GammaClusE_Trig_Loop],minB,maxB);
+                    DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kTRUE,kFALSE,
+                                         fHistGammaClusE_Trig[GammaClusE_Trig_Loop],"","#it{E}_{Cluster} (GeV)","#Clusters",1,1,
+                                         0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
+                    if (GammaClusE_Trig_Loop==0){
+                        SaveCanvasAndWriteHistogram(canvas, fHistGammaClusE_Trig[GammaClusE_Trig_Loop], Form("%s/GammaClusE_Trig_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                    } else if (GammaClusE_Trig_Loop==1){
+                        SaveCanvasAndWriteHistogram(canvas, fHistGammaClusE_Trig[GammaClusE_Trig_Loop], Form("%s/GammaClusE_notTrig_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                    }
+                    vecGammaClusE_Trig[GammaClusE_Trig_Loop].push_back(fHistGammaClusE_Trig[GammaClusE_Trig_Loop]);
+                } else {
+                    if (GammaClusE_Trig_Loop==0){
+                        cout << "INFO: Object |fHistGammaClusE_Trig| could not be found! Skipping Draw..." << endl;
+                    } else if (GammaClusE_Trig_Loop==1){
+                        cout << "INFO: Object |fHistGammaClusE_notTrig| could not be found! Skipping Draw..." << endl;
+                    }
+                }
+            }
+        }
 
         //---------------------------------------------------------------------------------------------------------------
         //---------------------------- Cluster properties NCells --------------------------------------------------------
@@ -1121,6 +1196,130 @@ void ClusterQA(
             SaveCanvasAndWriteHistogram(canvas, fHistDispersionAfterQA, Form("%s/Dispersion_%s_afterClusterQA.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
             vecClusterDispersion.push_back(new TH1D(*fHistDispersionAfterQA));
         } else cout << "INFO: Object |fHistDispersionAfterQA| could not be found! Skipping Draw..." << endl;
+
+        //---------------------------------------------------------------------------------------------------------------
+        //---------------------------- Cluster DDL Entries ---------------------------------------
+        //---------------------------------------------------------------------------------------------------------------
+        if (hasCaloTriggerHelper){
+            const Int_t maxNumberOfModules=4;
+            const Int_t iNumberOfDDLs=20;
+            const Int_t iStartDDLs=6;
+            Double_t EntriesPerDDL[iNumberOfDDLs][2];
+            Double_t EntriesPerDDL_Error[iNumberOfDDLs][2];
+            Double_t EntriesPerDDL_PerEvent[iNumberOfDDLs][2];
+            Double_t EntriesPerDDL_PerEvent_Error[iNumberOfDDLs][2];
+            Double_t maxDDLperEventValue[2];
+            Int_t iCurrentDDL;
+            Int_t iCurrentBin;
+            Double_t dCurrentBinCenter;
+            Double_t dCurrentBinContent;
+            Double_t dCurrentBinError;
+            Int_t StartBinHistogram;
+            Int_t EndBinHistogram;
+            // Triggered Clusters Column and Row Modules
+            TH2D* fHistTrigClusters_ColRow_Mod[maxNumberOfModules][2];
+            for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+                for (Int_t ModuleNumber_Loop=0; ModuleNumber_Loop<maxNumberOfModules; ModuleNumber_Loop++){
+                    fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh] = NULL;
+                    if (UnOrOvThresh==0){
+                        fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh] = (TH2D*)TriggerHelperContainer->FindObject(Form("TrigClusters_ColRow_ovThr_Mod%d", ModuleNumber_Loop));
+                    } else if (UnOrOvThresh==1){
+                        fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh] = (TH2D*)TriggerHelperContainer->FindObject(Form("TrigClusters_ColRow_unThr_Mod%d", ModuleNumber_Loop));
+                    }
+                    if(fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]){
+                        GetMinMaxBin(fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh],minB,maxB);
+                        SetXRange(fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh],minB-1,maxB+1);
+                        DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kTRUE,kFALSE,
+                                             fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh],"","Column Number","Row Number",1,1,
+                                             0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
+                        if (UnOrOvThresh==0){
+                            SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh], Form("%s/TrigClusters_ColRow_ovThr_Mod%d_%s.%s", outputDir.Data(), ModuleNumber_Loop+1, DataSets[i].Data(), suffix.Data()));
+                        } else if (UnOrOvThresh==1){
+                            SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh], Form("%s/TrigClusters_ColRow_unThr_Mod%d_%s.%s", outputDir.Data(), ModuleNumber_Loop+1, DataSets[i].Data(), suffix.Data()));
+
+                        }
+                    } else {
+                        if (UnOrOvThresh==0){
+                            cout << "INFO: Object |fHistTrigClusters_ColRow_ovThr_Mod"<<ModuleNumber_Loop<<"| could not be found! Skipping Draw..." << endl;
+                        } else if (UnOrOvThresh==1){
+                            cout << "INFO: Object |fHistTrigClusters_ColRow_unThr_Mod"<<ModuleNumber_Loop<<"| could not be found! Skipping Draw..." << endl;
+                        }
+                    }
+                }
+            }
+            // Triggered Clusters Column and Row Modules -> Projection X
+            TH1D* fHistTrigClusters_ColRow_Mod_ProjX[maxNumberOfModules][2];
+            for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+                for (Int_t DDLNumber_Loop=0; DDLNumber_Loop<iNumberOfDDLs; DDLNumber_Loop++){
+                    EntriesPerDDL[DDLNumber_Loop][UnOrOvThresh]=0;
+                    maxDDLperEventValue[UnOrOvThresh]=0;
+                }
+            }
+            for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+                for (Int_t ModuleNumber_Loop=0; ModuleNumber_Loop<maxNumberOfModules; ModuleNumber_Loop++){
+                    if (fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]){
+                        if (UnOrOvThresh==0){
+                            fHistTrigClusters_ColRow_Mod_ProjX[ModuleNumber_Loop][UnOrOvThresh]= (TH1D*) fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]->ProjectionX(Form("fHistTrigClusters_ColRow_ovThr_Mod%d_ProjX", ModuleNumber_Loop+1),1,fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]->GetNbinsY());
+                        }else if (UnOrOvThresh==1){
+                            fHistTrigClusters_ColRow_Mod_ProjX[ModuleNumber_Loop][UnOrOvThresh]= (TH1D*) fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]->ProjectionX(Form("fHistTrigClusters_ColRow_unThr_Mod%d_ProjX", ModuleNumber_Loop+1),1,fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]->GetNbinsY());
+                        }
+                        //SetXRange(fHistTrigClusters_ColRow_Mod_ProjX[ModuleNumber_Loop][UnOrOvThresh],1,300);
+                        DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                            fHistTrigClusters_ColRow_Mod_ProjX[ModuleNumber_Loop][UnOrOvThresh],"","Column Number","#Entries",0.9,1,
+                                            0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
+                        PutProcessLabelAndEnergyOnPlot(0.15,0.9,0.03, fClusters.Data(), Form("in Module %d", ModuleNumber_Loop+1), "");
+                        if (UnOrOvThresh==0){
+                            SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_ColRow_Mod_ProjX[ModuleNumber_Loop][UnOrOvThresh], Form("%s/fHistTrigClusters_ColRow_ovThr_Mod%d_ProjX_%s.%s", outputDir.Data(), ModuleNumber_Loop+1, DataSets[i].Data(), suffix.Data()));
+                        } else if (UnOrOvThresh==1){
+                            SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_ColRow_Mod_ProjX[ModuleNumber_Loop][UnOrOvThresh], Form("%s/fHistTrigClusters_ColRow_unThr_Mod%d_ProjX_%s.%s", outputDir.Data(), ModuleNumber_Loop+1, DataSets[i].Data(), suffix.Data()));
+                        }
+                        StartBinHistogram=1;
+                        EndBinHistogram=fHistTrigClusters_ColRow_Mod_ProjX[ModuleNumber_Loop][UnOrOvThresh]->GetNbinsX();
+                        for (Int_t CurrentBin_Loop=StartBinHistogram; CurrentBin_Loop<=EndBinHistogram; CurrentBin_Loop++){
+                            dCurrentBinCenter=fHistTrigClusters_ColRow_Mod_ProjX[ModuleNumber_Loop][UnOrOvThresh]->GetBinCenter(CurrentBin_Loop);
+                            dCurrentBinContent=fHistTrigClusters_ColRow_Mod_ProjX[ModuleNumber_Loop][UnOrOvThresh]->GetBinContent(CurrentBin_Loop);
+                            iCurrentDDL=WhichDDL(ModuleNumber_Loop+1, dCurrentBinCenter);
+                            EntriesPerDDL[iCurrentDDL][UnOrOvThresh]+=dCurrentBinContent;
+                        }
+                    }
+                }
+            }
+            for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+                for (Int_t DDLNumber_Loop=iStartDDLs; DDLNumber_Loop<iNumberOfDDLs; DDLNumber_Loop++){
+                    EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh]=EntriesPerDDL[DDLNumber_Loop][UnOrOvThresh]/nEvents[i];
+                    EntriesPerDDL_Error[DDLNumber_Loop][UnOrOvThresh]=TMath::Sqrt(EntriesPerDDL[DDLNumber_Loop][UnOrOvThresh]);
+                    EntriesPerDDL_PerEvent_Error[DDLNumber_Loop][UnOrOvThresh]=EntriesPerDDL_Error[DDLNumber_Loop][UnOrOvThresh]/nEvents[i];
+                    if (EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh]>maxDDLperEventValue[UnOrOvThresh]) maxDDLperEventValue[UnOrOvThresh]=EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh];
+                }
+            }
+            // Triggered Clusters per DDL
+            TH1D* fHistTrigClusters_PerDDL[2];
+            for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+                if (UnOrOvThresh==0){
+                    fHistTrigClusters_PerDDL[UnOrOvThresh] = new TH1D(Form("fHistTrigClusters_ovThr_PerDDL"), Form("fHistTrigClusters_unThr_PerDDL"), (iNumberOfDDLs-iStartDDLs), iStartDDLs-0.5, iNumberOfDDLs-0.5);
+                } else  if (UnOrOvThresh==1){
+                    fHistTrigClusters_PerDDL[UnOrOvThresh] = new TH1D(Form("fHistTrigClusters_unThr_PerDDL"), Form("fHistTrigClusters_unThr_PerDDL"), (iNumberOfDDLs-iStartDDLs), iStartDDLs-0.5, iNumberOfDDLs-0.5);
+                }
+                for (Int_t DDLNumber_Loop=iStartDDLs; DDLNumber_Loop<iNumberOfDDLs; DDLNumber_Loop++){
+                    iCurrentBin=fHistTrigClusters_PerDDL[UnOrOvThresh]->FindBin(DDLNumber_Loop);
+                    dCurrentBinContent=EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh];
+                    fHistTrigClusters_PerDDL[UnOrOvThresh]->SetBinContent(iCurrentBin, dCurrentBinContent);
+                    dCurrentBinError=EntriesPerDDL_PerEvent_Error[DDLNumber_Loop][UnOrOvThresh];
+                    fHistTrigClusters_PerDDL[UnOrOvThresh]->SetBinError(iCurrentBin, dCurrentBinError);
+                }
+                fHistTrigClusters_PerDDL[UnOrOvThresh]->GetYaxis()->SetRangeUser(0, maxDDLperEventValue[UnOrOvThresh]*1.1);
+                DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistTrigClusters_PerDDL[UnOrOvThresh],"","DDL Number","#Clusters per Event",0.9,1,
+                                    0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
+                PutProcessLabelAndEnergyOnPlot(0.15,0.9,0.03, fClusters.Data(), "", "");
+                if (UnOrOvThresh==0){
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerDDL[UnOrOvThresh], Form("%s/fHistTrigClusters_ovThr_PerDDL_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                } else if (UnOrOvThresh==1){
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerDDL[UnOrOvThresh], Form("%s/fHistTrigClusters_unThr_PerDDL_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                }
+                vecClusterEntriesPerDDL[UnOrOvThresh].push_back(fHistTrigClusters_PerDDL[UnOrOvThresh]);
+            }
+        }
 
         //---------------------------------------------------------------------------------------------------------------
         //--------------------------------- Detailed shower shape QA  ---------------------------------------------------
@@ -2768,7 +2967,50 @@ void ClusterQA(
     SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_Energy_Cluster_afterQA.%s", outputDir.Data(), suffix.Data()));
     DeleteVecTH1D(vecClusterEnergy);
 
+    //---------------------------------------------------------------------------------------------------------------
+    //------------------------------Cluster properties: Clusters Per DDL --------------------------------------------
+    //---------------------------------------------------------------------------------------------------------------
+    for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+        cout << "Drawing Comparison Histograms for Cluster properties: Clusters Per DDL" << endl;
+        /*for(Int_t iVec=0; iVec<(Int_t)vecClusterEntriesPerDDL[UnOrOvThresh].size(); iVec++){
+            TH1D* temp = vecClusterEntriesPerDDL[UnOrOvThresh].at(iVec);
+            temp->Scale(1./temp->Integral());
+            //temp->GetXaxis()->SetRangeUser(minClusE,fBinsClusterPt[fNBinsClusterPt+1]);
+        }*/
+        AdjustHistRange(vecClusterEntriesPerDDL[UnOrOvThresh],1.2, 1.2, kTRUE);
+        DrawPeriodQACompareHistoTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kTRUE,kFALSE,
+                                    vecClusterEntriesPerDDL[UnOrOvThresh],"","DDL Number","#Clusters per Event",1,1.1,
+                                    labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                    0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/Comparison/ClusterEntriesPerDDL_ovThr.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+        } else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/Comparison/ClusterEntriesPerDDL_unThr.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+        }
 
+        DrawPeriodQACompareHistoTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kFALSE,kFALSE,
+                                    vecClusterEntriesPerDDL[UnOrOvThresh],"","DDL Number","#Clusters per Event",1,1.1,
+                                    labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                    0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/Comparison/ClusterEntriesPerDDL_ovThr_Lin.%s", outputDir.Data(), suffix.Data()));
+        } else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/Comparison/ClusterEntriesPerDDL_unThr_Lin.%s", outputDir.Data(), suffix.Data()));
+        }
+
+
+        DrawPeriodQACompareHistoRatioTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kFALSE,kFALSE,
+                                         vecClusterEntriesPerDDL[UnOrOvThresh],"","DDL Number","#Clusters per Event",1,1.1,
+                                         labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                         0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_ClusterEntriesPerDDL_ovThr.%s", outputDir.Data(), suffix.Data()));
+        }else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_ClusterEntriesPerDDL_unThr.%s", outputDir.Data(), suffix.Data()));
+        }
+        DeleteVecTH1D(vecClusterEntriesPerDDL[UnOrOvThresh]);
+
+    }
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << "Drawing Comparison Histograms for cluster shapes"   << endl;
     //---------------------------------------------------------------------------------------------------------------
