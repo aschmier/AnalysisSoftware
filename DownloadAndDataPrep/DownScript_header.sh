@@ -69,6 +69,7 @@ OptRunlistNamefile=OptRunlistNames_$RunningScripts.txt
 OptDownloadAll=0
 
 job=$$
+# job=1
 lockfile=$job.lock
 
 OutName=""
@@ -208,10 +209,20 @@ function Init(){
 
 	#####################################
 
-	if [[ $thisuser = "adrian" || $thisuser = "amechler" ]]
+	if [[ $thisuser = "adrian"  ]]
 	then
 		BASEDIR="/media/adrian/Adrian/grid_data"
 		FrameworkDir="/home/adrian/git/AnalysisSoftware"
+		UserName="Adrian Mechler";
+		pathtocert="~/.globus"
+		alienUserName="amechler"
+		key="key.pem"
+		cacert="ca.pem"
+		clientca="client.pem"
+	elif [[ $thisuser = "amechler" ]]
+	then
+		BASEDIR="/afs/cern.ch/user/a/amechler/Download"
+		FrameworkDir="/afs/cern.ch/user/a/amechler/Download"
 		UserName="Adrian Mechler";
 		pathtocert="~/.globus"
 		alienUserName="amechler"
@@ -366,11 +377,7 @@ function InitilaizeChild(){
 
 	# get one globalvariables.C to get information about the child
 	GlobalVariablesPath="$OUTPUTDIR/.$1/$GlobalVariablesFile"
-	if [[ $isjalien = 1 ]]; then
-		GetFile_jalien "$AlienDir$1/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
-	else
-		GetFile "$AlienDir$1/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
-	fi
+	GetFile "$AlienDir$1/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
 	echo;
 
 	ChildName=`grep "periodName =" "$GlobalVariablesPath" | awk -F "= " '{print $2}' | awk -F ";" '{print $1}' | awk -F "\"" '{print $2}'`
@@ -470,11 +477,7 @@ function InitilaizeTrain(){
 	done
 	# cat $List
 	echo -e "\e[33m|->\e[0m $Childeone" | tee -a $LogFile
-	if [[ $isjalien = 1 ]]; then
-		GetFile_jalien "$AlienDir$Childeone/env.sh" "$envFile" "$envFile.downlog" 1
-	else
-		GetFile "$AlienDir$Childeone/env.sh" "$envFile" "$envFile.downlog" 1
-	fi
+	GetFile "$AlienDir$Childeone/env.sh" "$envFile" "$envFile.downlog" 1
 	echo
 	PERIODNAME=`grep "PERIOD_NAME=" $envFile | awk -F "=" '{print $2}' | awk -F ";" '{print $1}'`
 	echo "PERIODNAME = $PERIODNAME" | tee -a $LogFile
@@ -483,11 +486,7 @@ function InitilaizeTrain(){
 	echo
 
 	lego_train_mergePath="$OUTPUTDIR/.lego_train_merge.C"
-	if [[ $isjalien = 1 ]]; then
-		GetFile_jalien $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog 1; echo
-	else
-		GetFile $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog 1; echo
-	fi
+	GetFile $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog 1; echo
 	grep "TString outputFiles" "$lego_train_mergePath"  | awk -F "\"" '{print $2}' > $FilenamesinTrain.tmp
 	sed -i 's/,/\n/g' $FilenamesinTrain.tmp
 	sed -i 's/ //g' $FilenamesinTrain.tmp
@@ -721,6 +720,7 @@ function ParseSettings(){
 		elif [[ $setting = "-isjalien" ]]
 		then
 			isjalien=1
+			echo "selecting isjalien"
 		elif [[ $setting = "-onlyrunwise" ]]
 		then
 			Userunwise=1
@@ -1100,7 +1100,7 @@ function Parsehtml(){
 							LIST_foundRunlists+=($foundRunlists)
 							LIST_RunlistOnTrainpage+=($RunlistOnTrainpage)
 							printf "$Searchedrunlist found \n" | tee -a $LogFile
-							return
+							# return
 						fi
 					fi
 				done
@@ -1201,6 +1201,7 @@ function doMergeTrainsRuns(){
 				echo  -e "\t\t\e[36m|-> \e[0m $Periodname \n" | tee -a $LogFile
 
 				mkdir -p ${BASEDIR}/${MergeTrainsOutname}
+				mkdir -p "${BASEDIR}/${MergeTrainsOutname}/listall"
 				mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName
 				mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra
 
@@ -1216,7 +1217,8 @@ function doMergeTrainsRuns(){
 					runname2=${runnametmp#*$Periodname/}
 					runname=${runname2%/*}
 					printf "\t\t\t\e[36m|-> \e[0m $runname \n" | tee -a $LogFile
-					mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/$runname
+					mkdir -p "${BASEDIR}/${MergeTrainsOutname}/listall/$PeriodnameWOextra/$runname"
+					# mkdir -p ${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/$runname
 					# look for availible Files
 					FileList="${BASEDIR}/${MergeTrainsOutname}/$RunlistName/.FileList.txt"
 					if [ -f $FileList ]; then new_rm $FileList; fi
@@ -1232,9 +1234,15 @@ function doMergeTrainsRuns(){
 						printf "\t\t\t\t\e[33m|-> \e[0m $filename" | tee -a $LogFile
 						Dirout2=$BASEDIR/$singletrainDir/$RunlistName/$Periodname/$runname/
 						Dirin="0"
-						DirMerged=${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/$runname/
+						DirMerged="${BASEDIR}/${MergeTrainsOutname}/listall/$PeriodnameWOextra/$runname/"
 						doMergeFiles $filename $Dirout2 $Dirin $DirMerged "Runs"
 					done
+					if [[ -d "${BASEDIR}/${MergeTrainsOutname}/listall/$PeriodnameWOextra/$runname" ]] && [[ ! -L "${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/$runname" ]] ; then
+					   cmd="ln -sf ${BASEDIR}/${MergeTrainsOutname}/listall/$PeriodnameWOextra/$runname ${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/."
+					   # echo $cmd | tee -a $LogFile
+					   usecmd $cmd
+					   eval $cmd
+				   	fi
 				done
 				echo;
 			done
@@ -1352,11 +1360,7 @@ function doMergeFiles() {
 		new_rm $mergedFile.tmp
 		if [[ ! $3 -eq "0"  ]]; then
 			new_rm $2/$1
-			if [[ $isjalien = 1 ]]; then
-				GetFile_jalien $3/$1 $2/$1 $downlogFile
-			else
-				GetFile $3/$1 $2/$1 $downlogFile
-			fi
+			GetFile $3/$1 $2/$1 $downlogFile
 		fi
 		printf "  \e[33m|->\e[0m merging " | tee -a $LogFile
 		hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile
@@ -1419,30 +1423,85 @@ function FindPathsAndAddToList(){
 		# 	cmd="alien.py find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
 		# else
 		# echo $childID
-			if (( `echo -n $childID | wc -c` > 3 )); then
-				cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep $childID/ > $2.tmp"
-			else
-				cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
-			fi
-		# fi
+		if (( `echo -n $childID | wc -c` > 3 )); then
+			cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep $childID/ > $2.tmp"
+		else
+			cmd="alien_find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
+		fi
 		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
 		then
-			echo $cmd | tee -a $LogFile
+			echo;
+			echo "$cmd" | tee -a $LogFile
 		fi
+		tmpcouuntnew=1
 		eval $cmd
-		tmpcouuntnew=0
-		if [[ ! "$?" = "0" ]]; then
+		tmpreturn=$?
+		if [[ ! "$tmpreturn" = "0" ]] || [[ ! -f $2.tmp ]] || [[ `cat $2.tmp | wc -l`  < 1 ]]; then
 			printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
-		fi
-		while [[ ! $? = "0" ]]; do
-			if [[ $tmpcouuntnew > 10 ]]; then break; fi
-			printf "${tmpcouuntnew} " | tee -a $LogFile
-			# printf "." | tee -a $LogFile
-			((tmpcouuntnew++))
 			eval $cmd
-		done
-		AddToList $2.tmp $2
-		new_rm $2.tmp
+			tmpreturn=$?
+		fi
+		# else
+		if [[ "$tmpreturn" = "0" ]] && [[ -f $2.tmp ]] && [[ `cat $2.tmp | wc -l`  > 0 ]]; then
+			AddToList $2.tmp $2
+			new_rm $2.tmp
+		# fi
+		else
+			# /alice/data/2016/LHC16d/000252375/pass1/AOD208/PWGGA/GA_pp_AOD/1549_20200925-1736_child_1/0016/GammaConvCalo_2001.root
+		# if [[ ! "$tmpreturn" = "0" ]] || [[ ! -f $2.tmp ]] || [[ `cat $2.tmp | wc -l`  < 1 ]]; then
+			printf "  -- alien_find didn't work trying runwise -- \n" | tee -a $LogFile
+			for runName in `cat $4`; do
+				tmprunfilename=${2%AllPathList*}$5$runName
+				# echo $tmprunfilename
+				if [[ ! -f "$tmprunfilename.txt" ]] || [[ $newfiles = 1 ]]; then
+					tmpdirusing="$1$5$runName"
+					if (( `echo -n $childID | wc -c` > 3 )); then
+						cmd="alien_find $tmpdirusing $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep $childID/ > $tmprunfilename.tmp"
+					else
+						cmd="alien_find $tmpdirusing $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $tmprunfilename.tmp"
+					fi
+					if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+					then
+						echo "$runName: $cmd" | tee -a $LogFile
+					else
+						printf "$runName, " | tee -a $LogFile
+					fi
+					tmpcouuntnew=1
+					eval $cmd
+					if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+					then
+						cat $tmprunfilename.tmp
+					fi
+					tmpreturn=$?
+					retried=0
+					if [[ ! "$tmpreturn" = "0" ]] || [[ `cat $tmprunfilename.tmp | wc -l`  < 1 ]]; then
+						retried=1
+						printf "\n $runName  \e[33m|->\e[0m Retry " | tee -a $LogFile
+						eval $cmd
+						tmpreturn=$?
+					fi
+					while [[ ! $tmpreturn = "0" ]] || [[ `cat $tmprunfilename.tmp | wc -l`  < 1 ]]; do
+						if [[ $tmpcouuntnew > 4 ]]; then break; fi
+						sleep 1
+						printf "${tmpcouuntnew} " | tee -a $LogFile
+						# printf "." | tee -a $LogFile
+						((tmpcouuntnew++))
+						eval $cmd
+						tmpreturn=$?
+					done
+					if [[ $retried = 1 ]]; then
+						echo
+					fi
+					if [[ ! "$tmpreturn" = "0" ]] || [[ `cat $2.tmp | wc -l`  < 1 ]]; then
+						continue
+					fi
+					# cat "$tmprunfilename.tmp"
+					AddToList "$tmprunfilename.tmp" "$tmprunfilename.txt"
+					new_rm "$tmprunfilename.tmp"
+				fi
+				AddToList "$tmprunfilename.txt" "$2"
+			done
+		fi
 		echo;
 	else
 		printf "  \e[33m|->\e[0m is up to date \n" | tee -a $LogFile
@@ -1515,13 +1574,15 @@ function GetChilds(){
 	then
 		echo $cmd | tee -a $LogFile
 	fi
-	eval $cmd
 	tmpcouuntnew=0
+	eval $cmd
 	while [[ ! $? = "0" ]] ; do
 		if [[ $tmpcouuntnew > 10 ]]; then break; fi
 		((tmpcouuntnew++))
-		alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2  | tee $1
-		printf "."
+		eval $cmd
+		# alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2  | tee $1
+		printf "${tmpcouuntnew} " | tee -a $LogFile
+		# printf "."
 		sleep 2
 	done
 }
@@ -1601,10 +1662,12 @@ function GetFile_jalien(){
 				downexitstatus=$?
 				((tmpdowncount++))
 			done
-			if [[ -f $2 ]] && [[ `grep "SUCCESS" $3 | wc -l` > 0 ]]  && [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]]; then
+			# if [[ -f $2 ]] && [[ `grep "SUCCESS" $3 | wc -l` > 0 ]]  && [[ ! `grep "STATUS OK" $3 | wc -l` > 0 ]]; then
+			if [[ -f $2 ]] && [[ `grep "jobID: 1/1 >>> Start" $3 | wc -l` > 0 ]]  && [[ ! `cat $3 | wc -l` > 1 ]]; then
 				printf "  \e[33m|->\e[0m successful  " | tee -a $LogFile
 			else
 				printf "  \e[33m|->\e[0m Download failed "   | tee -a $ErrorLog | tee -a $LogFile
+				cat $3
 			fi
 		else
 			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
@@ -1621,7 +1684,8 @@ function GetFile_jalien(){
 	fi
 
 }
-function GetFile(){
+
+function GetFile_alienrootLegacy(){
 
 	debugtmp=0
 	if [ "$#" == "4" ]; then
@@ -1702,6 +1766,14 @@ function GetFile(){
 
 	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
 		cat $3 | tee -a $LogFile
+	fi
+}
+
+function GetFile(){
+	if [[ $isjalien = 1 ]]; then
+		GetFile_jalien $1 $2 $3 $4
+	else
+		GetFile_alienrootLegacy $1 $2 $3 $4
 	fi
 }
 

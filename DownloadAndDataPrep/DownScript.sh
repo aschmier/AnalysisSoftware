@@ -51,11 +51,7 @@ then
 						outFile="$Dirout/$filename"
 						inFile="$Dirin/$filename"
 						downlogFile="$Dirout/${filename%%.root}.downlog"
-						if [[ $isjalien = 1 ]]; then
-							GetFile_jalien $inFile $outFile $downlogFile
-						else
-							GetFile $inFile $outFile $downlogFile
-						fi
+						GetFile $inFile $outFile $downlogFile
 						if [[ -f $outFile ]]; then
 							if [[ ! -f "$outFile.zipped" ]]; then
 								if [[ $debug = 1 ]] || [[ $debug = 2 ]]
@@ -95,11 +91,7 @@ then
 							downlogFile="$Dirout/${filename%%.root}.downlog"
 
 							if [[ $UseOnlyrunwise = 0 ]]; then
-								if [[ $isjalien = 1 ]]; then
-									GetFile_jalien $inFile $outFile $downlogFile
-								else
-									GetFile $inFile $outFile $downlogFile
-								fi
+								GetFile $inFile $outFile $downlogFile
 								if [[ $UseMerge = 1 ]] && [[ ! $filename = *".zip" ]]
 								then
 									doMergeFiles $filename $Dirout $Dirin $DirMerged
@@ -139,10 +131,30 @@ then
 					fi
 					if [[ $Userunwise = 1 ]] || [[ $MergeRuns = 1 ]]; then
 						# Download all runs
-						AllPathList="$OUTPUTDIR/.$child/.AllPathList_$filename.txt"
-						if [[ ! -f $AllPathList ]] || [[  `grep "$Search" $AllPathList | wc -l` < 1 ]]; then
+						AllPathList="$OUTPUTDIR/.$child/.AllPathList.txt"
+						# if [[ $newfiles = 1 ]] && [[ -f $AllPathList ]]; then
+							# echo "REMOVING $AllPathList"
+							# rm $AllPathList
+						# fi
+						# if [[ ! -f $AllPathList ]]; then
+						# 	echo "NOT FOUND $AllPathList"
+						# fi
+						# if [[ ! -f $AllPathList ]] || [[  `grep "$filename" $AllPathList | wc -l` < 1 ]] || [[ $newfiles = 1 ]] ; then
+						if [[ ! -f $AllPathList ]]  || [[ $newfiles = 1 ]] ; then
 							newfiles=1
-							FindPathsAndAddToList "/alice/$Type/$Year/$ChildName/" $AllPathList $filename
+							if [[ $Type = "sim" ]]; then
+								FindPathsAndAddToList "/alice/$Type/$Year/$ChildName/" $AllPathList $filename $Runlist ""
+							else
+								FindPathsAndAddToList "/alice/$Type/$Year/$ChildName/" $AllPathList $filename $Runlist "000"
+							fi
+							# cat $AllPathList
+						elif [[  `grep "$filename" $AllPathList | wc -l` < 1 ]]; then
+							new_rm $AllPathList.tmp
+							for dirtomodi in `cat $AllPathList`; do
+								echo "${dirtomodi%/*}/$filename" >> $AllPathList.tmp
+							done
+							AddToList $AllPathList.tmp $AllPathList
+							new_rm $AllPathList.tmp
 						fi
 						if [[ $OptIsJJ = 1 ]]; then
 							DiroutTmp=$Dirout
@@ -193,7 +205,7 @@ then
 									newfiles=1
 								fi
 
-								if [[ $newfiles = 1 ]]; then
+								# if [[ $newfiles = 1 ]]; then
 									if [[ $Type = "sim" ]]; then
 										if [[ $OptIsJJ = 1 ]]; then
 											GrapPathsAndAddToList "/alice/$Type/$Year/$ChildName/$pthardbin/$runName/" $RunPathList $AllPathList
@@ -204,13 +216,13 @@ then
 										GrapPathsAndAddToList "/alice/$Type/$Year/$ChildName/000$runName/" $RunPathList $AllPathList
 									fi
 									# grep _$childID/AnalysisResults.root  > $RunPathList.tmp
-								fi
+								# fi
 								if [ ! -f $RunPathList ]; then
 									if [[ $OptIsJJ = 1 ]]; then
 										# printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$filename \n " | tee -a $LogFile
-										echo -e "\t\e[31mError\e[0m pThardbin $pthardbin, Run\t$tmpruncount/$NumberOfRuns\t$runName  wasn't found!" | tee -a $ErrorLog | tee -a $LogFile
+										echo -e "\t\e[31mError\e[0m pThardbin $pthardbin, Run\t$tmpruncount/$NumberOfRuns\t$runName  wasn't found!" | tee -a $ErrorLog  >> $rundownlogFile.tmp
 									else
-										echo -e "\t\e[31mError\e[0m Run $runName wasn't found!" | tee -a $ErrorLog | tee -a $LogFile
+										echo -e "\t\e[31mError\e[0m Run $runName wasn't found!" | tee -a $ErrorLog  >> $rundownlogFile.tmp
 									fi
 									continue
 								fi
@@ -226,6 +238,7 @@ then
 									runoutFile=$runDir/$Search
 									rundownlogFile=$runDir/.${Search%%.root}.downlog
 								fi
+								new_rm $rundownlogFile.tmp
 								searchChildtmp="_$childID/$Search"
 								if [[ $OptIsJJ = 1 ]]; then
 									printf "\t $pthardbin/$maxpthardbins "| tee -a $LogFile
@@ -233,14 +246,14 @@ then
 								if [[ `echo $childID | wc -c` -gt 4 ]]; then
 									searchChildtmp="$childID/$Search"
 								fi
-								printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$Search " | tee -a $LogFile
+
+								printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$Search "  >> $rundownlogFile.tmp
 								# printf "\n ************************\n"
 								# echo "$searchChildtmp"
 								# cat $RunPathList
 								# printf "\n ************************\n"
 								if [[ `grep "$searchChildtmp" $RunPathList | wc -c` -gt 0 ]]; then
-									for runinFile in `grep "$searchChildtmp" $RunPathList`
-									do
+									for runinFile in `grep "$searchChildtmp" $RunPathList`; do
 										if [[ $OptZip = 1 ]]; then
 											filenameZip="root_archive.zip"
 											# outdirZiptmp=${outFile/%%$Search}
@@ -249,12 +262,9 @@ then
 											inFileZip="${runinFile%%$filename}/$filenameZip"
 											downlogFileZip="$runDir/${filenameZip}.downlog"
 											if [[ ! -f $outFileZip ]]; then
-											printf "\e[33m|-> download $filenameZip:\e[0m  " | tee -a $LogFile
-												if [[ $isjalien = 1 ]]; then
-													GetFile_jalien $inFileZip $outFileZip $downlogFileZip
-												else
-													GetFile $inFileZip $outFileZip $downlogFileZip
-												fi
+												printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$Search " | tee -a $LogFile
+												printf "\e[33m|-> download $filenameZip:\e[0m  " | tee -a $LogFile
+												GetFile $inFileZip $outFileZip $downlogFileZip
 												if [[ -f $outFileZip ]]; then
 													if [[ ! -f "$outFileZip.zipped" ]]; then
 														if [[ $debug = 1 ]] || [[ $debug = 2 ]]
@@ -273,33 +283,48 @@ then
 											fi
 										fi
 										# printf "\t$runoutFile" | tee -a $LogFile
-										if [[ $isjalien = 1 ]]; then
-											GetFile_jalien $runinFile $outFile $rundownlogFile
-										else
-											GetFile $runinFile $runoutFile $rundownlogFile
-										fi
-										if [[ $MergeRuns = 1 ]]
-										then
-											PrepMerge $Search $runDir ${runinFile/%%$Search} $Dirout
-										else
-											printf "\n" | tee -a $LogFile
-										fi
+										GetFile $runinFile $runoutFile $rundownlogFile &>> $rundownlogFile.tmp &
+										# if [[ $MergeRuns = 1 ]]
+										# then
+										# 	PrepMerge $Search $runDir ${runinFile/%%$Search} $Dirout
+										# else
+										# 	printf "\n" | tee -a $LogFile
+										# fi
 									done
 								else
+									cat $rundownlogFile.tmp | tee -a $LogFile
 									# printf "\n" | tee -a $LogFile
 									if [[ $OptIsJJ = 0 ]]; then
-										printf "\t\t\e[33mWARNING:  No file found \e[0m, trying to merge from higher stages \n" #| tee -a $WARNINGLog | tee -a $LogFile
+										printf "\t\e[33mWARNING:  No file found \e[0m, trying to merge from higher stages" | tee -a $rundownlogFile.tmp #| tee -a $WARNINGLog | tee -a $LogFile
 									else
-										printf " \e[33mWARNING:  No file found \e[0m, trying to merge from higher stages \n" #| tee -a $WARNINGLog | tee -a $LogFile
+										printf " \e[33mWARNING:  No file found \e[0m, trying to merge from higher stages" | tee -a $rundownlogFile.tmp #| tee -a $WARNINGLog | tee -a $LogFile
+									fi
+									printf "\t\t\e[33m|->\e[0m waiting for downloads of runs to finish first" #| tee -a $WARNINGLog | tee -a $LogFile
+									wait
+									if [[  `grep "$Search" $RunPathList | wc -l` < 1 ]]; then
+										new_rm $RunPathList.tmp
+										for dirtomodi in `cat $RunPathList`; do
+											echo "${dirtomodi%/*}/$filename" >> $RunPathList.tmp
+										done
+										AddToList $RunPathList.tmp $RunPathList
+										new_rm $RunPathList.tmp
 									fi
 									maxcount=`grep "$Search" $RunPathList | wc -l`
 									tmpsubruncount=0
 									if [[ $maxcount -eq 0 ]]; then
-										echo -e "\t\t\e[33m|->\e[0m merge from higher stages failed ($runName)" | tee -a $WARNINGLog | tee -a $LogFile
-										cat $RunPathList | tee -a $LogFile
-										echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
+										echo -e "\t\t\e[33m|->\e[0m merge from higher stages failed ($runName)" | tee -a $WARNINGLog | tee -a $LogFile | tee -a $rundownlogFile.tmp
+										# if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+										# then
+											echo $AllPathList | tee -a $rundownlogFile.tmp
+											cat $AllPathList | tee -a $LogFile | tee -a $rundownlogFile.tmp
+											echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile | tee -a $rundownlogFile.tmp
+											echo $RunPathList | tee -a $rundownlogFile.tmp
+											cat $RunPathList | tee -a $LogFile | tee -a $rundownlogFile.tmp
+										# fi
+										echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile | tee -a $rundownlogFile.tmp
 										continue
 									fi
+
 									for subruninFile in `grep "$Search" $RunPathList`
 									do
 										subrunname=${subruninFile%%$Search}
@@ -314,22 +339,20 @@ then
 										mkdir -p $subrunDir
 										subrunoutFile=$subrunDir/$Search
 										subrundownlogFile=$subrunDir/.${Search%%.root}.downlog
+										new_rm $subrundownlogFile
+										new_rm $subrundownlogFile.tmp
 										((tmpsubruncount++))
-										printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$runName|$subrunname\t$Search " | tee -a $LogFile
 										if [[ $OptZip = 1 ]]; then
+											downlogFileZip="$subrunDir/${filenameZip}.downlog"
+											printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$runName|$subrunname\t$Search " | tee -a $LogFile
 											filenameZip="root_archive.zip"
 											# outdirZiptmp=${outFile/%%$Search}
 											# outdirZip=${outdirZiptmp/%%$filenameZip}
 											outFileZip="$subrunDir/$filenameZip"
 											inFileZip="${subruninFile%%$Search}/$filenameZip"
-											downlogFileZip="$subrunDir/${filenameZip}.downlog"
 											if [[ ! -f $outFileZip ]]; then
 												printf "\e[33m|-> download $filenameZip:\e[0m  " | tee -a $LogFile
-												if [[ $isjalien = 1 ]]; then
-													GetFile_jalien $inFileZip $outFileZip $downlogFileZip
-												else
-													GetFile $inFileZip $outFileZip $downlogFileZip
-												fi
+												GetFile $inFileZip $outFileZip $downlogFileZip
 												if [[ -f $outFileZip ]]; then
 													if [[ ! -f "$outFileZip.zipped" ]]; then
 														if [[ $debug = 1 ]] || [[ $debug = 2 ]]
@@ -346,25 +369,41 @@ then
 												fi
 												printf "\t\t\t\t\t\t  " | tee -a $LogFile
 											fi
-										fi
-										if [[ $isjalien = 1 ]]; then
-											GetFile_jalien $subruninFile $subrunoutFile $subrundownlogFile
 										else
-											GetFile $subruninFile $subrunoutFile $subrundownlogFile
+											printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$runName|$subrunname\t$Search " >> $subrundownlogFile.tmp
 										fi
+										GetFile $subruninFile $subrunoutFile $subrundownlogFile &>> $subrundownlogFile.tmp &
 										# if [[ $? -eq 1 ]]; then
 										# 	continue
 										# fi
+									done
+									printf "\t\e[33m|->\e[0m waiting for downloads ($maxcount Subruns)\n" #| tee -a $WARNINGLog | tee -a $LogFile
+									wait
+									for subruninFile in `grep "$Search" $RunPathList`
+									do
+										subrunname=${subruninFile%%$Search}
+										if [[ $OptIsJJ = 1 ]]; then
+											subrunname="${subrunname#*$childID/}"
+										else
+											subrunname="${subrunname#*child_*/}"
+										fi
+										subrunname="${subrunname%/*}"
+										if [[ $subrunname = "" ]]; then continue; fi
+										subrunDir=$runDir/$subrunname/
+										subrunoutFile=$subrunDir/$Search
+										subrundownlogFile=$subrunDir/.${Search%%.root}.downlog
+										cat $subrundownlogFile.tmp
+										new_rm $subrundownlogFile.tmp
 										runinFileTMP=${subruninFile#$subrunname*}
 										if [[ $debug = 1 ]] || [[ $debug = 2 ]]
 										then
-											echo "doMergeFiles $Search | $subrunDir | ${subruninFile%%$Search} | $runDir" | tee -a $LogFile
+											echo "doMergeFiles $Search | $subrunDir | ${subruninFile%%$Search} | $runDir" #| tee -a $LogFile
 										fi
 										PrepMerge $Search $subrunDir ${subruninFile%%$Search} $runDir
 									done
 									printf "\t\t\t\e[33m|->\e[0m StartMergeProcess" #| tee -a $WARNINGLog | tee -a $LogFile
 									StartMergeProcess $runDir &> /dev/null
-									echo -e "\t\t\e[33m|->\e[0m merge from higher stages.. done" #| tee -a $WARNINGLog | tee -a $LogFile
+									echo -e "\t\t\e[33m|->\e[0m merge from higher stages.. done"  | tee -a $rundownlogFile.tmp#| tee -a $WARNINGLog | tee -a $LogFile
 									if [[ $MergeRuns = 1 ]]
 									then
 										printf "\t\t\e[33m|->\e[0m merging run " #| tee -a $WARNINGLog | tee -a $LogFile
@@ -380,6 +419,40 @@ then
 							# printf "\t\t\e[33m|->\e[0m waiting: merge from higher stages..." #| tee -a $WARNINGLog | tee -a $LogFile
 							# wait
 							# printf "\t done \n\t\t" #| tee -a $WARNINGLog | tee -a $LogFile
+
+						done
+						printf "\t\e[33m|->\e[0m waiting for downloads ($NumberOfRuns runs)\n" #| tee -a $WARNINGLog | tee -a $LogFile
+						wait
+
+						for (( pthardbin = $minpthardbins; pthardbin <= $maxpthardbins; pthardbin++ )); do
+							for runName in `cat $Runlist`; do
+								searchChildtmp="_$childID/$Search"
+								if [[ `echo $childID | wc -c` -gt 4 ]]; then
+									searchChildtmp="$childID/$Search"
+								fi
+								if [[ $OptIsJJ = 1 ]]; then
+									runDir=$OUTPUTDIR/.$child/$pthardbin/$runName
+									Dirout=$OUTPUTDIR/.$child/$pthardbin
+								else
+									runDir=$OUTPUTDIR/.$child/$runName
+								fi
+								RunPathList="$runDir/PathList.txt"
+								if [[ $OptIsJJ = 1 ]]; then
+									rundownlogFile="$runDir/.${Search%%.root}.downlog"
+								else
+									rundownlogFile=$runDir/.${Search%%.root}.downlog
+								fi
+								cat $rundownlogFile.tmp
+								new_rm $rundownlogFile.tmp
+								if [[ `grep "$searchChildtmp" $RunPathList | wc -c` -gt 0 ]] && [[ $MergeRuns = 1 ]]; then
+									for runinFile in `grep "$searchChildtmp" $RunPathList`; do
+											PrepMerge $Search $runDir ${runinFile/%%$Search} $Dirout
+									done
+								fi
+							done
+							if [[ $OptIsJJ = 1 ]] ; then
+								Dirout=$DiroutTmp
+							fi
 							printf "\t\t" #| tee -a $WARNINGLog | tee -a $LogFile
 							StartMergeProcess $Dirout
 							if [[ $OptIsJJ = 1 ]] ; then
@@ -394,6 +467,8 @@ then
 								Dirout=$DiroutTmp
 							fi
 						done
+
+
 						printf "\t" #| tee -a $WARNINGLog | tee -a $LogFile
 						StartMergeProcess $DiroutTmp
 					fi
