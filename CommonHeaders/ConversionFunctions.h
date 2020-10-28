@@ -87,6 +87,7 @@
     Int_t               ModeMapping(Int_t);
     void                RecalculateErrorsBasedOnDetailedInputFile (TGraphAsymmErrors* , TString );
     TGraph*             AverageNGraphs(TGraph*&, const Int_t );
+    void                SmoothSystematicErrors(Double_t*, Double_t*, Double_t*, Double_t*, Int_t, Double_t*, Int_t);
 
     // ****************************************************************************************************************
     // ********************** definition of functions defined in this header ******************************************
@@ -1229,13 +1230,13 @@
         }
         return dummyGraph;
     }
-    
+
     // ****************************************************************************************************************
     // ****************************************************************************************************************
     // ****************************************************************************************************************
-    TGraphAsymmErrors* CalculateNForTwoGraphsAsFunctionOfXT( TGraphAsymmErrors* tgAXt, 
-                                                             TGraphAsymmErrors* tgBXt, 
-                                                             TGraphAsymmErrors* tgRelBXt, 
+    TGraphAsymmErrors* CalculateNForTwoGraphsAsFunctionOfXT( TGraphAsymmErrors* tgAXt,
+                                                             TGraphAsymmErrors* tgBXt,
+                                                             TGraphAsymmErrors* tgRelBXt,
                                                              TF1* fitBPt,
                                                              Double_t energyA       =   1,
                                                              Double_t energyB       =   1,
@@ -1248,21 +1249,21 @@
         cout << "max \t" << dummyGraph->GetX()[dummyGraph->GetN()-1] << "\t" << tgRelBXt->GetX()[tgRelBXt->GetN()-1] << endl;
         while(dummyGraph->GetX()[0] < tgRelBXt->GetX()[0]) dummyGraph->RemovePoint(0);
         while(dummyGraph->GetX()[dummyGraph->GetN()-1] > tgRelBXt->GetX()[tgRelBXt->GetN()-1]) dummyGraph->RemovePoint(dummyGraph->GetN()-1);
-        
+
 //         dummyGraph->Print();
-        
+
         Double_t* xValue                = dummyGraph->GetX();
         Double_t* yValue                = dummyGraph->GetY();
         Double_t* xErrorLow             = dummyGraph->GetEXlow();
         Double_t* xErrorHigh            = dummyGraph->GetEXhigh();
         Double_t* yErrorLow             = dummyGraph->GetEYlow();
         Double_t* yErrorHigh            = dummyGraph->GetEYhigh();
-        
+
         for(int i = 0; i < dummyGraph->GetN(); i++){
             Double_t currentfitValueB       = fitBPt->Eval(xValue[i]*energyB/2.)*scaleFacFit;
             Double_t currentfitValueBSimple = tgBXt->Eval(xValue[i], 0, "S");
             Double_t currentErrorRelErrB    = tgRelBXt->Eval(xValue[i], 0, "S");
-            Double_t currentAbsErrB         = currentErrorRelErrB/100.* currentfitValueB;   
+            Double_t currentAbsErrB         = currentErrorRelErrB/100.* currentfitValueB;
             Double_t currentValueA          = yValue[i];
             Double_t currentErrorA          = yErrorLow[i];
 //             cout << xValue[i] << "\t" << currentfitValueB << "\t" << currentfitValueBSimple << "\t" << currentErrorRelErrB << "\t" << currentValueA << endl;
@@ -1272,14 +1273,14 @@
             xErrorHigh[i]                   = 0.;
             xErrorLow[i]                    = 0.;
         }
-        
+
         dummyGraph->Print();
-        
+
         return dummyGraph;
     }
-    
 
-    
+
+
     // ****************************************************************************************************************
     // ****************************************************************************************************************
     // ****************************************************************************************************************
@@ -5922,6 +5923,36 @@
             delete graphArrCopy[k];
         }
         return graphEtaNew;
+    }
+
+
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    void SmoothSystematicErrors(   Double_t* oldErrorVector,
+                                    Double_t* oldErrorVectorsErrors,
+                                    Double_t* ErrorVector,
+                                    Double_t* ErrorVectorError,
+                                    Int_t numberOfPtBins,
+                                    Double_t* ptBins,
+                                    Int_t NSmoothingIterations = 1
+                                ){
+        Double_t newErrorVector[numberOfPtBins];
+        Double_t newErrorVectorError[numberOfPtBins];
+        CorrectSystematicErrorsWithMean(   oldErrorVector, oldErrorVectorsErrors, newErrorVector, newErrorVectorError, numberOfPtBins);
+        TH1D* hToSmooth = new TH1D("hToSmooth", "", numberOfPtBins, ptBins);
+        for (Int_t i = 0; i < numberOfPtBins; i++){
+            hToSmooth->SetBinContent(i+1, newErrorVector[i]);
+            hToSmooth->SetBinError(i+1, newErrorVectorError[i]);
+        }
+        hToSmooth->Smooth(NSmoothingIterations);
+        for (Int_t i = 0; i < numberOfPtBins; i++){
+            ErrorVector[i] = hToSmooth->GetBinContent(i+1);
+            ErrorVectorError[i] = hToSmooth->GetBinError(i+1);
+            printf("%.4f -> ",newErrorVector[i]);
+            printf("%.4f \t",ErrorVector[i]);
+        }
+        printf("\n");
     }
 
 #endif

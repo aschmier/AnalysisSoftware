@@ -5043,6 +5043,14 @@
                 return "n Cells #geq 5";
             case 6:
                 return "n Cells #geq 6";
+            case 7:
+                return "n Cells #geq 2 for E_{cluster} < 3";
+            case 8:
+                return "n Cells #geq 2 for E_{cluster} < 2";
+            case 9:
+                return "n Cells #geq 2 for E_{cluster} < 1";
+            case 10:
+                return "n Cells #geq 2 for E_{cluster} < 5";
             case 17:
                 return "n Cells #geq 2, #epsilon_{P2} appl. to MC";
             case 18:
@@ -5535,6 +5543,112 @@
                 return "-12.5 ns < t_{clus} < 13 ns - w. TimingCutEfficiency";
             default:
                 return "no timing cut defined";
+        }
+    }
+
+    //************************************************************************************
+    //** Analyzes the cluster timing cut, return correct cut label **************************
+    //************************************************************************************
+    TString AnalyseExoticClusterCut(Int_t exoticCell){
+        Int_t fUseExoticCluster = 0;
+        Double_t fExoticEnergyFracCluster = 0.;
+        Double_t fExoticMinEnergyTCard = 0.;
+        switch(exoticCell){
+            case 0:
+              fUseExoticCluster         = 0;
+              fExoticEnergyFracCluster  = 0;
+              return "no cut";
+            case 1:
+              if (fUseExoticCluster != 1)
+                fUseExoticCluster       = 1;
+              fExoticEnergyFracCluster  = 0.995;
+              return Form("E_{+} < %3.2f", fExoticEnergyFracCluster );
+            case 2:
+              if (fUseExoticCluster != 1)
+                fUseExoticCluster       = 1;
+              fExoticEnergyFracCluster  = 0.99;
+              return Form("E_{+} < %3.2f", fExoticEnergyFracCluster );
+            case 3:
+              if (fUseExoticCluster != 1)
+                fUseExoticCluster       = 1;
+              fExoticEnergyFracCluster  = 0.98;
+              return Form("E_{+} < %3.2f", fExoticEnergyFracCluster );
+            case 4:
+              if (fUseExoticCluster != 1)
+                fUseExoticCluster       = 1;
+              fExoticEnergyFracCluster  = 0.975;
+              return Form("E_{+} < %3.2f", fExoticEnergyFracCluster );
+            case 5:
+              if (fUseExoticCluster != 1)
+                fUseExoticCluster       = 1;
+              fExoticEnergyFracCluster  = 0.97;
+              return Form("E_{+} < %3.2f", fExoticEnergyFracCluster );
+            case 6:
+              if (fUseExoticCluster != 1)
+                fUseExoticCluster       = 1;
+              fExoticEnergyFracCluster  = 0.965;
+              return Form("E_{+} < %3.2f", fExoticEnergyFracCluster );
+            case 7:
+              if (fUseExoticCluster != 1)
+                fUseExoticCluster       = 1;
+              fExoticEnergyFracCluster  = 0.96;
+              return Form("E_{+} < %3.2f", fExoticEnergyFracCluster );
+            case 8:
+              if (fUseExoticCluster != 1)
+                fUseExoticCluster       = 1;
+              fExoticEnergyFracCluster  = 0.95;
+              return Form("E_{+} < %3.2f", fExoticEnergyFracCluster );
+            case 9:
+              if (fUseExoticCluster != 1)
+                fUseExoticCluster       = 1;
+              fExoticEnergyFracCluster  = 0.94;
+              return Form("E_{+} < %3.2f", fExoticEnergyFracCluster );
+
+              // exotics rejection with cluster only in one TCard above threshold
+            case 10: //a
+              if (fUseExoticCluster != 2)
+                fUseExoticCluster       = 2;
+              fExoticEnergyFracCluster  = 0.95;
+              fExoticMinEnergyTCard     = 40;
+              return Form("E_{+} < %3.2f + %3.2f in same T-Card", fExoticEnergyFracCluster, fExoticMinEnergyTCard );
+            case 11: //b
+              if (fUseExoticCluster != 2)
+                fUseExoticCluster       = 2;
+              fExoticEnergyFracCluster  = 0.95;
+              fExoticMinEnergyTCard     = 50;
+              return Form("E_{+} < %3.2f + %3.2f in same T-Card", fExoticEnergyFracCluster, fExoticMinEnergyTCard );
+            case 12: //c
+              if (fUseExoticCluster != 2)
+                fUseExoticCluster       = 2;
+              fExoticEnergyFracCluster  = 0.95;
+              fExoticMinEnergyTCard     = 60;
+              return Form("E_{+} < %3.2f + %3.2f in same T-Card", fExoticEnergyFracCluster, fExoticMinEnergyTCard );
+            case 13: //d
+              if (fUseExoticCluster != 2)
+                fUseExoticCluster       = 2;
+              fExoticEnergyFracCluster  = 0.97;
+              fExoticMinEnergyTCard     = 40;
+              return Form("E_{+} < %3.2f + %3.2f in same T-Card", fExoticEnergyFracCluster, fExoticMinEnergyTCard );
+            case 14: //e
+              if (fUseExoticCluster != 2)
+                fUseExoticCluster       = 2;
+              fExoticEnergyFracCluster  = 0.97;
+              fExoticMinEnergyTCard     = 50;
+              return Form("E_{+} < %3.2f + %3.2f in same T-Card", fExoticEnergyFracCluster, fExoticMinEnergyTCard );
+            case 15: //f
+              if (fUseExoticCluster != 2)
+                fUseExoticCluster       = 2;
+              fExoticEnergyFracCluster  = 0.97;
+              fExoticMinEnergyTCard     = 60;
+              return Form("E_{+} < %3.2f + %3.2f in same T-Card", fExoticEnergyFracCluster, fExoticMinEnergyTCard );
+            case 16: //g
+              if (fUseExoticCluster != 3)
+                fUseExoticCluster       = 3;
+              fExoticEnergyFracCluster  = 0;
+              return Form("E_{+} < %3.2f +rejection from correction framework", fExoticEnergyFracCluster );
+
+            default:
+                return "no exotic cluster cut defined";
         }
     }
 
