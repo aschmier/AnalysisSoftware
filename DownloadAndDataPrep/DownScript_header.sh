@@ -1,12 +1,9 @@
 #! /bin/bash
-
-#! /bin/bash
 # This Script is intended to automize the download of train outputs
 
-# Version: V5.5
+# Version: V6.2
 echo  -e "\e[36m+++++++++++++++++++++++++++++++++++++\e[0m"
-echo "DownScript.sh Version: V6.1"
-sleep 2
+echo "DownScript.sh Version: V6.2"
 
 # Author: Adrian Mechler (mechler@ikf.uni-frankfurt.de)
 
@@ -35,6 +32,8 @@ alienUserName=""
 BASEDIR=${PWD}
 thisuser=`echo ${USER}`
 NCHilds=0
+NorunwiseinTrain=0
+NFiles=0
 
 #There are Settings to be used beforehand
 TrainPage=""
@@ -50,6 +49,7 @@ OutName=""
 Search=".root"
 OptRunlistName=list
 OptIsJJ=0
+Optfast=0
 OptRunlistNameSet=0
 OptNoRunlist=0
 OptAllRunlists=0
@@ -58,10 +58,14 @@ MergeTrains=0
 MultiTrains=0
 Userunwise=0
 UseOnlyrunwise=0
+NorunwiseinTrain=0
 SetOutName=""
-OptZip=0
+OptZip=1
+OptZipRun=0
+OptZipSubRun=0
 Usechildsareperiods=0
 newfiles=0
+RedoMerging=0
 re='^[0-9]+$'
 
 RunningScripts=0
@@ -212,6 +216,7 @@ function Init(){
 	if [[ $thisuser = "adrian"  ]]
 	then
 		BASEDIR="/media/adrian/Adrian/grid_data"
+		# BASEDIR="/home/adrian/grid_data"
 		FrameworkDir="/home/adrian/git/AnalysisSoftware"
 		UserName="Adrian Mechler";
 		pathtocert="~/.globus"
@@ -347,6 +352,259 @@ function Finish(){
 	echo;
 	new_rm $lockfile
 }
+
+# Fuction to check if file is there and download it if not
+function GetFile_jalien(){
+
+	debugtmp=0
+	silent=0
+	if [ "$#" == "4" ]; then
+		if [[ $4 = 0 ]]; then
+			silent=1
+		fi
+		# debugtmp=$4
+	fi
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]] ; then
+		debugtmp=1
+	fi
+	if [[ $debugtmp = 1 ]] || [[ $debug = 3 ]]; then
+		echo -e "\e[33mGetFile(): \e[0m alien_cp $1 file:///$2" | tee -a $LogFile
+		# echo -e "\e[33mGetFile(): \e[0m alien:/$1  file:/$2" | tee -a $LogFile
+	fi
+
+	if [[ -f $3 ]]; then
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+			cat $3 | tee -a $LogFile
+		fi
+		if [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]] && [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]]; then
+			if [[ -f $2 ]]; then
+				new_rm $2
+				if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+					echo -e "\t deleting $2" | tee -a $LogFile
+				fi
+			fi
+		fi
+	fi
+
+	if [[ -f $2 ]] # Check if file there
+	then
+		if [[ $debugtmp = 1 ]] || [[ $debugtmp = 2 ]]; then
+			echo -e "\e[33m|-> \e[0mFile $2 exists." | tee -a $LogFile
+		else
+			if [[ $silent = 1 ]]; then
+				printf "\e[33m|-> \e[0mFile exists." >> $LogFile
+			else
+				printf "\e[33m|-> \e[0mFile exists." | tee -a $LogFile
+			fi
+		fi
+	else
+		# if [[ $isjalien = 1 ]]; then
+		# 	tmp=`alien.py ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+		# else
+			tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+		# fi
+		while [[ ! $? = "0" ]]; do
+			print "."
+			# if [[ $isjalien = 1 ]]; then
+			# 	tmp=`alien.py ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+			# else
+				tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+			# fi
+		done
+		if [[ $tmp -eq 0 ]]; then
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+				echo -e "\e[33m|-> \e[0mDownloading file alien:/$1" | tee -a $LogFile
+				alien_cp $1 file:///$2 &> $3
+				# alien_cp -o  alien:/$1 file:/$2 &> $3
+			else
+				if [[ $silent = 1 ]]; then
+					printf "\e[33m|-> \e[0mDownloading file" >> $LogFile
+				else
+					printf "\e[33m|-> \e[0mDownloading file" | tee -a $LogFile
+				fi
+				alien_cp $1 file:///$2 &> $3
+				# alien_cp -o  alien:/$1 file:/$2 &> $3
+			fi
+			downexitstatus=$?
+			tmpdowncount=1
+			if [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; then
+				printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
+			fi
+			while [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; do
+				if [[ $tmpdowncount = 10 ]]; then
+					echo "." | tee -a $LogFile
+					break
+				fi
+				printf "${tmpdowncount} " | tee -a $LogFile
+				alien_cp $1 file:///$2 &> $3
+				# alien_cp -o  alien:/$1 file:/$2 &> $3
+				downexitstatus=$?
+				((tmpdowncount++))
+			done
+			# if [[ -f $2 ]] && [[ `grep "SUCCESS" $3 | wc -l` > 0 ]]  && [[ ! `grep "STATUS OK" $3 | wc -l` > 0 ]]; then
+			if [[ -f $2 ]] && [[ `grep "jobID: 1/1 >>> Start" $3 | wc -l` > 0 ]]  && [[ ! `cat $3 | wc -l` > 1 ]]; then
+				if [[ $silent = 1 ]]; then
+					printf "  \e[33m|->\e[0m successful  " >> $LogFile
+				else
+					printf "  \e[33m|->\e[0m successful  " | tee -a $LogFile
+				fi
+			else
+				printf "  \e[33m|->\e[0m Download failed "   | tee -a $ErrorLog | tee -a $LogFile
+				cat $3
+			fi
+		else
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+			then
+				printf "\e[31m|->\e[0m missing $1 on alien"    | tee -a $ErrorLog | tee -a $LogFile
+			else
+				printf "\e[31m|->\e[0m missing on alien"  | tee -a $ErrorLog | tee -a $LogFile
+			fi
+		fi
+	fi
+
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+		cat $3 | tee -a $LogFile
+	fi
+
+}
+
+function GetFile_alienrootLegacy(){
+
+	debugtmp=0
+	silent=0
+	if [ "$#" == "4" ]; then
+		if [[ $4 = 0 ]]; then
+			silent=1
+		fi
+		# debugtmp=$4
+	fi
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]] ; then
+		debugtmp=1
+	fi
+	if [[ $debugtmp = 1 ]] || [[ $debug = 3 ]]; then
+		echo -e "\e[33mGetFile(): \e[0m alien_cp $1 file:///$2" | tee -a $LogFile
+		# echo -e "\e[33mGetFile(): \e[0m alien:/$1  file:/$2" | tee -a $LogFile
+	fi
+
+	if [[ -f $3 ]]; then
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+			cat $3 | tee -a $LogFile
+		fi
+		if [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]] && [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]]; then
+			if [[ -f $2 ]]; then
+				new_rm $2
+				if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+					echo -e "\t deleting $2" | tee -a $LogFile
+				fi
+			fi
+		fi
+	fi
+
+	if [[ -f $2 ]] # Check if file there
+	then
+		if [[ $debugtmp = 1 ]] || [[ $debugtmp = 2 ]]; then
+			echo -e "\e[33m|-> \e[0mFile $2 exists." | tee -a $LogFile
+		else
+			# echo -e "\e[33m|-> \e[0mFile $2 exists." >> $LogFile
+			if [[ $silent = 1 ]]; then
+				printf "\e[33m|-> \e[0mFile exists." >> $LogFile
+			else
+				printf "\e[33m|-> \e[0mFile exists." | tee -a $LogFile
+			fi
+		fi
+	else
+		tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+		while [[ ! $? = "0" ]]; do
+			print "."
+			tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
+		done
+		if [[ $tmp -eq 0 ]]; then
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+				echo -e "\e[33m|-> \e[0mDownloading file alien:/$1" | tee -a $LogFile
+				alien_cp -o  alien:/$1 file:/$2 &> $3
+			else
+				if [[ $silent = 1 ]]; then
+					printf "\e[33m|-> \e[0mDownloading file" >> $LogFile
+				else
+					printf "\e[33m|-> \e[0mDownloading file"  | tee -a $LogFile
+				fi
+				alien_cp -o  alien:/$1 file:/$2 &> $3
+			fi
+			downexitstatus=$?
+			tmpdowncount=1
+			if [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; then
+				if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+					printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
+				else
+					if [[ $silent = 1 ]]; then
+						printf "  \e[33m|->\e[0m Retry " >> $LogFile
+					else
+						printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
+					fi
+				fi
+			fi
+			while [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; do
+				if [[ $tmpdowncount = 10 ]]; then
+					echo "." | tee -a $LogFile
+					break
+				fi
+				printf "${tmpdowncount} " | tee -a $LogFile
+				alien_cp -o  alien:/$1 file:/$2 &> $3
+				downexitstatus=$?
+				((tmpdowncount++))
+			done
+			if [[ -f $2 ]] && [[ `grep "100.00 %" $3 | wc -l` > 0 ]] && [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]]; then
+				if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+					printf "  \e[33m|->\e[0m successful  " | tee -a $LogFile
+				else
+					if [[ $silent = 1 ]]; then
+						printf "  \e[33m|->\e[0m successful  " >> $LogFile
+					else
+						printf "  \e[33m|->\e[0m successful  " | tee -a $LogFile
+					fi
+				fi
+			else
+				printf "  \e[33m|->\e[0m Download failed "   | tee -a $ErrorLog | tee -a $LogFile
+			fi
+		else
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+			then
+				printf "\e[31m|->\e[0m missing $1 on alien"    | tee -a $ErrorLog | tee -a $LogFile
+			else
+				printf "\e[31m|->\e[0m missing on alien"  | tee -a $ErrorLog | tee -a $LogFile
+			fi
+		fi
+	fi
+
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+		cat $3 | tee -a $LogFile
+	fi
+}
+
+function GetFile(){
+	if [[ $isjalien = 1 ]]; then
+		GetFile_jalien $1 $2 $3 $4
+	else
+		GetFile_alienrootLegacy $1 $2 $3 $4
+	fi
+}
+function GetFileZip(){
+	GetFile $1 $2 $3
+	if [[ -f $2 ]]; then
+		if [[ ! -f "$2.zipped" ]]; then
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+			then
+				unzip -o $2 -d $4/ | tee -a $LogFile
+			else
+				unzip -o $2 -d $4/ >> $LogFile
+			fi
+			touch "$2.zipped"
+		# else
+			# printf "\e[33m|-> Files was unzipped already :\e[0m " | tee -a $LogFile
+		fi
+	fi
+	echo;
+}
 function InitilaizeChild(){
 	echo
 	echo  -e "\e[35m=====================================\e[0m" | tee -a $LogFile
@@ -377,13 +635,18 @@ function InitilaizeChild(){
 
 	# get one globalvariables.C to get information about the child
 	GlobalVariablesPath="$OUTPUTDIR/.$1/$GlobalVariablesFile"
-	GetFile "$AlienDir$1/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 1
-	echo;
+	GetFile "$AlienDir$1/$GlobalVariablesFile" "$GlobalVariablesPath" $GlobalVariablesPath.downlog 0
+	# echo;
 
 	ChildName=`grep "periodName =" "$GlobalVariablesPath" | awk -F "= " '{print $2}' | awk -F ";" '{print $1}' | awk -F "\"" '{print $2}'`
 	if [[ $ChildName = "" ]]; then ChildName=`grep "periodName =" "$GlobalVariablesPath" | awk -F "=" '{print $2}' | awk -F ";" '{print $1}' | awk -F "\"" '{print $2}'`; fi
 	if [[ $ChildName = "" ]]; then ChildName=`grep "periodName=" "$GlobalVariablesPath" | awk -F "=" '{print $2}' | awk -F ";" '{print $1}' | awk -F "\"" '{print $2}'`; fi
-	echo -e " periodName = $ChildName" | tee -a $LogFile
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+	then
+		echo -e " periodName = $ChildName" | tee -a $LogFile
+	else
+		echo -e " periodName = $ChildName" >> $LogFile
+	fi
 
 	ChildName2=`grep "export ALIEN_JDL_child_${childID}_LPMPRODUCTIONTAG" $envFile | cut -d "'" -f 2`
 	# ChildName=`echo $(head -n 1 $PathtoRuns) | awk -F "/" '{print $7}' ` | tee -a $LogFile
@@ -394,7 +657,9 @@ function InitilaizeChild(){
 		ChildName2=`grep "export ALIEN_JDL_LPMPRODUCTIONTAG=" $envFile | cut -d "'" -f 2 | cut -d "/" -f 5`
 	fi
 	if [[ $Usechildsareperiods = 1 ]] || [[ ! $ChildName == $ChildName2 ]]; then
-		echo -e "\e[33m|->\e[0m Changed periodName = $ChildName2" | tee -a $LogFile
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+			echo -e "\e[33m|->\e[0m Changed periodName = $ChildName2" | tee -a $LogFile
+		fi
 		ChildName=$ChildName2
 	fi
 
@@ -403,9 +668,31 @@ function InitilaizeChild(){
 		Type='sim'
 	fi
 	Year="20${ChildName:3:2}"
-	echo -e "\e[33m|->\e[0m Type: $Type; Year: $Year" | tee -a $LogFile
+	echo -e "\e[33m|->\e[0m Type: $Type; Year: $Year; periodName: $ChildName" | tee -a $LogFile
 
 
+}
+function GetChilds(){
+	# if [[ $isjalien = 1 ]]; then
+	# 	cmd="alien.py ls $AlienDir 2> /dev/null | grep $TrainNumber\_2 &> $1"
+	# else
+		cmd="alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2 &> $1"
+	# fi
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+	then
+		echo $cmd | tee -a $LogFile
+	fi
+	tmpcouuntnew=0
+	eval $cmd
+	while [[ ! $? = "0" ]] ; do
+		if [[ $tmpcouuntnew > 5 ]]; then break; fi
+		((tmpcouuntnew++))
+		eval $cmd
+		# alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2  | tee $1
+		# printf "${tmpcouuntnew} " | tee -a $LogFile
+		# printf "."<
+		sleep 1
+	done
 }
 function InitilaizeTrain(){
 	TrainNumber=$1
@@ -455,38 +742,51 @@ function InitilaizeTrain(){
 	tmphere=0
 	while [[ $Childeone = "" ]]; do
 		GetChilds $List
+		if [[ -f $List ]]; then
+			if [[ $Childeone = "" ]]
+			then
+				Childeone=`sed '2q;d' $List`
+			fi
+			if [[ $Childeone = "" ]]
+			then
+				Childeone=`sed '1q;d' $List`
+			fi
+			if [[ $Childeone = "" ]]
+			then
+				Childeone=`sed '0q;d' $List`
+			fi
+		fi
 
-		if [[ $Childeone = "" ]]
-		then
-			Childeone=`sed '2q;d' $List`
+		if [[ $tmphere > 9 ]]; then
+			echo -e "\e[33m|->\e[0m Childeone ($Childeone) not found" | tee -a $LogFile
+			return 0
 		fi
-		if [[ $Childeone = "" ]]
-		then
-			Childeone=`sed '1q;d' $List`
+		if [[ $tmphere > 0 ]]; then
+			printf "."
 		fi
-		if [[ $Childeone = "" ]]
-		then
-			Childeone=`sed '0q;d' $List`
-		fi
-		# if [[ $tmphere > 5 ]]; then
-		# 	return 0
-		# fi
-		printf "."
 		((tmphere++))
 		sleep 1
 	done
 	# cat $List
-	echo -e "\e[33m|->\e[0m $Childeone" | tee -a $LogFile
-	GetFile "$AlienDir$Childeone/env.sh" "$envFile" "$envFile.downlog" 1
-	echo
+	GetFile "$AlienDir$Childeone/env.sh" "$envFile" "$envFile.downlog" 0
+	# echo
 	PERIODNAME=`grep "PERIOD_NAME=" $envFile | awk -F "=" '{print $2}' | awk -F ";" '{print $1}'`
-	echo "PERIODNAME = $PERIODNAME" | tee -a $LogFile
 	NCHilds=`grep "CHILD_DATASETS=" $envFile | awk -F "=" '{print $2}' | awk -F ";" '{print $1}'`
-	echo "NCHilds = $NCHilds" | tee -a $LogFile
-	echo
+	SLOWTRAINRUN=`grep "SLOW_TRAIN_RUN=" $envFile | awk -F "=" '{print $2}' | awk -F ";" '{print $1}'`
+	if [[ $SLOWTRAINRUN = '0' ]]; then
+		NorunwiseinTrain=1
+	fi
+	if [[ $debug = 2 ]] || [[ $debug = 1 ]]
+	then
+		echo -e "\e[33m|->\e[0m $Childeone" | tee -a $LogFile
+		echo "PERIODNAME = $PERIODNAME" | tee -a $LogFile
+		echo "NCHilds = $NCHilds" | tee -a $LogFile
+		echo
+	fi
 
 	lego_train_mergePath="$OUTPUTDIR/.lego_train_merge.C"
-	GetFile $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog 1; echo
+	GetFile $AlienDir$Childeone/lego_train_merge.C "$lego_train_mergePath" $lego_train_mergePath.downlog 0
+	# echo
 	grep "TString outputFiles" "$lego_train_mergePath"  | awk -F "\"" '{print $2}' > $FilenamesinTrain.tmp
 	sed -i 's/,/\n/g' $FilenamesinTrain.tmp
 	sed -i 's/ //g' $FilenamesinTrain.tmp
@@ -523,6 +823,7 @@ function InitilaizeRunlist(){
 	arrypos=$1
 	useSpecificRunlist=0
 	SearchSpecificRunlist=""
+	RLextension=""
 	# RunlistName=""
 	FileList=""
 	NumberOfRuns=0
@@ -605,14 +906,13 @@ function InitilaizeRunlist(){
 
 	# look for availible Files
 	if [[ ! $useSpecificRunlist = 1 ]]; then
-		if [[ $newfiles = 0 ]];then
-			if [[ ! -f $FileList ]]; then
-				newfiles=1
-			elif [[  `grep "$Search" $FileList | wc -l` < 1 ]]; then
-				newfiles=1
-			fi
+		newfilestmp=0
+		if [[ ! -f $FileList ]]; then
+			newfilestmp=1
+		elif [[  `grep "$Search" $FileList | wc -l` < 1 ]]; then
+			newfilestmp=1
 		fi
-		if [[ $newfiles = 1 ]] || [ ! -f $FileList ]; then
+		if [[ $newfilestmp = 1 ]] || [ ! -f $FileList ]; then
 			cmd="alien_ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null > tmp.txt"
 			eval $cmd
 			usecmd $cmd
@@ -668,15 +968,22 @@ function ParseSettings(){
 			SetOutName=${setting#*-Name_}
 		elif [[ $setting = "?_"* ]]
 		then
+			((NFiles++))
 			if [[ $OptDownloadAll = 1 ]]; then
 				OptDownloadAll=0
 			fi
 			Searchtmp=${setting#*\?_}
-			if [[ $Searchtmp = *".zip" ]]; then
-				if [[ $Search = ".root" ]]; then
-					OptDownloadAll=1
-				fi
+			if [[ $Searchtmp = ".root" ]]; then
+				OptDownloadAll=1
 				OptZip=1
+				OptZipRun=1
+				OptZipSubRun=1
+				Search=*$Searchtmp*
+			fi
+			if [[ $Searchtmp = *".zip" ]]; then
+				OptZip=1
+				OptZipRun=1
+				OptZipSubRun=1
 				Search=*$Searchtmp*
 			else
 				echo $Searchtmp >> $Searchfile
@@ -717,7 +1024,7 @@ function ParseSettings(){
 		elif [[ $setting = "-runwise" ]]
 		then
 			Userunwise=1
-		elif [[ $setting = "-isjalien" ]]
+		elif [[ $setting = "-isjalien" ]] || [[ $setting = "-jalien" ]]
 		then
 			isjalien=1
 			echo "selecting isjalien"
@@ -728,6 +1035,9 @@ function ParseSettings(){
 		elif [[ $setting = "-childsareperiods" ]]
 		then
 			Usechildsareperiods=1
+		elif [[ $setting = "-fast" ]]
+		then
+			Optfast=1
 		elif [[ $setting = "-IsJJ" ]]
 		then
 			OptIsJJ=1
@@ -788,11 +1098,21 @@ function ParseSettings(){
 		elif [[ $setting = "-debug4" ]]
 		then
 			debug=4
-		elif [[ $setting = "-newfiles" ]]
+		elif [[ $setting = "-newfiles" ]] || [[ $setting = "-newFiles" ]]
 		then
 			newfiles=1
+		elif [[ $setting = "-RedoMerging" ]] || [[ $setting = "-redomerging" ]]
+		then
+			RedoMerging=1
 		fi
 	done
+
+	if [[ $NFiles > 3 ]]; then
+		OptZip=1
+		OptZipRun=1
+		OptZipSubRun=1
+		echo -e "\e[33m|-> \e[0m enable downloading zip files" | tee -a $LogFile
+	fi
 
 	# cat $useSpecificRunlistfile >> $OptRunlistNamefile
 
@@ -873,6 +1193,9 @@ function ParseSettings(){
 	if [[ $OptIsJJ = 1 ]]; then
 		echo -e "\e[33m|-> \e[0m Processing JJMC " | tee -a $LogFile
 	fi
+	if [[ $Optfast = 1 ]]; then
+		echo -e "\e[33m|-> \e[0m not using sub run merging " | tee -a $LogFile
+	fi
 	echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
 	# echo -e "\e[33mIs this Setup correct?\e[0m (y/n)" | tee -a $LogFile
 	# printf "Answer: " | tee -a $LogFile
@@ -895,13 +1218,32 @@ function ParseSettings(){
 		for TrainNumber in `cat $TrainNumberFile`
 		do
 			for file in `find  $BASEDIR/.$TrainPage-$TrainNumber/ -name FileList.txt`; do new_rm $file; done
+			for file in `find  $BASEDIR/.$TrainPage-$TrainNumber/ -name .AllPathList.txt`; do new_rm $file; done
+			for file in `find  $BASEDIR/.$TrainPage-$TrainNumber/ -name PathList.txt`; do new_rm $file; done
+			for file in `find  $BASEDIR/.$TrainPage-$TrainNumber/ -name .NorunwiseinTrainFile.txt`; do new_rm $file; done
 		done
 		printf " done \n" | tee -a $LogFile
+	fi
+	if [ $RedoMerging = 1 ]; then
+		echo -e "\e[33m|-> \e[0m RedoMerging files" | tee -a $LogFile
+		for TrainNumber in `cat $TrainNumberFile`
+		do
+			for TMPfile in `find $BASEDIR/.$TrainPage-$TrainNumber/ -name "*.merged"`; do
+				for TMPfile2 in `cat $TMPfile`; do
+					new_rm $TMPfile2
+				done
+				rm $TMPfile
+			done
+		done
+		exit
 	fi
 
 }
 function Parsehtml(){
-	printf "\e[33m|-> \e[0m start Parsehtml...\n" | tee -a $LogFile
+	if [[ $debug = 2 ]] || [[ $debug = 1 ]]
+	then
+		printf "\e[33m|-> \e[0m start Parsehtml...\n" | tee -a $LogFile
+	fi
 	# parse html to get infos
 	for line in `cat $TrainPageHTML`
 	do
@@ -919,7 +1261,10 @@ function Parsehtml(){
 					echo -e "\e[33m|-> \e[0m found period" | tee -a $LogFile
 				fi
 				if [[ $NCHilds = "'1'" ]] ; then
-					echo -e "\e[33m|-> \e[0m skipping searching childs" | tee -a $LogFile
+					if [[ $debug = 2 ]] || [[ $debug = 1 ]]
+					then
+						echo -e "\e[33m|-> \e[0m skipping searching childs" | tee -a $LogFile
+					fi
 					foundchild=1
 
 					if [[ $OptNoRunlist = 1 ]]; then
@@ -1099,7 +1444,9 @@ function Parsehtml(){
 							LIST_RunlistID+=($RunlistID)
 							LIST_foundRunlists+=($foundRunlists)
 							LIST_RunlistOnTrainpage+=($RunlistOnTrainpage)
-							printf "$Searchedrunlist found \n" | tee -a $LogFile
+							if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+								printf "$Searchedrunlist found \n" | tee -a $LogFile
+							fi
 							# return
 						fi
 					fi
@@ -1118,7 +1465,10 @@ function Parsehtml(){
 			fi
 		fi
 	done
-	printf "\t\t\t done \n" | tee -a $LogFile
+	if [[ $debug = 2 ]] || [[ $debug = 1 ]]
+	then
+		printf "\t\t\t done \n" | tee -a $LogFile
+	fi
 }
 function doMergeTrainsPeriods(){
 	echo  -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
@@ -1416,9 +1766,58 @@ function SeachFilesOnAlienAndAddToList(){
 	done
 	new_rm  tmp.txt
 }
+function FindPathsAndAddToListnew(){
+	# printf "\e[36m--  FindPathsAndAddToList \e[0m" | tee -a $LogFile
+	# if [[ ! -f $2 ]]  || [ "$(( $(date +"%s") - $(stat -c "%Y" $2) ))" -gt "604800" ]; then  # 86400 = 1 Day
+		cmd="alien_find $1 $3  2> /dev/null  > $2.tmp"
+
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+		then
+			echo;
+			echo "$cmd" | tee -a $LogFile
+		fi
+		tmpcouuntnew=1
+		# echo "$cmd" | tee -a $LogFile
+		eval $cmd
+		tmpreturn=$?
+		if [[ ! -f $2.tmp ]]; then
+			tmpreturn="0"
+		fi
+		if [[ -f "$2.tmp" ]]; then
+			if [[ `cat "$2.tmp" | wc -l`  < 1 ]]; then
+				tmpreturn="0"
+			fi
+		fi
+		if [[ ! "$tmpreturn" = "0" ]]; then
+			printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
+			eval $cmd
+			tmpreturn=$?
+		fi
+		if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+		then
+			if [[ -f "$2.tmp" ]]; then
+				cat "$2.tmp"
+			fi
+		fi
+		if [[ ! -f $2.tmp ]]; then
+			tmpreturn="0"
+		fi
+		if [[ -f "$2.tmp" ]]; then
+			if [[ `cat "$2.tmp" | wc -l`  < 1 ]]; then
+				tmpreturn="0"
+			fi
+		fi
+		if [[ ! "$tmpreturn" = "0" ]]; then
+			# sed -n '/files/!p' $2.tmp >  $2.tmp
+			AddToList $2.tmp $2
+			new_rm $2.tmp
+		fi
+	# fi
+}
 function FindPathsAndAddToList(){
-	printf "\e[36m--  FindPathsAndAddToList \e[0m" | tee -a $LogFile
-	if [[ ! -f $2 ]]  || [ "$(( $(date +"%s") - $(stat -c "%Y" $2) ))" -gt "604800" ]; then  # 86400 = 1 Day
+	# printf "\e[36m--  FindPathsAndAddToList \e[0m" | tee -a $LogFile
+	new_rm $2.tmp
+	# if [[ ! -f $2 ]]  || [ "$(( $(date +"%s") - $(stat -c "%Y" $2) ))" -gt "604800" ]; then  # 86400 = 1 Day
 		# if [[ $isjalien = 1 ]]; then
 		# 	cmd="alien.py find $1 $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $2.tmp"
 		# else
@@ -1436,13 +1835,34 @@ function FindPathsAndAddToList(){
 		tmpcouuntnew=1
 		eval $cmd
 		tmpreturn=$?
-		if [[ ! "$tmpreturn" = "0" ]] || [[ ! -f $2.tmp ]] || [[ `cat $2.tmp | wc -l`  < 1 ]]; then
+		if [[ ! -f $2.tmp ]]; then
+			tmpreturn="0"
+		fi
+		if [[ -f $2.tmp ]]; then
+			if [[ `cat $2.tmp | wc -l`  < 1 ]]; then
+				tmpreturn="0"
+			fi
+		fi
+		if [[ ! "$tmpreturn" = "0" ]]; then
 			printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
 			eval $cmd
 			tmpreturn=$?
 		fi
 		# else
-		if [[ "$tmpreturn" = "0" ]] && [[ -f $2.tmp ]] && [[ `cat $2.tmp | wc -l`  > 0 ]]; then
+		if [[ ! -f $2.tmp ]]; then
+			tmpreturn="0"
+		fi
+		if [[ -f $2.tmp ]]; then
+			if [[ `cat $2.tmp | wc -l`  < 1 ]]; then
+				tmpreturn="0"
+			fi
+		fi
+		if [[ "$tmpreturn" = "0" ]]; then
+			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+			then
+				cat $2.tmp
+			fi
+			# sed -n '/files/!p' $2.tmp >  $2.tmp
 			AddToList $2.tmp $2
 			new_rm $2.tmp
 		# fi
@@ -1451,9 +1871,12 @@ function FindPathsAndAddToList(){
 		# if [[ ! "$tmpreturn" = "0" ]] || [[ ! -f $2.tmp ]] || [[ `cat $2.tmp | wc -l`  < 1 ]]; then
 			printf "  -- alien_find didn't work trying runwise -- \n" | tee -a $LogFile
 			for runName in `cat $4`; do
+
 				tmprunfilename=${2%AllPathList*}$5$runName
+				new_rm $tmprunfilename.tmp
+				touch $tmprunfilename.tmp
 				# echo $tmprunfilename
-				if [[ ! -f "$tmprunfilename.txt" ]] || [[ $newfiles = 1 ]]; then
+				if [[ ! -f "$tmprunfilename.txt" ]]; then
 					tmpdirusing="$1$5$runName"
 					if (( `echo -n $childID | wc -c` > 3 )); then
 						cmd="alien_find $tmpdirusing $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep $childID/ > $tmprunfilename.tmp"
@@ -1474,7 +1897,15 @@ function FindPathsAndAddToList(){
 					fi
 					tmpreturn=$?
 					retried=0
-					if [[ ! "$tmpreturn" = "0" ]] || [[ `cat $tmprunfilename.tmp | wc -l`  < 1 ]]; then
+					if [[ ! -f $2.tmp ]]; then
+						tmpreturn="0"
+					fi
+					if [[ -f $2.tmp ]]; then
+						if [[ `cat $2.tmp | wc -l`  < 1 ]]; then
+							tmpreturn="0"
+						fi
+					fi
+					if [[ ! "$tmpreturn" = "0" ]]; then
 						retried=1
 						printf "\n $runName  \e[33m|->\e[0m Retry " | tee -a $LogFile
 						eval $cmd
@@ -1496,6 +1927,7 @@ function FindPathsAndAddToList(){
 						continue
 					fi
 					# cat "$tmprunfilename.tmp"
+					# sed -n '/files/!p' $2.tmp >  $2.tmp
 					AddToList "$tmprunfilename.tmp" "$tmprunfilename.txt"
 					new_rm "$tmprunfilename.tmp"
 				fi
@@ -1503,14 +1935,14 @@ function FindPathsAndAddToList(){
 			done
 		fi
 		echo;
-	else
-		printf "  \e[33m|->\e[0m is up to date \n" | tee -a $LogFile
-	fi
+	# else
+	# 	printf "  \e[33m|->\e[0m is up to date \n" | tee -a $LogFile
+	# fi
 }
 function GrapPathsAndAddToList(){
-	grep $1 $3 > $2.tmp
-	AddToList $2.tmp $2
-	new_rm $2.tmp
+	grep "$1" "$3" > "$2.tmp"
+	AddToList "$2.tmp" "$2"
+	new_rm "$2.tmp"
 }
 function FindAllRunsAndAddToList(){
 	maxtmp=1
@@ -1564,218 +1996,7 @@ function FindAllRunsAndAddToList(){
 		fi
 	done
 }
-function GetChilds(){
-	# if [[ $isjalien = 1 ]]; then
-	# 	cmd="alien.py ls $AlienDir 2> /dev/null | grep $TrainNumber\_2 &> $1"
-	# else
-		cmd="alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2 &> $1"
-	# fi
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-	then
-		echo $cmd | tee -a $LogFile
-	fi
-	tmpcouuntnew=0
-	eval $cmd
-	while [[ ! $? = "0" ]] ; do
-		if [[ $tmpcouuntnew > 10 ]]; then break; fi
-		((tmpcouuntnew++))
-		eval $cmd
-		# alien_ls $AlienDir 2> /dev/null | grep $TrainNumber\_2  | tee $1
-		printf "${tmpcouuntnew} " | tee -a $LogFile
-		# printf "."
-		sleep 2
-	done
-}
-# Fuction to check if file is there and download it if not
-function GetFile_jalien(){
 
-	debugtmp=0
-	if [ "$#" == "4" ]; then
-		debugtmp=$4
-	fi
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]] ; then
-		debugtmp=1
-	fi
-	if [[ $debugtmp = 1 ]] || [[ $debug = 3 ]]; then
-		echo -e "\e[33mGetFile(): \e[0m alien_cp $1 file:///$2" | tee -a $LogFile
-		# echo -e "\e[33mGetFile(): \e[0m alien:/$1  file:/$2" | tee -a $LogFile
-	fi
-
-	if [[ -f $3 ]]; then
-		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-			cat $3 | tee -a $LogFile
-		fi
-		if [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]] && [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]]; then
-			if [[ -f $2 ]]; then
-				new_rm $2
-				if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-					echo -e "\t deleting $2" | tee -a $LogFile
-				fi
-			fi
-		fi
-	fi
-
-	if [[ -f $2 ]] # Check if file there
-	then
-		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-			echo -e "\e[33m|-> \e[0mFile $2 exists." | tee -a $LogFile
-		else
-			printf "\e[33m|-> \e[0mFile exists." | tee -a $LogFile
-		fi
-	else
-		# if [[ $isjalien = 1 ]]; then
-		# 	tmp=`alien.py ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
-		# else
-			tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
-		# fi
-		while [[ ! $? = "0" ]]; do
-			print "."
-			# if [[ $isjalien = 1 ]]; then
-			# 	tmp=`alien.py ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
-			# else
-				tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
-			# fi
-		done
-		if [[ $tmp -eq 0 ]]; then
-			if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-				echo -e "\e[33m|-> \e[0mDownloading file alien:/$1" | tee -a $LogFile
-				alien_cp $1 file:///$2 &> $3
-				# alien_cp -o  alien:/$1 file:/$2 &> $3
-			else
-				printf "\e[33m|-> \e[0mDownloading file" | tee -a $LogFile
-				alien_cp $1 file:///$2 &> $3
-				# alien_cp -o  alien:/$1 file:/$2 &> $3
-			fi
-			downexitstatus=$?
-			tmpdowncount=1
-			if [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; then
-				printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
-			fi
-			while [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; do
-				if [[ $tmpdowncount = 10 ]]; then
-					echo "." | tee -a $LogFile
-					break
-				fi
-				printf "${tmpdowncount} " | tee -a $LogFile
-				alien_cp $1 file:///$2 &> $3
-				# alien_cp -o  alien:/$1 file:/$2 &> $3
-				downexitstatus=$?
-				((tmpdowncount++))
-			done
-			# if [[ -f $2 ]] && [[ `grep "SUCCESS" $3 | wc -l` > 0 ]]  && [[ ! `grep "STATUS OK" $3 | wc -l` > 0 ]]; then
-			if [[ -f $2 ]] && [[ `grep "jobID: 1/1 >>> Start" $3 | wc -l` > 0 ]]  && [[ ! `cat $3 | wc -l` > 1 ]]; then
-				printf "  \e[33m|->\e[0m successful  " | tee -a $LogFile
-			else
-				printf "  \e[33m|->\e[0m Download failed "   | tee -a $ErrorLog | tee -a $LogFile
-				cat $3
-			fi
-		else
-			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-			then
-				printf "\e[31m|->\e[0m missing $1 on alien"    | tee -a $ErrorLog | tee -a $LogFile
-			else
-				printf "\e[31m|->\e[0m missing on alien"  | tee -a $ErrorLog | tee -a $LogFile
-			fi
-		fi
-	fi
-
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-		cat $3 | tee -a $LogFile
-	fi
-
-}
-
-function GetFile_alienrootLegacy(){
-
-	debugtmp=0
-	if [ "$#" == "4" ]; then
-		debugtmp=$4
-	fi
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]] ; then
-		debugtmp=1
-	fi
-	if [[ $debugtmp = 1 ]] || [[ $debug = 3 ]]; then
-		echo -e "\e[33mGetFile(): \e[0m alien_cp $1 file:///$2" | tee -a $LogFile
-		# echo -e "\e[33mGetFile(): \e[0m alien:/$1  file:/$2" | tee -a $LogFile
-	fi
-
-	if [[ -f $3 ]]; then
-		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-			cat $3 | tee -a $LogFile
-		fi
-		if [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]] && [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]]; then
-			if [[ -f $2 ]]; then
-				new_rm $2
-				if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-					echo -e "\t deleting $2" | tee -a $LogFile
-				fi
-			fi
-		fi
-	fi
-
-	if [[ -f $2 ]] # Check if file there
-	then
-		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-			echo -e "\e[33m|-> \e[0mFile $2 exists." | tee -a $LogFile
-		else
-			printf "\e[33m|-> \e[0mFile exists." | tee -a $LogFile
-		fi
-	else
-		tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
-		while [[ ! $? = "0" ]]; do
-			print "."
-			tmp=`alien_ls $1 2> /dev/null | grep "no such file or directory" | wc -c`
-		done
-		if [[ $tmp -eq 0 ]]; then
-			if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-				echo -e "\e[33m|-> \e[0mDownloading file alien:/$1" | tee -a $LogFile
-				alien_cp -o  alien:/$1 file:/$2 &> $3
-			else
-				printf "\e[33m|-> \e[0mDownloading file" | tee -a $LogFile
-				alien_cp -o  alien:/$1 file:/$2 &> $3
-			fi
-			downexitstatus=$?
-			tmpdowncount=1
-			if [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; then
-				printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
-			fi
-			while [[ ! -f $2 ]] || [[ ! "$downexitstatus" = "0" ]]; do
-				if [[ $tmpdowncount = 10 ]]; then
-					echo "." | tee -a $LogFile
-					break
-				fi
-				printf "${tmpdowncount} " | tee -a $LogFile
-				alien_cp -o  alien:/$1 file:/$2 &> $3
-				downexitstatus=$?
-				((tmpdowncount++))
-			done
-			if [[ -f $2 ]] && [[ `grep "100.00 %" $3 | wc -l` > 0 ]] && [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]]; then
-				printf "  \e[33m|->\e[0m successful  " | tee -a $LogFile
-			else
-				printf "  \e[33m|->\e[0m Download failed "   | tee -a $ErrorLog | tee -a $LogFile
-			fi
-		else
-			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-			then
-				printf "\e[31m|->\e[0m missing $1 on alien"    | tee -a $ErrorLog | tee -a $LogFile
-			else
-				printf "\e[31m|->\e[0m missing on alien"  | tee -a $ErrorLog | tee -a $LogFile
-			fi
-		fi
-	fi
-
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
-		cat $3 | tee -a $LogFile
-	fi
-}
-
-function GetFile(){
-	if [[ $isjalien = 1 ]]; then
-		GetFile_jalien $1 $2 $3 $4
-	else
-		GetFile_alienrootLegacy $1 $2 $3 $4
-	fi
-}
 
 function PrepMerge() {
 	# printf "\e[33m|->\e[0m PrepMerge() " | tee -a $LogFile
