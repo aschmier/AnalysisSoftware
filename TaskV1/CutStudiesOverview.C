@@ -742,9 +742,9 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         printf("\n\n");
     } else {
         for(Int_t i = 0; i< NumberOfCuts; i++){
-            histoCorrectedYieldCutRebinned[i] =(TH1D*) histoCorrectedYieldCut[i]
+            histoCorrectedYieldCutRebinned[i] =(TH1D*) histoCorrectedYieldCut[i]->Clone(Form("histoCorrectedYieldCutRebinned_%s", cutNumber[i].Data()));
             if (isEta){
-                histoEtaToPi0CutSmoothed[i] = (TH1D*) histoEtaToPi0Cut[i]
+                histoEtaToPi0CutSmoothed[i] = (TH1D*) histoEtaToPi0Cut[i]->Clone(Form("histoEtaToPi0CutSmoothed_%s", cutNumber[i].Data()));
                 if ( smoothing == 2) {
                     histoEtaToPi0CutSmoothed[i]->Smooth(10,"R");
                 }
@@ -1808,8 +1808,8 @@ cout << "line " << __LINE__ << endl;
                 DrawGammaSetMarker(histoCorrectedYieldCut[i], 20, 1., color[0], color[0]);
                 if ( smoothing == 3) { // smoothing yields directly (not recommended)
                     histoCorrectedYieldCutRebinned[i]->Smooth(NSmoothingIterations,"R");
-                    DrawGammaSetMarker(histoCorrectedYieldCutRebinned[i], 24+i, 1.,color[i]+2,color[i]+2);
                 }
+                DrawGammaSetMarker(histoCorrectedYieldCutRebinned[i], 24+i, 1.,color[i]+2,color[i]+2);
                 histoCorrectedYieldCut[i]->DrawCopy("e1,p");
                 legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
                 if ( smoothing == 1) { // smoothing ratio with polynom (not recommended)
@@ -1827,8 +1827,8 @@ cout << "line " << __LINE__ << endl;
                 }
                 if ( smoothing == 3) { // Smoothing yilds
                     histoCorrectedYieldCutRebinned[i]->Smooth(NSmoothingIterations,"R");
-                    DrawGammaSetMarker(histoCorrectedYieldCutRebinned[i], 24+i, 1.,color[i]+2,color[i]+2);
                 }
+                DrawGammaSetMarker(histoCorrectedYieldCutRebinned[i], 24+i, 1.,color[i]+2,color[i]+2);
                 histoCorrectedYieldCut[i]->DrawCopy("same,e1,p");
                 legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], cutStringsName[i].Data());
 
@@ -2800,7 +2800,7 @@ cout << "line " << __LINE__ << endl;
         cout << "positive error graph" << endl;
         // SystErrGraphPos->Print();
 
-        if ( smoothing != 0 || doRebin) { // new plot to monitor rebinning and smoothing
+        if ( smoothing != 0 ) { // new plot to monitor rebinning and smoothing
             Double_t minpt= histoCorrectedYieldCut[0]->GetBinCenter(histoCorrectedYieldCut[0]->GetNbinsX()) + 0.5* histoCorrectedYieldCut[0]->GetBinWidth(histoCorrectedYieldCut[0]->GetNbinsX());
             Double_t maxpt= histoCorrectedYieldCut[0]->GetBinCenter(1) + 0.5* histoCorrectedYieldCut[0]->GetBinWidth(1);
             Int_t modifyer = 0;
