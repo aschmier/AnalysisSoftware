@@ -66,7 +66,9 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
                         TString fDalitz                         = "",
                         TString optionPeriod                    = "No",
                         Int_t mode                              = 9,
-                        Bool_t doBarlow                         = kFALSE
+                        Bool_t doBarlow                         = kFALSE, //kTRUE, // kFALSE,
+                        Int_t smoothing                         = 2, // 0 Off, 1 2*TCM, 2 Ratio Smooth(), 3 Yields Smooth()
+                        Bool_t doRebin                          = kTRUE  //kTRUE // kFALSE
                        ){
 
     // Define global arrays
@@ -165,6 +167,8 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
     TFile*  CutcorrPi0EtaBinfile        [ConstNumberOfCuts];
     TFile*  Cutuncorrfile               [ConstNumberOfCuts];
     TH1D*   histoCorrectedYieldCut      [ConstNumberOfCuts];
+    TH1D*   histoCorrectedYieldCut2      [ConstNumberOfCuts];
+    TH1D*   histoCorrectedYieldCut3 = NULL;
     TH1D*   histoCorrectedYieldPi0EtaCut[ConstNumberOfCuts];
     TH1D*   histoRawClusterPtCut        [ConstNumberOfCuts];
     TH1D*   histoTrueEffiCut            [ConstNumberOfCuts];
@@ -176,12 +180,17 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
     TH1D*   histoMassRatioCut           [ConstNumberOfCuts];
     TH1D*   histoWidthRatioCut          [ConstNumberOfCuts];
     TH1D*   histoEtaToPi0Cut            [ConstNumberOfCuts];
+    TH1D*   histoEtaToPi0Cut2            [ConstNumberOfCuts];
     TH1D*   histoWidthMeson             [ConstNumberOfCuts];
     TH1D*   histoSBCut                  [ConstNumberOfCuts];
     TH1D*   histoSBNarrowCut            [ConstNumberOfCuts];
     TH1D*   histoSignCut                [ConstNumberOfCuts];
     TH1D*   histoSignNarrowCut          [ConstNumberOfCuts];
     TH1D*   histoRatioCorrectedYieldCut [ConstNumberOfCuts];
+    TH1D*   histoRatioCorrectedYieldCut2 [ConstNumberOfCuts];
+    TH1D*   histoRatioCorrectedYieldCut3 [ConstNumberOfCuts];
+    TF1*    fitInvYieldPi0              [ConstNumberOfCuts];
+    TF1*    fitInvYieldPi0Ratio         [ConstNumberOfCuts];
     TH1D*   histoRatioTrueEffiCut       [ConstNumberOfCuts];
     TH1D*   histoRatioAcceptanceCut     [ConstNumberOfCuts];
     TH1D*   histoRatioRawYieldCut       [ConstNumberOfCuts];
@@ -209,6 +218,9 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
     TString            centralityStringOutput                   = "";
     Double_t           maxPt                                    = 0;
     Bool_t             kSpecialTrigger                          = kFALSE;
+
+    TString            nameCorrectedYield;
+    Int_t              maxrebins;
 
     if (cutVariationName.CompareTo("SpecialTrigg") == 0){
         kSpecialTrigger                                         = kTRUE;
@@ -357,7 +369,10 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             cutStringsName[i]                                   = AnalyseRapidityMesonCutpPb(CutNumberToInteger(fRapidityCut));
         } else if (cutVariationName.Contains("MCSmearing")){
             TString fMCSmearing                                 = fMesonCutSelection(GetMesonUseMCPSmearingCutPosition(),1);
-            cutStringsName[i]                                   = AnalyseMCSmearingCut(CutNumberToInteger(fMCSmearing));
+            if (mode == 2)
+                cutStringsName[i]                                   = AnalyseMCSmearingCut(CutNumberToInteger(fMCSmearing),kTRUE);
+            else
+                cutStringsName[i]                                   = AnalyseMCSmearingCut(CutNumberToInteger(fMCSmearing));
         } else if (cutVariationName.Contains("ClusterTrackMatchingCalo")){
             TString fTrackMatching                              = fClusterCutSelection(GetClusterTrackMatchingCutPosition(fClusterCutSelection),1);
             TString fClusterType                                = fClusterCutSelection(GetClusterTypeCutPosition(fClusterCutSelection),1);
@@ -382,9 +397,12 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
             cout << fMinEnergyCut << "\t" << GetClusterMinEnergyCutPosition(fClusterCutSelection) << "\t"<< fClusterCutSelection.Length()<<endl;
             cutStringsName[i]                                   = AnalyseMinEnergyCut(CutNumberToInteger(fMinEnergyCut));
             if(mode == 3 || mode == 5) cutStringsName[i]        = AnalyseMinEnergyCutPHOS(CutNumberToInteger(fMinEnergyCut));
-        } else if (cutVariationName.Contains("ClusterTiming")){
+        } else if (cutVariationName.Contains("ClusterTiming") || cutVariationName.Contains("CellTiming")){
             TString fTimingCut                                  = fClusterCutSelection(GetClusterTimingCutPosition(fClusterCutSelection),1);
             cutStringsName[i]                                   = AnalyseClusterTimingCut(CutNumberToInteger(fTimingCut));
+        } else if (cutVariationName.Contains("ExoticCluster")){
+            TString fExoticCut                                  = fClusterCutSelection(GetClusterExoticCellCutPosition(fClusterCutSelection),1);
+            cutStringsName[i]                                   = AnalyseExoticClusterCut(CutNumberToInteger(fExoticCut));
         } else if (cutVariationName.Contains("ClusterNonLinearity")){
           TString fClusterNonLinearity                          = fClusterCutSelection(GetClusterNonLinearityCutPosition(fClusterCutSelection),2);
           cutStringsName[i]                                     = AnalyseClusterNonLinearityCut(CutNumberToInteger(fClusterNonLinearity));
@@ -424,6 +442,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
                     negErrorYield[j]                            = -1*negErrorYield[j];
                 }
                 systErrGraphPosYieldExt                         = (TGraphAsymmErrors*)Cutcorrfile[i]->Get(Form("%s_SystErrorRelPos_YieldExtraction_%s",meson.Data(), centralityString.Data()));
+
                 systErrGraphBGEstimate                          = (TGraphAsymmErrors*)Cutcorrfile[i]->Get(Form("%s_SystErrorRel_BGEstimate_%s",meson.Data(), centralityString.Data()));
                 systErrGraphBGEstimateIterations                = (TGraphAsymmErrors*)Cutcorrfile[i]->Get(Form("%s_SystErrorRel_BGEstimateIterations_%s",meson.Data(), centralityString.Data()));
                 if (isEta){
@@ -438,7 +457,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
                     centralityString                            = simpleTriggerName+"_"+centralityString;
             }
 
-            TString nameCorrectedYield                          = "CorrectedYieldTrueEff";
+            nameCorrectedYield                          = "CorrectedYieldTrueEff";
             TString nameEfficiency                              = "TrueMesonEffiPt";
             TString nameAcceptance                              = "fMCMesonAccepPt";
             if ( (mode == 4 || mode == 5 ) && !optionEnergy.Contains("PbPb_2.76TeV")){
@@ -455,6 +474,11 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
 //             }
             histoCorrectedYieldCut[i]                           = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYield.Data());
             histoCorrectedYieldCut[i]->SetName(Form("%s_%s", nameCorrectedYield.Data(),cutNumber[i].Data()));
+            if( i == 0){
+                histoCorrectedYieldCut3                           = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYield.Data());
+                histoCorrectedYieldCut3->SetName(Form("%s_%s", nameCorrectedYield.Data(),cutNumber[i].Data()));
+            }
+
             histoTrueEffiCut[i]                                 = (TH1D*)Cutcorrfile[i]->Get(nameEfficiency.Data());
             histoTrueEffiCut[i]->SetName(Form("%s_%s", nameEfficiency.Data(), cutNumber[i].Data()));
 
@@ -539,8 +563,6 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
 
         // calculate ratios for meson measurements
         if (correctionFilesAvail){
-            histoRatioCorrectedYieldCut[i]                      = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("histoRatioCorrectedYieldCut_%s", cutNumber[i].Data()));
-            histoRatioCorrectedYieldCut[i]->Divide(histoRatioCorrectedYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
             if (i > 0){
                 maxPt= histoCorrectedYieldCut[i]->GetBinCenter(histoCorrectedYieldCut[i]->GetNbinsX()) + 0.5* histoCorrectedYieldCut[i]->GetBinWidth(histoCorrectedYieldCut[i]->GetNbinsX());
             }
@@ -599,10 +621,128 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         // cout << "line " << __LINE__ << endl;
 
     }
+    for(Int_t i = 0; i< NumberOfCuts; i++){
+        if (histoCorrectedYieldCut[i]) {
+            histoRatioCorrectedYieldCut[i]                      = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("histoRatioCorrectedYieldCut_%s", cutNumber[i].Data()));
+            histoRatioCorrectedYieldCut[i]->Divide(histoRatioCorrectedYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
+            // histoCorrectedYieldCut2[i]                      = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("%s2_%s", "CorrectedYieldNormEff",cutNumber[i].Data()));
+        }
+    }
+
+
+    TCanvas* canvasNewSysErrMean = new TCanvas("canvasNewSysErrMean","",200,10,1350,900);// gives the page size
+    DrawGammaCanvasSettings( canvasNewSysErrMean, 0.08, 0.01, 0.015, 0.09);
+    // canvasNewSysErrMean->SetLogx();
+    systErrGraphPosYieldExt->Draw("ap");
+    systErrGraphNegYieldExt->Draw("p, same");
+
+    canvasNewSysErrMean->Update();
+    canvasNewSysErrMean->SaveAs(Form("%s/%s_%s_YieldExtraction%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
+
+
+
+    if (doRebin) {
+
+        printf("\n==========================\nCalculate new Binning: \n");
+        const Int_t NB = histoCorrectedYieldCut[0]->GetXaxis()->GetNbins();
+        Double_t arrxbinsnew[NB];
+        Double_t arrxbinsnewtmp[NB];
+        const Double_t * arrxbinsnew2 = & arrxbinsnew[0];
+        Double_t tmpBinError[NumberOfCuts];
+        Double_t tmpBinContent[NumberOfCuts];
+        for(Int_t i = 0; i< NumberOfCuts; i++){
+            tmpBinError[i] = 0;
+            tmpBinContent[i] = 0;
+        }
+        Double_t maxError = 0.005;
+        maxrebins = 5;
+        if (meson.CompareTo("Pi0") == 0) {
+            if(optionPeriod.CompareTo("EG2") == 0 || optionPeriod.CompareTo("EG1") == 0){
+                maxError = 0.005;
+                maxrebins = 7;
+            } else {
+                maxError = 0.005;
+                maxrebins = 5;
+            }
+        } else if (meson.CompareTo("Eta") == 0){
+            if(optionPeriod.CompareTo("EG2") == 0 || optionPeriod.CompareTo("EG1") == 0){
+                maxError = 0.02;
+                maxrebins = 1 + (Int_t) ceil(((Double_t) NB)/3.);
+            } else {
+                maxError = 0.01;
+                maxrebins = 1 + (Int_t) ceil(((Double_t) NB)/3.);
+            }
+        }
+
+        Int_t Nrebins = 0;
+        Int_t Nrebinstmp = 0;
+        Bool_t RebinNeeded = kFALSE;
+
+
+
+        Int_t Nbinsnew = 1;
+        for (Int_t bin = 1; bin <= NB; bin++) {
+            Double_t lowEdgetmp = histoRatioCorrectedYieldCut[0]->GetXaxis()->GetBinLowEdge(bin+1);
+            RebinNeeded = kFALSE;
+            if(bin == 1){
+                arrxbinsnew[bin-1]=lowEdgetmp;
+            } else if(bin == NB){
+                arrxbinsnew[bin-Nrebins-1]=lowEdgetmp;
+                Nbinsnew = NB-Nrebins-1;
+            } else {
+                for(Int_t i = 0; i< NumberOfCuts; i++){
+                    tmpBinError[i] += histoRatioCorrectedYieldCut[i]->GetBinError(bin)*histoRatioCorrectedYieldCut[i]->GetBinError(bin);
+                    tmpBinContent[i] += histoRatioCorrectedYieldCut[i]->GetBinContent(bin);
+                    // printf("\t var:%i, Content:%f, Error:%f", i, histoRatioCorrectedYieldCut[i]->GetBinContent(bin), histoRatioCorrectedYieldCut[i]->GetBinError(bin)/histoRatioCorrectedYieldCut[i]->GetBinContent(bin));
+                    Double_t rawyielddiff = (histoRawYieldCut[i]->GetBinContent(bin))/(histoRawYieldCut[0]->GetBinContent(bin));
+                    if (tmpBinContent[i] > 0. && TMath::Sqrt(tmpBinError[i])/tmpBinContent[i] > maxError && rawyielddiff > 0.5 && Nrebinstmp < maxrebins) {
+                        RebinNeeded = kTRUE;
+                    } else if (Nrebinstmp == 0) {
+                        RebinNeeded = kTRUE;
+                    }
+                    // printf("\n");
+                }
+                if (RebinNeeded) {
+                    printf(" \t RebinNeeded");
+                    Nrebins++;
+                    Nrebinstmp++;
+                } else {
+                    arrxbinsnew[bin-Nrebins-1] = lowEdgetmp;
+                    if (Nrebinstmp > 0) {
+                        printf("\t New bin:%i, Nrebins:%i, (%0.3f-%0.3f)", bin-Nrebins, Nrebinstmp, arrxbinsnew[bin-Nrebins-2], arrxbinsnew[bin-Nrebins-1]);
+                    }
+                    for(Int_t i = 0; i < NumberOfCuts; i++){
+                        if (Nrebinstmp > 0) {
+                            // printf("\t\t var:%i, Content:%f, Error:%f\n", i, tmpBinContent[i]/(Nrebinstmp+1), tmpBinError[i]/tmpBinContent[i]);
+                        }
+                        tmpBinError[i] = 0;
+                        tmpBinContent[i] = 0;
+                    }
+                    Nrebinstmp = 0;
+                }
+
+            }
+            if(bin != NB) printf("\nbin:%i (%0.3f-%0.3f)", bin, lowEdgetmp, histoRatioCorrectedYieldCut[0]->GetXaxis()->GetBinLowEdge(bin+2));
+        }
+
+        for(Int_t i = 0; i< NumberOfCuts; i++){
+            histoCorrectedYieldCut2[i] = (TH1D*) histoCorrectedYieldCut[i]->Rebin(Nbinsnew,Form("%s_%s", nameCorrectedYield.Data(),cutNumber[i].Data()),arrxbinsnew2);
+            if (isEta){
+                histoEtaToPi0Cut2[i] = (TH1D*) histoEtaToPi0Cut[i]->Rebin(Nbinsnew,Form("histoEtaToPi0RatioRebinned_%s", cutNumber[i].Data()),arrxbinsnew2);
+                if ( smoothing == 2) {
+                    histoEtaToPi0Cut2[i]->Smooth(10,"R");
+                }
+            }
+        }
+        printf("\n\n Nbinsnew:%i (%0.3f-%0.3f)\n", Nbinsnew, arrxbinsnew2[0], arrxbinsnew2[Nbinsnew]);
+        for (Int_t o = 0; o <= Nbinsnew; o++) {
+            printf("%i:%.1f, ", o, arrxbinsnew2[o]);
+        }
+        printf("\n\n");
+
+    }
 
     cout<<"=========================="<<endl;
-
-
     //**************************************************************************************
     //********************* Plotting RAW-Yield *********************************************
     //**************************************************************************************
@@ -948,7 +1088,7 @@ cout << "line " << __LINE__ << endl;
         delete canvasWidthMeson;
 
 cout << "line " << __LINE__ << endl;
-        
+
         TCanvas* canvasMassMeson = new TCanvas("canvasMassMeson","",1350,1500);
         DrawGammaCanvasSettings( canvasMassMeson,  0.13, 0.02, 0.02, 0.09);
         // Upper pad definition
@@ -1027,7 +1167,7 @@ cout << "line " << __LINE__ << endl;
         canvasMassMeson->SaveAs(Form("%s/%s_%s_Mass%s.%s",outputDir.Data(),meson.Data(),prefix2.Data(),centralityStringOutput.Data(),suffix.Data()));
         delete canvasMassMeson;
 cout << "line " << __LINE__ << endl;
-        
+
     //**************************************************************************************
     //************************ Plotting SB  ************************************************
     //**************************************************************************************
@@ -1411,6 +1551,7 @@ cout << "line " << __LINE__ << endl;
             padRawClusterPt->cd();
             padRawClusterPt->SetTickx();
             padRawClusterPt->SetTicky();
+            padRawClusterPt->SetLogx(1);
 
             // Plot raw yield in uppper panel
             padRawClusterPt->cd();
@@ -1451,8 +1592,9 @@ cout << "line " << __LINE__ << endl;
                 if(!histoRatioRawClusterPtCut[i] || ! histoRawClusterPtCut[i]) continue;
                 if(i==0){
                     // Set ratio min and max
-                    Double_t minYRatio = 0.45;
-                    Double_t maxYRatio = 2.05; //qui
+                    Double_t minYRatio = 0.81;
+                    Double_t maxYRatio = 1.19; //qui
+                    padRawClusterPtRatios->SetLogx(1);
                     if (cutVariationName.Contains("PhotonQuality")){
                         minYRatio = 0.001;
                         maxYRatio = 2;
@@ -1598,11 +1740,13 @@ cout << "line " << __LINE__ << endl;
         TPad* padCorrectedYield = new TPad("padCorrectedYield", "", 0., 0.33, 1., 1.,-1, -1, -2);
         DrawGammaPadSettings( padCorrectedYield, 0.12, 0.02, 0.02, 0.);
         padCorrectedYield->SetLogy(1);
+        padCorrectedYield->SetLogx(1);
         padCorrectedYield->Draw();
         // Define lower panel
         TPad* padCorrectedYieldRatios = new TPad("padCorrectedYieldRatios", "", 0., 0., 1., 0.33,-1, -1, -2);
         DrawGammaPadSettings( padCorrectedYieldRatios, 0.12, 0.02, 0.0, 0.2);
         padCorrectedYieldRatios->SetLogy(0);
+        padCorrectedYieldRatios->SetLogx(1);
         padCorrectedYieldRatios->Draw();
 
         // Plot corrected yield in upper panel
@@ -1611,8 +1755,40 @@ cout << "line " << __LINE__ << endl;
 //         if (cutVariationName.Contains("dEdxPi")){
 //             legendCorrectedYieldMeson->SetTextSize(0.02);
 //         }
+
+
+        Double_t paramTCM[5];
+        paramTCM[0]=0.008; paramTCM[1]=0.65; paramTCM[2]=1.72; paramTCM[3]=0.47; paramTCM[4]=2.93;
+
+
+        Double_t mass;
+
+        if (meson.CompareTo("Pi0")==0){
+            mass = TDatabasePDG::Instance()->GetParticle(111)->Mass();
+            cout <<"Meson Mass: "<< mass << endl;
+        } else if (meson.CompareTo("Eta")==0){
+            mass = TDatabasePDG::Instance()->GetParticle(221)->Mass();
+            cout <<"Meson Mass: "<< mass << endl;
+        } else {
+            mass = 0;
+            cout <<"Meson Mass: "<< mass << endl;
+        }
+
+        Int_t NSmoothingIterations = 10;
+        if (histoCorrectedYieldCut2[0]->GetXaxis()->GetNbins()<11) {
+            NSmoothingIterations = histoCorrectedYieldCut2[0]->GetXaxis()->GetNbins()-1;
+        }
+        // if (meson.CompareTo("Eta") == 0) NSmoothingIterations = 100;
+
+
         for(Int_t i = 0; i< NumberOfCuts; i++){
             if(!histoCorrectedYieldCut[i]) continue;
+
+            if ( smoothing == 1) {
+                fitInvYieldPi0[i] = new TF1(Form("fitInvYieldPi0%i",i),Form("[0]*TMath::Exp(-(TMath::Sqrt(x*x+%.10f*%.10f)-%.10f)/[1]) + [2]/(TMath::Power(1+x*x/([3]*[3]*[4]),[4]) )",mass,mass,mass));
+                fitInvYieldPi0[i]->SetParameters(paramTCM[0],paramTCM[1],paramTCM[2],paramTCM[3],paramTCM[4]);
+                fitInvYieldPi0[i]->SetRange(0.7, 20);
+            }
             if(i == 0){
                 DrawAutoGammaMesonHistos( histoCorrectedYieldCut[i],
                                         "", "#it{p}_{T} (GeV/#it{c})", "#frac{1}{2#pi #it{N}_{ev.}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)",
@@ -1620,18 +1796,49 @@ cout << "line " << __LINE__ << endl;
                                         kFALSE, 0.0, 0.030,
                                         kFALSE, 0., 10.);
                 DrawGammaSetMarker(histoCorrectedYieldCut[i], 20, 1., color[0], color[0]);
+                if ( smoothing == 3) {
+                    // histoCorrectedYieldCut2[i]->GetXaxis()->SetRangeUser(0.8,20);
+                    histoCorrectedYieldCut2[i]->Smooth(NSmoothingIterations,"R");
+                    DrawGammaSetMarker(histoCorrectedYieldCut2[i], 24+i, 1.,color[i]+2,color[i]+2);
+                    // histoCorrectedYieldCut2[i]->DrawCopy("same,e1,p");
+                }
                 histoCorrectedYieldCut[i]->DrawCopy("e1,p");
                 legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
-            }
-            else{
+                if ( smoothing == 1) {
+                    histoCorrectedYieldCut2[i]->Fit(Form("fitInvYieldPi0%i",i), "QNRMEX0+");
+                    // printf("%s\n", (WriteParameterToFile(fitInvYieldPi0[i]).Data()));
+                    DrawGammaSetMarkerTF1( fitInvYieldPi0[i], 1, 3, color[0]);
+                    fitInvYieldPi0[i]->Draw("same");
+                }
+
+            } else {
                 if(i<20){
                     DrawGammaSetMarker(histoCorrectedYieldCut[i], 20+i, 1.,color[i],color[i]);
                 } else {
                     DrawGammaSetMarker(histoCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
                 }
+                if ( smoothing == 3) {
+                    // histoCorrectedYieldCut2[i]->GetXaxis()->SetRangeUser(0.8,20);
+                    histoCorrectedYieldCut2[i]->Smooth(NSmoothingIterations,"R");
+                    DrawGammaSetMarker(histoCorrectedYieldCut2[i], 24+i, 1.,color[i]+2,color[i]+2);
+                    // histoCorrectedYieldCut2[i]->DrawCopy("same,e1,p");
+                }
                 histoCorrectedYieldCut[i]->DrawCopy("same,e1,p");
                 legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], cutStringsName[i].Data());
+
+                if ( smoothing == 1) {
+                    histoCorrectedYieldCut2[i]->Fit(Form("fitInvYieldPi0%i",i), "QNRMEX0+");
+                    // printf("%s\n", (WriteParameterToFile(fitInvYieldPi0[i]).Data()));
+                    if(i<20){
+                        DrawGammaSetMarkerTF1( fitInvYieldPi0[i], 1, 3, color[i]+1);
+                    } else {
+                        DrawGammaSetMarkerTF1( fitInvYieldPi0[i], 1, 3, color[i-20]+1);
+                    }
+                    // fitInvYieldPi0[i]->Draw("same");
+                }
+
             }
+
         }
         legendCorrectedYieldMeson->Draw();
 
@@ -1643,7 +1850,10 @@ cout << "line " << __LINE__ << endl;
 cout << "line " << __LINE__ << endl;
 
         for(Int_t i = 0; i< NumberOfCuts; i++){
-            if(!histoRatioCorrectedYieldCut[i]) continue;
+            if(!histoRatioCorrectedYieldCut[i]) {
+                printf("ERROR:  histoRatioCorrectedYieldCut %i NOT found \n", i);
+                continue;
+            }
             if(i==0){
                 // Set ratio min and max
                 Double_t minYRatio = 0.8;
@@ -1674,8 +1884,8 @@ cout << "line " << __LINE__ << endl;
                   maxYRatio = 1.99;
                 }
                 if( optionEnergy.Contains("13TeV") ){
-                  minYRatio = 0.5;
-                  maxYRatio = 1.5;
+                  minYRatio = 0.8;
+                  maxYRatio = 1.2;
 		  //		  padCorrectedYieldRatios->SetLogy(1);
                 }
 
@@ -1698,6 +1908,13 @@ cout << "line " << __LINE__ << endl;
                 histoRatioCorrectedYieldCut[i]->SetFillStyle(0);
                 histoRatioCorrectedYieldCut[i]->DrawCopy("p,e2");
 
+                if ( smoothing != 0) {
+                    histoRatioCorrectedYieldCut2[i]                      = (TH1D*) histoCorrectedYieldCut2[i]->Clone(Form("histoRatioCorrectedYieldCut2_%s", cutNumber[i].Data()));
+                    histoRatioCorrectedYieldCut2[i]->Divide(histoRatioCorrectedYieldCut2[i],histoCorrectedYieldCut2[0],1.,1.,"B");
+                    histoRatioCorrectedYieldCut3[i]                      = (TH1D*) histoRatioCorrectedYieldCut2[i]->Clone(Form("histoRatioCorrectedYieldCut3_%s", cutNumber[i].Data()));
+                }
+
+
 //                 histoRatioCorrectedYieldCut[i]->DrawCopy("p,e1");
             } else{
                 if(i<20){
@@ -1705,7 +1922,48 @@ cout << "line " << __LINE__ << endl;
                 } else {
                     DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
                 }
+
+                if ( smoothing != 0) {
+                    histoRatioCorrectedYieldCut2[i]                      = (TH1D*) histoCorrectedYieldCut2[i]->Clone(Form("histoRatioCorrectedYieldCut2_%s", cutNumber[i].Data()));
+                    histoRatioCorrectedYieldCut2[i]->Divide(histoRatioCorrectedYieldCut2[i],histoCorrectedYieldCut2[0],1.,1.,"B");
+                    histoRatioCorrectedYieldCut3[i]                      = (TH1D*) histoRatioCorrectedYieldCut2[i]->Clone(Form("histoRatioCorrectedYieldCut2_%s", cutNumber[i].Data()));
+                }
+
                 histoRatioCorrectedYieldCut[i]->DrawCopy("same,e1,p");
+                if ( smoothing == 2) {
+                    histoRatioCorrectedYieldCut2[i]->Smooth(NSmoothingIterations,"R");
+                    DrawGammaSetMarker(histoRatioCorrectedYieldCut2[i], 24+i, 1.,color[i]+2,color[i]+2);
+                    // histoRatioCorrectedYieldCut2[i]->DrawCopy("same,e1,p");
+                }
+
+                if ( smoothing == 4) {
+                    fitInvYieldPi0[i] = new TF1(Form("fitInvYieldPi0%i",i),"pol2");
+                    fitInvYieldPi0[i]->SetParameters(1.,1.,1.,1.,1.);
+                    // fitInvYieldPi0[i]->SetLineColor(color[i]);
+                    fitInvYieldPi0[i]->SetRange(0.7, 20);
+                    if(i<20){
+                        DrawGammaSetMarkerTF1( fitInvYieldPi0[i], 7, 2, color[i]+2);
+                    } else {
+                        DrawGammaSetMarkerTF1( fitInvYieldPi0[i], 7, 2, color[i-20]+2);
+                    }
+                    histoRatioCorrectedYieldCut2[i]->Fit(Form("fitInvYieldPi0%i",i), "QNRMEX0+");
+                    printf("%s\n", (WriteParameterToFile(fitInvYieldPi0[i]).Data()));
+                    // fitInvYieldPi0[i]->Draw("same, l");
+                }
+
+                if ( smoothing == 1) {
+                    fitInvYieldPi0Ratio[i] = new TF1(Form("fitInvYieldPi0%i",i),Form("([5]*TMath::Exp(-(TMath::Sqrt(x*x+%.10f*%.10f)-%.10f)/[6]) + [7]/(TMath::Power(1+x*x/([8]*[8]*[9]),[9]) )) / ([0]*TMath::Exp(-(TMath::Sqrt(x*x+%.10f*%.10f)-%.10f)/[1]) + [2]/(TMath::Power(1+x*x/([3]*[3]*[4]),[4]) )) ",mass,mass,mass,mass,mass,mass));
+                    fitInvYieldPi0Ratio[i]->SetParameters(fitInvYieldPi0[0]->GetParameter(0),fitInvYieldPi0[0]->GetParameter(1),fitInvYieldPi0[0]->GetParameter(2),fitInvYieldPi0[0]->GetParameter(3),fitInvYieldPi0[0]->GetParameter(4),fitInvYieldPi0[i]->GetParameter(0),fitInvYieldPi0[i]->GetParameter(1),fitInvYieldPi0[i]->GetParameter(2),fitInvYieldPi0[i]->GetParameter(3),fitInvYieldPi0[i]->GetParameter(4));
+                    fitInvYieldPi0Ratio[i]->SetRange(0.7, 20);
+                    if(i<20){
+                        DrawGammaSetMarkerTF1( fitInvYieldPi0Ratio[i], 1, 3, color[i]+1);
+                    } else {
+                        DrawGammaSetMarkerTF1( fitInvYieldPi0Ratio[i], 1, 3, color[i-20]+1);
+                    }
+                    // fitInvYieldPi0Ratio[i]->Draw("same");
+                    printf("%s\n", (WriteParameterToFile(fitInvYieldPi0Ratio[i]).Data()));
+                }
+
             }
         }
 
@@ -2204,6 +2462,11 @@ cout << "line " << __LINE__ << endl;
                     histoEtaToPi0Cut[i]->GetYaxis()->SetRangeUser(0.,1.5);
                     histoEtaToPi0Cut[i]->DrawCopy("e1,p");
                     legendEtaToPi0->AddEntry(histoEtaToPi0Cut[i],Form("standard: %s",cutStringsName[i].Data()));
+                    if(doRebin) {
+                        DrawGammaSetMarker(histoEtaToPi0Cut2[i], 24, 1., color[0], color[0]);
+                        histoEtaToPi0Cut2[i]->DrawCopy("e1,p,same");
+                        legendEtaToPi0->AddEntry(histoEtaToPi0Cut[i],Form("rebinned: %s",cutStringsName[i].Data()));
+                    }
                 } else {
                     if(i<20){
                         DrawGammaSetMarker(histoEtaToPi0Cut[i], 20+i, 1.,color[i],color[i]);
@@ -2265,7 +2528,7 @@ cout << "line " << __LINE__ << endl;
         //******************** Output of the systematic Error due to Signal extraction for Meson ************
         //*************************************************************************************************
         // Determine number of bins
-        Int_t NBinsPt = histoCorrectedYieldCut[0]->GetNbinsX();
+        Int_t NBinsPt = histoCorrectedYieldCut3->GetNbinsX();
         const Int_t NBinstPtConst = NBinsPt+1;
 
         // Create array of bin boundaries
@@ -2274,17 +2537,43 @@ cout << "line " << __LINE__ << endl;
         BinsXCenter[0]                      = 0;
         BinsXWidth[0]                       = 0.;
         for (Int_t i = 1; i < NBinsPt +1; i++){
-            BinsXCenter[i]                  = histoCorrectedYieldCut[0]->GetBinCenter(i);
-            BinsXWidth[i]                   = histoCorrectedYieldCut[0]->GetBinWidth(i)/2.;
+            BinsXCenter[i]                  = histoCorrectedYieldCut3->GetBinCenter(i);
+            BinsXWidth[i]                   = histoCorrectedYieldCut3->GetBinWidth(i)/2.;
         }
 
         // Create array of Sys Err Objects and fill them
         SysErrorConversion SysErrCut[ConstNumberOfCuts][NBinstPtConst];
         SysErrorConversion SysErrCutRaw[ConstNumberOfCuts][NBinstPtConst];
+
+        const Int_t NB = histoCorrectedYieldCut3->GetXaxis()->GetNbins();
+
         for (Int_t j = 0; j < NumberOfCuts; j++){
-            for (Int_t i = 1; i < NBinsPt +1; i++){
-                SysErrCut[j][i].value       = histoCorrectedYieldCut[j]->GetBinContent(i);
-                SysErrCut[j][i].error       = histoCorrectedYieldCut[j]->GetBinError(i);
+            for (Int_t i = 1; i < NB+1; i++){
+                Int_t k = i;
+                if (doRebin) {
+                    k = histoCorrectedYieldCut[j]->GetXaxis()->FindBin(histoCorrectedYieldCut3->GetBinCenter(i));
+                }
+                if ( smoothing == 0 ) {
+                    SysErrCut[j][i].value       = histoCorrectedYieldCut[j]->GetBinContent(k);
+                    SysErrCut[j][i].error       = histoCorrectedYieldCut[j]->GetBinError(k);
+                } else if ( smoothing == 1) {
+                    SysErrCut[j][i].value       = fitInvYieldPi0[j]->Eval(BinsXCenter[k]);
+                    SysErrCut[j][i].error       = histoCorrectedYieldCut[j]->GetBinError(k);
+                } else if ( smoothing == 2) {
+                    Int_t tmpBink = histoCorrectedYieldCut2[j]->GetXaxis()->FindBin(BinsXCenter[k]);
+                    if ( j != 0) {
+                        SysErrCut[j][i].value       = histoRatioCorrectedYieldCut2[j]->GetBinContent(tmpBink) * histoCorrectedYieldCut2[0]->GetBinContent(tmpBink);
+                        SysErrCut[j][i].error       = histoCorrectedYieldCut2[j]->GetBinError(tmpBink);
+                    } else {
+                        SysErrCut[j][i].value       = histoCorrectedYieldCut2[j]->GetBinContent(tmpBink);
+                        SysErrCut[j][i].error       = histoCorrectedYieldCut2[j]->GetBinError(tmpBink);
+                    }
+                } else if ( smoothing == 3) {
+                    Int_t tmpBink = histoCorrectedYieldCut2[j]->GetXaxis()->FindBin(BinsXCenter[k]);
+                    SysErrCut[j][i].value       = histoCorrectedYieldCut2[j]->GetBinContent(tmpBink);
+                    SysErrCut[j][i].error       = histoCorrectedYieldCut2[j]->GetBinError(tmpBink);
+                }
+
                 SysErrCutRaw[j][i].value    = histoRawYieldCut[j]->GetBinContent(i);
                 SysErrCutRaw[j][i].error    = histoRawYieldCut[j]->GetBinError(i);
             }
@@ -2306,6 +2595,7 @@ cout << "line " << __LINE__ << endl;
         Double_t LargestDiffRelPos[NBinstPtConst];
         Double_t LargestDiffRelErrorNeg[NBinstPtConst];
         Double_t LargestDiffRelErrorPos[NBinstPtConst];
+        Double_t LargestDiffRelErrorNull[NBinstPtConst];
 
         // Initialize all differences with 0
         for (Int_t j = 0; j < NumberOfCuts; j++){
@@ -2487,19 +2777,228 @@ cout << "line " << __LINE__ << endl;
                 LargestDiffRelErrorNeg[i] = 0.;
                 LargestDiffRelErrorPos[i] = 0.;
             }
+            LargestDiffRelErrorNull[i] = 0.;
         }
 
         SysErrDat.close();
 
         // Create sys-err graphs
         TGraphAsymmErrors* SystErrGraphNeg = new TGraphAsymmErrors(NBinsPt+1, BinsXCenter, LargestDiffRelNeg, BinsXWidth, BinsXWidth, LargestDiffRelErrorNeg, LargestDiffRelErrorNeg);
+        TGraphAsymmErrors* SystErrGraphNeg2 = new TGraphAsymmErrors(NBinsPt+1, BinsXCenter, LargestDiffRelNeg, BinsXWidth, BinsXWidth, LargestDiffRelErrorNull, LargestDiffRelErrorNull);
         SystErrGraphNeg->SetName(Form("%s_SystErrorRelNeg_%s",meson.Data(),cutVariationName.Data()));
         cout << "Negative error graph" << endl;
-        SystErrGraphNeg->Print();
+        // SystErrGraphNeg->Print();
         TGraphAsymmErrors* SystErrGraphPos = new TGraphAsymmErrors(NBinsPt+1, BinsXCenter, LargestDiffRelPos, BinsXWidth, BinsXWidth, LargestDiffRelErrorPos, LargestDiffRelErrorPos);
+        TGraphAsymmErrors* SystErrGraphPos2 = new TGraphAsymmErrors(NBinsPt+1, BinsXCenter, LargestDiffRelPos, BinsXWidth, BinsXWidth, LargestDiffRelErrorNull, LargestDiffRelErrorNull);
         SystErrGraphPos->SetName(Form("%s_SystErrorRelPos_%s",meson.Data(),cutVariationName.Data()));
         cout << "positive error graph" << endl;
-        SystErrGraphPos->Print();
+        // SystErrGraphPos->Print();
+
+        if ( smoothing != 0 ) {
+            Double_t minpt= histoCorrectedYieldCut[0]->GetBinCenter(histoCorrectedYieldCut[0]->GetNbinsX()) + 0.5* histoCorrectedYieldCut[0]->GetBinWidth(histoCorrectedYieldCut[0]->GetNbinsX());
+            Double_t maxpt= histoCorrectedYieldCut[0]->GetBinCenter(1) + 0.5* histoCorrectedYieldCut[0]->GetBinWidth(1);
+            Int_t modifyer = 0;
+            if(smoothing == 2) modifyer = 1;
+            TCanvas* canvasSysErrorMonitor = new TCanvas("canvasCorrectedYieldMeson","",1350,500*(NumberOfCuts+2-modifyer));
+            DrawGammaCanvasSettings( canvasSysErrorMonitor,  0.13, 0.02, 0.02, 0.09);
+            TLegend* legendmonitor = GetAndSetLegend2(0.15,0.02,0.3,0.02+1.15*0.06*(NumberOfCuts), 1500*0.75*0.032);
+            TLegend* legendmonitor3 = GetAndSetLegend2(0.6,0.02,0.75,0.02+1.15*0.06*(NumberOfCuts), 1500*0.75*0.032);
+            TLegend* legendmonitor2 = GetAndSetLegend2(0.15,0.02,0.3,0.02+1.15*0.06*(2), 1500*0.75*0.032);
+            TLegend* legendmonitor4[NumberOfCuts];
+            TPad* padMonitor_all[NumberOfCuts];
+            TH1D* hTMP2[NumberOfCuts];
+            TH1D* hTMP[NumberOfCuts];
+            TPad* padMonitor1 = new TPad("padMonitor1", "", 0., 1.-(1./((Double_t) (NumberOfCuts+2-modifyer)))*(((Double_t) 0)+1.), 1., 1.-(1./((Double_t) (NumberOfCuts+2-modifyer)))*((Double_t) 0),-1, -1, -2);
+            DrawGammaPadSettings( padMonitor1, 0.12, 0.02, 0.05, 0.);
+            padMonitor1->SetLogy(0);
+            TPad* padMonitor2 = new TPad("padMonitor2", "", 0., 1.-(1./((Double_t) (NumberOfCuts+2-modifyer)))*(((Double_t) 1)+1.), 1., 1.-(1./((Double_t) (NumberOfCuts+2-modifyer)))*((Double_t) 1),-1, -1, -2);
+            DrawGammaPadSettings( padMonitor2, 0.12, 0.02, 0., 0.);
+            padMonitor2->SetLogy(0);
+            canvasSysErrorMonitor->cd();
+            padMonitor1->Draw();
+            padMonitor2->Draw();
+            padMonitor1->cd();
+            for(Int_t i = 0; i< NumberOfCuts; i++){
+                if(histoRatioCorrectedYieldCut[i]) {
+                    if(i==0){
+                        histoRatioCorrectedYieldCut[i]->GetYaxis()->SetRangeUser(0.71,1.29);
+                        const Int_t NB = histoRatioCorrectedYieldCut[0]->GetXaxis()->GetNbins();
+                        Double_t arrxbinsnew[NB];
+                        const Double_t * arrxbinsnew2 = & arrxbinsnew[0];
+                        // get rid of first Bin (is empty anyway)
+                        for (Int_t bintmp = 1; bintmp <= histoRatioCorrectedYieldCut[0]->GetXaxis()->GetNbins(); bintmp++) {
+                            arrxbinsnew[bintmp-1] = histoRatioCorrectedYieldCut[0]->GetXaxis()->GetBinLowEdge(bintmp+1);
+                        }
+                        histoRatioCorrectedYieldCut[i] = (TH1D*) histoRatioCorrectedYieldCut[i]->Rebin(NB-1,Form("histoRatioCorrectedYieldCut_%s",cutNumber[i].Data()),arrxbinsnew2);
+                        histoRatioCorrectedYieldCut[i]->DrawCopy("p,e2");
+                        legendmonitor->AddEntry(histoRatioCorrectedYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
+                        legendmonitor3->AddEntry(histoRatioCorrectedYieldCut[i], "", "");
+                    } else{
+                        if(i<20){
+                            DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 24+i, 0.8,color[i]+2,color[i]+2);
+                        } else {
+                            DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 24+i, 0.8,color[i-20]+2,color[i-20]+2);
+                        }
+                        histoRatioCorrectedYieldCut[i]->DrawCopy("same,e1,p");
+                        legendmonitor->AddEntry(histoRatioCorrectedYieldCut[i], cutStringsName[i].Data());
+                    }
+
+                }
+                if(i!=0){
+                    if(smoothing == 1 && fitInvYieldPi0Ratio[i]){
+                        fitInvYieldPi0Ratio[i]->DrawCopy("same");
+                        legendmonitor3->AddEntry(fitInvYieldPi0Ratio[i], "TCM");//Form("%s TCM",cutStringsName[i].Data()));
+                    }
+                    if((smoothing == 2 || smoothing == 3) && histoRatioCorrectedYieldCut2[i]) {
+                        if(i<20){
+                            DrawGammaSetMarker(histoRatioCorrectedYieldCut2[i], 20+i, 1.5,color[i],color[i]);
+                        } else {
+                            DrawGammaSetMarker(histoRatioCorrectedYieldCut2[i], 20+i, 1.5,color[i-20],color[i-20]);
+                        }
+                        histoRatioCorrectedYieldCut2[i]->DrawCopy("same,e1,p");
+                        // histoRatioCorrectedYieldCut2[i]->SetLineWidth(2.);
+                        // histoRatioCorrectedYieldCut2[i]->DrawCopy("same,c");
+                        if (doRebin)
+                            legendmonitor3->AddEntry(histoRatioCorrectedYieldCut2[i], "rebinned and smoothed");//Form("%s smoothed",cutStringsName[i].Data()));
+                        else
+                            legendmonitor3->AddEntry(histoRatioCorrectedYieldCut2[i], "smoothed");//Form("%s smoothed",cutStringsName[i].Data()));
+                    }
+                }
+            }
+            legendmonitor->Draw();
+            legendmonitor3->Draw();
+            DrawGammaLines(minpt, maxpt,0.95, 0.95,1.,kGray+1,2);
+            DrawGammaLines(minpt, maxpt,0.9, 0.9,1.,kGray+1,2);
+            DrawGammaLines(minpt, maxpt,1.1, 1.1,1.,kGray+1,2);
+            DrawGammaLines(minpt, maxpt,1.05, 1.05,1.,kGray+1,2);
+            padMonitor2->cd();
+
+            if (histoRatioCorrectedYieldCut2[0]) {
+                // histoRatioCorrectedYieldCut[0]->GetYaxis()->SetRangeUser(0.71,1.29);
+                // histoRatioCorrectedYieldCut[0]->DrawCopy("p,e2");
+                SetStyleHistoTH1ForGraphs(histoRatioCorrectedYieldCut2[0], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
+                DrawGammaSetMarker(histoRatioCorrectedYieldCut2[0], 20, 1.,color[0],color[0]);
+                histoRatioCorrectedYieldCut2[0]->GetYaxis()->SetRangeUser(0.71,1.29);
+                histoRatioCorrectedYieldCut2[0]->SetFillColor(kGray+2);
+                histoRatioCorrectedYieldCut2[0]->SetFillStyle(0);
+                for(Int_t b = 0; b< histoRatioCorrectedYieldCut2[0]->GetNbinsX(); b++){
+                    histoRatioCorrectedYieldCut2[0]->SetBinError(b+1,histoCorrectedYieldCut2[0]->GetBinError(b+1)/histoCorrectedYieldCut2[0]->GetBinContent(b+1));
+                }
+                histoRatioCorrectedYieldCut2[0]->DrawCopy("p,e2");
+                for(Int_t i = 0; i< NumberOfCuts; i++){
+                    if(i!=0){
+                        if(smoothing == 1 && fitInvYieldPi0Ratio[i]) fitInvYieldPi0Ratio[i]->DrawCopy("same");
+                        if((smoothing == 2 || smoothing == 3) && histoRatioCorrectedYieldCut2[i]) histoRatioCorrectedYieldCut2[i]->DrawCopy("same,e1,p");
+                    }
+                }
+                TF1* f2 = new TF1("f2","1./100*y+1");
+                SystErrGraphPos2->Apply(f2);
+                SystErrGraphPos2->SetLineColor(color[(NumberOfCuts+1) % 20]);
+                SystErrGraphPos2->SetMarkerColor(color[(NumberOfCuts+1) % 20]);
+                // SystErrGraphPos2->Draw("ALP");
+                SystErrGraphPos2->Draw("L, same");
+                TF1* f1 = new TF1("f1","-1./100*y+1");
+                SystErrGraphNeg2->Apply(f1);
+                SystErrGraphNeg2->SetLineColor(color[(NumberOfCuts+2) % 20]);
+                SystErrGraphNeg2->SetMarkerColor(color[(NumberOfCuts+2) % 20]);
+                SystErrGraphNeg2->Draw("L, same");
+                legendmonitor2->AddEntry(SystErrGraphPos2, "max. rel. unc. pos.");
+                legendmonitor2->AddEntry(SystErrGraphNeg2, "max. rel. unc. neg.");
+                legendmonitor2->Draw();
+                // legendmonitor3->Draw();
+            }
+            DrawGammaLines(minpt, maxpt,0.95, 0.95,1.,kGray+1,2);
+            DrawGammaLines(minpt, maxpt,0.9, 0.9,1.,kGray+1,2);
+            DrawGammaLines(minpt, maxpt,1.1, 1.1,1.,kGray+1,2);
+            DrawGammaLines(minpt, maxpt,1.05, 1.05,1.,kGray+1,2);
+
+            for(Int_t i = 0 + modifyer; i< NumberOfCuts; i++){
+                padMonitor_all[i] = new TPad(Form("padMonitor_all_%i",i), "", 0., 1.-(1./((Double_t) (NumberOfCuts+2-modifyer)))*(((Double_t) (i+2-modifyer))+1.), 1., 1.-(1./((Double_t) (NumberOfCuts+2-modifyer)))*((Double_t) (i+2-modifyer)),-1, -1, -2);
+                if(smoothing == 2 && i == 0) continue;
+                if (i == NumberOfCuts -1)
+                DrawGammaPadSettings( padMonitor_all[i], 0.12, 0.02, 0., 0.2);
+                else
+                DrawGammaPadSettings( padMonitor_all[i], 0.12, 0.02, 0., 0.);
+                padMonitor_all[i]->SetLogy(0);
+                canvasSysErrorMonitor->cd();
+                padMonitor_all[i]->Draw();
+                padMonitor_all[i]->cd();
+                if(smoothing == 1) {
+                    if(histoCorrectedYieldCut[i] && fitInvYieldPi0[i]) {
+                        histoCorrectedYieldCut[i]->Divide(fitInvYieldPi0[i]);
+                        histoCorrectedYieldCut[i]->GetYaxis()->SetRangeUser(0.71,1.29);
+                        SetStyleHistoTH1ForGraphs(histoCorrectedYieldCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{yield}{TCM}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
+                        histoCorrectedYieldCut[i]->DrawCopy("p,e1");
+                        legendmonitor4[i] = GetAndSetLegend2(0.15,0.98-1.15*0.06*(1),0.3,0.98, 1500*0.75*0.032);
+                        legendmonitor4[i]->AddEntry(histoCorrectedYieldCut[i], Form("%s ",cutStringsName[i].Data()),"pl");
+                        legendmonitor4[i]->Draw();
+                        DrawGammaLines(1., maxpt,1., 1.,2.,kGray+1);
+                    }
+                } else if(smoothing == 2) {
+                    if(histoRatioCorrectedYieldCut2[0] && histoRatioCorrectedYieldCut[i] && histoRatioCorrectedYieldCut2[i]){
+                        if(i!=0) {
+                            histoRatioCorrectedYieldCut2[0]->DrawCopy("p,e2");
+                            histoRatioCorrectedYieldCut2[i]->DrawCopy("same, p,e1");
+                            if(i<20){
+                                DrawGammaSetMarker(histoRatioCorrectedYieldCut3[i], 24+i, 0.8,color[i]+2,color[i]+2);
+                            } else {
+                                DrawGammaSetMarker(histoRatioCorrectedYieldCut3[i], 24+i, 0.8,color[i-20]+2,color[i-20]+2);
+                            }
+                            histoRatioCorrectedYieldCut3[i]->DrawCopy("same,p,e1");
+                            legendmonitor4[i] = GetAndSetLegend2(0.15,0.98-1.15*0.06*(2),0.3,0.98, 1500*0.75*0.032);
+                            // legendmonitor4[i]->AddEntry(histoRatioCorrectedYieldCut[0], Form("standard: %s ",cutStringsName[0].Data()),"pl");
+                            if (doRebin)
+                                legendmonitor4[i]->AddEntry(histoRatioCorrectedYieldCut3[i], Form("%s rebinned",cutStringsName[i].Data()),"pl");
+                            else
+                                legendmonitor4[i]->AddEntry(histoRatioCorrectedYieldCut3[i], Form("%s ",cutStringsName[i].Data()),"pl");
+                            legendmonitor4[i]->AddEntry(histoRatioCorrectedYieldCut2[i], "smoothed");//Form("%s smoothed",cutStringsName[i].Data()),"pl");
+                            legendmonitor4[i]->Draw();
+                        }
+                    }
+                } else if(smoothing == 3){
+                    if(histoRatioCorrectedYieldCut[0] && histoCorrectedYieldCut[i] && histoCorrectedYieldCut2[i] ){
+                        legendmonitor4[i] = GetAndSetLegend2(0.15,0.98-1.15*0.06*(2),0.3,0.98, 1500*0.75*0.032);
+                        hTMP2[i]                      = (TH1D*) histoCorrectedYieldCut2[i]->Clone(Form("TMP_histoRatioCorrectedYieldCut2_%s", cutNumber[i].Data()));
+                        hTMP[i]                      = (TH1D*) histoRatioCorrectedYieldCut[0]->Clone(Form("TMP_histoRatioCorrectedYieldCut_%s", cutNumber[i].Data()));
+                        hTMP2[i]->Divide(hTMP2[i],histoCorrectedYieldCut[i],1.,1.,"B");
+                        SetStyleHistoTH1ForGraphs(hTMP[i], "#it{p}_{T} (GeV/#it{c})", "#frac{smoothed}{unsmoothed}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
+                        DrawGammaSetMarker(hTMP[i], 20+i, 1.,color[i],color[i]);
+                        if (i == 0) {
+                            DrawGammaSetMarker(hTMP2[i], 24+i, 1.,kGray+2,kGray+2);
+                        } else {
+                            DrawGammaSetMarker(hTMP2[i], 24+i, 1.,color[i]+2,color[i]+2);
+                        }
+                        legendmonitor4[i]->AddEntry(hTMP[i], Form("%s ",cutStringsName[i].Data()),"pl");
+                        legendmonitor4[i]->AddEntry(hTMP2[i], "smoothed");//Form("%s smoothed",cutStringsName[i].Data()),"pl");
+                        hTMP[i]->DrawCopy("p,e2");
+                        hTMP2[i]->DrawCopy("same, p,e1");
+                        legendmonitor4[i]->Draw();
+                    }
+                }
+                DrawGammaLines(minpt, maxpt,0.95, 0.95,1.,kGray+1,2);
+                DrawGammaLines(minpt, maxpt,0.9, 0.9,1.,kGray+1,2);
+                DrawGammaLines(minpt, maxpt,1.1, 1.1,1.,kGray+1,2);
+                DrawGammaLines(minpt, maxpt,1.05, 1.05,1.,kGray+1,2);
+            }
+            canvasSysErrorMonitor->Update();
+            canvasSysErrorMonitor->SaveAs(Form("%s/%s_%s_Monitor.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+
+
+            for(Int_t i = 0 + modifyer; i< NumberOfCuts; i++){
+                if(padMonitor_all[i]) delete padMonitor_all[i];
+            }
+            if(canvasSysErrorMonitor) delete canvasSysErrorMonitor;
+            // // if(legendmonitor) delete legendmonitor;
+            // // if(legendmonitor3) delete legendmonitor3;
+            // // if(legendmonitor2) delete legendmonitor2;
+            for(Int_t i = 0 ; i< NumberOfCuts; i++){
+                if(smoothing == 3){
+                    if(hTMP[i]) delete hTMP[i];
+                    if(hTMP2[i]) delete hTMP2[i];
+                }
+            //     if(legendmonitor4[i]) delete legendmonitor4[i];
+            }
+        }
 
         TGraphAsymmErrors* SystErrGraphNegEtaToPi0 = NULL;
         TGraphAsymmErrors* SystErrGraphPosEtaToPi0 = NULL;
@@ -2527,8 +3026,14 @@ cout << "line " << __LINE__ << endl;
             SysErrorConversion SysErrCutEtaToPi0Raw[ConstNumberOfCuts][NBinstPtConstEtaToPi0];
             for (Int_t j = 0; j < NumberOfCuts; j++){
                 for (Int_t i = 1; i < NBinsPtEtaToPi0 +1; i++){
-                    SysErrCutEtaToPi0[j][i].value       = histoEtaToPi0Cut[j]->GetBinContent(i);
-                    SysErrCutEtaToPi0[j][i].error       = histoEtaToPi0Cut[j]->GetBinError(i);
+                    if (doRebin) {
+                        Int_t tmpBink = histoEtaToPi0Cut[j]->GetXaxis()->FindBin(BinsXCenterEtaToPi0[i]);
+                        SysErrCutEtaToPi0[j][i].value       = histoEtaToPi0Cut2[j]->GetBinContent(tmpBink);
+                        SysErrCutEtaToPi0[j][i].error       = histoEtaToPi0Cut2[j]->GetBinError(tmpBink);
+                    } else {
+                        SysErrCutEtaToPi0[j][i].value       = histoEtaToPi0Cut[j]->GetBinContent(i);
+                        SysErrCutEtaToPi0[j][i].error       = histoEtaToPi0Cut[j]->GetBinError(i);
+                    }
                     SysErrCutEtaToPi0Raw[j][i].value    = histoRawYieldCut[j]->GetBinContent(i);
                     SysErrCutEtaToPi0Raw[j][i].error    = histoRawYieldCut[j]->GetBinError(i);
                 }
@@ -2783,6 +3288,7 @@ cout << "line " << __LINE__ << endl;
             RatioRawYieldsFile->Write();
             RatioRawYieldsFile->Close();
         }
+
         Printf("File: %s/%s_%s_SystematicErrorCuts.root",outputDirRootFile.Data(),meson.Data(),prefix2.Data());
 
         //**************************************************************************************************************************
