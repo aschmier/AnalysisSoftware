@@ -253,8 +253,8 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     }
     TString nameAcceptance                              = "fMCMesonAccepPt";
     TString nameAcceptanceWOEvtWeights                  = "fMCMesonAccepPtWOEvtWeights";
-    TString nameMassMC                                  = Form("histoTrueMassMeson%s",InvMassTypeEnding.Data());
-    TString nameWidthMC                                 = Form("histoTrueFWHMMeson%s",InvMassTypeEnding.Data());
+    TString nameMassMC                                  = Form("histoMCRecMassMesonBackFit%s",InvMassTypeEnding.Data());
+    TString nameWidthMC                                 = Form("histoMCRecFWHMMesonBackFit%s",InvMassTypeEnding.Data());
   //  TString nameMCYield                                 = "MCYield_Meson_oldBinWOWeights";
     TString nameMCYield                                 = "MCYield_Meson";
 
@@ -605,11 +605,13 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         histoRawYieldOmega[i]                                 = (TH1D*)fileCorrectedOmega[i]->Get(Form("histoYieldMesonPerEvent%s",InvMassTypeEnding.Data()));
         histoRawYieldOmega[i]->SetName(Form("RAWYieldPerEvent_%s",cutNumber[i].Data()));
         if (mode != 10){
-            histoMassOmegaData[i]                                 = (TH1D*)fileCorrectedOmega[i]->Get(Form("histoMassMeson%s",InvMassTypeEnding.Data()));
+            TString bckfit = "BackFit";
+            if(useBackFitOutput)  bckfit = "BackFit";
+            histoMassOmegaData[i]                                 = (TH1D*)fileCorrectedOmega[i]->Get(Form("histoMassMeson%s%s",bckfit.Data(),InvMassTypeEnding.Data()));
             histoMassOmegaData[i]->SetName(Form("Omega_Mass_data_%s",cutNumber[i].Data()));
             histoMassOmegaMC[i]                                   = (TH1D*)fileCorrectedOmega[i]->Get(nameMassMC.Data());
             histoMassOmegaMC[i]->SetName(Form("Omega_Mass_MC_%s",cutNumber[i].Data()));
-            histoWidthOmegaData[i]                                = (TH1D*)fileCorrectedOmega[i]->Get(Form("histoFWHMMeson%s",InvMassTypeEnding.Data()));
+            histoWidthOmegaData[i]                                = (TH1D*)fileCorrectedOmega[i]->Get(Form("histoFWHMMeson%s%s",bckfit.Data(),InvMassTypeEnding.Data()));
             histoWidthOmegaData[i]->SetName(Form("Omega_Width_data_%s",cutNumber[i].Data()));
             histoWidthOmegaMC[i]                                  = (TH1D*)fileCorrectedOmega[i]->Get(nameWidthMC.Data());
             histoWidthOmegaMC[i]->SetName(Form("Omega_Width_MC_%s",cutNumber[i].Data()));
@@ -4066,30 +4068,30 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     nameEfficiency                              = "TrueMesonEffiPt";
     nameAcceptance                              = "fMCMesonAccepPt";
     nameAcceptanceWOEvtWeights                  = "fMCMesonAccepPtWOEvtWeights";
-    nameMassMC                                  = "histoTrueMassMeson";
-    nameWidthMC                                 = "histoTrueFWHMMeson";
+    nameMassMC                                  = "histoMCRecMassMesonBackFit";
+    nameWidthMC                                 = "histoMCRecFWHMMesonBackFit";
     nameMCYield                                 = "MCYield_Meson_oldBinWOWeights";
-    if ( mode == 64 || mode == 65 ){
-        nameCorrectedYield                              = "CorrectedYieldNormEff";
-        nameEfficiency                                  = "MesonEffiPt";
-        nameMassMC                                      = "histoMassMesonRecMC";
-        nameWidthMC                                     = "histoFWHMMesonRecMC";
-        if (optionEnergy.CompareTo("PbPb_2.76TeV")==0 ){
-            nameMassMC                                  = "histoTrueMassMeson";
-            nameWidthMC                                 = "histoTrueFWHMMeson";
-            nameCorrectedYield                          = "CorrectedYieldTrueEff";
-            nameEfficiency                              = "TrueMesonEffiPt";
-        }
-    } else if ( (mode == 61 || mode == 62) && !(optionEnergy.CompareTo("8TeV")==0 || optionEnergy.CompareTo("pPb_5.023TeV")==0)){
-        cout << "using rec quantities for PCM-EMC/PCM-PHOS" << endl;
-        nameMassMC                                      = "histoMassMesonRecMC";
-        nameWidthMC                                     = "histoFWHMMesonRecMC";
-    } else if (mode == 10){
-        nameCorrectedYield                              = "CorrectedYieldTrueEff";
-        nameEfficiency                                  = "PrimaryMesonEfficiency";
-        nameAcceptance                                  = "fHistoMCAcceptancePt";
-        nameMCYield                                     = "MCYield_Meson_oldBin";
-    }
+    // if ( mode == 64 || mode == 65 ){
+    //     nameCorrectedYield                              = "CorrectedYieldNormEff";
+    //     nameEfficiency                                  = "MesonEffiPt";
+    //     nameMassMC                                      = "histoMassMesonRecMC";
+    //     nameWidthMC                                     = "histoFWHMMesonRecMC";
+    //     if (optionEnergy.CompareTo("PbPb_2.76TeV")==0 ){
+    //         nameMassMC                                  = "histoTrueMassMeson";
+    //         nameWidthMC                                 = "histoTrueFWHMMeson";
+    //         nameCorrectedYield                          = "CorrectedYieldTrueEff";
+    //         nameEfficiency                              = "TrueMesonEffiPt";
+    //     }
+    // } else if ( (mode == 61 || mode == 62) && !(optionEnergy.CompareTo("8TeV")==0 || optionEnergy.CompareTo("pPb_5.023TeV")==0)){
+    //     cout << "using rec quantities for PCM-EMC/PCM-PHOS" << endl;
+    //     nameMassMC                                      = "histoMassMesonRecMC";
+    //     nameWidthMC                                     = "histoFWHMMesonRecMC";
+    // } else if (mode == 10){
+    //     nameCorrectedYield                              = "CorrectedYieldTrueEff";
+    //     nameEfficiency                                  = "PrimaryMesonEfficiency";
+    //     nameAcceptance                                  = "fHistoMCAcceptancePt";
+    //     nameMCYield                                     = "MCYield_Meson_oldBin";
+    // }
 
     cout << "reading the following Pi0 hists: " << nameCorrectedYield.Data() << "\t" << nameEfficiency.Data() << "\t" << nameMassMC.Data() << "\t" << nameWidthMC.Data() << endl;
 

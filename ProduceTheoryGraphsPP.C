@@ -955,24 +955,37 @@ void ProduceTheoryGraphsPP(){
 
         Model = Broken SU(3) model; Int.J.Mod.Phys. A32 (2017) no.33, 1750199.
     */
-    Double_t       ptNLOOmega7000GeV[100];
-    Double_t       xSectionNLOOmega7000GeV[100];
-    Int_t       nlinesNLOOmega7000GeV =       0;
-    TString fileNameNLOOmega7000GeV = "ExternalInput/Theory/vectormeson_frag_omega_Indumathi_2019.out";
-    ifstream  fileNLOOmega7000GeV;
-    fileNLOOmega7000GeV.open(fileNameNLOOmega7000GeV,ios_base::in);
-    cout << fileNameNLOOmega7000GeV << endl;
+    Double_t       ptNLOOmega7000GeV[3][100];
+    Double_t       xSectionNLOOmega7000GeV[3][100];
+    TString fileNameNLOOmega7000GeV[3] = {"ExternalInput/Theory/vectormeson_frag_omega_Indumathi_2019.out",
+                                          "ExternalInput/Theory/vectormeson_frag_omega_Indumathi_2019_scale05.out",
+                                          "ExternalInput/Theory/vectormeson_frag_omega_Indumathi_2019_scale2.out" };
+    
+    TGraph* graphNLOCalcInvSecOmega7000GeVMilli[3] = {NULL};
+    TGraph* graphNLOCalcInvSecOmega7000GeV[3] = {NULL};
+    Int_t       nlinesNLOOmega7000GeV[3] =  {0};
+    for (Int_t mu  = 0; mu < 3; mu++)
+    {
+        nlinesNLOOmega7000GeV[mu] =       0;
+        ifstream  fileNLOOmega7000GeV;
+        fileNLOOmega7000GeV.open(fileNameNLOOmega7000GeV[mu],ios_base::in);
+        cout << fileNameNLOOmega7000GeV[mu] << endl;
 
-    while(!fileNLOOmega7000GeV.eof()){
-        TString     garbage;
-        nlinesNLOOmega7000GeV++;
-        fileNLOOmega7000GeV >> garbage >> ptNLOOmega7000GeV[nlinesNLOOmega7000GeV] >> garbage >> garbage >> xSectionNLOOmega7000GeV[nlinesNLOOmega7000GeV] >> garbage;
-        cout << nlinesNLOOmega7000GeV << "         "  <<  ptNLOOmega7000GeV[nlinesNLOOmega7000GeV] << "         "  << xSectionNLOOmega7000GeV[nlinesNLOOmega7000GeV] << endl;
+        while(!fileNLOOmega7000GeV.eof()){
+            TString     garbage;
+            nlinesNLOOmega7000GeV[mu]++;
+            fileNLOOmega7000GeV >> garbage >> garbage >> ptNLOOmega7000GeV[mu][nlinesNLOOmega7000GeV[mu]]  >> xSectionNLOOmega7000GeV[mu][nlinesNLOOmega7000GeV[mu]] >> garbage >> garbage;
+            cout << nlinesNLOOmega7000GeV[mu] << "         "  <<  ptNLOOmega7000GeV[mu][nlinesNLOOmega7000GeV[mu]] << "         "  << xSectionNLOOmega7000GeV[mu][nlinesNLOOmega7000GeV[mu]] << endl;
+        }
+        fileNLOOmega7000GeV.close();
+
+        graphNLOCalcInvSecOmega7000GeVMilli[mu] = new TGraph(nlinesNLOOmega7000GeV[mu],ptNLOOmega7000GeV[mu],xSectionNLOOmega7000GeV[mu]);
+        graphNLOCalcInvSecOmega7000GeVMilli[mu]->RemovePoint(0);
+        graphNLOCalcInvSecOmega7000GeV[mu] = ScaleGraph(graphNLOCalcInvSecOmega7000GeVMilli[mu],1e9); // convert to picobarn
     }
-    fileNLOOmega7000GeV.close();
-    TGraph* graphNLOCalcInvSecOmega7000GeVMilli = new TGraph(nlinesNLOOmega7000GeV,ptNLOOmega7000GeV,xSectionNLOOmega7000GeV);
-    graphNLOCalcInvSecOmega7000GeVMilli->RemovePoint(0);
-    TGraph* graphNLOCalcInvSecOmega7000GeV = ScaleGraph(graphNLOCalcInvSecOmega7000GeVMilli,1e9); // convert to picobarn
+    TGraphAsymmErrors* graphNLOCalcInvSecOmega7000GeVMuAllMilli     = CombineMuScales(nlinesNLOOmega7000GeV[0], ptNLOOmega7000GeV[0], xSectionNLOOmega7000GeV[0], xSectionNLOOmega7000GeV[1], xSectionNLOOmega7000GeV[2]);
+    TGraphAsymmErrors* graphNLOCalcInvSecOmega7000GeVMuAll     = ScaleGraph(graphNLOCalcInvSecOmega7000GeVMuAllMilli,1e9);
+    
 
 
     //**************************************************************************************************
@@ -1842,8 +1855,11 @@ void ProduceTheoryGraphsPP(){
         histoOmegaPythia8MonashInvSec7TeV->Write("histoInvSecPythia8Monash2013Omega7TeV", TObject::kOverwrite);
         histoOmegaPythia8tune4CInvSec7TeV->Write("histoInvSecPythia8tune4COmega7TeV", TObject::kOverwrite);
 
-        // Model = Broken SU(3) model; Int.J.Mod.Phys. A32 (2017) no.33, 1750199.
-        graphNLOCalcInvSecOmega7000GeV->Write("graphNLOCalcOmega7000GeV",TObject::kOverwrite);
+        // Model = Broken SU(3) model; Int.J.Mod.Phys. A32 (2017) no.33, 1750199. 
+        graphNLOCalcInvSecOmega7000GeV[0]->Write("graphNLOCalcOmega7000GeV",TObject::kOverwrite);// normal scale
+        graphNLOCalcInvSecOmega7000GeV[1]->Write("graphNLOCalcOmega7000GeV_scale05",TObject::kOverwrite);// 0.5 Q^2
+        graphNLOCalcInvSecOmega7000GeV[2]->Write("graphNLOCalcOmega7000GeV_scale2",TObject::kOverwrite);// 2 Q^2
+        graphNLOCalcInvSecOmega7000GeVMuAll->Write("graphNLOCalcOmega7000GeV_muall",TObject::kOverwrite);// 2 Q^2
 
         // pi0, eta, eta/pi0 Pythia 6.4 Perugia2011
         histoPi07TeVPythia6->Write("histoPi0Pythia6_Perugia2011_7000TeV", TObject::kOverwrite);

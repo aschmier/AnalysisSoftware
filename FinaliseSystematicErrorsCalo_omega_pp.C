@@ -359,9 +359,28 @@ void FinaliseSystematicErrorsCalo_omega_pp( TString nameDataFileErrors      = ""
         CorrectSystematicErrorsWithMean(errorsMean[i],  errorsMeanErr[i],   errorsMeanCorr[i],  errorsMeanErrCorr[i],   nPtBins);
         CorrectSystematicErrorsWithMean(errorsMean[i],  errorsMeanErr[i],   errorsMeanCorrBefore[i],  errorsMeanErrCorrBefore[i],   nPtBins);
 
-
+        if (nameCutVariationSC[i].CompareTo("YieldExtraction")==0){
+            for (Int_t k = 0; k < nPtBins; k++){
+                cout << "errorPos = " << errorsPos[i][k] << "errorNeg = " << errorsNeg[i][k] << "errorsMean = " << errorsMean[i][k] << endl;
+            }
+        }
         // Routine for manual smoothing of systematic errors
         // ATTTENTION! you have to do this manually for each data set/trigger never trust the values mentioned here
+        if (nameCutVariationSC[i].CompareTo("YieldExtraction")==0 ){
+            cout << "Manual adaptation of one bin" << endl;
+            for (Int_t k = 0; k < nPtBins; k++){
+                if (!energy.CompareTo("7TeV")){
+                    if((ptBins[k] > 10.)&&(ptBins[k] < 12.)){
+                        Double_t errorReset = (errorsMean[i][k-1]+errorsMean[i][k+1])/2.;
+    
+                        errorsMean[i][k]            = errorReset;
+                        errorsMeanErr[i][k]         = errorReset*0.01;
+                        errorsMeanCorr[i][k]        = errorReset;
+                        errorsMeanErrCorr[i][k]     = errorReset*0.01;
+                    }
+                }
+            }
+        }
 
         if (bsmooth[i]){
             Double_t minPt      = -10;
@@ -536,7 +555,8 @@ void FinaliseSystematicErrorsCalo_omega_pp( TString nameDataFileErrors      = ""
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = -0.21536+0.500256*ptBins[k];
+                        // errorReset = -0.21536+0.500256*ptBins[k];
+                        errorReset = 4;
                         if(isTrigger) errorReset = 5.;
                     }
                     if (ptBins[k] > minPt){
@@ -551,7 +571,7 @@ void FinaliseSystematicErrorsCalo_omega_pp( TString nameDataFileErrors      = ""
             minPt       = startPtSys;
             for (Int_t k = 0; k < nPtBins; k++){
                 if (!energy.CompareTo("7TeV")){
-                    errorReset = 5.5;
+                    errorReset = 2.3;
                     if(mode==45 || mode == 65){
                         errorReset = 5.5; 
                     }
@@ -603,7 +623,7 @@ void FinaliseSystematicErrorsCalo_omega_pp( TString nameDataFileErrors      = ""
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 2.;
+                        errorReset = 4.;
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -666,7 +686,7 @@ void FinaliseSystematicErrorsCalo_omega_pp( TString nameDataFileErrors      = ""
                  for (Int_t k = 0; k < nPtBins; k++){
                      if (!energy.CompareTo("7TeV")){
                          //errorReset = 13-(0.66*ptBins[k]);
-                         errorReset = 7.;
+                         errorReset = 9.;
                          if((mode==45) || (mode==65)){ // PHOS
                             //errorReset = 13-(0.66*ptBins[k]);
                             //errorReset = 7-(0.66*ptBins[k]);
@@ -686,7 +706,7 @@ void FinaliseSystematicErrorsCalo_omega_pp( TString nameDataFileErrors      = ""
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 6./10. * ptBins[k] +1 ; 
+                        errorReset = 7.; ; 
                         if(isTrigger) errorReset = 3./10. * ptBins[k] +0.6 ; 
                        }
                        if (ptBins[k] > minPt){
@@ -1068,10 +1088,11 @@ void FinaliseSystematicErrorsCalo_omega_pp( TString nameDataFileErrors      = ""
 
         errorsMeanCorrSignalExtraction[l]   =   TMath::Sqrt(pow(errorsMeanCorr[13][l],2)+    // charged pion mass
                                                             pow(errorsMeanCorr[15][l],2)+    // BG
+                                                            pow(errorsMeanCorr[16][l],2)+    // reco effi
                                                             pow(errorsMeanCorr[17][l],2)+    // branching ratio
                                                             pow(errorsMeanCorr[18][l],2));   // YieldExtraction
 
-        errorsMeanRecEfficiency[l]    =  errorsMeanCorr[16][l];
+        // errorsMeanRecEfficiency[l]    =  errorsMeanCorr[16][l];
         // charged pion cuts: "ChargedPion_ClsTPCCut","ChargedPion_TPCdEdxCutPion"
         errorsMeanCorrChargedPionReco[l]                =   TMath::Sqrt(pow(errorsMeanCorr[9][l],2) +   // ClsITS
                                                                         pow(errorsMeanCorr[10][l],2) +  // ClsTPC

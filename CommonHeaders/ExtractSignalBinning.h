@@ -1413,7 +1413,7 @@
             } else if(energy.CompareTo("7TeV") == 0){
                 if(mode == 40 || mode == 60){
                     scaleFac        = 1.;
-                    return 9;
+                    return 7;
                 } else if(mode == 41 || mode == 61){
                     if(trigger == 52){
                         scaleFac        = 2.;
@@ -1430,8 +1430,8 @@
                         scaleFac        = 2.;
                         return 9;
                     } else{
-                        scaleFac        = 2.;
-                        return 7;
+                        scaleFac        = 1.;
+                        return 8;
                     }
                 } else if(mode == 45 || mode == 65){
                     scaleFac        = 5.;
@@ -2423,12 +2423,12 @@
         } else if (meson.Contains("Omega")){
             if (energy.CompareTo("7TeV") == 0){
                 if (mode == 40 || mode == 60){
-                    startPtBin     = 5;
+                    startPtBin     = 4;
                 } else if (mode == 41 || mode == 61){
                     if(specialTrigg == 0 || specialTrigg == 1){ // EMC7 in LHC11
                         startPtBin     = 1;
                     } else{
-                        startPtBin     = 6;
+                        startPtBin     = 7;
                     }
                 } else if (mode == 42 || mode == 62){
                     startPtBin     = 5;
@@ -4487,14 +4487,14 @@
                             binning[i] = fBinsOmegaPiPlPiMiPiZero7TevLHC11PtEMC[i];
                         }
                     } else if(SpecialTrigger==-1){
-                        maxNBins    = 18;
-                        binningMax  = 18;
+                        maxNBins    = 13;
+                        binningMax  = 13;
                         for(Int_t i = 0; i < binningMax+1; i++){
-                            binning[i] = fBinsOmegaPiPlPiMiPiZero7TevLHC11PtEMCCombined[i];
+                            binning[i] = fBinsOmegaPiPlPiMiPiZero7TevPtEMC[i];
                         }
                     } else{
-                        maxNBins    = 11;
-                        binningMax  = 11;
+                        maxNBins    = 13;
+                        binningMax  = 13;
                         for(Int_t i = 0; i < binningMax+1; i++){
                             binning[i] = fBinsOmegaPiPlPiMiPiZero7TevPtEMC[i];
                         }

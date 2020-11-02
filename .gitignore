@@ -20,6 +20,8 @@ TaskV1/ExampleConfigs/
 *.pcm
 *.kate-swp
 *.eps
+*.pdf
+*.png
 
 .vscode/*
 

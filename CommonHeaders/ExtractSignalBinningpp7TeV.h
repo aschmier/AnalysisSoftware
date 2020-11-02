@@ -143,7 +143,7 @@
     // Int_t fBinsOmegaPiPlPiMiPiZero7TevPtRebinPCM[13]       = {10,10,7,7,7,6,6,5,5,5,5,10,10};
     // Int_t fBinsPi0OmegaBinning7TevPtRebinPCM[13]           = {10,10,7,7,2,2,2,2,2,2,2,2,2};
 
-    Double_t fBinsOmegaPiPlPiMiPiZero7TevPtPCM[12]         = {0,1,1.4,1.6,1.8,2,3,4,5,6.,8.,12.};
+    Double_t fBinsOmegaPiPlPiMiPiZero7TevPtPCM[12]         = {0,1,1.4,1.8,2,2.5,3,4,5,6.,8.,12.};
     Int_t fBinsOmegaPiPlPiMiPiZero7TevPtRebinPCM[11]       = {10,10,7,6,6,5,5,5,5,10,10};
     Int_t fBinsPi0OmegaBinning7TevPtRebinPCM[11]           = {10,10,2,2,2,2,2,2,2,2,2};
 
@@ -151,12 +151,13 @@
     Double_t fBinsOmegaPiPlPiMiPiZero7TevSysPtPCM[3]         = {1.8,6.,12.};
     Int_t fBinsOmegaPiPlPiMiPiZero7TevSysPtRebinPCM[2]       = {4,4};
 
-    Double_t fBinsOmegaPiPlPiMiPiZero7TevPtPCMEMC[12]         = {0,1,1.5,2,2.5,3,3.5,4,5.,6.,8.,12.};
+    Double_t fBinsOmegaPiPlPiMiPiZero7TevPtPCMEMC[12]         = {0,0.5,1.0,1.5,2.0,2.5,3,4,5.,6.,8.,10.};
     Int_t fBinsOmegaPiPlPiMiPiZero7TevPtRebinPCMEMC[11]       = {10,10,10,10,10,10,8,8,8,6,6};
     Int_t fBinsPi0OmegaBinning7TevPtRebinPCMEMC[11]           = {10,10,10,10,10,10,8,8,8,6,6};
 
-    Double_t fBinsOmegaPiPlPiMiPiZero7TevPtEMC[12]         = {0,1.5,2,2.5,3,3.5,4,5,6.,8.,10.,12};
-    Int_t fBinsOmegaPiPlPiMiPiZero7TevPtRebinEMC[11]       = {10,10,10,10,10,6,6,6,6,6,8};
+    Double_t fBinsOmegaPiPlPiMiPiZero7TevPtEMC[14]         = {0,1.,1.5,2.,2.5,3.,4,5,6.,8.,10.,12,14,17};
+    // Int_t fBinsOmegaPiPlPiMiPiZero7TevPtRebinEMC[13]       = {10,10,10,10,10,6,6,6,6,6,8,10,12};
+    Int_t fBinsOmegaPiPlPiMiPiZero7TevPtRebinEMC[13]       = {10,10,10,10,10,6,6,6,6,6,10,10,12};
     Int_t fBinsPi0OmegaBinning7TevPtRebinEMC[11]           = {4,4,4,4,4,4,4,4,4,4,4};
 
     Double_t fBinsOmegaPiPlPiMiPiZero7TevPtPCMPHOS[14]         =  {0,1,1.4,1.6,1.8,2,2.5,3,3.5,4,5,6.,8.,12.};
@@ -179,7 +180,7 @@
 
     // Combined
                                                                             
-    Double_t fBinsOmegaPiPlPiMiPiZero7TevLHC11PtEMCCombined[19]         = {0,1.5,2,2.5,3,3.5,4,5,6.,8.,10.,12,14.,16.,18.,20.,22.,26,28};
+    Double_t fBinsOmegaPiPlPiMiPiZero7TevLHC11PtEMCCombined[19]         = {0,1.,1.5,2.,2.5,3.,4,5,6.,8.,10.,12,14.,16.,18.,20.,22.,26,28};
     Int_t fBinsOmegaPiPlPiMiPiZero7TevLHC11PtRebinEMCCombined[18]       = {3,6,6,6,6,8,8,8,6,8,8,6,6,6,8,8,8,8};
 
 #endif

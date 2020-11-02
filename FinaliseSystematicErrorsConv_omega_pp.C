@@ -528,7 +528,7 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 4.;
+                        errorReset = 3.;
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -574,7 +574,8 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
                         // comparison of backfit and evt mixing on 5 TeV shows
-                        errorReset = 2.00173+85.5985/pow(3.45065,ptBins[k]);
+                        // errorReset = 2.00173+85.5985/pow(3.45065,ptBins[k]);
+                        errorReset = 9.;
                         //errorReset = 5.2;
                         // if(ptBins[k]<5.0){
                         //     errorReset = 15.9952+-4.41681*ptBins[k]+0.450559*pow(ptBins[k],2);
@@ -966,6 +967,7 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
     Double_t errorsMeanCorrPileup[nPtBins];
     Double_t errorsMeanCorrOmegaReco[nPtBins];
     Double_t errorsMeanRecEfficiency[nPtBins];
+    Double_t errorsMeanRecPileup[nPtBins];
 
     for (Int_t l=0; l< nPtBins; l++){
         //"0 YieldExtraction_pp"
@@ -1009,6 +1011,7 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
         errorsMeanCorrPi0Reco[l]           =   errorsMeanCorr[13][l];
 
         errorsMeanRecEfficiency[l]    =  errorsMeanCorr[15][l];
+        errorsMeanRecPileup[l]    =  errorsMeanCorr[0][l];
 
 
         // pileup
@@ -1107,9 +1110,9 @@ void FinaliseSystematicErrorsConv_omega_pp( TString nameDataFileErrors      = ""
     fstream SysErrDatAverPaper;
     cout << SysErrDatnameMeanPaper << endl;
     SysErrDatAverPaper.open(SysErrDatnameMeanPaper, ios::out);
-    SysErrDatAverPaper  << "p_{T}" << "\t Material \t Signal Extraction \t charged pion reco \t photon reco \t pi0 reco  \t summed" <<  endl;
+    SysErrDatAverPaper  << "p_{T}" << "\t Material \t Pileup \t Signal Extraction \t charged pion reco \t photon reco \t pi0 reco \t reco efficiency \t summed" <<  endl;
     for (Int_t l=0; l< nPtBins; l++){
-        SysErrDatAverPaper << ptBins[l] <<"\t" << errorsMat[l] << "\t" << errorsMeanCorrSignalExtraction[l] << "\t" << errorsMeanCorrChargedPionReco[l]<< "\t" << errorsMeanCorrPhotonReco[l]<< "\t" <<errorsMeanCorrPi0Reco[l] <<"\t" << errorsMeanCorrMatSummed[l]<< endl;
+        SysErrDatAverPaper << ptBins[l] <<"\t" << errorsMat[l] << "\t" << errorsMeanCorrPileup[l] << "\t" << errorsMeanCorrSignalExtraction[l] << "\t" << errorsMeanCorrChargedPionReco[l]<< "\t" << errorsMeanCorrPhotonReco[l]<< "\t" <<errorsMeanCorrPi0Reco[l] <<"\t" << errorsMeanRecEfficiency[l] << "\t" << errorsMeanCorrMatSummed[l]<< endl;
     }
     SysErrDatAverPaper.close();
 

@@ -405,9 +405,9 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
 
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        //errorReset = 0.5;
-                        Float_t pi0Pt = CalculatePi0Pt(ptBins[k]);
-                        errorReset= 0.8+40/pow(100,pi0Pt); // parametrisation
+                        errorReset = 0.5;
+                        //Float_t pi0Pt = CalculatePi0Pt(ptBins[k]);
+                        //errorReset= 0.8+40/pow(100,pi0Pt); // parametrisation
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -423,7 +423,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 3.;
+                        errorReset = 2.;
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -452,7 +452,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
             } else if (nameCutVariationSC[i].CompareTo("Conversion_TPCdEdxCutPion")==0 ){
                 minPt       = startPtSys;
                 if (!energy.CompareTo("7TeV"))
-                    errorReset  = 4.; //
+                    errorReset  = 0.2; //
 
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (ptBins[k] > minPt){
@@ -468,7 +468,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 2.;
+                        errorReset = 1.8;
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -498,7 +498,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 2.5;
+                        errorReset = 1.5;
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -651,7 +651,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 5.5;
+                        errorReset = 2.3;
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -665,7 +665,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 minPt       = startPtSys;
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
-                        errorReset = 4.0;
+                        errorReset = 3.0;
                     }
                     if (ptBins[k] > minPt){
                         errorsMean[i][k]            = errorReset;
@@ -729,7 +729,7 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
                 for (Int_t k = 0; k < nPtBins; k++){
                     if (!energy.CompareTo("7TeV")){
                         if(mode==61 || mode == 41){ // PCM-EMC
-                             errorReset = 7;
+                             errorReset = 9.;
                         } else{ // PCM-PHOS
                              errorReset = 7;
                         }
@@ -1275,10 +1275,10 @@ void FinaliseSystematicErrorsConvCalo_omega_pp( TString nameDataFileErrors      
     fstream SysErrDatAverPaper;
     cout << SysErrDatnameMeanPaper << endl;
     SysErrDatAverPaper.open(SysErrDatnameMeanPaper, ios::out);
-    SysErrDatAverPaper  << "p_{T}" << "\t Material \t signal extraction \t charged pion reco \t conv photon reco \t calo photon reco \t neutral pion s\t  summed" <<  endl;
+    SysErrDatAverPaper  << "p_{T}" << "\t Material \t pileup \t signal extraction \t charged pion reco \t conv photon reco \t calo photon reco \t neutral pion s\t reco effi \t summed" <<  endl;
     for (Int_t l=0; l< nPtBins; l++){
         cout << "l = " << l << endl;
-        SysErrDatAverPaper << ptBins[l] <<"\t" <<  pow(pow(1*errorInnerMaterial ,2.) + pow(errorOuterMaterial,2),0.5) << "\t" << errorsMeanCorrSignalExtraction[l] << "\t" << errorsMeanCorrChargedPionReco[l]<< "\t" << errorsMeanCorrPhotonRecoConv[l]<< "\t" << errorsMeanCorrPhotonRecoCalo[l]<< "\t" <<errorsMeanCorrPi0Reco[l]  <<"\t" << errorsMeanCorrMatSummed[l]<< endl;
+        SysErrDatAverPaper << ptBins[l] <<"\t" <<  pow(pow(1*errorInnerMaterial ,2.) + pow(errorOuterMaterial,2),0.5) << "\t" << errorsMeanCorrPileup[l] << "\t" << errorsMeanCorrSignalExtraction[l] << "\t" << errorsMeanCorrChargedPionReco[l]<< "\t" << errorsMeanCorrPhotonRecoConv[l]<< "\t" << errorsMeanCorrPhotonRecoCalo[l]<< "\t" <<errorsMeanCorrPi0Reco[l]  <<"\t" << errorsMeanRecEfficiency[l] <<"\t" << errorsMeanCorrMatSummed[l]<< endl;
     }
     SysErrDatAverPaper.close();
 

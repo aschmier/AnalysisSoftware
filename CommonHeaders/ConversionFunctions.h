@@ -32,8 +32,8 @@
     TGraphErrors* 	    CalculateGraphRatioToGraph(TGraphErrors*, TGraphErrors*);
     TGraph*             CalculateGraphRatioToGraph(TGraph*, TGraph*);
     TGraphAsymmErrors*  CalculateAsymGraphRatioToGraph(TGraphAsymmErrors* graphA, TGraphAsymmErrors* graphB);
-    TGraphErrors*       CalculateGraphErrRatioToFit (TGraphErrors* , TF1* );
-    TGraphAsymmErrors*  CalculateGraphErrRatioToFit (TGraphAsymmErrors* , TF1* );
+    TGraphErrors*       CalculateGraphErrRatioToFit (TGraphErrors* , TF1*);
+    TGraphAsymmErrors*  CalculateGraphErrRatioToFit (TGraphAsymmErrors* , TF1* , Bool_t);
     TGraph*             CalculateGraphRatioToFit (TGraph* , TF1* );
     TH1D*               CalculateHistoRatioToFitNLO (TH1D* , TF1* , Double_t );
     TGraphAsymmErrors*  CalculateSysErrFromRelSysHistoWithPtBins( TH1D* , TString , Double_t* , Double_t* , Double_t* , const Int_t  );
@@ -727,7 +727,7 @@
     //**********************************************************************************************************
     // Calculates the ratio of a graph and a fit
     //**********************************************************************************************************
-    TGraphAsymmErrors* CalculateGraphErrRatioToFit (TGraphAsymmErrors* graph_Org, TF1* fit){
+    TGraphAsymmErrors* CalculateGraphErrRatioToFit (TGraphAsymmErrors* graph_Org, TF1* fit, Bool_t useIntegral = kFALSE){
         TGraphAsymmErrors* graph        = (TGraphAsymmErrors*)graph_Org->Clone("Dummy");
         Double_t * xValue               = graph->GetX();
         Double_t * yValue               = graph->GetY();
@@ -737,9 +737,16 @@
         Double_t* yErrorHigh            = graph->GetEYhigh();
         Int_t nPoints                   = graph->GetN();
         for (Int_t i = 0; i < nPoints; i++){
-            yValue[i]                   = yValue[i]/fit->Eval(xValue[i]);
-            yErrorLow[i]                = yErrorLow[i]/fit->Eval(xValue[i]);
-            yErrorHigh[i]               = yErrorHigh[i]/fit->Eval(xValue[i]);
+            if(!useIntegral){
+                yValue[i]                   = yValue[i]/fit->Eval(xValue[i]);
+                yErrorLow[i]                = yErrorLow[i]/fit->Eval(xValue[i]);
+                yErrorHigh[i]               = yErrorHigh[i]/fit->Eval(xValue[i]);
+            } else{
+                Double_t binwidth = xErrorHigh[i]+xErrorLow[i];
+                yValue[i]                   = yValue[i]/(fit->Integral(xValue[i]-xErrorLow[i],xValue[i]+xErrorHigh[i])/binwidth);
+                yErrorLow[i]                = yErrorLow[i]/(fit->Integral(xValue[i]-xErrorLow[i],xValue[i]+xErrorHigh[i])/binwidth);
+                yErrorHigh[i]               = yErrorHigh[i]/(fit->Integral(xValue[i]-xErrorLow[i],xValue[i]+xErrorHigh[i])/binwidth); 
+            }
         }
         TGraphAsymmErrors* returnGraph  = new TGraphAsymmErrors(nPoints,xValue,yValue,xErrorLow,xErrorHigh,yErrorLow,yErrorHigh);
         return returnGraph;
@@ -2932,11 +2939,11 @@
         // modified by Friederike Bock : 19.12.2011
         //----------------------------------------------------------------------
 
-    //     cout << "entered bin shifting x" << endl;
+        //     cout << "entered bin shifting x" << endl;
         TGraphAsymmErrors *spectrumShift    = (TGraphAsymmErrors*)spectrum->Clone();
         spectrumShift->SetName(Form("%s_xshift",spectrum->GetName()));
         Int_t nIter                         = 10;
-    //     cout << "loaded spectrum" << endl;
+        //     cout << "loaded spectrum" << endl;
         RemoveScalingWithPtGraph(spectrumShift);
 
         // Define a function Int(f)-f0
@@ -2949,8 +2956,8 @@
 
         TString formulaName                 = Form("%s",tsallis->GetName());
         Int_t nPar                          = tsallis->GetNpar();
-        TString formula                     = Form("%s - [%d]",(tsallis->GetExpFormula()).Data(),nPar);
-        // cout << "Formula used for bin shift: " << formula << endl;
+        TString formula                     = Form("%s - [p%d]",(tsallis->GetExpFormula()).Data(),nPar);
+        // cout << "Formula used for bin shift: " << formula.Data() << endl;
         TF1 * fYield;
         if(useRangesFromTF1) fYield        = new TF1(formulaName.Data(), formula, tsallis->GetMinimumX(),tsallis->GetMaximumX());
         else fYield                        = new TF1(formulaName.Data(), formula, 0.2,25.0);
@@ -2985,11 +2992,11 @@
                 }
             }
         }
-    //     cout<<"%Integral measured::"<<100.*tsallis->Integral(xvalue[0]-xvalueErr[0],xvalue[numberPoints-1]+xvalueErr[numberPoints-1])/tsallis->Integral(0.,100.)<<endl;
-    //     cout<<"%Integral NOT measured::"<<100.*(1.-tsallis->Integral(xvalue[0]-xvalueErr[0],xvalue[numberPoints-1]+xvalueErr[numberPoints-1])/tsallis->Integral(0.,100.)) <<endl;
+        //     cout<<"%Integral measured::"<<100.*tsallis->Integral(xvalue[0]-xvalueErr[0],xvalue[numberPoints-1]+xvalueErr[numberPoints-1])/tsallis->Integral(0.,100.)<<endl;
+        //     cout<<"%Integral NOT measured::"<<100.*(1.-tsallis->Integral(xvalue[0]-xvalueErr[0],xvalue[numberPoints-1]+xvalueErr[numberPoints-1])/tsallis->Integral(0.,100.)) <<endl;
 
         ScaleWithPtGraph(spectrumShift);
-    //     spectrumShift->Print();
+        //     spectrumShift->Print();
         return spectrumShift;
     }
 

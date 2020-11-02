@@ -1598,17 +1598,21 @@
                 corrFracPCM_PCM_PCMEMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCM_PCM-PCMEMC");
                 corrFracPCM_PCM_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCM_PCM-PCMPHOS");
                 corrFracPCM_PCM_PHOS[0]                = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCM_PCM-PHOS");
+                if(corrFracPCM_PCM_PHOS[0]==0.) corrFracPCM_PCM_PHOS[0]= 0.4; 
+                
                 corrFracPCM_PCM_EMC[0]                 = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCM_PCM-EMC");
 
                 corrFracPCMEMC_PCM_PCMEMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCMEMC_PCM-PCMEMC");
                 corrFracPCMEMC_PCMEMC_EMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCMEMC_PCMEMC-EMC");
                 corrFracPCMEMC_PCMEMC_PCMPHOS[0]       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCMEMC_PCMEMC-PCMPHOS");
                 corrFracPCMEMC_PCMEMC_PHOS[0]          = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCMEMC_PCMEMC-PHOS");
-
+                if(corrFracPCMEMC_PCMEMC_PHOS[0]==0.) corrFracPCMEMC_PCMEMC_PHOS[0]= 0.4; // maximum correlated
+                
                 corrFracEMC_PCM_EMC[0]                 = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "EMC_PCM-EMC");
                 corrFracEMC_PCMEMC_EMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "EMC_PCMEMC-EMC");
                 corrFracEMC_EMC_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "EMC_EMC-PCMPHOS");
                 corrFracEMC_EMC_PHOS[0]                = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "EMC_EMC-PHOS");
+                if(corrFracEMC_EMC_PHOS[0]==0.) corrFracEMC_EMC_PHOS[0]= 0.4; // maximum correlated
 
                 corrFracPCMPHOS_PCM_PCMPHOS[0]         = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCMPHOS_PCM-PCMPHOS");
                 corrFracPCMPHOS_PCMEMC_PCMPHOS[0]      = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCMPHOS_PCMEMC-PCMPHOS");
@@ -1619,6 +1623,10 @@
                 corrFracPHOS_PCMEMC_PHOS[0]            = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PHOS_PCMEMC-PHOS");
                 corrFracPHOS_EMC_PHOS[0]               = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PHOS_EMC-PHOS");
                 corrFracPHOS_PCMPHOS_PHOS[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PHOS_PCMPHOS-PHOS");
+
+                if(corrFracPHOS_PCM_PHOS[0] == 0)       corrFracPHOS_PCM_PHOS[0] = 0.4;             
+                if(corrFracPHOS_PCMEMC_PHOS[0] == 0)    corrFracPHOS_PCMEMC_PHOS[0] = 0.4;        
+                if(corrFracPHOS_EMC_PHOS[0] == 0)       corrFracPHOS_EMC_PHOS[0] = 0.4;    
             } else if (energy.CompareTo("7TeV") == 0 && mesonType.CompareTo("OmegaToPi0") == 0){
                 corrFracPCM_PCM_PCMEMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCM_PCM-PCMEMC");
                 corrFracPCM_PCM_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCM_PCM-PCMPHOS");

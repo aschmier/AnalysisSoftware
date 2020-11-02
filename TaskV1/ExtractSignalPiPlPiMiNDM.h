@@ -64,6 +64,8 @@ TFile*  fOutput2                                            = NULL;
 TH1D*   fBckNorm                                            = NULL;
 TH1D*   fSignal                                             = NULL;
 TH1D*   fRatioSB                                            = NULL;
+Double_t*   fMesonChi2[6]                                               = {NULL};  // 0-2: event mixing (normal, SubPiZero,FixedPzPiZero)
+TH1D*       fHistoChi2[6]                                   = {NULL};
 TH1D*   fFittingHistMidPtSignal                             = NULL;
 TH1D*   fFittingHistMidPtSignal_SubPiZero                   = NULL;
 TH1D*   fFittingHistMidPtSignal_FixedPzPiZero               = NULL;
@@ -156,10 +158,16 @@ TH1D*   fHistoMassPosition=									NULL;
 TH1D*   fHistoMassMeson=									NULL;
 TH1D*   fHistoMassMeson_SubPiZero=							NULL;
 TH1D*   fHistoMassMeson_FixedPzPiZero=						NULL;
+TH1D*   fHistoMassMesonBackFit=							    NULL;
+TH1D*   fHistoMassMesonBackFit_SubPiZero=					NULL;
+TH1D*   fHistoMassMesonBackFit_FixedPzPiZero=				NULL;
 TH1D*   fHistoWidthMeson=									NULL;
 TH1D*   fHistoFWHMMeson=									NULL;
 TH1D*   fHistoFWHMMeson_SubPiZero=							NULL;
 TH1D*   fHistoFWHMMeson_FixedPzPiZero=						NULL;
+TH1D*   fHistoFWHMMesonBackFit=								NULL;
+TH1D*   fHistoFWHMMesonBackFit_SubPiZero=				    NULL;
+TH1D*   fHistoFWHMMesonBackFit_FixedPzPiZero=				NULL;
 TH1D*   fHistoTrueMassMeson=								NULL;
 TH1D*   fHistoTrueMassMeson_SubPiZero=						NULL;
 TH1D*   fHistoTrueMassMeson_FixedPzPiZero=					NULL;
@@ -758,7 +766,7 @@ TH1D* CalculateMesonEfficiency(TH1D*, TH1D*, TString);
 void SaveHistos(Int_t, TString, TString);
 void SaveCorrectionHistos(TString , TString);
 void Initialize(TString setPi0, Int_t);
-void CalculateFWHM(TF1 *, Double_t *InputMesonFitRange);
+void CalculateFWHM(TF1 *, Double_t *InputMesonFitRange, Bool_t useGaussOnly = kFALSE);
 Double_t LinearBGExclusion(Double_t *,Double_t *);                                                          // Definition of linear BG with excluded region
 Double_t Pol2BGExclusion(Double_t *,Double_t *);                                                          // Definition of pol2 BG with excluded region
 Double_t CrystalBallBck(Double_t *,Double_t *);
@@ -839,6 +847,9 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
            mode == 60 || mode == 61 || mode == 62 || mode == 64 || mode == 65){
             fFitRange[0]             = 0.60;
             fFitRange[1]             = 0.99;
+
+            // fFitRange[0]             = 0.60;
+            // fFitRange[1]             = 0.89;
             fFitRange_SubPiZero[0]   = fFitRange[0];
             fFitRange_SubPiZero[1]   = fFitRange[1];
             fFitRange_FixedPzPiZero[0]             = fFitRange[0];
@@ -923,35 +934,43 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         }
 
         // Initialize default Plot default integration ranges
-        if(mode == 40 || mode == 60){ //PCM
-            fMesonIntDeltaRange[0]      = -0.035;
-            fMesonIntDeltaRange[1]      =  0.035;
-            fMesonIntDeltaRangeWide[0]  = -0.05;
-            fMesonIntDeltaRangeWide[1]  = 0.05;
-            fMesonIntDeltaRangeNarrow[0]= -0.025;
-            fMesonIntDeltaRangeNarrow[1]= 0.025;
-        } else if(mode == 41 || mode == 61){ //PCM-EMCAL
-            fMesonIntDeltaRange[0]      = -0.035;
-            fMesonIntDeltaRange[1]      =  0.035;
-            fMesonIntDeltaRangeWide[0]  = -0.05;
-            fMesonIntDeltaRangeWide[1]  = 0.05;
-            fMesonIntDeltaRangeNarrow[0]= -0.025;
-            fMesonIntDeltaRangeNarrow[1]= 0.025;
-        } else if(mode == 42 || mode == 62){ //PCM-PHOS
+        if(mode == 40 || mode == 60){
+            fMesonIntDeltaRange[0]      = -0.013*2; // determined using 2 * sigma in MC
+            fMesonIntDeltaRange[1]      =  0.013*2;
+            fMesonIntDeltaRangeWide[0]  = fMesonIntDeltaRange[0] * 1.5;
+            fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1] * 1.5;
+            fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.7;
+            fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1] * 0.7;
+        } else if(mode == 41 || mode == 61){
+            fMesonIntDeltaRange[0]      = -0.013*2;
+            fMesonIntDeltaRange[1]      =  0.013*2;
+            fMesonIntDeltaRangeWide[0]  = fMesonIntDeltaRange[0] * 1.5;
+            fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1] * 1.5;
+            fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.7;
+            fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1] * 0.7;
+        } else if(mode == 42 || mode == 62){
             fMesonIntDeltaRange[0]      = -0.03;
             fMesonIntDeltaRange[1]      =  0.03;
             fMesonIntDeltaRangeWide[0]  = -0.05;
             fMesonIntDeltaRangeWide[1]  = 0.05;
             fMesonIntDeltaRangeNarrow[0]= -0.02;
             fMesonIntDeltaRangeNarrow[1]= 0.02;
-        } else if(mode == 44 || mode == 64){ //EMCAL
-            fMesonIntDeltaRange[0]      = -0.065;
-            fMesonIntDeltaRange[1]      =  0.065;
-            fMesonIntDeltaRangeWide[0]  = -0.08;
-            fMesonIntDeltaRangeWide[1]  = 0.08;
-            fMesonIntDeltaRangeNarrow[0]= -0.04;
-            fMesonIntDeltaRangeNarrow[1]= 0.04;
-        } else if( mode == 45 || mode == 65){ //PHOS
+        } else if(mode == 44 || mode == 64){
+            // fMesonIntDeltaRange[0]      = -0.019*2;
+            // fMesonIntDeltaRange[1]      =  0.019*2;
+            // FWHM should 0.027
+            fMesonIntDeltaRange[0]      = -0.030;
+            fMesonIntDeltaRange[1]      =  0.030;
+            // fMesonIntDeltaRange[0]      = -0.023*2;//ok !
+            // fMesonIntDeltaRange[1]      =  0.021*2;//ok !
+            // fMesonIntDeltaRange[0]      = -0.025*2;//ok
+            // fMesonIntDeltaRange[1]      =  0.021*2;//ok
+            fMesonIntDeltaRangeWide[0]  = fMesonIntDeltaRange[0] * 1.5;
+            fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1] * 1.5;
+            // fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.6;
+            fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.7;
+            fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1] * 0.7;
+        } else if( mode == 45 || mode == 65){
             fMesonIntDeltaRange[0]      = -0.04;
             fMesonIntDeltaRange[1]      =  0.04;
             fMesonIntDeltaRangeWide[0]  = -0.06;
@@ -976,8 +995,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fMesonMassRange_SubPiZero[1]          = fMesonMassRange[1];
             fMesonMassRange_FixedPzPiZero[0]      = fMesonMassRange[0];
             fMesonMassRange_FixedPzPiZero[1]      = fMesonMassRange[1];
-        } else if(mode == 41 || mode == 61){ //PCM-EMCAL
-            fMesonMassPlotRange[0]                = 0.66;
+        } else if(mode == 41 || mode == 61){
+            fMesonMassPlotRange[0]                = 0.65;
             fMesonMassPlotRange[1]                = 0.89;
             fMesonMassPlotRange_SubPiZero[0]      = fMesonMassPlotRange[0];
             fMesonMassPlotRange_SubPiZero[1]      = fMesonMassPlotRange[1];
@@ -1007,8 +1026,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         }
 
          // Set meson fit range
-         if(mode == 40 || mode == 60){ //PCM
-             fMesonFitRange[0]                 = 0.59;
+         if(mode == 40 || mode == 60){
+             fMesonFitRange[0]                 = 0.60;
              fMesonFitRange[1]                 = 0.99;
 
              fMesonFitRange_SubPiZero[0]       = fMesonFitRange[0];
@@ -1016,9 +1035,9 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
              fMesonFitRange_FixedPzPiZero[0]   = fMesonFitRange[0];
              fMesonFitRange_FixedPzPiZero[1]   = fMesonFitRange[1];
-         } else if (mode == 41 || mode == 61){ //PCM-EMCAL
-             fMesonFitRange[0]                 = 0.65;
-             fMesonFitRange[1]                 = 0.87;
+         } else if (mode == 41 || mode == 61){
+             fMesonFitRange[0]                 = 0.60;
+             fMesonFitRange[1]                 = 0.99;
 
              fMesonFitRange_SubPiZero[0]       = fMesonFitRange[0];
              fMesonFitRange_SubPiZero[1]       = fMesonFitRange[1];
@@ -1034,9 +1053,9 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
              fMesonFitRange_FixedPzPiZero[0]   = fMesonFitRange[0];
              fMesonFitRange_FixedPzPiZero[1]   = fMesonFitRange[1];
-         } else if (mode == 44 || mode == 64){ //EMCAL
-             fMesonFitRange[0]                 = 0.65;
-             fMesonFitRange[1]                 = 0.87;
+         } else if (mode == 44 || mode == 64){
+             fMesonFitRange[0]                 = 0.60;
+             fMesonFitRange[1]                 = 0.99;
 
              fMesonFitRange_SubPiZero[0]       = fMesonFitRange[0];
              fMesonFitRange_SubPiZero[1]       = fMesonFitRange[1];

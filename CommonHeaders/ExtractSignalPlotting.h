@@ -491,6 +491,10 @@
         cout << "fCollisionSystemDummy: " << fCollisionSystemDummy << endl;
         TString triggerStr2             = ReturnTriggerName(triggerSet,fCollisionSystemDummy);
         TString triggerStr              = Form("%s triggered", triggerStr2.Data());
+        
+        if(triggerStr2.Contains("V0OR")){
+            triggerStr              = Form("MB_{OR} triggered");
+        }
         TString methodStr               = ReturnTextReconstructionProcess(detMode);
         TString methodStrOut            = ReturnTextReconstructionProcessWrite(detMode);
         if (addSig)
@@ -1559,6 +1563,9 @@
             triggerStr              = Form("EMC-L1 (high) triggered");
         } else if (triggerStr2.Contains("PHI7")){
             triggerStr              = Form("PHOS-L0 triggered");
+        } else if(fMesonType.CompareTo("Omega") == 0 && (triggerStr2.CompareTo("INT1") == 0)){
+            triggerStr2 = "V0OR";
+            triggerStr              = Form("MB_{OR} triggered");
         }
         TString methodStr               = ReturnTextReconstructionProcess(detMode);
         TString methodStrOut            = ReturnTextReconstructionProcessWrite(detMode);
@@ -1705,33 +1712,35 @@
 
         fitOmegaInvMassBGConfidence->SetFillColorAlpha(kGreen+2,0.4);
 
+        Float_t xposLegend = 0.135;
+        if(fMesonType.CompareTo("Omega") == 0) xposLegend = 0.72;
         // Start Drawing
         if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<"; Start Drawing"<<endl;}
         TLatex *labelALICE      = NULL;
         if(fPlottingType.CompareTo("wip")==0){
-            labelALICE      = new TLatex(0.135,0.9,"ALICE work in progress");
+            labelALICE      = new TLatex(xposLegend,0.9,"ALICE work in progress");
         } else if (fPlottingType.CompareTo("thesis")==0){
-            labelALICE      = new TLatex(0.135,0.9,"ALICE this thesis");
+            labelALICE      = new TLatex(xposLegend,0.9,"ALICE this thesis");
         } else if (fPlottingType.CompareTo("performance")==0){
-            labelALICE      = new TLatex(0.135,0.9,"ALICE performance");
+            labelALICE      = new TLatex(xposLegend,0.9,"ALICE performance");
         } else{
-            labelALICE      = new TLatex(0.135,0.9,"ALICE");
+            labelALICE      = new TLatex(xposLegend,0.9,"ALICE");
         }
         SetStyleTLatex( labelALICE, 0.85*textSizeLabelsPixel,4);
         labelALICE->SetTextFont(43);
         labelALICE->Draw();
 
-        TLatex *labelInvMassEnergy      = new TLatex(0.135,0.9-0.9*textsizeLabelsPP,fCollisionSystemDummy.Data());
+        TLatex *labelInvMassEnergy      = new TLatex(xposLegend,0.9-0.9*textsizeLabelsPP,fCollisionSystemDummy.Data());
         SetStyleTLatex( labelInvMassEnergy, 0.85*textSizeLabelsPixel,4);
         labelInvMassEnergy->SetTextFont(43);
         labelInvMassEnergy->Draw();
 
-        TLatex *labelTrigger  = new TLatex(0.135,0.9-2*0.9*textsizeLabelsPP,triggerStr.Data());
+        TLatex *labelTrigger  = new TLatex(xposLegend,0.9-2*0.9*textsizeLabelsPP,triggerStr.Data());
         SetStyleTLatex( labelTrigger, 0.85*textSizeLabelsPixel,4);
         labelTrigger->SetTextFont(43);
         labelTrigger->Draw();
 
-        TLatex *labelInvMassReco  = new TLatex(0.135,0.9-3*0.9*textsizeLabelsPP, methodStr);
+        TLatex *labelInvMassReco  = new TLatex(xposLegend,0.9-3*0.9*textsizeLabelsPP, methodStr);
         SetStyleTLatex( labelInvMassReco, 0.85*textSizeLabelsPixel,4);
         labelInvMassReco->SetTextFont(43);
         labelInvMassReco->Draw();
@@ -1786,12 +1795,26 @@
         labelInvMassReco->Draw();
         labelInvMassPtRange->Draw();
         // 0.67
-        TLegend* legendInvMass2  = GetAndSetLegend2(0.55, 0.87-nLegendLines*0.75*textsizeLabelsPP, 0.9, 0.87, 0.85*textSizeLabelsPixel);
+        TLegend* legendInvMass2  = NULL;
+        
+        legendInvMass2 = GetAndSetLegend2(0.55, 0.87-nLegendLines*0.75*textsizeLabelsPP, 0.9, 0.87, 0.85*textSizeLabelsPixel);
+        
+        if(fMesonType.CompareTo("Omega") == 0){
+            legendInvMass2 = GetAndSetLegend2(0.12, 0.87-nLegendLines*0.75*textsizeLabelsPP, 0.5, 0.87, 0.85*textSizeLabelsPixel);
+        }
         legendInvMass2->SetMargin(0.25);
         if(fSimulation.CompareTo("MC")==0){
-            legendInvMass2->AddEntry(histoPi0InvMassSigPlusBG,"Raw MC events","le");
+            if(fMesonType.CompareTo("Omega") == 0){
+                legendInvMass2->AddEntry(histoPi0InvMassSigPlusBG,"Raw MC","le");
+            } else{
+                legendInvMass2->AddEntry(histoPi0InvMassSigPlusBG,"Raw MC events","le");
+            }
         } else{
-            legendInvMass2->AddEntry(histoPi0InvMassSigPlusBG,"Raw real events","le");
+            if(fMesonType.CompareTo("Omega") == 0){
+                legendInvMass2->AddEntry(histoPi0InvMassSigPlusBG,"Raw data","le");
+            } else{
+                legendInvMass2->AddEntry(histoPi0InvMassSigPlusBG,"Raw real events","le");
+            }
         }
         legendInvMass2->AddEntry(fitOmegaInvMassBG,"Fitted BG using","l");
         if(fMesonType.CompareTo("Omega") == 0){
@@ -1799,7 +1822,7 @@
         } else{
             legendInvMass2->AddEntry((TObject*)0,"4th order polynomial","");
         }
-        legendInvMass2->AddEntry(histoPi0InvMassSig,"BG subtracted","p");
+        legendInvMass2->AddEntry(histoPi0InvMassSig,"BG subtracted","pe");
         if (scaleFacSignal != 1.0){
             legendInvMass2->AddEntry((TObject*)0,Form("scaled by %2.1f",scaleFacSignal),"");
         }
@@ -1808,6 +1831,18 @@
         histo1DInvMassDummy->Draw("AXIS,same");
 
         if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C, PlotExampleInvMassBinsBckFit(); Line: "<<__LINE__<<"; Save"<<endl;}
+        
+        Double_t mass = fMesonMass[exampleBin];
+        Double_t intRangeLow            = mass + fMesonIntDeltaRange[0];
+        Double_t intRangeHigh           = mass + fMesonIntDeltaRange[1];
+        Double_t normalLow              = intRangeLow-(intRangeLow-histoPi0InvMassSigPlusBG->GetXaxis()->GetBinLowEdge(histoPi0InvMassSigPlusBG->GetXaxis()->FindBin(intRangeLow)));
+        Double_t normalUp               = intRangeHigh+(histoPi0InvMassSigPlusBG->GetXaxis()->GetBinUpEdge(histoPi0InvMassSigPlusBG->GetXaxis()->FindBin(intRangeHigh))-intRangeHigh);
+
+        cout << "minimum sample bin: " << minimum << endl;
+        DrawGammaLines(normalLow, normalLow, minimum, 0.2*histoPi0InvMassSigPlusBG->GetMaximum(), 5, kGray+2,7);
+        DrawGammaLines(normalUp, normalUp, minimum, 0.2*histoPi0InvMassSigPlusBG->GetMaximum(), 5, kGray+2,7);
+        histo1DInvMassDummy->Draw("AXIS,same");
+
         if(titleInvMassSignalWithBG.Contains("SubPiZero")){
           canvasInvMassSamplePlot->SaveAs(Form("%s/%s_%s_InvMassBinBckFit_SubPiZero_%s_%s.%s",outputDir.Data(),fMesonType.Data(),fSimulation.Data(), methodStrOut.Data(), triggerStr2.Data(),  suffix.Data()));
         } else if(titleInvMassSignalWithBG.Contains("FixedPzPiZero")){

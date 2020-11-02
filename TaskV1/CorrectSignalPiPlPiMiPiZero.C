@@ -243,9 +243,11 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	Double_t scaling = 1./(2.*TMath::Pi());
 
     // Variable to quickly change which type of yield is used
-    TString InvMassTypeEnding = "_SubPiZero";
-	TString BackFitString     = "";
+     TString InvMassTypeEnding = "_SubPiZero";
     //TString InvMassTypeEnding = "";
+    //TString InvMassTypeEnding = "_FixedPzPiZero";
+	TString BackFitString     = "BackFit";
+	Bool_t useBackFit = kTRUE;
 	
 	// File definitions
 	cout << "fMesonCutSelection = " << fMesonCutSelection.Data() << endl;
@@ -255,7 +257,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     TH1D *histoEventQuality                 = (TH1D*)fileUncorrected.Get("NEvents");
     
 	TString backMode = fMesonCutSelection(1,1);
-
+    if(useBackFit) backMode = "4";
 	if(!backMode.CompareTo("4")) BackFitString = "BackFit";
    
     TH1D *histoUnCorrectedYield             = (TH1D*)fileUncorrected.Get(Form("histoYieldMeson%s%s",BackFitString.Data(),InvMassTypeEnding.Data()));
@@ -266,9 +268,11 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     TH1D *histoUnCorrectedYieldLeftWide  ;  
     TH1D *histoUnCorrectedYieldLeftNarrow;  
     TH1D *histoFWHMMeson                 ;  
+    TH1D *histoFWHMMesonBackFit          ;  
     TH1D *histoFWHMMesonLeft             ;  
 	
     TH1D *histoMassMeson                 ;  
+    TH1D *histoMassMesonBackFit          ;  
     TH1D *histoMassMesonLeft             ;  
 
 	// Backfit histos
@@ -277,7 +281,8 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     TH1D *histoUnCorrectedYieldNarrowBackFit;  
 	TH1D *histoUnCorrectedYieldBackFitFromFit = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonBackFitFromFit%s",InvMassTypeEnding.Data()));
     
-	if(backMode.CompareTo("4")){ 
+	if(!useBackFit){ 
+		return;
     	histoUnCorrectedYieldWide         = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonWide%s",InvMassTypeEnding.Data()));
     	histoUnCorrectedYieldNarrow       = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonNarrow%s",InvMassTypeEnding.Data()));
 		histoUnCorrectedYieldWideBackFit  = (TH1D*)fileUncorrected.Get(Form("histoYieldWideMesonBackFit%s",InvMassTypeEnding.Data()));
@@ -286,9 +291,11 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     	histoUnCorrectedYieldLeftWide     = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftWide%s",InvMassTypeEnding.Data()));
     	histoUnCorrectedYieldLeftNarrow   = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftNarrow%s",InvMassTypeEnding.Data()));
     	histoFWHMMeson                    = (TH1D*)fileUncorrected.Get(Form("histoFWHMMeson%s",InvMassTypeEnding.Data()));
+    	histoFWHMMesonBackFit             = (TH1D*)fileUncorrected.Get(Form("histoFWHMMesonBackFit%s",InvMassTypeEnding.Data()));
     	histoFWHMMesonLeft                = (TH1D*)fileUncorrected.Get(Form("histoFWHMMesonLeft%s",InvMassTypeEnding.Data()));
 	
     	histoMassMeson                    = (TH1D*)fileUncorrected.Get(Form("histoMassMeson%s",InvMassTypeEnding.Data()));
+    	histoMassMesonBackFit             = (TH1D*)fileUncorrected.Get(Form("histoMassMesonBackFit%s",InvMassTypeEnding.Data()));
     	histoMassMesonLeft                = (TH1D*)fileUncorrected.Get(Form("histoMassMesonLeft%s",InvMassTypeEnding.Data()));
 	} else{ // no background calculation
 		histoUnCorrectedYieldWide          = (TH1D*)fileUncorrected.Get(Form("histoYieldWideMesonBackFit%s",InvMassTypeEnding.Data()));
@@ -299,9 +306,11 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     	histoUnCorrectedYieldLeftWide      = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftWide%s",InvMassTypeEnding.Data()));
     	histoUnCorrectedYieldLeftNarrow    = (TH1D*)fileUncorrected.Get(Form("histoYieldMesonLeftNarrow%s",InvMassTypeEnding.Data()));
     	histoFWHMMeson                     = (TH1D*)fileUncorrected.Get(Form("histoFWHMMeson%s",InvMassTypeEnding.Data()));
+    	histoFWHMMesonBackFit              = (TH1D*)fileUncorrected.Get(Form("histoFWHMMesonBackFit%s",InvMassTypeEnding.Data()));
     	histoFWHMMesonLeft                 = (TH1D*)fileUncorrected.Get(Form("histoFWHMMesonLeft%s",InvMassTypeEnding.Data()));
 	
     	histoMassMeson                    = (TH1D*)fileUncorrected.Get(Form("histoMassMeson%s",InvMassTypeEnding.Data()));
+    	histoMassMesonBackFit             = (TH1D*)fileUncorrected.Get(Form("histoMassMesonBackFit%s",InvMassTypeEnding.Data()));
     	histoMassMesonLeft                = (TH1D*)fileUncorrected.Get(Form("histoMassMesonLeft%s",InvMassTypeEnding.Data()));
 	}
     TH1D *histoMesonSignalFullPtInvMass     = (TH1D*)fileUncorrected.Get(Form("Mapping_GG_InvMass%s_FullPt",InvMassTypeEnding.Data()));
@@ -505,6 +514,15 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	
     TH1D* histoTrueMassMeson =          (TH1D*)fileCorrections->Get(Form("histoTrueMassMeson%s",InvMassTypeEnding.Data()));
     TH1D* histoTrueFWHMMeson =          (TH1D*)fileCorrections->Get(Form("histoTrueFWHMMeson%s",InvMassTypeEnding.Data()));
+
+    TH1D* histoMCRecMassMeson =          (TH1D*)fileCorrections->Get(Form("histoMCRecMassMeson%s",InvMassTypeEnding.Data()));
+    histoMCRecMassMeson->SetName(Form("histoMCRecMassMeson%s",InvMassTypeEnding.Data()));
+    TH1D* histoMCRecFWHMMeson =          (TH1D*)fileCorrections->Get(Form("histoMCRecFWHMMeson%s",InvMassTypeEnding.Data()));
+    histoMCRecFWHMMeson->SetName(Form("histoMCRecFWHMMeson%s",InvMassTypeEnding.Data()));
+    TH1D* histoMCRecMassMesonBackFit =          (TH1D*)fileCorrections->Get(Form("histoMCRecMassMesonBackFit%s",InvMassTypeEnding.Data()));
+    TH1D* histoMCRecFWHMMesonBackFit =          (TH1D*)fileCorrections->Get(Form("histoMCRecFWHMMesonBackFit%s",InvMassTypeEnding.Data()));
+    histoMCRecMassMesonBackFit->SetName(Form("histoMCRecMassMesonBackFit%s",InvMassTypeEnding.Data()));
+    histoMCRecFWHMMesonBackFit->SetName(Form("histoMCRecFWHMMesonBackFit%s",InvMassTypeEnding.Data()));
 
 	TString centralityCutNumber = fEventCutSelection(0,3);
 	TString centralityString = GetCentralityString(fEventCutSelection);
@@ -997,7 +1015,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	//**********************************************************************************
 	TCanvas* canvasMass = new TCanvas("canvasMass","",200,10,1350,900);  // gives the page size
 	DrawGammaCanvasSettings( canvasMass, 0.13, 0.02, 0.02, 0.09);
-	
+
 	if (nameMeson.CompareTo("Omega") == 0 ){
 		histoMassMeson->GetYaxis()->SetRangeUser(0.72,0.84);	//Omega
 	} else {
@@ -2221,8 +2239,8 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
                                 kFALSE, 0., 0.7,
                                 kTRUE, 0., 25.);
 
-    DrawGammaSetMarker(histoEffiPt, 22, 1., kBlack, kBlack);
-    histoEffiPt->DrawCopy("e1");
+    DrawGammaSetMarker(histoEffiPtBackFit, 22, 1., kBlack, kBlack);
+    histoEffiPtBackFit->DrawCopy("e1");
     DrawGammaSetMarker(histoTrueEffiPt, 22, 1., kRed+2, kRed+2);
     histoTrueEffiPt->DrawCopy("e1,same");
 
@@ -2231,7 +2249,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
     legendEffiComparison->SetFillColor(0);
     legendEffiComparison->SetBorderSize(0);
 
-    legendEffiComparison->AddEntry(histoEffiPt, "Normal efficiency");
+    legendEffiComparison->AddEntry(histoEffiPtBackFit, "Normal efficiency");
     legendEffiComparison->AddEntry(histoTrueEffiPt, "True efficiency");
     legendEffiComparison->Draw();
     canvasEffiComparison->Update();
@@ -2517,7 +2535,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
         //         relLargestDifferencePosError[i] =   relDifferenceLeftError[i];
         //     }
         // }
-		if (TMath::Abs(relDifferenceNarrow[i]) < 75.){
+		if (TMath::Abs(relDifferenceNarrow[i]) < 9999999.){
 			if(differenceNarrow[i] < 0){
 				if(differenceNarrow[i] < largestDifferenceNeg[i]){
 				largestDifferenceNeg[i] =     differenceNarrow[i]; 
@@ -2534,7 +2552,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 				}
 			}  
 		}
-		if (TMath::Abs(relDifferenceWide[i]) < 75.){
+		if (TMath::Abs(relDifferenceWide[i]) < 9999999.){
 			if(differenceWide[i] < 0){
 				if(differenceWide[i] < largestDifferenceNeg[i]){
 				largestDifferenceNeg[i] =     differenceWide[i];
@@ -2686,7 +2704,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 			relDifferenceTrueError[i] =   0.;
 		}
 
-		if (TMath::Abs(relDifferenceNorm[i]) < 75.){
+		if (TMath::Abs(relDifferenceNorm[i]) < 9999999.){
 			if(differenceNorm[i] < 0){
 				if(differenceNorm[i] < largestDifferenceNegEffi[i]){
 				largestDifferenceNegEffi[i] =     differenceNorm[i]; 
@@ -2703,7 +2721,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 				}
 			}  
 		}
-		if (TMath::Abs(relDifferenceTrue[i]) < 75.){
+		if (TMath::Abs(relDifferenceTrue[i]) < 999999.){
 			if(differenceTrue[i] < 0){
 				if(differenceTrue[i] < largestDifferenceNegEffi[i]){
 				largestDifferenceNegEffi[i] =     differenceTrue[i];
@@ -2850,6 +2868,9 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 
 	histoFWHMMeson->Write();
 	histoMassMeson->Write();
+
+	histoFWHMMesonBackFit->Write();
+	histoMassMesonBackFit->Write();
 	
 	histoAcceptance->Write();
     histoTrueEffiPt->Write(Form("TrueMesonEffiPt%s",InvMassTypeEnding.Data()));
@@ -2859,6 +2880,12 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	histoFWHMMeson->Write();
 	histoTrueFWHMMeson->Write();
 	histoTrueMassMeson->Write();
+
+	histoMCRecFWHMMeson->Write();
+	histoMCRecMassMeson->Write();
+
+	histoMCRecFWHMMesonBackFit->Write();
+	histoMCRecMassMesonBackFit->Write();
     histoMesonSignalFullPtInvMass->SetName(Form("FullInvariantMass%s",InvMassTypeEnding.Data()));
 	histoMesonSignalFullPtInvMass->Write();
 	histoEventQuality->Write();
