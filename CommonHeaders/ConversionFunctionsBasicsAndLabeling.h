@@ -766,7 +766,8 @@
     //************************************************************************************
     Int_t GetNEvents (  TH1* histo,
                         Bool_t doCout=kTRUE){
-        //cout<<"Debug, ConversionFunctionsBasicsAndLabeling.h, Line: "<<__LINE__<<"; histo->GetNbinsX(): "<<histo->GetNbinsX()<<endl;
+        Int_t debugOutputLevel=0;
+        if (debugOutputLevel>=1){cout<<"Debug, ConversionFunctionsBasicsAndLabeling.h, Line: "<<__LINE__<<"; histo->GetNbinsX(): "<<histo->GetNbinsX()<<endl;}
         if (!histo) cout << "NO EVENT HISTO" << endl;
         if(histo->GetNbinsX()==11){
             if(histo->GetEntries()-histo->GetBinContent(5)-histo->GetBinContent(7)-histo->GetBinContent(4)==0) return 0;
