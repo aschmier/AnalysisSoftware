@@ -4901,8 +4901,17 @@
         } else if( energy.EqualTo("13TeV") || energy.EqualTo("13TeVLowB") || energy.EqualTo("13TeVRBins") ) {
             if( modi!=0 && modeHeavy<100 ) {
 
-                if ( (modi == 62 ) || (modi == 65) || (modi == 61) || (modi == 64)){
-                    fNBinsClusterPt            = fNBinsClusterOmega13TeVPt; // 73
+                if ( (modi == 60 ) || (modi == 62 ) || (modi == 65) || (modi == 61) || (modi == 64)){
+                    fNBinsClusterPt            = fNBinsClusterOmega13TeVPt;
+                    for(Int_t i=0; i<=fNBinsCluster13TeVPt; i++ ){
+                        if (i < 1) fBinsCluster13TeVPt[i]          = 0.3*i;
+                        else if(i<197) fBinsCluster13TeVPt[i]      = 0.3+0.1*(i-1);
+                        else if(i<237) fBinsCluster13TeVPt[i]      = 20.+0.25*(i-197);
+                        else if(i<277) fBinsCluster13TeVPt[i]      = 30.+0.5*(i-237);
+                        else if(i<297) fBinsCluster13TeVPt[i]      = 50.+1.0*(i-277);
+                        else if(i<307) fBinsCluster13TeVPt[i]      = 70.+2.5*(i-297);
+                        else fBinsCluster13TeVPt[i]                = 100;
+                    }
 
                 }else if(modi == 10){
                   // binning for very high pT analyses
