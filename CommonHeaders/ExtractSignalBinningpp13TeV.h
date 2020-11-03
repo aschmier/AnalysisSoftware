@@ -1356,7 +1356,7 @@
     // ---------------------------------------------------------
     // Cluster binning
     // ---------------------------------------------------------
-    Int_t fNBinsClusterOmega13TeVPt                 =  249;
+    Int_t fNBinsClusterOmega13TeVPt                 =  301;
     Int_t fNBinsCluster13TeVPt                      =  307;
     Double_t fBinsCluster13TeVPt[1000];
     Int_t fNBinsCluster13TeVPCMPt                   =  301;
