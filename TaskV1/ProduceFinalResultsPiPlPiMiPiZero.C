@@ -307,10 +307,26 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         in >> cutNumber[nrOfTrigToBeComb] >> cutNumberPi0[nrOfTrigToBeComb] >> minPt[nrOfTrigToBeComb] >> maxPt[nrOfTrigToBeComb] >> triggerName[nrOfTrigToBeComb]
         >> trigSteps[nrOfTrigToBeComb][0]  >> trigSteps[nrOfTrigToBeComb][1]  >> trigSteps[nrOfTrigToBeComb][2] >> ptFromSpecOmega[nrOfTrigToBeComb][0] >> ptFromSpecOmega[nrOfTrigToBeComb][1]
         >> ptFromSpecPi0[nrOfTrigToBeComb][0] >> ptFromSpecPi0[nrOfTrigToBeComb][1] >> sysFileOmega[nrOfTrigToBeComb] >> sysFilePi0[nrOfTrigToBeComb] >> sysFileOmegaToPi0[nrOfTrigToBeComb] >> cutNumberBaseEff[nrOfTrigToBeComb];
-        cout<< cutNumber[nrOfTrigToBeComb]<<"\t"<< cutNumberPi0[nrOfTrigToBeComb]<< "\t"<< triggerName[nrOfTrigToBeComb] << "\t transverse momentum range: " << minPt[nrOfTrigToBeComb]<< "\t to "<< maxPt[nrOfTrigToBeComb] <<endl;
-        cout << trigSteps[nrOfTrigToBeComb][0] << "\t" << trigSteps[nrOfTrigToBeComb][1] << "\t"<< trigSteps[nrOfTrigToBeComb][2] << endl;
-        nrOfTrigToBeComb++;
-        cout << cutNumberBaseEff[nrOfTrigToBeComb] << endl;
+        if (debugLevel==0){
+            cout<< cutNumber[nrOfTrigToBeComb]<<"\t"<< cutNumberPi0[nrOfTrigToBeComb]<< "\t"<< triggerName[nrOfTrigToBeComb] << "\t transverse momentum range: " << minPt[nrOfTrigToBeComb]<< "\t to "<< maxPt[nrOfTrigToBeComb] <<endl;
+            cout << trigSteps[nrOfTrigToBeComb][0] << "\t" << trigSteps[nrOfTrigToBeComb][1] << "\t"<< trigSteps[nrOfTrigToBeComb][2] << endl;
+            nrOfTrigToBeComb++;
+            cout << cutNumberBaseEff[nrOfTrigToBeComb] << endl;
+        } else {
+            cout<<"------------------------------------"<<endl;
+            cout<<"Variables from Config File; Trigger Number nrOfTrigToBeComb: "<<nrOfTrigToBeComb<<endl;
+            cout<<"cutNumber: "<<cutNumber[nrOfTrigToBeComb]<<endl;
+            cout<<"cutNumberPi0: "<<cutNumberPi0[nrOfTrigToBeComb]<<endl;
+            cout<<"minPt: "<<minPt[nrOfTrigToBeComb]<<"; maxPt: "<<maxPt[nrOfTrigToBeComb]<<endl;
+            cout<<"triggerName: "<<triggerName[nrOfTrigToBeComb]<<endl;
+            cout<<"trigSteps[0]: "<<trigSteps[nrOfTrigToBeComb][0]<<"; trigSteps[1]: "<<trigSteps[nrOfTrigToBeComb][1]<<"; trigSteps[2]: "<<trigSteps[nrOfTrigToBeComb][2]<<endl;
+            cout<<"ptFromSpecOmega[nrOfTrigToBeComb][0]: "<<ptFromSpecOmega[nrOfTrigToBeComb][0]<<"; ptFromSpecOmega[nrOfTrigToBeComb][1]: "<<ptFromSpecOmega[nrOfTrigToBeComb][1]<<endl;
+            cout<<"ptFromSpecPi0[nrOfTrigToBeComb][0]: "<<ptFromSpecPi0[nrOfTrigToBeComb][0]<<"; ptFromSpecPi0[nrOfTrigToBeComb][1]: "<<ptFromSpecPi0[nrOfTrigToBeComb][1]<<endl;
+            cout<<"sysFileOmega: "<<sysFileOmega[nrOfTrigToBeComb]<<endl;
+            cout<<"sysFilePi0: "<<sysFilePi0[nrOfTrigToBeComb]<<endl;
+            cout<<"sysFileOmegaToPi0: "<<sysFileOmegaToPi0[nrOfTrigToBeComb]<<endl;
+            cout<<"cutNumberBaseEff: "<<cutNumberBaseEff[nrOfTrigToBeComb]<<endl;
+        }
     }
 
     for (Int_t i = 0; i < nrOfTrigToBeComb; i++){
