@@ -244,6 +244,8 @@ void ClusterQA(
 
     gSystem->Exec("mkdir -p "+outputDir);
     gSystem->Exec("mkdir -p "+outputDir+"/Comparison/Ratios");
+    gSystem->Exec("mkdir -p "+outputDir+"/TriggerQA");
+    gSystem->Exec("mkdir -p "+outputDir+"/TriggerQA/Comparison/Ratios");
     if (doExtQA > 0 && !runMergedClust){
         gSystem->Exec("mkdir -p "+outputDir+"/Cells/Detailed/Good");
     }
@@ -607,6 +609,9 @@ void ClusterQA(
     std::vector<TH1D*> vecClusterDistanceRowWithin;
     std::vector<TH1D*> vecClusterDistanceColumnWithin;
     std::vector<TH1D*> vecClusterEntriesPerDDL[2];
+    std::vector<TH1D*> vecClusterEntriesPerTRU[2];
+    std::vector<TH1D*> vecClusterEntriesPerDDL_NormByGoodTracks[2];
+    std::vector<TH1D*> vecClusterEntriesPerTRU_NormByGoodTracks[2];
     std::vector<TH1D*> vecGammaClusE_Trig[2];
 
     const Int_t nEM02_bins = 8;
@@ -624,6 +629,7 @@ void ClusterQA(
     std::vector<TH2D*> vecESDTrueMesonCaloElectron[2];
 
     Double_t* nEvents       = new Double_t[nSets];
+    Double_t* nGoodESDTracks = new Double_t[nSets];
     Bool_t* isTrueContainer = new Bool_t[nSets];
     Int_t minB              = 0;
     Int_t maxB              = 0;
@@ -724,15 +730,25 @@ void ClusterQA(
                 nEvents[i]     = (Double_t) GetNEvents(fHistNEvents,kFALSE);
         } else cout << "INFO: Object |fHistNEvents| could not be found!" << endl;
         //---------------------------------------------------------------------------------------------------------------
+        //Get Good Tracks for Normalization
+        //--------------------------------------------------------------------------------------------------------
+        //----------------------- number of reference tracks in the TPC (|eta| < 0.8) ----------------------------
+        //--------------------------------------------------------------------------------------------------------
+        TH1D* GOODESD                   = (TH1D*) ESDContainer->FindObject("GoodESDTracks");
+        nGoodESDTracks[i]               = 0;
+        if(GOODESD){
+            nGoodESDTracks[i]           = (Double_t) GOODESD->GetMean();
+        }
+        //---------------------------------------------------------------------------------------------------------------
         cout << endl;
         cout << "----------------------------------------------------------------------------" << endl;
         cout << "Processing file: " << pathDataSets[i].Data() << endl;
-        cout << "Set: " << plotDataSets[i].Data() << " - NEvents: " << nEvents[i] << endl;
+        cout << "Set: " << plotDataSets[i].Data() << " - NEvents: " << nEvents[i] << " - nGoodESDTracks: "<<nGoodESDTracks[i]<< endl;
         cout << "----------------------------------------------------------------------------" << endl;
         cout << endl;
         fLog << "----------------------------------------------------------------------------" << endl;
         fLog << "Processing file: " << pathDataSets[i].Data() << endl;
-        fLog << "Set: " << plotDataSets[i].Data() << " - NEvents: " << nEvents[i] << endl;
+        fLog << "Set: " << plotDataSets[i].Data() << " - NEvents: " << nEvents[i] << " - nGoodESDTracks: "<<nGoodESDTracks[i]<< endl;
         fLog << "----------------------------------------------------------------------------" << endl;
         //---------------------------------------------------------------------------------------------------------------
         if( nEvents[i] < 1. ){cout << "ERROR: number of accepted events in data set is <1: " << nEvents[i] << "! Returning..." << endl; return;}
@@ -795,6 +811,18 @@ void ClusterQA(
             SaveCanvasAndWriteHistogram(canvas, fHistClusterEtavsPhiAfterQA, Form("%s/EtaVsPhi_%s_afterClusterQA.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
             vecEtaPhiAfterQA.push_back(new TH2D(*fHistClusterEtavsPhiAfterQA));
         } else cout << "INFO: Object |fHistClusterEtavsPhiAfterQA| could not be found! Skipping Draw..." << endl;
+        //---------------------------------------------------------------------------------------------------------------
+        // cluster distribution on detector after cluster QA cuts, only Triggered
+        TH2D* fHistClusterEtavsPhiAfterQA_onlyTriggered = (TH2D*)CaloCutsContainer->FindObject(Form("EtaPhi_afterClusterQA_onlyTriggered %s", fClusterCutSelection[i].Data()));
+        if(fHistClusterEtavsPhiAfterQA_onlyTriggered){
+            fHistClusterEtavsPhiAfterQA_onlyTriggered->Sumw2();
+            fHistClusterEtavsPhiAfterQA_onlyTriggered->Scale(1/nEvents[i]);
+            fHistClusterEtavsPhiAfterQA_onlyTriggered->Scale(1/GetMeanTH2(fHistClusterEtavsPhiAfterQA_onlyTriggered));
+            fHistClusterEtavsPhiAfterQA_onlyTriggered->GetZaxis()->SetRangeUser(0,2);
+            DrawPeriodQAHistoTH2(canvas,leftMargin,0.1,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                fHistClusterEtavsPhiAfterQA_onlyTriggered,Form("%s - %s %s- %s",fCollisionSystem.Data(), plotDataSets[i].Data(), fTrigger[i].Data(), fClusters.Data()),"#phi_{Cluster}","#eta_{Cluster}",1,1);
+            SaveCanvasAndWriteHistogram(canvas, fHistClusterEtavsPhiAfterQA_onlyTriggered, Form("%s/EtaVsPhi_%s_afterClusterQA_onlyTriggered.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << "INFO: Object |fHistClusterEtavsPhiAfterQA_onlyTriggered| could not be found! Skipping Draw..." << endl;
 
         //---------------------------------------------------------------------------------------------------------------
         //----------------------------- Cluster properties - timing  ----------------------------------------------------
@@ -1198,10 +1226,11 @@ void ClusterQA(
         } else cout << "INFO: Object |fHistDispersionAfterQA| could not be found! Skipping Draw..." << endl;
 
         //---------------------------------------------------------------------------------------------------------------
-        //---------------------------- Cluster DDL Entries ---------------------------------------
+        //-------------------------------------------- Cluster DDL Entries ----------------------------------------------
         //---------------------------------------------------------------------------------------------------------------
-        if (hasCaloTriggerHelper){
+        if (hasCaloTriggerHelper){ 
             const Int_t maxNumberOfModules=4;
+            //DDLs
             const Int_t iNumberOfDDLs=20;
             const Int_t iStartDDLs=6;
             Double_t EntriesPerDDL[iNumberOfDDLs][2];
@@ -1209,13 +1238,38 @@ void ClusterQA(
             Double_t EntriesPerDDL_PerEvent[iNumberOfDDLs][2];
             Double_t EntriesPerDDL_PerEvent_Error[iNumberOfDDLs][2];
             Double_t maxDDLperEventValue[2];
+            Double_t EntriesPerDDL_PerEvent_And_GoodTracks[iNumberOfDDLs][2];
+            Double_t EntriesPerDDL_PerEvent_And_GoodTracks_Error[iNumberOfDDLs][2];
+            Double_t maxDDLperEvent_And_GoodTracks_Value[2];
             Int_t iCurrentDDL;
+            //same for TRUs
+            const Int_t iNumberOfTRUsPerModule=8;
+            const Int_t iStartTRUs=1;
+            Double_t EntriesPerTRU[maxNumberOfModules][iNumberOfTRUsPerModule][2];
+            Double_t EntriesPerTRU_Error[maxNumberOfModules][iNumberOfTRUsPerModule][2];
+            Double_t EntriesPerTRU_PerEvent[maxNumberOfModules][iNumberOfTRUsPerModule][2];
+            Double_t EntriesPerTRU_PerEvent_Error[maxNumberOfModules][iNumberOfTRUsPerModule][2];
+            Double_t maxTRUperEventValue[2];
+            Double_t EntriesPerTRU_PerEvent_And_GoodTracks[maxNumberOfModules][iNumberOfTRUsPerModule][2];
+            Double_t EntriesPerTRU_PerEvent_And_GoodTracks_Error[maxNumberOfModules][iNumberOfTRUsPerModule][2];
+            Double_t maxTRUperEvent_And_GoodTracks_Value[2];
+            Int_t iCurrentTRU=0;
+            TAxis* xAxis_TRU;
+            TAxis* yAxis_TRU;
+            //further Histogram Variables
             Int_t iCurrentBin;
             Double_t dCurrentBinCenter;
+            Double_t dCurrentBinCenter_X;
+            Double_t dCurrentBinCenter_Y;
             Double_t dCurrentBinContent;
             Double_t dCurrentBinError;
+            Int_t iBinToFill;
             Int_t StartBinHistogram;
             Int_t EndBinHistogram;
+            Int_t StartBinHistogram_X;
+            Int_t EndBinHistogram_X;
+            Int_t StartBinHistogram_Y;
+            Int_t EndBinHistogram_Y;
             // Triggered Clusters Column and Row Modules
             TH2D* fHistTrigClusters_ColRow_Mod[maxNumberOfModules][2];
             for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
@@ -1229,7 +1283,7 @@ void ClusterQA(
                     if(fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]){
                         GetMinMaxBin(fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh],minB,maxB);
                         SetXRange(fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh],minB-1,maxB+1);
-                        DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kTRUE,kFALSE,
+                        DrawPeriodQAHistoTH2(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
                                              fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh],"","Column Number","Row Number",1,1,
                                              0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
                         if (UnOrOvThresh==0){
@@ -1286,20 +1340,34 @@ void ClusterQA(
             }
             for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
                 for (Int_t DDLNumber_Loop=iStartDDLs; DDLNumber_Loop<iNumberOfDDLs; DDLNumber_Loop++){
-                    EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh]=EntriesPerDDL[DDLNumber_Loop][UnOrOvThresh]/nEvents[i];
                     EntriesPerDDL_Error[DDLNumber_Loop][UnOrOvThresh]=TMath::Sqrt(EntriesPerDDL[DDLNumber_Loop][UnOrOvThresh]);
+
+                    EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh]=EntriesPerDDL[DDLNumber_Loop][UnOrOvThresh]/nEvents[i];
                     EntriesPerDDL_PerEvent_Error[DDLNumber_Loop][UnOrOvThresh]=EntriesPerDDL_Error[DDLNumber_Loop][UnOrOvThresh]/nEvents[i];
-                    if (EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh]>maxDDLperEventValue[UnOrOvThresh]) maxDDLperEventValue[UnOrOvThresh]=EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh];
+
+                    EntriesPerDDL_PerEvent_And_GoodTracks[DDLNumber_Loop][UnOrOvThresh]=EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh]/nGoodESDTracks[i];
+                    EntriesPerDDL_PerEvent_And_GoodTracks_Error[DDLNumber_Loop][UnOrOvThresh]=EntriesPerDDL_PerEvent_Error[DDLNumber_Loop][UnOrOvThresh]/nGoodESDTracks[i];
+
+                    if (EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh]>maxDDLperEventValue[UnOrOvThresh]){
+                        maxDDLperEventValue[UnOrOvThresh]=EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh];
+                    }
+                    if (EntriesPerDDL_PerEvent_And_GoodTracks[DDLNumber_Loop][UnOrOvThresh]>maxDDLperEvent_And_GoodTracks_Value[UnOrOvThresh]){
+                        maxDDLperEvent_And_GoodTracks_Value[UnOrOvThresh]=EntriesPerDDL_PerEvent_And_GoodTracks[DDLNumber_Loop][UnOrOvThresh];
+                    }
                 }
             }
             // Triggered Clusters per DDL
             TH1D* fHistTrigClusters_PerDDL[2];
+            TH1D* fHistTrigClusters_PerDDL_EventAndGoodTracks[2];
             for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
                 if (UnOrOvThresh==0){
                     fHistTrigClusters_PerDDL[UnOrOvThresh] = new TH1D(Form("fHistTrigClusters_ovThr_PerDDL"), Form("fHistTrigClusters_unThr_PerDDL"), (iNumberOfDDLs-iStartDDLs), iStartDDLs-0.5, iNumberOfDDLs-0.5);
+                    fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh] = new TH1D(Form("fHistTrigClusters_ovThr_PerDDL_NormByGoodTracks"), Form("fHistTrigClusters_unThr_PerDDL_NormByGoodTracks"), (iNumberOfDDLs-iStartDDLs), iStartDDLs-0.5, iNumberOfDDLs-0.5);
                 } else  if (UnOrOvThresh==1){
                     fHistTrigClusters_PerDDL[UnOrOvThresh] = new TH1D(Form("fHistTrigClusters_unThr_PerDDL"), Form("fHistTrigClusters_unThr_PerDDL"), (iNumberOfDDLs-iStartDDLs), iStartDDLs-0.5, iNumberOfDDLs-0.5);
+                    fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh] = new TH1D(Form("fHistTrigClusters_unThr_PerDDL_NormByGoodTracks"), Form("fHistTrigClusters_unThr_PerDDL_NormByGoodTracks"), (iNumberOfDDLs-iStartDDLs), iStartDDLs-0.5, iNumberOfDDLs-0.5);
                 }
+                //Normalized by number of events
                 for (Int_t DDLNumber_Loop=iStartDDLs; DDLNumber_Loop<iNumberOfDDLs; DDLNumber_Loop++){
                     iCurrentBin=fHistTrigClusters_PerDDL[UnOrOvThresh]->FindBin(DDLNumber_Loop);
                     dCurrentBinContent=EntriesPerDDL_PerEvent[DDLNumber_Loop][UnOrOvThresh];
@@ -1307,17 +1375,234 @@ void ClusterQA(
                     dCurrentBinError=EntriesPerDDL_PerEvent_Error[DDLNumber_Loop][UnOrOvThresh];
                     fHistTrigClusters_PerDDL[UnOrOvThresh]->SetBinError(iCurrentBin, dCurrentBinError);
                 }
+
                 fHistTrigClusters_PerDDL[UnOrOvThresh]->GetYaxis()->SetRangeUser(0, maxDDLperEventValue[UnOrOvThresh]*1.1);
+
                 DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
                                     fHistTrigClusters_PerDDL[UnOrOvThresh],"","DDL Number","#Clusters per Event",0.9,1,
                                     0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
                 PutProcessLabelAndEnergyOnPlot(0.15,0.9,0.03, fClusters.Data(), "", "");
                 if (UnOrOvThresh==0){
-                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerDDL[UnOrOvThresh], Form("%s/fHistTrigClusters_ovThr_PerDDL_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerDDL[UnOrOvThresh], Form("%s/TriggerQA/fHistTrigClusters_ovThr_PerDDL_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
                 } else if (UnOrOvThresh==1){
-                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerDDL[UnOrOvThresh], Form("%s/fHistTrigClusters_unThr_PerDDL_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerDDL[UnOrOvThresh], Form("%s/TriggerQA/fHistTrigClusters_unThr_PerDDL_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
                 }
                 vecClusterEntriesPerDDL[UnOrOvThresh].push_back(fHistTrigClusters_PerDDL[UnOrOvThresh]);
+
+                //Normalized by number of events and number of good tracks
+                for (Int_t DDLNumber_Loop=iStartDDLs; DDLNumber_Loop<iNumberOfDDLs; DDLNumber_Loop++){
+                    iCurrentBin=fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh]->FindBin(DDLNumber_Loop);
+                    dCurrentBinContent=EntriesPerDDL_PerEvent_And_GoodTracks[DDLNumber_Loop][UnOrOvThresh];
+                    fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh]->SetBinContent(iCurrentBin, dCurrentBinContent);
+                    dCurrentBinError=EntriesPerDDL_PerEvent_And_GoodTracks_Error[DDLNumber_Loop][UnOrOvThresh];
+                    fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh]->SetBinError(iCurrentBin, dCurrentBinError);
+                }
+                fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh]->GetYaxis()->SetRangeUser(0, maxDDLperEvent_And_GoodTracks_Value[UnOrOvThresh]*1.1);
+
+                DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh],"","DDL Number","#Clusters per Event and Good Tracks",0.9,1,
+                                    0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
+                PutProcessLabelAndEnergyOnPlot(0.15,0.9,0.03, fClusters.Data(), "", "");
+                if (UnOrOvThresh==0){
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh], Form("%s/TriggerQA/fHistTrigClusters_ovThr_PerDDL_EventAndGoodTracks_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                } else if (UnOrOvThresh==1){
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh], Form("%s/TriggerQA/fHistTrigClusters_unThr_PerDDL_EventAndGoodTracks_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                }
+                vecClusterEntriesPerDDL_NormByGoodTracks[UnOrOvThresh].push_back(fHistTrigClusters_PerDDL_EventAndGoodTracks[UnOrOvThresh]);
+            }
+            //----------------------------------------------- TRUs  -----------------------------------------------------
+            for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+                for (Int_t TRUNumber_Loop=0; TRUNumber_Loop<iNumberOfTRUsPerModule; TRUNumber_Loop++){
+                    for (Int_t ModuleNumber_Loop=0; ModuleNumber_Loop<maxNumberOfModules; ModuleNumber_Loop++){
+                        EntriesPerTRU[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh]=0;
+                    }
+                    maxTRUperEventValue[UnOrOvThresh]=0;
+                    maxTRUperEvent_And_GoodTracks_Value[UnOrOvThresh]=0;
+                }
+            }
+            TH1D* fHistTrigClusters_PerTRU[2];
+            TH1D* fHistTrigClusters_PerTRU_EventAndGoodTracks[2];
+            for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){
+                TString HistogramName_TrigClusters_PerTRU;
+                if (UnOrOvThresh == 0){
+                    HistogramName_TrigClusters_PerTRU = Form("fHistTrigClusters_PerTRU_ovThr");
+                } else {
+                    HistogramName_TrigClusters_PerTRU = Form("fHistTrigClusters_PerTRU_unThr");
+                }
+                fHistTrigClusters_PerTRU[UnOrOvThresh] = new TH1D( Form("%s", HistogramName_TrigClusters_PerTRU.Data()), Form("%s", HistogramName_TrigClusters_PerTRU.Data()), iNumberOfTRUsPerModule*maxNumberOfModules, -0.5+iStartTRUs, -0.5+(iNumberOfTRUsPerModule*maxNumberOfModules)+iStartTRUs);
+                fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh] = new TH1D( Form("%s_NormByGoodTracks", HistogramName_TrigClusters_PerTRU.Data()), Form("%s_NormByGoodTracks", HistogramName_TrigClusters_PerTRU.Data()), iNumberOfTRUsPerModule*maxNumberOfModules, -0.5+iStartTRUs, -0.5+(iNumberOfTRUsPerModule*maxNumberOfModules)+iStartTRUs);
+
+                Int_t moduleConvert=0;
+                Double_t moduleConvertHelper=0;
+                Int_t TRUConvert=0;
+                fHistTrigClusters_PerTRU[UnOrOvThresh]->GetXaxis()->LabelsOption("v");
+                fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh]->GetXaxis()->LabelsOption("v");
+                for (Int_t ModuleNumber_Loop=0; ModuleNumber_Loop<maxNumberOfModules; ModuleNumber_Loop++){
+                    if (fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]){
+                        StartBinHistogram_X=1;
+                        EndBinHistogram_X=fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]->GetNbinsX();
+                        StartBinHistogram_Y=1;
+                        EndBinHistogram_Y=fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]->GetNbinsY();
+                        xAxis_TRU = fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]->GetXaxis();
+                        yAxis_TRU = fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]->GetYaxis();
+                        for (Int_t CurrentBin_Loop_X=StartBinHistogram_X; CurrentBin_Loop_X<=EndBinHistogram_X; CurrentBin_Loop_X++){
+                            for (Int_t CurrentBin_Loop_Y=StartBinHistogram_Y; CurrentBin_Loop_Y<=EndBinHistogram_Y; CurrentBin_Loop_Y++){
+                                dCurrentBinContent=fHistTrigClusters_ColRow_Mod[ModuleNumber_Loop][UnOrOvThresh]->GetBinContent(CurrentBin_Loop_X, CurrentBin_Loop_Y);
+                                dCurrentBinCenter_X=xAxis_TRU->GetBinCenter(CurrentBin_Loop_X);
+                                dCurrentBinCenter_Y=yAxis_TRU->GetBinCenter(CurrentBin_Loop_Y);
+                                iCurrentTRU=WhichTRU(dCurrentBinCenter_X, dCurrentBinCenter_Y);
+                                EntriesPerTRU[ModuleNumber_Loop][iCurrentTRU-iStartTRUs][UnOrOvThresh]+=dCurrentBinContent;
+                            }
+                        }
+                    }
+                }
+                for (Int_t ModuleNumber_Loop=0; ModuleNumber_Loop<maxNumberOfModules; ModuleNumber_Loop++){
+                    for (Int_t TRUNumber_Loop=0; TRUNumber_Loop<iNumberOfTRUsPerModule; TRUNumber_Loop++){
+                        EntriesPerTRU_Error[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh]
+                                = TMath::Sqrt(EntriesPerTRU[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh]);
+
+                        EntriesPerTRU_PerEvent[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh]
+                                = EntriesPerTRU[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh] / nEvents[i];
+
+                        EntriesPerTRU_PerEvent_Error[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh]
+                                = EntriesPerTRU_Error[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh] / nEvents[i];
+
+                        EntriesPerTRU_PerEvent_And_GoodTracks[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh]
+                                = EntriesPerTRU_PerEvent[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh] / nGoodESDTracks[i];
+
+                        EntriesPerTRU_PerEvent_And_GoodTracks_Error[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh]
+                                = EntriesPerTRU_PerEvent_Error[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh] / nGoodESDTracks[i];
+
+                        if (EntriesPerTRU_PerEvent[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh]>maxTRUperEventValue[UnOrOvThresh]){
+                            maxTRUperEventValue[UnOrOvThresh]=EntriesPerTRU_PerEvent[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh];
+                        }
+                        if (EntriesPerTRU_PerEvent_And_GoodTracks[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh]>maxTRUperEvent_And_GoodTracks_Value[UnOrOvThresh]){
+                            maxTRUperEvent_And_GoodTracks_Value[UnOrOvThresh]=EntriesPerTRU_PerEvent_And_GoodTracks[ModuleNumber_Loop][TRUNumber_Loop][UnOrOvThresh];
+                        }
+                    }
+                }
+                //Normalized by Number of Events
+                for (Int_t CurrentBin_Loop_X=1; CurrentBin_Loop_X<=fHistTrigClusters_PerTRU[UnOrOvThresh]->GetNbinsX(); CurrentBin_Loop_X++){
+                    TRUConvert=((CurrentBin_Loop_X-1)%iNumberOfTRUsPerModule)+iStartTRUs;
+                    moduleConvertHelper=(CurrentBin_Loop_X-1)/iNumberOfTRUsPerModule;
+                    moduleConvert=((Int_t)floor(moduleConvertHelper))+1;
+                    fHistTrigClusters_PerTRU[UnOrOvThresh]->GetXaxis()->SetBinLabel(CurrentBin_Loop_X, Form("M%dT%d", moduleConvert, TRUConvert));
+                    fHistTrigClusters_PerTRU[UnOrOvThresh]->SetBinContent(CurrentBin_Loop_X, EntriesPerTRU_PerEvent[moduleConvert-1][TRUConvert-iStartTRUs][UnOrOvThresh]);
+                    fHistTrigClusters_PerTRU[UnOrOvThresh]->SetBinError(CurrentBin_Loop_X, EntriesPerTRU_PerEvent_Error[moduleConvert-1][TRUConvert-iStartTRUs][UnOrOvThresh]);
+                }
+                fHistTrigClusters_PerTRU[UnOrOvThresh]->GetYaxis()->SetRangeUser(0, maxTRUperEventValue[UnOrOvThresh]*1.1);
+                DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistTrigClusters_PerTRU[UnOrOvThresh],"","M = Module Number, T = TRU Number","#Clusters per Event",0.9,1,
+                                    0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
+                PutProcessLabelAndEnergyOnPlot(0.15,0.9,0.03, fClusters.Data(), "", "");
+                if (UnOrOvThresh==0){
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerTRU[UnOrOvThresh], Form("%s/TriggerQA/fHistTrigClusters_ovThr_PerTRU_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                } else if (UnOrOvThresh==1){
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerTRU[UnOrOvThresh], Form("%s/TriggerQA/fHistTrigClusters_unThr_PerTRU_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                }
+                vecClusterEntriesPerTRU[UnOrOvThresh].push_back(fHistTrigClusters_PerTRU[UnOrOvThresh]);
+
+                //Normalized by Number of Events and Number of Good Tracks
+                for (Int_t CurrentBin_Loop_X=1; CurrentBin_Loop_X<=fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh]->GetNbinsX(); CurrentBin_Loop_X++){
+                    TRUConvert=((CurrentBin_Loop_X-1)%iNumberOfTRUsPerModule)+iStartTRUs;
+                    moduleConvertHelper=(CurrentBin_Loop_X-1)/iNumberOfTRUsPerModule;
+                    moduleConvert=((Int_t)floor(moduleConvertHelper))+1;
+                    fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh]->GetXaxis()->SetBinLabel(CurrentBin_Loop_X, Form("M%dT%d", moduleConvert, TRUConvert));
+                    fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh]->SetBinContent(CurrentBin_Loop_X, EntriesPerTRU_PerEvent_And_GoodTracks[moduleConvert-1][TRUConvert-iStartTRUs][UnOrOvThresh]);
+                    fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh]->SetBinError(CurrentBin_Loop_X, EntriesPerTRU_PerEvent_And_GoodTracks_Error[moduleConvert-1][TRUConvert-iStartTRUs][UnOrOvThresh]);
+                }
+                fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh]->GetYaxis()->SetRangeUser(0, maxTRUperEvent_And_GoodTracks_Value[UnOrOvThresh]*1.1);
+                DrawPeriodQAHistoTH1(canvas,leftMargin,rightMargin,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh],"","M = Module Number, T = TRU Number","#Clusters per Event and Good Tracks",0.9,1,
+                                    0.95,0.94,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i],31);
+                PutProcessLabelAndEnergyOnPlot(0.15,0.9,0.03, fClusters.Data(), "", "");
+                if (UnOrOvThresh==0){
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh], Form("%s/TriggerQA/fHistTrigClusters_ovThr_PerTRU_EventAndGoodTracks_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                } else if (UnOrOvThresh==1){
+                    SaveCanvasAndWriteHistogram(canvas, fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh], Form("%s/TriggerQA/fHistTrigClusters_unThr_PerTRU_EventAndGoodTracks_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                }
+                vecClusterEntriesPerTRU_NormByGoodTracks[UnOrOvThresh].push_back(fHistTrigClusters_PerTRU_EventAndGoodTracks[UnOrOvThresh]);
+            }
+
+        }
+
+
+        //---------------------------------------------------------------------------------------------------------------
+        //---------------------------- Cluster Tr4x4 Distance -----------------------------------------------------------
+        //---------------------------------------------------------------------------------------------------------------
+        if (hasCaloTriggerHelper){
+            // Tr4x4 Distance
+            TH2D* fHistClusterTr4x4_Dist_All = NULL;
+            fHistClusterTr4x4_Dist_All = (TH2D*)TriggerHelperContainer->FindObject("Tr4x4_Dist_All");
+            if(fHistClusterTr4x4_Dist_All){
+                fHistClusterTr4x4_Dist_All->Sumw2();
+                DrawPeriodQAHistoTH2(canvas,leftMargin,0.1,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistClusterTr4x4_Dist_All,Form("Tr4x4_Dist_All"),"Distance in x","Distance in z",1,1);
+                SaveCanvasAndWriteHistogram(canvas, fHistClusterTr4x4_Dist_All, Form("%s/TriggerQA/Tr4x4_Dist_All_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                //-
+                fHistClusterTr4x4_Dist_All->GetXaxis()->SetRangeUser(-4., 5.);
+                fHistClusterTr4x4_Dist_All->GetYaxis()->SetRangeUser(-4., 5.);
+                DrawPeriodQAHistoTH2(canvas,leftMargin,0.1,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistClusterTr4x4_Dist_All,Form("Tr4x4_Dist_All_Zoomed"),"Distance in x","Distance in z",1,1);
+                SaveCanvasAndWriteHistogram(canvas, fHistClusterTr4x4_Dist_All, Form("%s/TriggerQA/Tr4x4_Dist_All_Zoomed_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+            } else cout << "INFO: Object |fHistClusterTr4x4_Dist_All| could not be found! Skipping Draw..." << endl;
+            //---------------------------------------------------------------------------------------------------------------
+            // Tr4x4 distance for triggered clusters
+            TH2D* fHistClusterTr4x4_Dist_Trig = NULL;
+            fHistClusterTr4x4_Dist_Trig = (TH2D*)TriggerHelperContainer->FindObject("Tr4x4_Dist_Trig");
+            if(fHistClusterTr4x4_Dist_Trig){
+                fHistClusterTr4x4_Dist_Trig->Sumw2();
+                DrawPeriodQAHistoTH2(canvas,leftMargin,0.1,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistClusterTr4x4_Dist_Trig,Form("Tr4x4_Dist_Trig"),"Distance in x","Distance in z",1,1);
+                SaveCanvasAndWriteHistogram(canvas, fHistClusterTr4x4_Dist_Trig, Form("%s/TriggerQA/Tr4x4_Dist_Trig_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                //-
+                fHistClusterTr4x4_Dist_Trig->GetXaxis()->SetRangeUser(-4., 5.);
+                fHistClusterTr4x4_Dist_Trig->GetYaxis()->SetRangeUser(-4., 5.);
+                DrawPeriodQAHistoTH2(canvas,leftMargin,0.1,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistClusterTr4x4_Dist_Trig,Form("Tr4x4_Dist_Trig_Zoomed"),"Distance in x","Distance in z",1,1);
+                SaveCanvasAndWriteHistogram(canvas, fHistClusterTr4x4_Dist_Trig, Form("%s/TriggerQA/Tr4x4_Dist_Trig_Zoomed_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+            } else cout << "INFO: Object |fHistClusterTr4x4_Dist_Trig| could not be found! Skipping Draw..." << endl;
+            //---------------------------------------------------------------------------------------------------------------
+            // Tr4x4 distance for not triggered clusters
+            TH2D* fHistClusterTr4x4_Dist_notTrig = NULL;
+            fHistClusterTr4x4_Dist_notTrig= (TH2D*)TriggerHelperContainer->FindObject("Tr4x4_Dist_notTrig");
+            if(fHistClusterTr4x4_Dist_notTrig){
+                fHistClusterTr4x4_Dist_notTrig->Sumw2();
+                DrawPeriodQAHistoTH2(canvas,leftMargin,0.1,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistClusterTr4x4_Dist_notTrig,Form("Tr4x4_Dist_notTrig"),"Distance in x","Distance in z",1,1);
+                SaveCanvasAndWriteHistogram(canvas, fHistClusterTr4x4_Dist_notTrig, Form("%s/TriggerQA/Tr4x4_Dist_notTrig_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+                //-
+                fHistClusterTr4x4_Dist_notTrig->GetXaxis()->SetRangeUser(-4., 5.);
+                fHistClusterTr4x4_Dist_notTrig->GetYaxis()->SetRangeUser(-4., 5.);
+                DrawPeriodQAHistoTH2(canvas,leftMargin,0.1,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                    fHistClusterTr4x4_Dist_notTrig,Form("Tr4x4_Dist_notTrig_Zoomed"),"Distance in x","Distance in z",1,1);
+                SaveCanvasAndWriteHistogram(canvas, fHistClusterTr4x4_Dist_notTrig, Form("%s/TriggerQA/Tr4x4_Dist_notTrig_Zoomed_%s.%s", outputDir.Data(), DataSets[i].Data(), suffix.Data()));
+            } else cout << "INFO: Object |fHistClusterTr4x4_Dist_notTrig| could not be found! Skipping Draw..." << endl;
+        }
+        //---------------------------------------------------------------------------------------------------------------
+        //---------------------------- ClusE vs Timing for not Triggered Clusters ---------------------------------------
+        //---------------------------------------------------------------------------------------------------------------
+        if (hasCaloTriggerHelper){
+            Int_t NumberOfModules_ClusEvsTiming=4;
+            Int_t NumberOfTRUs_ClusEvsTiming=8;
+            Int_t StartModuleNumber_ClusEvsTiming=0;
+            Int_t StartTRUNumber_ClusEvsTiming=1;
+            TString NameOfHistogramInFile;
+            TString NameOfHistogramToSave;
+            TH2D* fHist_ClusEvsTiming[NumberOfModules_ClusEvsTiming][NumberOfTRUs_ClusEvsTiming];
+            for ( Int_t ModuleNumber_Loop = 0; ModuleNumber_Loop<NumberOfModules_ClusEvsTiming ; ModuleNumber_Loop++ ){
+                for ( Int_t TRUNumber_Loop = 0; TRUNumber_Loop<NumberOfTRUs_ClusEvsTiming ; TRUNumber_Loop++ ){
+                    NameOfHistogramInFile = Form("fHist_ClusEVsTiming_notTrig_Mod%d_TRU%d", ModuleNumber_Loop + StartModuleNumber_ClusEvsTiming, TRUNumber_Loop + StartTRUNumber_ClusEvsTiming );
+                    NameOfHistogramToSave = Form("fHist_ClusEVsTiming_notTrig_Mod%d_TRU%d", ModuleNumber_Loop + StartModuleNumber_ClusEvsTiming +1, TRUNumber_Loop + StartTRUNumber_ClusEvsTiming );
+                    fHist_ClusEvsTiming[NumberOfModules_ClusEvsTiming][NumberOfTRUs_ClusEvsTiming] = NULL;
+                    fHist_ClusEvsTiming[NumberOfModules_ClusEvsTiming][NumberOfTRUs_ClusEvsTiming] = (TH2D*) TriggerHelperContainer->FindObject(Form("%s", NameOfHistogramInFile.Data()));
+                    if (fHist_ClusEvsTiming[NumberOfModules_ClusEvsTiming][NumberOfTRUs_ClusEvsTiming]){
+                        fHist_ClusEvsTiming[NumberOfModules_ClusEvsTiming][NumberOfTRUs_ClusEvsTiming]->Sumw2();
+                        DrawPeriodQAHistoTH2(canvas,leftMargin,0.1,topMargin,bottomMargin,kFALSE,kFALSE,kTRUE,
+                                            fHist_ClusEvsTiming[NumberOfModules_ClusEvsTiming][NumberOfTRUs_ClusEvsTiming],Form("%s", NameOfHistogramToSave.Data()),"Energy in GeV","Timing in s",1,1);
+                        SaveCanvasAndWriteHistogram(canvas, fHist_ClusEvsTiming[NumberOfModules_ClusEvsTiming][NumberOfTRUs_ClusEvsTiming], Form("%s/TriggerQA/%s_%s.%s", outputDir.Data(), NameOfHistogramToSave.Data(), DataSets[i].Data(), suffix.Data()));
+                    }
+                }
             }
         }
 
@@ -2983,9 +3268,9 @@ void ClusterQA(
                                     labelData, colorCompare, kTRUE, 2, 5, kFALSE,
                                     0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
         if (UnOrOvThresh == 0){
-            SaveCanvas(canvas, Form("%s/Comparison/ClusterEntriesPerDDL_ovThr.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerDDL_ovThr.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
         } else if (UnOrOvThresh == 1){
-            SaveCanvas(canvas, Form("%s/Comparison/ClusterEntriesPerDDL_unThr.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerDDL_unThr.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
         }
 
         DrawPeriodQACompareHistoTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kFALSE,kFALSE,
@@ -2993,9 +3278,9 @@ void ClusterQA(
                                     labelData, colorCompare, kTRUE, 2, 5, kFALSE,
                                     0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
         if (UnOrOvThresh == 0){
-            SaveCanvas(canvas, Form("%s/Comparison/ClusterEntriesPerDDL_ovThr_Lin.%s", outputDir.Data(), suffix.Data()));
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerDDL_ovThr_Lin.%s", outputDir.Data(), suffix.Data()));
         } else if (UnOrOvThresh == 1){
-            SaveCanvas(canvas, Form("%s/Comparison/ClusterEntriesPerDDL_unThr_Lin.%s", outputDir.Data(), suffix.Data()));
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerDDL_unThr_Lin.%s", outputDir.Data(), suffix.Data()));
         }
 
 
@@ -3004,13 +3289,144 @@ void ClusterQA(
                                          labelData, colorCompare, kTRUE, 2, 5, kFALSE,
                                          0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
         if (UnOrOvThresh == 0){
-            SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_ClusterEntriesPerDDL_ovThr.%s", outputDir.Data(), suffix.Data()));
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/Ratios/ratio_ClusterEntriesPerDDL_ovThr.%s", outputDir.Data(), suffix.Data()));
         }else if (UnOrOvThresh == 1){
-            SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_ClusterEntriesPerDDL_unThr.%s", outputDir.Data(), suffix.Data()));
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/Ratios/ratio_ClusterEntriesPerDDL_unThr.%s", outputDir.Data(), suffix.Data()));
         }
         DeleteVecTH1D(vecClusterEntriesPerDDL[UnOrOvThresh]);
 
     }
+    //---------------------------------------------------------------------------------------------------------------
+    //Normalized by Events and Good Tracks
+    for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+        cout << "Drawing Comparison Histograms for Cluster properties: Clusters Per DDL" << endl;
+        /*for(Int_t iVec=0; iVec<(Int_t)vecClusterEntriesPerDDL_NormByGoodTracks[UnOrOvThresh].size(); iVec++){
+            TH1D* temp = vecClusterEntriesPerDDL_NormByGoodTracks[UnOrOvThresh].at(iVec);
+            temp->Scale(1./temp->Integral());
+            //temp->GetXaxis()->SetRangeUser(minClusE,fBinsClusterPt[fNBinsClusterPt+1]);
+        }*/
+        AdjustHistRange(vecClusterEntriesPerDDL_NormByGoodTracks[UnOrOvThresh],1.2, 1.2, kTRUE);
+        DrawPeriodQACompareHistoTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kTRUE,kFALSE,
+                                    vecClusterEntriesPerDDL_NormByGoodTracks[UnOrOvThresh],"","DDL Number","#Clusters per Event and Good Tracks",1,1.1,
+                                    labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                    0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerDDL_ovThr_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+        } else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerDDL_unThr_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+        }
+
+        DrawPeriodQACompareHistoTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kFALSE,kFALSE,
+                                    vecClusterEntriesPerDDL_NormByGoodTracks[UnOrOvThresh],"","DDL Number","#Clusters per Event and Good Tracks",1,1.1,
+                                    labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                    0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerDDL_ovThr_Lin_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()));
+        } else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerDDL_unThr_Lin_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()));
+        }
+
+
+        DrawPeriodQACompareHistoRatioTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kFALSE,kFALSE,
+                                         vecClusterEntriesPerDDL_NormByGoodTracks[UnOrOvThresh],"","DDL Number","#Clusters per Event and Good Tracks",1,1.1,
+                                         labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                         0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/Ratios/ratio_ClusterEntriesPerDDL_ovThr_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()));
+        }else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/Ratios/ratio_ClusterEntriesPerDDL_unThr_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()));
+        }
+        DeleteVecTH1D(vecClusterEntriesPerDDL_NormByGoodTracks[UnOrOvThresh]);
+
+    }
+    //---------------------------------------------------------------------------------------------------------------
+    //------------------------------Cluster properties: Clusters Per TRU --------------------------------------------
+    //---------------------------------------------------------------------------------------------------------------
+    for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+        cout << "Drawing Comparison Histograms for Cluster properties: Clusters Per TRU" << endl;
+        /*for(Int_t iVec=0; iVec<(Int_t)vecClusterEntriesPerTRU[UnOrOvThresh].size(); iVec++){
+            TH1D* temp = vecClusterEntriesPerTRU[UnOrOvThresh].at(iVec);
+            temp->Scale(1./temp->Integral());
+            //temp->GetXaxis()->SetRangeUser(minClusE,fBinsClusterPt[fNBinsClusterPt+1]);
+        }*/
+        AdjustHistRange(vecClusterEntriesPerTRU[UnOrOvThresh],1.2, 1.2, kTRUE);
+        DrawPeriodQACompareHistoTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kTRUE,kFALSE,
+                                    vecClusterEntriesPerTRU[UnOrOvThresh],"","M = Module Number, T = TRU Number","#Clusters per Event",1,1.1,
+                                    labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                    0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerTRU_ovThr.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+        } else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerTRU_unThr.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+        }
+
+        DrawPeriodQACompareHistoTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kFALSE,kFALSE,
+                                    vecClusterEntriesPerTRU[UnOrOvThresh],"","M = Module Number, T = TRU Number","#Clusters per Event",1,1.1,
+                                    labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                    0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerTRU_ovThr_Lin.%s", outputDir.Data(), suffix.Data()));
+        } else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerTRU_unThr_Lin.%s", outputDir.Data(), suffix.Data()));
+        }
+
+
+        DrawPeriodQACompareHistoRatioTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kFALSE,kFALSE,
+                                         vecClusterEntriesPerTRU[UnOrOvThresh],"","M = Module Number, T = TRU Number","#Clusters per Event",1,1.1,
+                                         labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                         0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/Ratios/ratio_ClusterEntriesPerTRU_ovThr.%s", outputDir.Data(), suffix.Data()));
+        }else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/Ratios/ratio_ClusterEntriesPerTRU_unThr.%s", outputDir.Data(), suffix.Data()));
+        }
+        DeleteVecTH1D(vecClusterEntriesPerTRU[UnOrOvThresh]);
+
+    }
+    //---------------------------------------------------------------------------------------------------------------
+    //Normalized by Events and Good Tracks
+    for (Int_t UnOrOvThresh=0; UnOrOvThresh<2; UnOrOvThresh++){ //0 == over Threshold, 1 == under Threshold
+        cout << "Drawing Comparison Histograms for Cluster properties: Clusters Per TRU" << endl;
+        /*for(Int_t iVec=0; iVec<(Int_t)vecClusterEntriesPerTRU_NormByGoodTracks[UnOrOvThresh].size(); iVec++){
+            TH1D* temp = vecClusterEntriesPerTRU_NormByGoodTracks[UnOrOvThresh].at(iVec);
+            temp->Scale(1./temp->Integral());
+            //temp->GetXaxis()->SetRangeUser(minClusE,fBinsClusterPt[fNBinsClusterPt+1]);
+        }*/
+        AdjustHistRange(vecClusterEntriesPerTRU_NormByGoodTracks[UnOrOvThresh],1.2, 1.2, kTRUE);
+        DrawPeriodQACompareHistoTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kTRUE,kFALSE,
+                                    vecClusterEntriesPerTRU_NormByGoodTracks[UnOrOvThresh],"","M = Module Number, T = TRU Number","#Clusters per Event",1,1.1,
+                                    labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                    0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerTRU_ovThr_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+        } else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerTRU_unThr_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()), kFALSE, kTRUE);
+        }
+
+        DrawPeriodQACompareHistoTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kFALSE,kFALSE,
+                                    vecClusterEntriesPerTRU_NormByGoodTracks[UnOrOvThresh],"","M = Module Number, T = TRU Number","#Clusters per Event",1,1.1,
+                                    labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                    0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerTRU_ovThr_Lin_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()));
+        } else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/ClusterEntriesPerTRU_unThr_Lin_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()));
+        }
+
+
+        DrawPeriodQACompareHistoRatioTH1(canvas,0.11, 0.02, 0.05, 0.11,kFALSE,kFALSE,kFALSE,
+                                         vecClusterEntriesPerTRU_NormByGoodTracks[UnOrOvThresh],"","M = Module Number, T = TRU Number","#Clusters per Event",1,1.1,
+                                         labelData, colorCompare, kTRUE, 2, 5, kFALSE,
+                                         0.95,0.92,0.03,fCollisionSystem,plotDataSets,fTrigger[0],31);
+        if (UnOrOvThresh == 0){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/Ratios/ratio_ClusterEntriesPerTRU_ovThr_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()));
+        }else if (UnOrOvThresh == 1){
+            SaveCanvas(canvas, Form("%s/TriggerQA/Comparison/Ratios/ratio_ClusterEntriesPerTRU_unThr_NormByGoodTracks.%s", outputDir.Data(), suffix.Data()));
+        }
+        DeleteVecTH1D(vecClusterEntriesPerTRU_NormByGoodTracks[UnOrOvThresh]);
+
+    }
+
     cout << "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
     cout << "Drawing Comparison Histograms for cluster shapes"   << endl;
     //---------------------------------------------------------------------------------------------------------------
