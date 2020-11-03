@@ -322,6 +322,13 @@ void ClusterQA_Runwise_V2(
     } else {
         outputDir       = Form("%s/%s/MergedClusterQA/%s/Runwise",cuts.at(cutNr).Data(),fEnergyFlag.Data(),suffix.Data());
     }
+    if ((fEnergyFlag.Contains("13TeV"))&&((mode==3)||(mode==5))) {
+        if (!runMergedClust){
+            outputDir       = Form("%s/%s/ClusterQA/%s/%s/Runwise",cuts.at(cutNr).Data(),fEnergyFlag.Data(),suffix.Data(), DataSets[0].Data());
+        } else {
+            outputDir       = Form("%s/%s/MergedClusterQA/%s/%s/Runwise",cuts.at(cutNr).Data(),fEnergyFlag.Data(),suffix.Data(), DataSets[0].Data());
+        }
+    }
     if(addSubFolder)
     outputDir       +=Form("/%s",vecDataSetIn.at(0).Data());
     gSystem->Exec("mkdir -p "+outputDir);

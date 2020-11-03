@@ -344,6 +344,9 @@ void EventQA_Runwise(
     //++++++++++++++++++++++++++ Define output directories+++++++++++++++++++++++++++++++++++++++++++++++++
     //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
     TString outputDir           = Form("%s/%s/EventQA/%s/Runwise",fCutSelection.Data(),fEnergyFlag.Data(),suffix.Data());
+    if ((fEnergyFlag.Contains("13TeV"))&&((mode==3)||(mode==5))) {
+        outputDir       = Form("%s/%s/EventQA/%s/%s/Runwise", fCutSelection.Data(),fEnergyFlag.Data(),suffix.Data(), DataSets[0].Data());
+    }
     if(addSubFolder){
         outputDir               += "/";
         outputDir               += DataSets[0];
