@@ -3487,7 +3487,7 @@ Int_t WhichDDL(Int_t module, Int_t cellx)
   }
 }
 //_________________________________________________________________________________
-Int_t WhichTRU(Int_t cellx, Int_t cellz) //TRU go from x to x
+Int_t WhichTRU(Int_t cellx, Int_t cellz) //TRU go from 1 to 8
 {
     Int_t tru = -1;
     if(cellx<1 || 64<cellx){
