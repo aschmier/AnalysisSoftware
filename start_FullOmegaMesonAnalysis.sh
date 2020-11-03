@@ -159,12 +159,13 @@ $PROGNAME  *-*etaOff* \t\t\t\t eta calculation switched off\n
 "
     exit
 fi
-
-echo $1
-echo $2
-echo $3
-echo $4
-echo $5
+echo "------------------------------------------------------"
+echo "Parameter 1: $1"
+echo "Parameter 2: $2"
+echo "Parameter 3: $3"
+echo "Parameter 4: $4"
+echo "Parameter 5: $5"
+echo "------------------------------------------------------"
 
 if [[ "$1" == *-h* ]] ; then
     Usage
@@ -181,20 +182,28 @@ elif [[ "$1" == "-omegaOnly" ]] ; then
     if [ -f $DataRootFile ]; then
         dataFileOK=1
         echo "The data file specified is $DataRootFile"
+        echo ""
     else
         echo "No data file specified, analysis can not be fullfiled. Will only do ExtractSIgnal for MC file "
+        echo ""
 #    exit
     fi
     if [ -f $MCRootFile ]; then
         echo "The MC file specified is $MCRootFile"
+        echo ""
     else
         echo "No MC file specified, analysis will only made paritally, please be careful with the results."
+        echo ""
         PARTLY=1
         MCFILE=0
     fi
     if [ -f $AltCorrFile ]; then
         altAccFileGiven=1
         echo "An additional file $AltCorrFile was given, which will be used to load the acceptance histogram."
+        echo ""
+    elif [ $AltCorrFile != "none" ]; then
+        echo "An additional file was not found: $AltCorrFile"
+        echo ""
     fi
 elif [[ "$1" == "-etaOnly" ]] ; then
     ONLYETA=1
