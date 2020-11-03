@@ -267,7 +267,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             nameEfficiency                              = "TrueMesonEffiPt";
         }
         if(optionEnergy.Contains("13TeV") ){
-            //nameCorrectedYield                          = "CorrectedYieldNormEff"; /if rec. effi is used
+            //nameCorrectedYield                          = "CorrectedYieldNormEff"; //if rec. effi is used
             nameCorrectedYield                          = "CorrectedYieldTrueEff"; //if scaling of true eff. is used
             nameEfficiency                              = "MesonEffiPt";
             nameMassMC                                  = "histoMassMesonRecMC";
@@ -358,15 +358,30 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     Int_t nrOfTrigToBeCombEtaRed        = 0;
     Int_t nrOfTrigToBeCombEtaToPi0Red   = 0;
     while(!in.eof() && nrOfTrigToBeComb<numberOfTrigg ){
+        cout<<"nrOfTrigToBeComb: "<<nrOfTrigToBeComb<<"; numberOfTrigg: "<<numberOfTrigg<<endl;
         in >> cutNumber[nrOfTrigToBeComb] >> minPt[nrOfTrigToBeComb] >> maxPt[nrOfTrigToBeComb] >> triggerName[nrOfTrigToBeComb]
         >> trigSteps[nrOfTrigToBeComb][0]  >> trigSteps[nrOfTrigToBeComb][1]  >> trigSteps[nrOfTrigToBeComb][2] >> ptFromSpecPi0[nrOfTrigToBeComb][0] >> ptFromSpecPi0[nrOfTrigToBeComb][1]
         >> ptFromSpecEta[nrOfTrigToBeComb][0] >> ptFromSpecEta[nrOfTrigToBeComb][1] >> sysFilePi0[nrOfTrigToBeComb] >> sysFileEta[nrOfTrigToBeComb] >> sysFileEtaToPi0[nrOfTrigToBeComb]
         >> cutNumberBaseEff[nrOfTrigToBeComb] >> cutNumberMergedExt[nrOfTrigToBeComb] >> ptFromAddMerged[nrOfTrigToBeComb][0] >> ptFromAddMerged[nrOfTrigToBeComb][1];
+
         cout<< cutNumber[nrOfTrigToBeComb]<< "\t"<< triggerName[nrOfTrigToBeComb] << "\t transverse momentum range: " << minPt[nrOfTrigToBeComb]<< "\t to "<< maxPt[nrOfTrigToBeComb] <<endl;
         cout << trigSteps[nrOfTrigToBeComb][0] << "\t" << trigSteps[nrOfTrigToBeComb][1] << "\t"<< trigSteps[nrOfTrigToBeComb][2] << endl;
+
+        if (DebugOutputLevel>=1){
+            cout<<"cutNumber[nrOfTrigToBeComb]: "<<cutNumber[nrOfTrigToBeComb]<<endl<<"minPt[nrOfTrigToBeComb]: "<<minPt[nrOfTrigToBeComb]<<endl<<"maxPt[nrOfTrigToBeComb]: "<<maxPt[nrOfTrigToBeComb]<<endl<<"triggerName[nrOfTrigToBeComb]: "<<triggerName[nrOfTrigToBeComb]<<endl;
+            cout<<"trigSteps[nrOfTrigToBeComb][0]: "<<trigSteps[nrOfTrigToBeComb][0]<<endl<<"trigSteps[nrOfTrigToBeComb][1]: "<<trigSteps[nrOfTrigToBeComb][1]<<endl<<"trigSteps[nrOfTrigToBeComb][2]: "<<trigSteps[nrOfTrigToBeComb][2]<<endl;
+            cout<<"ptFromSpecPi0[nrOfTrigToBeComb][0]: "<<ptFromSpecPi0[nrOfTrigToBeComb][0]<<endl<<"ptFromSpecPi0[nrOfTrigToBeComb][1]: "<<ptFromSpecPi0[nrOfTrigToBeComb][1]<<endl;
+            cout<<"ptFromSpecEta[nrOfTrigToBeComb][0]: "<<ptFromSpecEta[nrOfTrigToBeComb][0]<<endl<<"ptFromSpecEta[nrOfTrigToBeComb][1]: "<<ptFromSpecEta[nrOfTrigToBeComb][1]<<endl;
+            cout<<" sysFilePi0[nrOfTrigToBeComb]: "<< sysFilePi0[nrOfTrigToBeComb]<<endl<<"sysFileEta[nrOfTrigToBeComb]: "<<sysFileEta[nrOfTrigToBeComb]<<endl<<"sysFileEtaToPi0[nrOfTrigToBeComb]: "<<sysFileEtaToPi0[nrOfTrigToBeComb]<<endl;
+            cout<<"cutNumberBaseEff[nrOfTrigToBeComb]: "<<cutNumberBaseEff[nrOfTrigToBeComb]<<endl<<"cutNumberMergedExt[nrOfTrigToBeComb]: "<<cutNumberMergedExt[nrOfTrigToBeComb]<<endl<<"ptFromAddMerged[nrOfTrigToBeComb][0]: "<<ptFromAddMerged[nrOfTrigToBeComb][0]<<endl<<"ptFromAddMerged[nrOfTrigToBeComb][1]: "<<ptFromAddMerged[nrOfTrigToBeComb][1]<<endl;
+        }
+
         nrOfTrigToBeComb++;
         cout << cutNumberBaseEff[nrOfTrigToBeComb] << endl;
         cout << ptFromAddMerged[nrOfTrigToBeComb][1] << endl;
+
+
+
     }
 
     for (Int_t i = 0; i < nrOfTrigToBeComb; i++){
@@ -1109,11 +1124,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                         histoRawClusterE[i]=(TH1D*)histoRawClusterE[i]->Rebin(nBinsArrayCluster,Form("ClusterEPerEvent_%s",cutNumber[i].Data()),BinsArrayCluster);
                         histoRawClusterE[i]->Scale(1.,"width");
                         // histoRawClusterE[i]->Rebin(5);
-                    } else if (((mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
+                    } /*else if (((mode == 3)||(mode == 5)) && optionEnergy.BeginsWith("13TeV") ){
                         histoRawClusterE[i]=(TH1D*)histoRawClusterE[i]->Rebin(nBinsArrayClusterVariation1,Form("ClusterEPerEvent_%s",cutNumber[i].Data()),BinsArrayClusterVariation1);
                         histoRawClusterE[i]->Scale(1.,"width");
                         // histoRawClusterE[i]->Rebin(5);
-                    }
+                    }*/
                     histoRawClusterE[i]->SetName(Form("ClusterEPerEvent_%s",cutNumber[i].Data()));
                     histoRatioRawClusterE[i]                   = (TH1D*)histoRawClusterE[i]->Clone(Form("RatioCluster_%s_%s",triggerName[i].Data(), triggerName[trigSteps[i][0]].Data()));
                     histoRatioRawClusterE[i]->Divide(histoRatioRawClusterE[i],histoRawClusterE[trigSteps[i][0]],1.,1.,"");
