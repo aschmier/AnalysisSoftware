@@ -226,7 +226,9 @@
     std::vector<Int_t>    fBinsPi013TeVRBinsDalitzPtRebin {// size: 18
         3, 1, 2, 2, 2, 4, 4, 4, 4, 4,
         10, 10, 10, 10, 10, 20, 20, 40};
+<<<<<<< HEAD
 
+>>>>>>> optimizations for pp 13TeV EDC and PCMEDC
     // PCM-EMC
     std::vector<Double_t> fBinsPi013TeVPCMEMCPt_combinedBinning {      // size: 95
       0.00,  0.80,  0.90,  1.00,  1.10,           1.20,  1.30,  1.40,  1.50,  1.60,
