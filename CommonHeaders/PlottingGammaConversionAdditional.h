@@ -4617,7 +4617,7 @@
             return kOrange+5;
         if ( variationName.CompareTo("Trigger") == 0 || variationName.CompareTo("PileUp") == 0 )
             return 404;
-        if ( variationName.CompareTo("Efficiency") == 0 )
+        if ( variationName.CompareTo("Efficiency") == 0 || variationName.CompareTo("Years") == 0)
             return kPink-6;
         if ( variationName.CompareTo("YieldExtractionPi0") == 0 || variationName.CompareTo("IntRange") == 0 )
             return 860;
@@ -4727,7 +4727,7 @@
             return 25;
         if ( variationName.CompareTo("ClusterizationEnergy") == 0 )
             return 24;
-        if ( variationName.CompareTo("Periods") == 0 )
+        if ( variationName.CompareTo("Periods") == 0 || variationName.CompareTo("Years") == 0)
             return 21;
         if ( variationName.CompareTo("InnerMaterial") == 0 || variationName.CompareTo("Material") == 0 )
             return 20;
@@ -4847,6 +4847,8 @@
             return "clusterization energy";
         if ( variationName.CompareTo("Periods") == 0 )
             return "periods";
+        if ( variationName.CompareTo("Years") == 0 )
+            return "years";
         if ( variationName.CompareTo("InnerMaterial") == 0 )
             return "inner material";
         if ( variationName.CompareTo("Material") == 0 )
