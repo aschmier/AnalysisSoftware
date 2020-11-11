@@ -2514,8 +2514,8 @@ void ExtractSignalV2(
     DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
     DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[1], fMesonLambdaTailRangeNominal[1], 1, kRed+1, 2);
 
-    // if (fIsMC) canvasLambdaTail->SaveAs(Form("%s/%s_MC_LambdaTail%s_%s.%s",outputDirMon.Data(),fPrefix.Data(),addSigString.Data(),fCutSelection.Data(),Suffix.Data()));
-     canvasLambdaTailRight->SaveAs(Form("%s/%s_data_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+    if (fIsMC) canvasLambdaTailRight->SaveAs(Form("%s/%s_MC_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+    else canvasLambdaTailRight->SaveAs(Form("%s/%s_data_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
     ///*********************** Mass
