@@ -251,8 +251,8 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
                         Bool_t optDalitz                = kFALSE,
                         Int_t mode                      = 9,
                         Int_t triggerSet                = -1,
-                        Bool_t useExtAccept             = kFALSE
-
+                        Bool_t useExtAccept             = kFALSE,
+                        Bool_t doRebin                  = kFALSE
                      ){
 
     // ******************************************************************************************
@@ -3353,6 +3353,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     TH1D *RatioTrueMCInput                  = NULL;
     TH1D* histoCorrectedYieldNorm_JetNorm[6]  = {NULL, NULL, NULL, NULL, NULL, NULL};
     TH1D* histoCorrectedYieldTrue_JetNorm[6]  = {NULL, NULL, NULL, NULL, NULL, NULL};
+    TH1D* histoCorrectedYieldRatioSmoothed[6]        = {NULL, NULL, NULL, NULL, NULL, NULL};
 
     // corrected for resonance feed down
     TH1D* histoFeedDownCorrectedYieldNorm[6]        = {NULL, NULL, NULL, NULL, NULL, NULL};
@@ -4086,11 +4087,146 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
         binsXWidth[i]   = histoCorrectedYieldTrue[0]->GetBinWidth(i)/2.;
     }
 
+    if (doRebin) {
+
+        TCanvas* canvasSmoothedYieldExtSysUnc = new TCanvas("canvasSmoothedYieldExtSysUnc","",200,10,1350,1000);// gives the page size
+        DrawGammaCanvasSettings( canvasSmoothedYieldExtSysUnc, 0.1, 0.012, 0.035, 0.09);
+
+        TPad* padMonitor1 = new TPad("padMonitor1", "", 0., 0.5, 1., 1.,-1, -1, -2);
+        DrawGammaPadSettings( padMonitor1, 0.12, 0.02, 0.05, 0.);
+        padMonitor1->SetLogy(0);
+        TPad* padMonitor2 = new TPad("padMonitor2", "", 0., 0., 1., 0.5,-1, -1, -2);
+        DrawGammaPadSettings( padMonitor2, 0.12, 0.02, 0., 0.2);
+        padMonitor2->SetLogy(0);
+        canvasSmoothedYieldExtSysUnc->cd();
+        padMonitor1->Draw();
+        padMonitor2->Draw();
+        padMonitor1->cd();
+
+        for (Int_t k = 0; k < 6; k++){
+            if ( (mode == 9 || mode == 0 || mode == 1 || (mode == 2 && !optionEnergy.Contains("13TeV"))) || (mode == 4 && nameMeson.CompareTo("Eta") && !optionEnergy.Contains("pPb_5.023TeV") ) ){
+                histoCorrectedYieldRatioSmoothed[k]  = (TH1D*)histoCorrectedYieldTrue[k]->Clone(Form("CorrectedYieldSmoothed%s",nameIntRange[k].Data()));
+            } else {
+                histoCorrectedYieldRatioSmoothed[k]  = (TH1D*)histoCorrectedYieldNorm[k]->Clone(Form("CorrectedYieldSmoothed%s",nameIntRange[k].Data()));
+            }
+        }
+
+
+
+        printf("\n==========================\nCalculate new Binning for sys unc: \n");
+        const Int_t NB = histoCorrectedYieldRatioSmoothed[0]->GetXaxis()->GetNbins();
+        Double_t arrxbinsnew[NB];
+        Double_t arrxbinsnewtmp[NB];
+        const Double_t * arrxbinsnew2 = & arrxbinsnew[0];
+        Double_t tmpBinError[6];
+        Double_t tmpBinContent[6];
+        for (Int_t i = 0; i < 6; i++){
+            tmpBinError[i] = 0;
+            tmpBinContent[i] = 0;
+        }
+        Double_t maxError = 0.01;
+        if (nameMeson.CompareTo("Eta") == 0)   maxError = 0.05;
+        Int_t maxrebins = 5;
+        // if (nameMeson.CompareTo("Eta") == 0)   maxrebins = 5;
+        Int_t Nrebins = 0;
+        Int_t Nrebinstmp = 0;
+        Bool_t RebinNeeded = kFALSE;
+
+        Int_t Nbinsnew = 1;
+        for (Int_t bin = 1; bin <= NB; bin++) {
+            Double_t lowEdgetmp = histoCorrectedYieldRatioSmoothed[0]->GetXaxis()->GetBinLowEdge(bin+1);
+            RebinNeeded = kFALSE;
+            if(bin == 1){
+                arrxbinsnew[bin-1]=lowEdgetmp;
+            } else if(bin == NB){
+                arrxbinsnew[bin-Nrebins-1]=lowEdgetmp;
+                Nbinsnew = NB-Nrebins-1;
+            } else {
+                for (Int_t i = 0; i < 6; i++){
+                    tmpBinError[i] += histoCorrectedYieldRatioSmoothed[i]->GetBinError(bin)*histoCorrectedYieldRatioSmoothed[i]->GetBinError(bin);
+                    tmpBinContent[i] += histoCorrectedYieldRatioSmoothed[i]->GetBinContent(bin);
+                    if (tmpBinContent[i] > 0. && TMath::Sqrt(tmpBinError[i])/tmpBinContent[i] > maxError && Nrebinstmp < maxrebins) {
+                        RebinNeeded = kTRUE;
+                    } else if (Nrebinstmp == 0) {
+                        RebinNeeded = kTRUE;
+                    }
+                }
+                if (RebinNeeded) {
+                    Nrebins++;
+                    Nrebinstmp++;
+                } else {
+                    arrxbinsnew[bin-Nrebins-1] = lowEdgetmp;
+                    for(Int_t i = 0; i < 6; i++){
+                        tmpBinError[i] = 0;
+                        tmpBinContent[i] = 0;
+                    }
+                    Nrebinstmp = 0;
+                }
+            }
+        }
+
+        TH1D* histoCorrectedYieldRatioSmoothedOld[6]        = {NULL, NULL, NULL, NULL, NULL, NULL};
+        for (Int_t k = 0; k < 6; k++){
+            histoCorrectedYieldRatioSmoothedOld[k]  = (TH1D*)histoCorrectedYieldRatioSmoothed[k]->Clone(Form("CorrectedYieldOld%s",nameIntRange[k].Data()));
+        }
+        for (Int_t k = 5; k >= 0; k--){
+            histoCorrectedYieldRatioSmoothedOld[k]->Add(histoCorrectedYieldRatioSmoothedOld[0],-1);
+            histoCorrectedYieldRatioSmoothedOld[k]->Divide(histoCorrectedYieldRatioSmoothedOld[k], histoCorrectedYieldRatioSmoothedOld[0], 1.,1.,"B");
+        }
+        for (Int_t k = 0; k < 6; k++){
+            if (k == 0) {
+                SetStyleHistoTH1ForGraphs(histoCorrectedYieldRatioSmoothedOld[k], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
+                DrawGammaSetMarker(histoCorrectedYieldRatioSmoothedOld[k], markerStyleIntRanges[k], 1.,colorIntRanges[k],colorIntRanges[k]);
+                histoCorrectedYieldRatioSmoothedOld[k]->SetFillColor(kGray+2);
+                histoCorrectedYieldRatioSmoothedOld[k]->SetFillStyle(0);
+                histoCorrectedYieldRatioSmoothedOld[k]->GetYaxis()->SetRangeUser(-0.19,0.19);
+                histoCorrectedYieldRatioSmoothedOld[k]->GetXaxis()->SetRangeUser(arrxbinsnew2[0],arrxbinsnew2[Nbinsnew]);
+                histoCorrectedYieldRatioSmoothedOld[k]->DrawCopy("p,e2");
+            } else {
+                DrawGammaSetMarker(histoCorrectedYieldRatioSmoothedOld[k], markerStyleIntRanges[k], 1.,colorIntRanges[k],colorIntRanges[k]);
+                histoCorrectedYieldRatioSmoothedOld[k]->DrawCopy("p,e1, same");
+            }
+        }
+        for (Int_t k = 0; k < 6; k++){
+            histoCorrectedYieldRatioSmoothed[k] = (TH1D*) histoCorrectedYieldRatioSmoothed[k]->Rebin(Nbinsnew,Form("CorrectedYieldSmoothed%s",nameIntRange[k].Data()),arrxbinsnew2);
+        }
+        for (Int_t k = 5; k >= 0; k--){
+            histoCorrectedYieldRatioSmoothed[k]->Add(histoCorrectedYieldRatioSmoothed[0],-1);
+            histoCorrectedYieldRatioSmoothed[k]->Divide(histoCorrectedYieldRatioSmoothed[k], histoCorrectedYieldRatioSmoothed[0], 1.,1.,"B");
+        }
+
+        printf("\n Nbinsnew:%i (%0.3f-%0.3f)\n", Nbinsnew, arrxbinsnew2[0], arrxbinsnew2[Nbinsnew]);
+        for (Int_t o = 0; o <= Nbinsnew; o++) {
+            printf("%i:%.1f, ", o, arrxbinsnew2[o]);
+        }
+        printf("\n\n");
+        padMonitor2->cd();
+        for (Int_t k = 0; k < 6; k++){
+            histoCorrectedYieldRatioSmoothed[k]->Smooth(10);
+        }
+        for (Int_t k = 0; k < 6; k++){
+            if (k == 0) {
+                SetStyleHistoTH1ForGraphs(histoCorrectedYieldRatioSmoothed[k], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
+                DrawGammaSetMarker(histoCorrectedYieldRatioSmoothed[k], markerStyleIntRanges[k], 1.,colorIntRanges[k],colorIntRanges[k]);
+                histoCorrectedYieldRatioSmoothed[k]->SetFillColor(kGray+2);
+                histoCorrectedYieldRatioSmoothed[k]->SetFillStyle(0);
+                histoCorrectedYieldRatioSmoothed[k]->GetYaxis()->SetRangeUser(-0.19,0.19);
+                histoCorrectedYieldRatioSmoothed[k]->DrawCopy("pe2");
+            } else {
+                DrawGammaSetMarker(histoCorrectedYieldRatioSmoothed[k], markerStyleIntRanges[k], 1.,colorIntRanges[k],colorIntRanges[k]);
+                histoCorrectedYieldRatioSmoothed[k]->DrawCopy("pe1, same");
+            }
+        }
+
+        canvasSmoothedYieldExtSysUnc->Update();
+        canvasSmoothedYieldExtSysUnc->SaveAs(Form("%s/%s_%s_SysYieldExtractionSmoothedIntRanges_%s.%s",outputDir.Data(),nameMeson.Data(),prefix2.Data(),fCutSelection.Data(),suffix.Data()));
+
+    }
 
     SysErrorConversion sysErr[6][400];
     for (Int_t k = 0; k < 6; k++){
         for (Int_t i = 1; i < nBinsPt +1; i++){
-            if ( (mode == 9 || mode == 0 || mode == 1 || mode == 2) || (mode == 4 && nameMeson.CompareTo("Eta") && !optionEnergy.Contains("pPb_5.023TeV") ) ){
+            if ( (mode == 9 || mode == 0 || mode == 1 || (mode == 2 && !optionEnergy.Contains("13TeV"))) || (mode == 4 && nameMeson.CompareTo("Eta") && !optionEnergy.Contains("pPb_5.023TeV") ) ){
     //          binYValue[i] = histoCorrectedYieldTrue->GetBinContent(i);
                 sysErr[k][i].value  = histoCorrectedYieldTrue[k]->GetBinContent(i);
                 sysErr[k][i].error  = histoCorrectedYieldTrue[k]->GetBinError(i);
@@ -4127,13 +4263,17 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
         for (Int_t k = 0; k < 6; k++){
             differencesToStandard[k][i]     = sysErr[k][i].value - sysErr[0][i].value;
             differencesToStandardErr[k][i]  = TMath::Sqrt(TMath::Abs(TMath::Power(sysErr[k][i].error,2)-TMath::Power(sysErr[0][i].error,2)));
-            if (sysErr[0][i].value != 0){
-                relDifferencesToStandard[k][i]      = (differencesToStandard[k][i]/sysErr[0][i].value)*100.;
-                relDifferencesToStandardErr[k][i]   = (differencesToStandardErr[k][i]/sysErr[0][i].value)*100.;;
-
+            if (doRebin) {
+                relDifferencesToStandard[k][i] = (histoCorrectedYieldRatioSmoothed[k]->GetBinContent(histoCorrectedYieldRatioSmoothed[k]->FindBin(binsXCenter[i])))*100.;
+                relDifferencesToStandardErr[k][i]  = (histoCorrectedYieldRatioSmoothed[k]->GetBinError(histoCorrectedYieldRatioSmoothed[k]->FindBin(binsXCenter[i])))*100.;
             } else {
-                relDifferencesToStandard[k][i]      = 0;
-                relDifferencesToStandardErr[k][i]   = 0;
+                if (sysErr[0][i].value != 0){
+                    relDifferencesToStandard[k][i]      = (differencesToStandard[k][i]/sysErr[0][i].value)*100.;
+                    relDifferencesToStandardErr[k][i]   = (differencesToStandardErr[k][i]/sysErr[0][i].value)*100.;;
+                } else {
+                    relDifferencesToStandard[k][i]      = 0;
+                    relDifferencesToStandardErr[k][i]   = 0;
+                }
             }
             if (TMath::Abs(relDifferencesToStandard[k][i]) < 75. ){
                 if( differencesToStandard[k][i] < 0 && differencesToStandard[k][i] < largestDifferenceNeg[i]){
