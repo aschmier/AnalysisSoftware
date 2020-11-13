@@ -32,10 +32,9 @@ void ClusterQA_Runwise_V2(
     TString folderRunlists          = "",           // path to the runlists
     TString addLabelRunList         = "",           // additional name for runlist
     Bool_t runMergedClust           = kFALSE,        // flag to switch to merged cluster cuts instead of standard cluster cut
-    Int_t NMaxRuns                  = 50,           // Maximum of Runs to be analysed at once (depending on availible RAM)
+    Int_t NMaxRuns                  = 150,           // Maximum of Runs to be analysed at once (depending on availible RAM)
     Bool_t onlytrending                  = kFALSE           // Maximum of Runs to be analysed at once (depending on availible RAM)
-)
-{
+){
 
 
     // **************************************************************************************************************
@@ -424,10 +423,10 @@ void ClusterQA_Runwise_V2(
 
     std::vector<TString>* vecMissingRuns = new std::vector<TString>[nSets];
 
-    Int_t width = (Int_t)((Double_t)vecRuns.size()*100.);
+    Int_t width = (Int_t)((Double_t)vecRuns.size()*1.5);
     printf("\n ++++++++++++ \n %i\n ++++++++++++ \n ", width);
-    TCanvas* canvas                 = new TCanvas("canvas","",10,10,750,500);  // gives the page size
-    TCanvas* canvaswide                 = new TCanvas("canvaswide","",10,10,width,500);  // gives the page size
+    TCanvas* canvas                 = new TCanvas("canvas","",10,10,width,500);  // gives the page size
+    TCanvas* canvaswide                 = new TCanvas("canvaswide","",10,10,width*3,500);  // gives the page size
     canvaswide->SetGrid();
     TCanvas* canvaslarge                 = new TCanvas("canvaslarge","",10,10,4000,2666);  // gives the page size
     Double_t leftMar                = 0.09;
@@ -1963,10 +1962,14 @@ void ClusterQA_Runwise_V2(
     printf("Drawing Ratio Trending Histograms\n");
 
     if(doHistsForEverySet) {
-        TString* ratioSets[nSets-nData];
-        TH1D* ratio[nSets-nData];
+        std::vector< TString* > ratioSets;
+        std::vector< TString* > ratioDataSets;
+        std::vector< TH1D* > ratio;
+        // TString* ratioSets[nSets-nData];
+        // TH1D* ratio[nSets-nData];
         TString outputDirDataSet;
         TH1D* hTMP;
+        Int_t NRatios = 0;
         if(nSets>1 && nSets>nData) {
 
             legend->SetNColumns(nData*(nSets-nData));
@@ -1999,80 +2002,155 @@ void ClusterQA_Runwise_V2(
                     fOutput->Close();
 
                 }
+                printf("\nRatios:\n ");
 
                 if( ((TString)vecHistosName.at(h)).CompareTo("hNEvents")==0 || ((TString)vecHistosName.at(h)).CompareTo("hClusterTime-Mean")==0 )
                 AdjustHistRange(vecHTMP,10.,10.,nSets,kTRUE);
                 else AdjustHistRange(vecHTMP,1.1,1.1,nSets,kTRUE);
-
+                NRatios=0;
                 for(Int_t i=0; i<nData; i++) {
                     for(Int_t j=0; j<nSets-nData; j++) {
-                        ratioSets[j] = new TString(Form("%s / %s", vecplotDataSets.at(i).Data(), vecplotDataSets.at(j+nData).Data()));
-                        ratio[j] = new TH1D(Form("%s%i%i",((TH1D*) vecHTMP.at(i))->GetName(),i,j),
-                        Form("%s%i%i;%s;%s - Ratio: Data / MC",((TH1D*) vecHTMP.at(i))->GetTitle(),i,j,((TH1D*) vecHTMP.at(i))->GetXaxis()->GetTitle(),((TH1D*) vecHTMP.at(i))->GetYaxis()->GetTitle()),
-                        hNBin,hFBin,hLBin);
-                        EditTH1(globalRuns, doEquidistantXaxis, ratio[j], GetDefaultMarkerStyle(fEnergyFlag.Data(),vecDataSet.at(j % 14).Data(),""), markerSize, GetColorDefaultColor(fEnergyFlag.Data(),vecDataSetIn.at(i).Data(),"",kFALSE,kFALSE), GetColorDefaultColor(fEnergyFlag.Data(),vecDataSetIn.at(i).Data(),"",kFALSE,kFALSE));
-                    }
+                        Bool_t shareRuns = kFALSE;
+                        Double_t hData = 0;
+                        Double_t hMC = 0;
+                        TString* ratioSetsTMP;
+                        TString* ratioDataSetsTMP;
+                        TH1D* ratioTMP;
+                        for(Int_t b=1; b<hNBin+1; b++) {
+                            hData = ((TH1D*) vecHTMP.at(i))->GetBinContent(b);
+                            hMC = ((TH1D*) vecHTMP.at(j+nData))->GetBinContent(b);
+                            // if(hMC!=0 && hData!=0) {
+                            if(hMC>0.00000 && hData>0.00000) {
+                                shareRuns = kTRUE;
+                            }
+                            // else ratio.at(j)->SetBinContent(b,1.98);
+                        }
+                        if (shareRuns) {
+                            ratioSetsTMP = new TString(Form("%s / %s", vecplotDataSets.at(i).Data(), vecDataSet.at(j+nData).Data()));
+                            ratioDataSetsTMP = new TString(vecDataSet.at(i).Data());
+                            NRatios++;
+                            // printf("%s (%i), ", ratioSetsTMP->Data(), NRatios);
+                            ratioSets.push_back(ratioSetsTMP);
+                            ratioDataSets.push_back(ratioDataSetsTMP);
+                            ratioTMP = new TH1D(Form("%s%i%i",((TH1D*) vecHTMP.at(i))->GetName(),i,j),
+                            Form("%s%i%i;%s;%s - Ratio: Data / MC",((TH1D*) vecHTMP.at(i))->GetTitle(),i,j,((TH1D*) vecHTMP.at(i))->GetXaxis()->GetTitle(),((TH1D*) vecHTMP.at(i))->GetYaxis()->GetTitle()),
+                            hNBin,hFBin,hLBin);
+                            ratio.push_back(ratioTMP);
+                            EditTH1(globalRuns, doEquidistantXaxis, ratio.at(j), GetDefaultMarkerStyle(fEnergyFlag.Data(),vecDataSet.at(j % 14).Data(),""), markerSize, GetColorDefaultColor(fEnergyFlag.Data(),vecDataSetIn.at(i).Data(),"",kFALSE,kFALSE), GetColorDefaultColor(fEnergyFlag.Data(),vecDataSetIn.at(i).Data(),"",kFALSE,kFALSE));
 
-                    for(Int_t b=1; b<hNBin+1; b++) {
-                        Double_t hData = ((TH1D*) vecHTMP.at(i))->GetBinContent(b);
-                        for(Int_t j=0; j<nSets-nData; j++) {
-                            Double_t hMC = ((TH1D*) vecHTMP.at(j+nData))->GetBinContent(b);
-                            if(hMC!=0) {
-                                if(hData/hMC>1.98) ratio[j]->SetBinContent(b,1.98);
-                                else if(hData/hMC<0.02) ratio[j]->SetBinContent(b,0.02);
-                                else ratio[j]->SetBinContent(b,hData/hMC);
-                            } else ratio[j]->SetBinContent(b,1.98);
+                            // printf("\n");
+                            for(Int_t b=1; b<hNBin+1; b++) {
+                                hData = ((TH1D*) vecHTMP.at(i))->GetBinContent(b);
+                                hMC = ((TH1D*) vecHTMP.at(j+nData))->GetBinContent(b);
+                                if(hMC>0.00000 && hData>0.00000) {
+                                    // printf("%i %0.3f, ", b, hData/hMC);
+                                    if(hData/hMC>1.98) ratio.at(j)->SetBinContent(b,1.98);
+                                    else if(hData/hMC<0.02) ratio.at(j)->SetBinContent(b,0.02);
+                                    else {
+                                        ratio.at(j)->SetBinContent(b,hData/hMC);
+                                    }
+                                }
+                            }
+                            printf("\n");
+                            // else ratio.at(j)->SetBinContent(b,1.98);
                         }
                     }
-
-
-                    for(Int_t j=0; j<nSets-nData; j++) {
-                        TString draw = (i==0&&j==0)?"p":"p, same";
-                        ratio[j]->SetTitle("");
-                        ratio[j]->GetYaxis()->SetRangeUser(0,2);
-                        canvaswide->cd();
-                        ratio[j]->Draw(draw.Data());
-                        canvas->cd();
-                        ratio[j]->Draw(draw.Data());
-                        legend->AddEntry(ratio[j],ratioSets[j]->Data(),"p");
-                    }
-
-                    canvaswide->cd();
-                    legend->Draw();
-                    canvas->cd();
-                    legend->Draw();
-                    outputDirDataSet = Form("%s/%s",outputDir.Data(), vecDataSet.at(i).Data());
-                    gSystem->Exec("mkdir -p "+outputDirDataSet+"/TrendingRatios");
-
-                    if(doTrigger){
-                        TString fTrigger            = "";
-                        TString fTriggerCut         = fEventCutSelection(3,2);
-                        fTrigger                    = AnalyseSpecialTriggerCut(fTriggerCut.Atoi(), vecplotDataSets.at(i));
-                        if(fTrigger.Contains("not defined"))
-                        fTrigger                = "";
-                        canvaswide->cd();
-                        PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), fTrigger.Data(), Form("%s clusters", calo.Data()));
-                        canvas->cd();
-                        PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), fTrigger.Data(), Form("%s clusters", calo.Data()));
-                    } else
-                    canvaswide->cd();
-                    PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), Form("%s clusters", calo.Data()), "");
-                    canvas->cd();
-                    PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), Form("%s clusters", calo.Data()), "");
-
-
-                    SaveCanvas(canvas, Form("%s/TrendingRatios/%s.%s", outputDirDataSet.Data(),Form("%s",((TH1D*) vecHTMP.at(i))->GetName()),suffix.Data()));
-                    SaveCanvas(canvaswide, Form("%s/TrendingRatios/%s_wide.%s", outputDirDataSet.Data(),Form("%s",((TH1D*) vecHTMP.at(i))->GetName()),suffix.Data()));
-                    legend->Clear();
-                    for(Int_t j=0; j<nSets-nData; j++){
-                        delete ratio[j];
-                        delete ratioSets[j];
-                    }
-
                 }
+                // if(!onlytrending){
+                    printf("\nPlotting individual:\n ");
+                    for(Int_t j=0; j<NRatios; j++) {
+                        legend->Clear();
+                        TString draw = "p";
+                        ratio.at(j)->SetTitle("");
+                        ratio.at(j)->GetYaxis()->SetRangeUser(0,2);
+                        canvaswide->cd();
+                        ratio.at(j)->Draw(draw.Data());
+                        canvas->cd();
+                        ratio.at(j)->Draw(draw.Data());
+                        legend->AddEntry(ratio.at(j),ratioSets.at(j)->Data(),"p");
+                        // printf("%s, ", ratioSets.at(j)->Data());
+
+                        canvaswide->cd();
+                        legend->Draw();
+                        canvas->cd();
+                        legend->Draw();
+                        outputDirDataSet = Form("%s/%s",outputDir.Data(), ratioDataSets.at(j)->Data());
+                        gSystem->Exec("mkdir -p "+outputDirDataSet+"/TrendingRatios");
+
+                        if(doTrigger){
+                            TString fTrigger            = "";
+                            TString fTriggerCut         = fEventCutSelection(3,2);
+                            fTrigger                    = AnalyseSpecialTriggerCut(fTriggerCut.Atoi(), vecplotDataSets.at(j));
+                            if(fTrigger.Contains("not defined"))
+                            fTrigger                = "";
+                            canvaswide->cd();
+                            PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), fTrigger.Data(), Form("%s clusters", calo.Data()));
+                            canvas->cd();
+                            PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), fTrigger.Data(), Form("%s clusters", calo.Data()));
+                        } else
+                        canvaswide->cd();
+                        PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), Form("%s clusters", calo.Data()), "");
+                        canvas->cd();
+                        PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), Form("%s clusters", calo.Data()), "");
+
+
+                        SaveCanvas(canvas, Form("%s/TrendingRatios/Ratio_%s.%s", outputDirDataSet.Data(),vecHistosName.at(h).Data(),suffix.Data()));
+                        SaveCanvas(canvaswide, Form("%s/TrendingRatios/Ratio_%s_wide.%s", outputDirDataSet.Data(),vecHistosName.at(h).Data(),suffix.Data()));
+                        legend->Clear();
+
+                    }
+                // }
+                printf("\nPlotting:\n ");
+                for(Int_t j=0; j<NRatios; j++) {
+                    // printf("%s, ", ratioSets.at(j)->Data());
+                    TString draw = (j==0)?"p":"p, same";
+                    ratio.at(j)->SetTitle("");
+                    ratio.at(j)->GetYaxis()->SetRangeUser(0,2);
+                    canvaswide->cd();
+                    ratio.at(j)->Draw(draw.Data());
+                    canvas->cd();
+                    ratio.at(j)->Draw(draw.Data());
+                    legend->AddEntry(ratio.at(j),ratioSets.at(j)->Data(),"p");
+                }
+
+                canvaswide->cd();
+                legend->Draw();
+                canvas->cd();
+                legend->Draw();
+                gSystem->Exec("mkdir -p "+outputDir+"/TrendingRatios");
+
+                if(doTrigger){
+                    TString fTrigger            = "";
+                    TString fTriggerCut         = fEventCutSelection(3,2);
+                    fTrigger                    = AnalyseSpecialTriggerCut(fTriggerCut.Atoi(), vecplotDataSets.at(0));
+                    if(fTrigger.Contains("not defined"))
+                    fTrigger                = "";
+                    canvaswide->cd();
+                    PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), fTrigger.Data(), Form("%s clusters", calo.Data()));
+                    canvas->cd();
+                    PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), fTrigger.Data(), Form("%s clusters", calo.Data()));
+                } else
+                canvaswide->cd();
+                PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), Form("%s clusters", calo.Data()), "");
+                canvas->cd();
+                PutProcessLabelAndEnergyOnPlot(xPosLabel, 0.92, 0.03, fCollisionSystem.Data(), Form("%s clusters", calo.Data()), "");
+
+
+                SaveCanvas(canvas, Form("%s/TrendingRatios/Ratio_%s.%s", outputDir.Data(),vecHistosName.at(h).Data(),suffix.Data()));
+                SaveCanvas(canvaswide, Form("%s/TrendingRatios/Ratio_%s_wide.%s", outputDir.Data(),vecHistosName.at(h).Data(),suffix.Data()));
+                legend->Clear();
+                for(Int_t j=0; j<NRatios; j++){
+                    // delete ratio.at(j);
+                    delete ratioSets.at(j);
+                }
+
+
                 printf("\n----------------------------\n");
                 DeleteVecTH1D(vecHTMP);
+                DeleteVecTH1D(ratio);
                 vecHTMP.clear();
+                ratio.clear();
+                ratioSets.clear();
             }
         } else printf("...skipped due to nSets<=1 or nSets==nData!\n");
     }
