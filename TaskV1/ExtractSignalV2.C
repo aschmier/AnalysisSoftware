@@ -2477,46 +2477,47 @@ void ExtractSignalV2(
     else canvasLambdaTail->SaveAs(Form("%s/%s_data_LambdaTail_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
     ///*********************** Lambda tail on right side
-    TCanvas* canvasLambdaTailRight = new TCanvas("canvasLambdaTailRight","",1550,1200);  // gives the page size
-    canvasLambdaTailRight->SetTickx();
-    canvasLambdaTailRight->SetTicky();
+    if(fFitSignalInvMassPtBinStd[0]->GetNpar() == 7){
+        TCanvas* canvasLambdaTailRight = new TCanvas("canvasLambdaTailRight","",1550,1200);  // gives the page size
+        canvasLambdaTailRight->SetTickx();
+        canvasLambdaTailRight->SetTicky();
 
-    DrawGammaSetMarker(fHistoLambdaTailRight, 20, 1., kBlack, kBlack);
-    Float_t maxPlotLambdaRight               = fMesonLambdaTailRangeNominal[1]*1.2;
-    if (fMesonLambdaTailRangeNominal[1] == fMesonLambdaTailRangeNominal[0])
-        maxPlotLambda                   = fMesonLambdaTailRangeNominal[1]*2;
-    if (fPrefix.Contains("Pi0")){
-        DrawAutoGammaMesonHistos( fHistoLambdaTailRight,
-                                "", "p_{T} (GeV/c)", "#lambda",
-                                kFALSE, 3.,0.,  kFALSE,
-                                kTRUE, 0.,maxPlotLambda,
-                                kFALSE, 0., 10.);
-    } else {
-        DrawAutoGammaMesonHistos( fHistoLambdaTailRight,
-                                "", "p_{T} (GeV/c)", "#lambda",
-                                kFALSE, 3.,0.,  kFALSE,
-                                kTRUE, 5e-3,maxPlotLambda,
-                                kFALSE, 0., 10.);
+        DrawGammaSetMarker(fHistoLambdaTailRight, 20, 1., kBlack, kBlack);
+        Float_t maxPlotLambdaRight               = fMesonLambdaTailRangeNominal[1]*1.2;
+        if (fMesonLambdaTailRangeNominal[1] == fMesonLambdaTailRangeNominal[0])
+            maxPlotLambda                   = fMesonLambdaTailRangeNominal[1]*2;
+        if (fPrefix.Contains("Pi0")){
+            DrawAutoGammaMesonHistos( fHistoLambdaTailRight,
+                                    "", "p_{T} (GeV/c)", "#lambda",
+                                    kFALSE, 3.,0.,  kFALSE,
+                                    kTRUE, 0.,maxPlotLambda,
+                                    kFALSE, 0., 10.);
+        } else {
+            DrawAutoGammaMesonHistos( fHistoLambdaTailRight,
+                                    "", "p_{T} (GeV/c)", "#lambda",
+                                    kFALSE, 3.,0.,  kFALSE,
+                                    kTRUE, 5e-3,maxPlotLambda,
+                                    kFALSE, 0., 10.);
+        }
+        if (fIsMC){
+            DrawGammaSetMarker(fHistoTrueLambdaTailRight, 24, 1., kRed+2, kRed+2);
+            fHistoTrueLambdaTailRight->Draw("same,pe");
+        }
+        canvasLambdaTail->Update();
+
+
+        TLegend* legendLambdaTailRight = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+        legendLambdaTailRight->AddEntry(fHistoLambdaTailRight,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
+        if (fIsMC) legendLambdaTail->AddEntry(fHistoTrueLambdaTailRight,"True MC","p");
+        legendLambdaTailRight->Draw();
+
+        DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[0], fMesonLambdaTailRangeNominal[0], 1, kRed+1, 2);
+        DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
+        DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[1], fMesonLambdaTailRangeNominal[1], 1, kRed+1, 2);
+
+        if (fIsMC) canvasLambdaTailRight->SaveAs(Form("%s/%s_MC_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+        else canvasLambdaTailRight->SaveAs(Form("%s/%s_data_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
     }
-    if (fIsMC){
-        DrawGammaSetMarker(fHistoTrueLambdaTailRight, 24, 1., kRed+2, kRed+2);
-        fHistoTrueLambdaTailRight->Draw("same,pe");
-    }
-    canvasLambdaTail->Update();
-
-
-    TLegend* legendLambdaTailRight = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
-    legendLambdaTailRight->AddEntry(fHistoLambdaTailRight,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
-    if (fIsMC) legendLambdaTail->AddEntry(fHistoTrueLambdaTailRight,"True MC","p");
-    legendLambdaTailRight->Draw();
-
-    DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[0], fMesonLambdaTailRangeNominal[0], 1, kRed+1, 2);
-    DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
-    DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[1], fMesonLambdaTailRangeNominal[1], 1, kRed+1, 2);
-
-    if (fIsMC) canvasLambdaTailRight->SaveAs(Form("%s/%s_MC_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-    else canvasLambdaTailRight->SaveAs(Form("%s/%s_data_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-
 
     ///*********************** Mass
     TCanvas* canvasMesonMass = new TCanvas("canvasMesonMass","",1550,1200);  // gives the page size
@@ -5534,15 +5535,18 @@ void FillPtHistos(){
         if (fIsMC) {
             fHistoTrueLambdaTail->SetBinContent(iPt,fMesonLambdaTailMCpar[iPt-1]);
             fHistoTrueLambdaTail->SetBinError(iPt,fMesonLambdaTailMCparError[iPt-1]);
-
-            fHistoTrueLambdaTailRight->SetBinContent(iPt,fMesonLambdaTailRightMCpar[iPt-1]);
-            fHistoTrueLambdaTailRight->SetBinError(iPt,fMesonLambdaTailRightMCparError[iPt-1]);
+            if(fFitSignalInvMassPtBinStd[iPt]->GetNpar() == 7){
+                fHistoTrueLambdaTailRight->SetBinContent(iPt,fMesonLambdaTailRightMCpar[iPt-1]);
+                fHistoTrueLambdaTailRight->SetBinError(iPt,fMesonLambdaTailRightMCparError[iPt-1]);
+            }
         }
         fHistoLambdaTail->SetBinContent(iPt,fMesonLambdaTailpar[iPt-1]);
         fHistoLambdaTail->SetBinError(iPt,fMesonLambdaTailparError[iPt-1]);
 
-        fHistoLambdaTailRight->SetBinContent(iPt,fMesonLambdaTailpar[iPt-1]);
-        fHistoLambdaTailRight->SetBinError(iPt,fMesonLambdaTailparError[iPt-1]);
+        if(fFitSignalInvMassPtBinStd[iPt]->GetNpar() == 7){
+            fHistoLambdaTailRight->SetBinContent(iPt,fMesonLambdaTailRightpar[iPt-1]);
+            fHistoLambdaTailRight->SetBinError(iPt,fMesonLambdaTailRightparError[iPt-1]);
+        }
 
         fHistoAmplitude->SetBinContent(iPt,fMesonAmplitudepar[iPt-1]);
         fHistoAmplitude->SetBinError(iPt,fMesonAmplitudeparError[iPt-1]);
@@ -8331,7 +8335,9 @@ void SaveHistos(Int_t optionMC, TString cutID, TString prefix3, Bool_t UseTHnSpa
         if (fHistoSBdefaultMeson[k])        fHistoSBdefaultMeson[k]->Write();
     }
     fHistoLambdaTail->Write();
-    fHistoLambdaTailRight->Write();
+    if(fFitSignalInvMassPtBinStd[0]->GetNpar() == 7){
+        fHistoLambdaTailRight->Write();
+    }
     fHistoAmplitude->Write();
     fHistoSigma->Write();
     fHistoResidualBGcon->Write();
