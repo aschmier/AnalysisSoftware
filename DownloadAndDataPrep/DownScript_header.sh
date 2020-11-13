@@ -3,7 +3,7 @@
 
 # Version: V6.2
 echo  -e "\e[36m+++++++++++++++++++++++++++++++++++++\e[0m"
-echo "DownScript.sh Version: V6.2"
+echo "DownScript.sh Version: V6.3"
 
 # Author: Adrian Mechler (mechler@ikf.uni-frankfurt.de)
 
@@ -66,6 +66,8 @@ OptZipSubRun=0
 Usechildsareperiods=0
 newfiles=0
 RedoMerging=0
+PergeSubruns=0
+PergeRuns=0
 re='^[0-9]+$'
 
 RunningScripts=0
@@ -215,7 +217,7 @@ function Init(){
 
 	if [[ $thisuser = "adrian"  ]]
 	then
-		BASEDIR="/media/adrian/Adrian/grid_data"
+		BASEDIR="/media/adrian/Data/grid_data"
 		# BASEDIR="/home/adrian/grid_data"
 		FrameworkDir="/home/adrian/git/AnalysisSoftware"
 		UserName="Adrian Mechler";
@@ -376,12 +378,12 @@ function GetFile_jalien(){
 		if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
 			cat $3 | tee -a $LogFile
 		fi
-		if [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]] && [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]]; then
+		if [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]] && [[ ! `grep "STATUS OK" $3 | wc -l` > 0 ]] && [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]]; then
 			if [[ -f $2 ]]; then
 				new_rm $2
-				if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
+				# if [[ $debug = 1 ]] || [[ $debug = 2 ]]; then
 					echo -e "\t deleting $2" | tee -a $LogFile
-				fi
+				# fi
 			fi
 		fi
 	fi
@@ -441,16 +443,19 @@ function GetFile_jalien(){
 				downexitstatus=$?
 				((tmpdowncount++))
 			done
-			# if [[ -f $2 ]] && [[ `grep "SUCCESS" $3 | wc -l` > 0 ]]  && [[ ! `grep "STATUS OK" $3 | wc -l` > 0 ]]; then
-			if [[ -f $2 ]] && [[ `grep "jobID: 1/1 >>> Start" $3 | wc -l` > 0 ]]  && [[ ! `cat $3 | wc -l` > 1 ]]; then
+			if [[ -f $2 ]] && [[ `grep "STATUS OK" $3 | wc -l` > 0 ]]  && [[ ! `cat $3 | wc -l` > 3 ]]; then
 				if [[ $silent = 1 ]]; then
 					printf "  \e[33m|->\e[0m successful  " >> $LogFile
 				else
 					printf "  \e[33m|->\e[0m successful  " | tee -a $LogFile
 				fi
 			else
-				printf "  \e[33m|->\e[0m Download failed "   | tee -a $ErrorLog | tee -a $LogFile
-				cat $3
+				if [[ ! `grep "SUCCESS" $3 | wc -l` > 0 ]]  || [[ ! `grep "100.00 %" $3 | wc -l` > 0 ]]; then
+					printf "  \e[33m|->\e[0m legacy download  " | tee -a $LogFile
+				else
+					printf "  \e[33m|->\e[0m Download failed "   | tee -a $ErrorLog | tee -a $LogFile
+					cat $3
+				fi
 			fi
 		else
 			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
@@ -1104,6 +1109,12 @@ function ParseSettings(){
 		elif [[ $setting = "-RedoMerging" ]] || [[ $setting = "-redomerging" ]]
 		then
 			RedoMerging=1
+		elif [[ $setting = "-PergeSubruns" ]] || [[ $setting = "-perge" ]]
+		then
+			PergeSubruns=1
+		elif [[ $setting = "-PergeRuns" ]] || [[ $setting = "-pergeruns" ]]
+		then
+			PergeRuns=1
 		fi
 	done
 
@@ -1235,9 +1246,44 @@ function ParseSettings(){
 				rm $TMPfile
 			done
 		done
+	fi
+	if [ $PergeSubruns = 1 ]; then
+		echo -e "\e[33m|-> \e[0m PergeSubruns" | tee -a $LogFile
+		for TrainNumber in `cat $TrainNumberFile`
+		do
+			for TMPfolder in `ls $BASEDIR/.$TrainPage-$TrainNumber/.$TrainNumber*/`; do
+				# echo $TMPfolder
+				if [[ $TMPfolder =~ $re ]] #&& [[ `echo $TMPfolder | wc -c` = 7 ]]
+				then
+					# printf "$TMPfolder \n"
+					for TMPfolder2 in `ls $BASEDIR/.$TrainPage-$TrainNumber/.$TrainNumber*/$TMPfolder/`; do
+						if [[ $TMPfolder2 =~ $re ]] && [[ `echo $TMPfolder2 | wc -c` < 6 ]]
+						then
+							printf "\t $TMPfolder2 \n"
+							rm -r $BASEDIR/.$TrainPage-$TrainNumber/.$TrainNumber*/$TMPfolder/$TMPfolder2
+						fi
+					done
+				fi
+			done
+		done
+	fi
+	if [ $PergeRuns = 1 ]; then
+		echo -e "\e[33m|-> \e[0m PergeRuns" | tee -a $LogFile
+		for TrainNumber in `cat $TrainNumberFile`
+		do
+			for TMPfolder in `ls $BASEDIR/.$TrainPage-$TrainNumber/.$TrainNumber*/`; do
+				# echo $TMPfolder
+				if [[ $TMPfolder =~ $re ]] #&& [[ `echo $TMPfolder | wc -c` = 7 ]]
+				then
+					printf "$TMPfolder \n"
+					rm -r $BASEDIR/.$TrainPage-$TrainNumber/.$TrainNumber*/$TMPfolder
+				fi
+			done
+		done
+	fi
+	if [ $RedoMerging = 1 ] || [ $PergeSubruns = 1 ] || [ $PergeRuns = 1 ]; then
 		exit
 	fi
-
 }
 function Parsehtml(){
 	if [[ $debug = 2 ]] || [[ $debug = 1 ]]
@@ -1578,15 +1624,17 @@ function doMergeTrainsRuns(){
 						eval $cmd
 						usecmd $cmd
 					done
+					DirMerged="${BASEDIR}/${MergeTrainsOutname}/listall/$PeriodnameWOextra/$runname/"
 					for filenametmp in `cat $FileList`
 					do
 						filename=${filenametmp#*/$runname/}
 						printf "\t\t\t\t\e[33m|-> \e[0m $filename" | tee -a $LogFile
 						Dirout2=$BASEDIR/$singletrainDir/$RunlistName/$Periodname/$runname/
 						Dirin="0"
-						DirMerged="${BASEDIR}/${MergeTrainsOutname}/listall/$PeriodnameWOextra/$runname/"
+						# PrepMerge $filename $Dirout2 $Dirin $DirMerged "Runs"
 						doMergeFiles $filename $Dirout2 $Dirin $DirMerged "Runs"
 					done
+					# StartMergeProcess $DirMerged
 					if [[ -d "${BASEDIR}/${MergeTrainsOutname}/listall/$PeriodnameWOextra/$runname" ]] && [[ ! -L "${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/$runname" ]] ; then
 					   cmd="ln -sf ${BASEDIR}/${MergeTrainsOutname}/listall/$PeriodnameWOextra/$runname ${BASEDIR}/${MergeTrainsOutname}/$RunlistName/$PeriodnameWOextra/."
 					   # echo $cmd | tee -a $LogFile
@@ -1865,75 +1913,75 @@ function FindPathsAndAddToList(){
 			# sed -n '/files/!p' $2.tmp >  $2.tmp
 			AddToList $2.tmp $2
 			new_rm $2.tmp
-		# fi
-		else
-			# /alice/data/2016/LHC16d/000252375/pass1/AOD208/PWGGA/GA_pp_AOD/1549_20200925-1736_child_1/0016/GammaConvCalo_2001.root
-		# if [[ ! "$tmpreturn" = "0" ]] || [[ ! -f $2.tmp ]] || [[ `cat $2.tmp | wc -l`  < 1 ]]; then
-			printf "  -- alien_find didn't work trying runwise -- \n" | tee -a $LogFile
-			for runName in `cat $4`; do
-
-				tmprunfilename=${2%AllPathList*}$5$runName
-				new_rm $tmprunfilename.tmp
-				touch $tmprunfilename.tmp
-				# echo $tmprunfilename
-				if [[ ! -f "$tmprunfilename.txt" ]]; then
-					tmpdirusing="$1$5$runName"
-					if (( `echo -n $childID | wc -c` > 3 )); then
-						cmd="alien_find $tmpdirusing $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep $childID/ > $tmprunfilename.tmp"
-					else
-						cmd="alien_find $tmpdirusing $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $tmprunfilename.tmp"
-					fi
-					if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-					then
-						echo "$runName: $cmd" | tee -a $LogFile
-					else
-						printf "$runName, " | tee -a $LogFile
-					fi
-					tmpcouuntnew=1
-					eval $cmd
-					if [[ $debug = 1 ]] || [[ $debug = 2 ]]
-					then
-						cat $tmprunfilename.tmp
-					fi
-					tmpreturn=$?
-					retried=0
-					if [[ ! -f $2.tmp ]]; then
-						tmpreturn="0"
-					fi
-					if [[ -f $2.tmp ]]; then
-						if [[ `cat $2.tmp | wc -l`  < 1 ]]; then
-							tmpreturn="0"
-						fi
-					fi
-					if [[ ! "$tmpreturn" = "0" ]]; then
-						retried=1
-						printf "\n $runName  \e[33m|->\e[0m Retry " | tee -a $LogFile
-						eval $cmd
-						tmpreturn=$?
-					fi
-					while [[ ! $tmpreturn = "0" ]] || [[ `cat $tmprunfilename.tmp | wc -l`  < 1 ]]; do
-						if [[ $tmpcouuntnew > 4 ]]; then break; fi
-						sleep 1
-						printf "${tmpcouuntnew} " | tee -a $LogFile
-						# printf "." | tee -a $LogFile
-						((tmpcouuntnew++))
-						eval $cmd
-						tmpreturn=$?
-					done
-					if [[ $retried = 1 ]]; then
-						echo
-					fi
-					if [[ ! "$tmpreturn" = "0" ]] || [[ `cat $2.tmp | wc -l`  < 1 ]]; then
-						continue
-					fi
-					# cat "$tmprunfilename.tmp"
-					# sed -n '/files/!p' $2.tmp >  $2.tmp
-					AddToList "$tmprunfilename.tmp" "$tmprunfilename.txt"
-					new_rm "$tmprunfilename.tmp"
-				fi
-				AddToList "$tmprunfilename.txt" "$2"
-			done
 		fi
+		# else
+		# 	# /alice/data/2016/LHC16d/000252375/pass1/AOD208/PWGGA/GA_pp_AOD/1549_20200925-1736_child_1/0016/GammaConvCalo_2001.root
+		# # if [[ ! "$tmpreturn" = "0" ]] || [[ ! -f $2.tmp ]] || [[ `cat $2.tmp | wc -l`  < 1 ]]; then
+		# 	printf "  -- alien_find didn't work trying runwise -- \n" | tee -a $LogFile
+		# 	for runName in `cat $4`; do
+		#
+		# 		tmprunfilename=${2%AllPathList*}$5$runName
+		# 		new_rm $tmprunfilename.tmp
+		# 		touch $tmprunfilename.tmp
+		# 		# echo $tmprunfilename
+		# 		if [[ ! -f "$tmprunfilename.txt" ]]; then
+		# 			tmpdirusing="$1$5$runName"
+		# 			if (( `echo -n $childID | wc -c` > 3 )); then
+		# 				cmd="alien_find $tmpdirusing $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep $childID/ > $tmprunfilename.tmp"
+		# 			else
+		# 				cmd="alien_find $tmpdirusing $3  2> /dev/null | grep $TrainPage/$TrainNumber | grep child_$childID/ > $tmprunfilename.tmp"
+		# 			fi
+		# 			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+		# 			then
+		# 				echo "$runName: $cmd" | tee -a $LogFile
+		# 			else
+		# 				printf "$runName, " | tee -a $LogFile
+		# 			fi
+		# 			tmpcouuntnew=1
+		# 			eval $cmd
+		# 			if [[ $debug = 1 ]] || [[ $debug = 2 ]]
+		# 			then
+		# 				cat $tmprunfilename.tmp
+		# 			fi
+		# 			tmpreturn=$?
+		# 			retried=0
+		# 			if [[ ! -f $2.tmp ]]; then
+		# 				tmpreturn="0"
+		# 			fi
+		# 			if [[ -f $2.tmp ]]; then
+		# 				if [[ `cat $2.tmp | wc -l`  < 1 ]]; then
+		# 					tmpreturn="0"
+		# 				fi
+		# 			fi
+		# 			if [[ ! "$tmpreturn" = "0" ]]; then
+		# 				retried=1
+		# 				printf "\n $runName  \e[33m|->\e[0m Retry " | tee -a $LogFile
+		# 				eval $cmd
+		# 				tmpreturn=$?
+		# 			fi
+		# 			while [[ ! $tmpreturn = "0" ]] || [[ `cat $tmprunfilename.tmp | wc -l`  < 1 ]]; do
+		# 				if [[ $tmpcouuntnew > 4 ]]; then break; fi
+		# 				sleep 1
+		# 				printf "${tmpcouuntnew} " | tee -a $LogFile
+		# 				# printf "." | tee -a $LogFile
+		# 				((tmpcouuntnew++))
+		# 				eval $cmd
+		# 				tmpreturn=$?
+		# 			done
+		# 			if [[ $retried = 1 ]]; then
+		# 				echo
+		# 			fi
+		# 			if [[ ! "$tmpreturn" = "0" ]] || [[ `cat $2.tmp | wc -l`  < 1 ]]; then
+		# 				continue
+		# 			fi
+		# 			# cat "$tmprunfilename.tmp"
+		# 			# sed -n '/files/!p' $2.tmp >  $2.tmp
+		# 			AddToList "$tmprunfilename.tmp" "$tmprunfilename.txt"
+		# 			new_rm "$tmprunfilename.tmp"
+		# 		fi
+		# 		AddToList "$tmprunfilename.txt" "$2"
+		# 	done
+		# fi
 		echo;
 	# else
 	# 	printf "  \e[33m|->\e[0m is up to date \n" | tee -a $LogFile
