@@ -71,7 +71,8 @@ void SetLogBinningXTH(ForwardIt* histoRebin){
 void CorrectCaloNonLinearityV4(
                                 TString configFileName  = "config.txt",
                                 TString suffix          = "eps",
-                                Bool_t enableAddCouts   = kFALSE
+                                Bool_t enableAddCouts   = kFALSE,
+                                Bool_t enablePol1Scaling   = kFALSE
                               ){
     gROOT->Reset();
 
@@ -647,19 +648,35 @@ void CorrectCaloNonLinearityV4(
             Double_t integralSigAndBG   = sliceHist->Integral(sliceHist->FindBin(minMGGBG), sliceHist->FindBin(0.28));
             Double_t integralBG         = sliceBGHist->Integral(sliceBGHist->FindBin(minMGGBG), sliceBGHist->FindBin(0.28));
             cout << "BG scaling: " << integralSigAndBG << "\t" << integralBG << "\t" << integralSigAndBG/ integralBG << endl;
+            TH1D* sliceHistRatio         = (TH1D*)sliceHist->Clone("sliceHistRatio");
+            TF1* fFitBckPol1 = new TF1("FitBckPol1","[0]+[1]*x");
+            if(enablePol1Scaling){
+                sliceHistRatio->Divide(sliceHist,sliceBGHist,1,1);
+                fFitBckPol1->SetParameter(0, integralSigAndBG/ integralBG);
+                fFitBckPol1->SetParameter(1, 0.);
+                sliceHistRatio->Fit(fFitBckPol1,"QRME0", "", minMGGBG, 0.28);
 
-            if (integralBG != 0){
-                sliceBGHist->Scale( integralSigAndBG/ integralBG );
-                cout << "scaled BG" << endl;
+                printf("\t %f \t %f \n", fFitBckPol1->GetParameter(0), fFitBckPol1->GetParameter(1));
+                if (integralBG != 0){
+                    sliceBGHist->Multiply( fFitBckPol1, 1.);
+                    cout << "scaled BG fith pol1" << endl;
+                }
+            } else {
+                if (integralBG != 0){
+                    sliceBGHist->Scale( integralSigAndBG/ integralBG );
+                    cout << "scaled BG" << endl;
+                }
             }
+
+
             for (Int_t i = 1; i< sliceHist->GetNbinsX()+1; i++){
                 if (sliceHist->GetBinContent(i) == 0)
                     sliceHist->SetBinError(i,1.);
             }
 
             TH1D* sliceHistCopy         = (TH1D*)sliceHist->Clone("SliceCopy");
-            if (integralBG != 0 && (fBinsPt[iClusterPt]<20.0)){
-                    sliceHist->Add( sliceBGHist, -1);
+            if (integralBG != 0){// && (fBinsPt[iClusterPt]<20.0)){
+                sliceHist->Add( sliceBGHist, -1);
             }
 
             sliceHistCopy->GetXaxis()->SetRangeUser(0.0,0.3);
@@ -670,6 +687,11 @@ void CorrectCaloNonLinearityV4(
             sliceHist->SetLineColor(kRed+2);
             sliceHist->GetXaxis()->SetRangeUser(0.0,0.3);
             sliceHist->Write(Form("slice%sAlpha_%f-%f-withRemainingBckg",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
+            if(enablePol1Scaling){
+                sliceHistRatio->SetLineColor(kBlack+2);
+                sliceHistRatio->GetXaxis()->SetRangeUser(0.0,0.3);
+                sliceHistRatio->Write(Form("slice%sAlpha_%f-%f-sliceHistRatio",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
+            }
 
             sliceHistCopy->GetYaxis()->SetRangeUser(sliceHist->GetMinimum(),sliceHistCopy->GetMaximum());
             sliceHistCopy->GetXaxis()->SetRangeUser(0.0,0.3);
@@ -687,6 +709,18 @@ void CorrectCaloNonLinearityV4(
             canvas->Clear();
             sliceHist->GetXaxis()->SetRangeUser(0.0,0.3);
 
+            if(enablePol1Scaling){
+                sliceHistRatio->GetYaxis()->SetRangeUser(sliceHistRatio->GetMinimum()-0.2,sliceHistRatio->GetMaximum()+0.2);
+                sliceHistRatio->GetXaxis()->SetRangeUser(0.0,0.3);
+                sliceHistRatio->DrawCopy();
+                fFitBckPol1->DrawCopy("same");
+                for (Int_t i = 0; i < nExampleBins; i++ ){
+                    if(iClusterPt==exampleBin[i] ){
+                        canvas->SaveAs(Form("%s/ExampleBin_%sAlpha_%.02f-%.02f-sliceHistRatio.%s",outputDirSample.Data(),dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1],suffix.Data()));
+                    }
+                }
+                canvas->Clear();
+            }
 
             //*******************************************************************************
             // adjust min and max fitting range for inv mass fits
@@ -1503,7 +1537,7 @@ TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t 
     if(ptcenter > 5.0) rmsScaling = 1.0;
     Double_t rmsHisto = histo->GetRMS();
     if(rmsHisto<0.01) rmsHisto = 0.01;
-    
+
     // necessary to exclude low mass peak
     histo->GetXaxis()->SetRangeUser(0.07,0.2);
 
