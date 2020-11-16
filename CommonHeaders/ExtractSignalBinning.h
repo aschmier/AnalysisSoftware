@@ -3147,7 +3147,7 @@
                         }
                         break;
                     case 4:
-                      if (directPhoton.CompareTo("directPhoton") == 0){
+                      if (meson.CompareTo("directPhoton") == 0){
                         switch(SpecialTrigger) {
                           case -1:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
                           case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
@@ -5762,11 +5762,7 @@ TString rBin = photonCutSelection(2,1);
                     }
                     GetOptimumNColumnsAndRows(fNBinsPt, fStartPtBin, fColumn, fRow);
                     if(modi == 4){
-<<<<<<< HEAD
                       GetBinning( fBinsPt, maxPtBinAvail, "Gamma", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis);
-=======
-                      GetBinning( fBinsPt, maxPtBinAvail, "Pi0", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis, directPhoton);
->>>>>>> optimizations for pp 13TeV EDC and PCMEDC
                       for (Int_t i = 0; i < fNBinsPt; i++) {
                         if (specialTrigg == -1 ||specialTrigg == 0 || specialTrigg == 4 || specialTrigg == 5){
                             fNRebin[i]      = fBinsGamma13TeVEMCTrigINT7PtRebin[i];
