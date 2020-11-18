@@ -3147,7 +3147,6 @@
                         }
                         break;
                     case 4:
-                      if (meson.CompareTo("directPhoton") == 0){
                         switch(SpecialTrigger) {
                           case -1:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
                           case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
