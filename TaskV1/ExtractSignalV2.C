@@ -1130,8 +1130,8 @@ void ExtractSignalV2(
             fMesonLambdaTailparError[iPt]   = fFitSignalInvMassPtBinStd[iPt]->GetParError(3);
 
             if(fFitSignalInvMassPtBinStd[iPt]->GetNpar() == 7){
-              fMesonLambdaTailRightpar[iPt]        = fFitSignalInvMassPtBinStd[iPt]->GetParameter(4);
-              fMesonLambdaTailRightparError[iPt]   = fFitSignalInvMassPtBinStd[iPt]->GetParError(4);
+              fMesonLambdaTailRightpar[iPt]        = fFitSignalInvMassPtBinStd[iPt]->GetParameter(6);
+              fMesonLambdaTailRightparError[iPt]   = fFitSignalInvMassPtBinStd[iPt]->GetParError(6);
             }
 
             fMesonAmplitudepar[iPt]         = fFitSignalInvMassPtBinStd[iPt]->GetParameter(0);
@@ -1246,8 +1246,8 @@ void ExtractSignalV2(
                     fMesonLambdaTailMCpar[iPt]      = fFitTrueSignalInvMassPtBin[iPt]->GetParameter(3);
                     fMesonLambdaTailMCparError[iPt] = fFitTrueSignalInvMassPtBin[iPt]->GetParError(3);
                     if(fFitTrueSignalInvMassPtBin[iPt]->GetNpar() == 7){
-                      fMesonLambdaTailRightMCpar[iPt]      = fFitTrueSignalInvMassPtBin[iPt]->GetParameter(4);
-                      fMesonLambdaTailRightMCparError[iPt] = fFitTrueSignalInvMassPtBin[iPt]->GetParError(4);
+                      fMesonLambdaTailRightMCpar[iPt]      = fFitTrueSignalInvMassPtBin[iPt]->GetParameter(6);
+                      fMesonLambdaTailRightMCparError[iPt] = fFitTrueSignalInvMassPtBin[iPt]->GetParError(6);
                     }
 
                     CalculateFWHM(fFitTrueSignalInvMassPtBin[iPt]);
@@ -2477,46 +2477,49 @@ void ExtractSignalV2(
     else canvasLambdaTail->SaveAs(Form("%s/%s_data_LambdaTail_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
     ///*********************** Lambda tail on right side
-    if(fFitSignalInvMassPtBinStd[0]->GetNpar() == 7){
-        TCanvas* canvasLambdaTailRight = new TCanvas("canvasLambdaTailRight","",1550,1200);  // gives the page size
-        canvasLambdaTailRight->SetTickx();
-        canvasLambdaTailRight->SetTicky();
 
-        DrawGammaSetMarker(fHistoLambdaTailRight, 20, 1., kBlack, kBlack);
-        Float_t maxPlotLambdaRight               = fMesonLambdaTailRangeNominal[1]*1.2;
-        if (fMesonLambdaTailRangeNominal[1] == fMesonLambdaTailRangeNominal[0])
-            maxPlotLambda                   = fMesonLambdaTailRangeNominal[1]*2;
-        if (fPrefix.Contains("Pi0")){
-            DrawAutoGammaMesonHistos( fHistoLambdaTailRight,
-                                    "", "p_{T} (GeV/c)", "#lambda",
-                                    kFALSE, 3.,0.,  kFALSE,
-                                    kTRUE, 0.,maxPlotLambda,
-                                    kFALSE, 0., 10.);
-        } else {
-            DrawAutoGammaMesonHistos( fHistoLambdaTailRight,
-                                    "", "p_{T} (GeV/c)", "#lambda",
-                                    kFALSE, 3.,0.,  kFALSE,
-                                    kTRUE, 5e-3,maxPlotLambda,
-                                    kFALSE, 0., 10.);
-        }
-        if (fIsMC){
-            DrawGammaSetMarker(fHistoTrueLambdaTailRight, 24, 1., kRed+2, kRed+2);
-            fHistoTrueLambdaTailRight->Draw("same,pe");
-        }
-        canvasLambdaTail->Update();
+    if(fFitSignalInvMassPtBinStd[fExampleBin]->GetNpar() == 7){
+      TCanvas* canvasLambdaTailRight = new TCanvas("canvasLambdaTailRight","",1550,1200);  // gives the page size
+      canvasLambdaTailRight->SetTickx();
+      canvasLambdaTailRight->SetTicky();
+      canvasLambdaTailRight->cd();
 
+      DrawGammaSetMarker(fHistoLambdaTailRight, 20, 1., kBlack, kBlack);
+      Float_t maxPlotLambdaRight               = fMesonLambdaTailRangeNominal[1]*1.2;
+      if (fMesonLambdaTailRangeNominal[1] == fMesonLambdaTailRangeNominal[0])
+          maxPlotLambda                   = fMesonLambdaTailRangeNominal[1]*2;
+      if (fPrefix.Contains("Pi0")){
+          DrawAutoGammaMesonHistos( fHistoLambdaTailRight,
+                                  "", "p_{T} (GeV/c)", "#lambda",
+                                  kFALSE, 3.,0.,  kFALSE,
+                                  kTRUE, 0.,maxPlotLambda,
+                                  kFALSE, 0., 10.);
+      } else {
+          DrawAutoGammaMesonHistos( fHistoLambdaTailRight,
+                                  "", "p_{T} (GeV/c)", "#lambda",
+                                  kFALSE, 3.,0.,  kFALSE,
+                                  kTRUE, 5e-3,maxPlotLambda,
+                                  kFALSE, 0., 10.);
+      }
+      fHistoLambdaTailRight->Draw();
+      if (fIsMC){
+          DrawGammaSetMarker(fHistoTrueLambdaTailRight, 24, 1., kRed+2, kRed+2);
+          fHistoTrueLambdaTailRight->Draw("same,pe");
+      }
+      // canvasLambdaTailRight->Update();
 
-        TLegend* legendLambdaTailRight = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
-        legendLambdaTailRight->AddEntry(fHistoLambdaTailRight,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
-        if (fIsMC) legendLambdaTail->AddEntry(fHistoTrueLambdaTailRight,"True MC","p");
-        legendLambdaTailRight->Draw();
+      TLegend* legendLambdaTailRight = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+      legendLambdaTailRight->AddEntry(fHistoLambdaTailRight,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
+      if (fIsMC) legendLambdaTail->AddEntry(fHistoTrueLambdaTailRight,"True MC","p");
+      legendLambdaTailRight->Draw();
 
-        DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[0], fMesonLambdaTailRangeNominal[0], 1, kRed+1, 2);
-        DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
-        DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[1], fMesonLambdaTailRangeNominal[1], 1, kRed+1, 2);
+      DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[0], fMesonLambdaTailRangeNominal[0], 1, kRed+1, 2);
+      DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
+      DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[1], fMesonLambdaTailRangeNominal[1], 1, kRed+1, 2);
 
-        if (fIsMC) canvasLambdaTailRight->SaveAs(Form("%s/%s_MC_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-        else canvasLambdaTailRight->SaveAs(Form("%s/%s_data_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+      if (fIsMC) canvasLambdaTailRight->SaveAs(Form("%s/%s_MC_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+      else canvasLambdaTailRight->SaveAs(Form("%s/%s_data_LambdaTailRight_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
     }
 
     ///*********************** Mass
@@ -6120,15 +6123,6 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
                         mesonAmplitudeMin = mesonAmplitude*70./100.;
                         mesonAmplitudeMax = mesonAmplitude*130./100.;
                     }
-                    if(fMode == 4 && fEnergyFlag.Contains("13TeV") && !fDoJetAnalysis){
-                        if(GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1))){
-                            fMesonFitRange[0] = 0.25;
-                            fMesonFitRange[1] = 0.73;
-                        } else {
-                            fMesonFitRange[0] = 0.40;
-                            fMesonFitRange[1] = 0.73;
-                        }
-                    }
                     if(fDoJetAnalysis && (fMode == 4 || fMode==14)){
                         fMesonWidthRange[0]         = 0.022;
                         fMesonWidthRange[1]         = 0.035;
@@ -6177,6 +6171,10 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
             doDoubleExp = kTRUE;
         else if (fEnergyFlag.Contains("pp_13TeV") && ( trigger.CompareTo("8d") == 0 || trigger.CompareTo("8e") == 0))
             doDoubleExp = kTRUE;
+    }
+    if (fMode == 2 && fPrefix.Contains("Pi0")){
+      if (fEnergyFlag.Contains("pp_13TeV") && ( trigger.CompareTo("8d") == 0 || trigger.CompareTo("8e") == 0))
+          doDoubleExp = kTRUE;
     }
 
 
@@ -6470,7 +6468,7 @@ void FitSubtractedInvMassInPtBinsWOLinear(TH1D* histoMappingSignalInvMassPtBinSi
           doDoubleExp = kTRUE;
       else if ( fEnergyFlag.Contains("pPb_5.023TeV") && (trigger.CompareTo("83") || trigger.CompareTo("85")))
           doDoubleExp = kTRUE;
-      else if (fEnergyFlag.Contains("13TeV"))
+      else if (fEnergyFlag.Contains("13TeV") && fPrefix.Contains("Pi0"))
           doDoubleExp = kTRUE;
   }
   //for pp5TeV triggers, enable exponential tail also on right side of the peak for improving the fit quality
@@ -6489,19 +6487,21 @@ void FitSubtractedInvMassInPtBinsWOLinear(TH1D* histoMappingSignalInvMassPtBinSi
   fFitReco->FixParameter(5,0);
   if ( fEnergyFlag.Contains("13TeV")  ){
     if(fPrefix.Contains("Pi0")){
-      fFitReco->SetParLimits(0,mesonAmplitudeMin,mesonAmplitudeMax);
+      fFitReco->SetParLimits(0,mesonAmplitudeMin,mesonAmplitudeMax*1.1);
       fFitReco->SetParLimits(1,fMesonMassExpect*0.6,fMesonMassExpect*2.);
-      fFitReco->SetParLimits(2,fMesonWidthRange[0],fMesonWidthRange[1]);
-      fFitReco->SetParLimits(3,fMesonLambdaTailRange[0]*0.01,fMesonLambdaTailRange[0]);
+      fFitReco->SetParLimits(2,fMesonWidthRange[0],1.3*fMesonWidthRange[1]);
+      fFitReco->SetParLimits(3,fMesonLambdaTailRange[0],fMesonLambdaTailRange[1]);
+      if(doDoubleExp)fFitReco->SetParLimits(6,fMesonLambdaTailRange[0],fMesonLambdaTailRange[1]);
       fFitReco->SetParameter(0, mesonAmplitudeMax*0.5);
       fFitReco->SetParameter(1, fMesonMassExpect);
       fFitReco->SetParameter(2, fMesonWidthExpect);
-      fFitReco->SetParameter(3, fMesonLambdaTail);
+      fFitReco->SetParameter(3, fMesonLambdaTail*0.9);
+      if(doDoubleExp)fFitReco->SetParameter(6, fMesonLambdaTail*0.9);
     } else if(fPrefix.Contains("Eta")){
       fFitReco->SetParLimits(0,mesonAmplitudeMin*0.05, mesonAmplitudeMax);
       fFitReco->SetParLimits(1,fMesonMassExpect*0.85,fMesonMassExpect*1.15);
       fFitReco->SetParLimits(2,fMesonWidthRange[0],fMesonWidthRange[1]);
-      fFitReco->SetParLimits(3,fMesonLambdaTailRange[0]*0.01,fMesonLambdaTailRange[0]);
+      fFitReco->SetParLimits(3,fMesonLambdaTailRange[0]*0.0002,fMesonLambdaTailRange[0]);
       fFitReco->SetParameter(0, mesonAmplitudeMax*0.2);
       fFitReco->SetParameter(1, fMesonMassExpect);
       fFitReco->SetParameter(2, fMesonWidthExpect);
@@ -6553,6 +6553,9 @@ void FitSubtractedInvMassInPtBinsWOLinear(TH1D* histoMappingSignalInvMassPtBinSi
   fFitLinearBck->SetParameter(1,0);
   fFitLinearBck->SetParError(0,0);
   fFitLinearBck->SetParError(1,0);
+
+  fFitReco->SetParError(4,0);
+  fFitReco->SetParError(5,0);
 
 
 }
@@ -7561,7 +7564,7 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
     else if ( (fMode == 2 || fMode == 4 || fMode == 3 || fMode == 5 || fMode == 12 || fMode == 13 || fMode==14) && fEnergyFlag.Contains("XeXe")  )
         histoMappingSignalInvMassPtBinSingle->Fit(fFitReco,"WLRME0");
     else
-        histoMappingSignalInvMassPtBinSingle->Fit(fFitReco,"QRME0");
+        histoMappingSignalInvMassPtBinSingle->Fit(fFitReco,"QRME0S");
     if (vary && (fMode==9 || fMode ==0)){
         fMesonLambdaTailMC = fFitReco->GetParameter(3);
     }
@@ -7583,7 +7586,6 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
 //*** Fit of Pure MC Signal with Gaussian ************************************
 //****************************************************************************
 void FitTrueInvMassPureGaussianInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Int_t ptBin, TFitResultPtr& theFitResult ){
-
     histoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
     Double_t mesonAmplitude         = histoMappingSignalInvMassPtBinSingle->GetMaximum();
     Double_t mesonAmplitudeMin      = 0;
@@ -7621,7 +7623,6 @@ void FitTrueInvMassPureGaussianInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
     }
     fFitReco= NULL;
     fFitReco = new TF1("GaussLinearBG","gaus(0)",fMesonFitRange[0]-0.05,fMesonFitRange[1]);
-
     fFitReco->SetParameter(0,mesonAmplitude);
     fFitReco->SetParameter(1,fMesonMassExpect);
     fFitReco->SetParameter(2,fMesonWidthExpect);
@@ -7634,8 +7635,7 @@ void FitTrueInvMassPureGaussianInPtBins(TH1D* histoMappingSignalInvMassPtBinSing
 
     theFitResult = histoMappingSignalInvMassPtBinSingle->Fit(fFitReco,"SQRME0");
     //exclude second iteration of fitting, otherwise fits go completely wrong in 8 TeV
-
-fFitReco->SetLineColor(5);
+    fFitReco->SetLineColor(5);
     fFitReco->SetLineWidth(1);
     fFitReco->SetLineStyle(1);
 
@@ -8335,7 +8335,7 @@ void SaveHistos(Int_t optionMC, TString cutID, TString prefix3, Bool_t UseTHnSpa
         if (fHistoSBdefaultMeson[k])        fHistoSBdefaultMeson[k]->Write();
     }
     fHistoLambdaTail->Write();
-    if(fFitSignalInvMassPtBinStd[0]->GetNpar() == 7){
+    if(fFitSignalInvMassPtBinStd[fExampleBin]->GetNpar() == 7){
         fHistoLambdaTailRight->Write();
     }
     fHistoAmplitude->Write();

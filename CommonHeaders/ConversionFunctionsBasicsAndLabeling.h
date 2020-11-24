@@ -4754,11 +4754,11 @@
             case 82:
                 return "EGA";
             case 83:
-                return "EG1";
+                return "EMC-L1 #gamma (high)";
             case 84:
-                return "EG1";
+                return "EMC-L1 #gamma (high)";
             case 85:
-                return "EG2";
+                return "EMC-L1 #gamma (low)";
             case 86:
                 return "EG2";
             case 87:
@@ -4968,6 +4968,32 @@
                     return "TrMatch excl. #Delta#eta < 0.015, -0.15(-0.11) < #Delta#varphi_{+} < 0.11(0.15)";
                 default:
                     return "track missmatch not defined ";
+            }
+        } else {
+            cout << "AnalyseTrackMatchingCaloCut: clusterType " << clusterType << " not recognized!" << endl;
+            return "track missmatch not defined ";
+        }
+    }
+
+    //************************************************************************************
+    //****    Analyzes the cluster E/p (TM) cuts for calo, return correct cut label    ***
+    //************************************************************************************
+    TString AnalyseTMEOverPCut(Int_t trackmatching, Int_t clusterType ){
+        if (clusterType == 1 || clusterType == 4){
+            cout << "TM: " << trackmatching << "\t cluster type: " << clusterType << endl;
+            switch(trackmatching) {
+                case 13:
+                    return "E/p < 3";
+                case 14:
+                    return "E/p < 2";
+                case 15:
+                    return "E/p < 1.75";
+                case 16:
+                    return "E/p < 1.5";
+                case 17:
+                    return "E/p < 1.25";
+                default:
+                    return "";
             }
         } else {
             cout << "AnalyseTrackMatchingCaloCut: clusterType " << clusterType << " not recognized!" << endl;
@@ -6507,11 +6533,11 @@
                 case 10:
                     if (clusterCutNumber.CompareTo("") != 0){
                         Int_t nlm = ReturnClusterNLM(clusterCutNumber);
-                        if (meson.CompareTo("") == 0) return Form("rec. w/ mEMCal, %d lm", nlm );
-                        else return Form("%s rec. mEMCal, %d lm", meson.Data(), nlm);
+                        if (meson.CompareTo("") == 0) return Form("rec. w/ mEMC, %d lm", nlm );
+                        else return Form("%s rec. mEMC, %d lm", meson.Data(), nlm);
                     } else {
-                        if (meson.CompareTo("") == 0) return "rec. w/ mEMCal";
-                        else return Form("%s rec. mEMCal", meson.Data());
+                        if (meson.CompareTo("") == 0) return "rec. w/ mEMC";
+                        else return Form("%s rec. mEMC", meson.Data());
                     }
                 case 11:
                     if (clusterCutNumber.CompareTo("") != 0){
@@ -6793,11 +6819,11 @@
         } else if (trigger == 85 || !strTrigger.CompareTo("8e")){                          // EG2
             return "EG2";
         } else if (trigger == 83 || !strTrigger.CompareTo("8d")){                          // EG1
-            return "EG1";
+            return "EMC-L1 #gamma (high)";
         } else if (trigger == 95 || !strTrigger.CompareTo("9c")){                          // EG2
             return "EG2";
         } else if (trigger == 93 || !strTrigger.CompareTo("9b")){                          // EG1
-            return "EG1";
+            return "EMC-L1 #gamma (high)";
         }
         return "";
     }

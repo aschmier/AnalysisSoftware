@@ -7,6 +7,7 @@
     #include <stdio.h>
     using namespace std;
 
+
     #include "ConversionFunctionsBasicsAndLabeling.h"
     #include "ExtractSignalBinningpp900GeV.h"
     #include "ExtractSignalBinningpp2760GeV.h"
@@ -514,13 +515,13 @@
                 } else if (mode == 10  ){
                     switch (trigger){
                         case 83:
-                            return 25;
+                            return 30;
                         case 85:
-                            return 25;
+                            return 30;
                         case 8:
-                            return 25;
+                            return 30;
                         default:
-                            return 25;
+                            return 30;
                     }
                 }else if ( mode == 3 ) {//PCM-PHOS
                     cout<<"Getting PCM-PHOS("<<mode<<") Example Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<trigger<<endl;
@@ -2591,7 +2592,7 @@
         Bool_t      DCAcase         = kFALSE,
         TString     centrality      = "",
         Bool_t      DoJetAnalysis   = kFALSE
-    ){
+      ){
         cout<<"Debug, ExtractSignalBinning.h, Line: " << __LINE__ << "; GetBinning called with " << endl << "binningMax: " << binningMax << "; meson: " << meson.Data() << "; energy: " << energy.Data() << "; mode: " << mode << "; SpecialTrigger: " << SpecialTrigger << "; DCAcase: " << DCAcase<<"; centrality: " << centrality.Data() << "; centrality: " << centrality << "; DoJetAnalysis: " << DoJetAnalysis << endl;
         Int_t maxNBins      = 0;
         binningMax          = 0;
@@ -3041,15 +3042,16 @@
                         break;
                     case 4:
                         switch(SpecialTrigger) {
-                            case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
-                            case 4:
-                            case 5:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
-                            case 1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEMC7Pt, binning ); break;
-                            case 2:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG1Pt, binning ); break;
-                            case 3:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG2Pt, binning ); break;
-                            default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigCombPt, binning, 201 ); break;
-                        }
-                        break;
+                          case -1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
+                          case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
+                          case 4:
+                          case 5:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
+                          case 1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEMC7Pt, binning ); break;
+                          case 2:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG1Pt, binning ); break;
+                          case 3:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG2Pt, binning ); break;
+                          default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigCombPt, binning, 201 ); break;
+                      }
+                      break;
                     case 5:  //PHOS-PHOS
                         cout<<energy<<" "<<meson<<" Binning used for mode "<<mode;
                         switch(SpecialTrigger) {
@@ -3142,13 +3144,14 @@
                         break;
                     case 4:
                         switch(SpecialTrigger) {
-                            case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
-                            case 4:
-                            case 5:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
-                            case 1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEMC7Pt, binning ); break;
-                            case 2:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG1Pt, binning ); break;
-                            case 3:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG2Pt, binning ); break;
-                            default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigCombPt, binning, 201 ); break;
+                          case -1:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
+                          case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
+                          case 4:
+                          case 5:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
+                          case 1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEMC7Pt, binning ); break;
+                          case 2:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG1Pt, binning ); break;
+                          case 3:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG2Pt, binning ); break;
+                          default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigCombPt, binning, 201 ); break;
                         }
                         break;
                     case 12:
@@ -4684,12 +4687,25 @@
                         binning[i]  = fBinsDirGamma8TeVPt[i];
                     }
                 }
-            } else if (energy.CompareTo("13TeVLowB") == 0){
+            } else if (energy.CompareTo("13TeVLowB") == 0 || energy.CompareTo("13TeV") == 0){
                 if (mode == 0){
                     if (DCAcase == kTRUE)
                         maxNBins = CopyVectorToArray(binningMax,fBinsDirGamma13TeVLowBPt,binning, 24);
                     else
                         maxNBins = CopyVectorToArray(binningMax,fBinsDirGamma13TeVLowBPtDCAzDist,binning, 15);
+                } else if ( mode == 4 ){
+                  cout<<__LINE__<<"   direct Photon; mode: "<<mode<<"\tSpecialTrigger: "<<SpecialTrigger<<endl;
+                  switch(SpecialTrigger) {
+                    case -1:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
+                    case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
+                    case 4:
+                    case 5:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
+                    case 1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEMC7Pt, binning ); break;
+                    case 2:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG1Pt, binning ); break;
+                    case 3:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG2Pt, binning ); break;
+                    default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigCombPt, binning, 201 ); break;
+                  }
+
                 }
             } else if (energy.CompareTo("pPb_5.023TeV") == 0 || energy.CompareTo("pPb_5.023TeVCent") == 0 || energy.CompareTo("pPb_5.023TeVRun2") == 0 ){
                 if (mode == 0){
@@ -5650,22 +5666,24 @@
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0) {
                 if (directPhoton.CompareTo("directPhoton") == 0){
                     fStartPtBin                 = GetStartBin("Pi0", energy, modi, specialTrigg, centrality);
-                    if (fNBinsPt > 68) {
-                        cout << "You have chosen Direct Photon Plots and more than 68 bins, this is not possible, it will be reduced to 68 bins." << endl;
-                        fNBinsPt    = 69;
+                    if (fNBinsPt > 75) {
+                        cout << "You have chosen Direct Photon Plots and more than 75 bins, this is not possible, it will be reduced to 75 bins." << endl;
+                        fNBinsPt    = 75;
                     }
                     GetOptimumNColumnsAndRows(fNBinsPt, fStartPtBin, fColumn, fRow);
                     if(modi == 4){
-                      GetBinning( fBinsPt, maxPtBinAvail, "Pi0", energy, modi, specialTrigg, isDCA, DoJetAnalysis);
+                      GetBinning( fBinsPt, maxPtBinAvail, "Gamma", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis);
                       for (Int_t i = 0; i < fNBinsPt; i++) {
-                        if (specialTrigg == 0 || specialTrigg == 4 || specialTrigg == 5){
-                            fNRebin[i]      = fBinsPi013TeVEMCTrigINT7PtRebin[i];
+                        if (specialTrigg == -1 ||specialTrigg == 0 || specialTrigg == 4 || specialTrigg == 5){
+                            fNRebin[i]      = fBinsGamma13TeVEMCTrigINT7PtRebin[i];
                         } else if (specialTrigg==1){
                             fNRebin[i]      = fBinsPi013TeVEMCTrigEMC7PtRebin[i];
                         } else if (specialTrigg==3){
                             fNRebin[i]      = fBinsPi013TeVEMCTrigEG2PtRebin[i];
                         } else if (specialTrigg==2){
                             fNRebin[i]      = fBinsPi013TeVEMCTrigEG1PtRebin[i];
+                        } else {
+                            fNRebin[i]      = fBinsGamma13TeVEMCTrigINT7PtRebin[i];
                         }
                       }
                     } else {
@@ -5769,7 +5787,7 @@
                                     break;
                                 }
                             } else if( modi == 4 || modi == 90){
-                                if (specialTrigg == 0 || specialTrigg == 4 || specialTrigg == 5){
+                                if (specialTrigg == -1 || specialTrigg == 0 || specialTrigg == 4 || specialTrigg == 5){
                                     fNRebin[i]      = fBinsPi013TeVEMCTrigINT7PtRebin[i];
                                 } else if (specialTrigg==1){
                                     fNRebin[i]      = fBinsPi013TeVEMCTrigEMC7PtRebin[i];
