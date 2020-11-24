@@ -3147,18 +3147,6 @@
                         }
                         break;
                     case 4:
-                      if (directPhoton.CompareTo("directPhoton") == 0){
-                        switch(SpecialTrigger) {
-                          case -1:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
-                          case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
-                          case 4:
-                          case 5:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
-                          case 1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEMC7Pt, binning ); break;
-                          case 2:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG1Pt, binning ); break;
-                          case 3:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG2Pt, binning ); break;
-                          default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigCombPt, binning, 201 ); break;
-                        }
-                      } else {
                         switch(SpecialTrigger) {
                           case -1:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
                           case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsGamma13TeVEMCTrigINT7Pt, binning ); break;
