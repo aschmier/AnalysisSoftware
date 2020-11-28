@@ -1013,6 +1013,8 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     }
     maxdY               = maxdY*10;
     mindY               = mindY*0.05;
+    if (mindY==0)  mindY=1.e-3;
+
 
     TLegend* legendMothersY                                     = GetAndSetLegend2(0.2, 0.97-(40*1.15*nRows/1200), 0.95, 0.97, 40, 7);
     legendMothersY->SetBorderSize(0);
@@ -1053,6 +1055,8 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     }
     maxdPhi             = maxdPhi*10;
     mindPhi             = mindPhi*0.2;
+
+    if (mindPhi==0)  mindPhi=1.e-3;
 
     TLegend* legendMothersPhi                                   = GetAndSetLegend2(0.2, 0.96-(40*1.15*nRows/1200), 0.95, 0.96, 40, 7);
     dummyHist                                                   = new TH1D("dummyHist", "", 1000, 0, 2*TMath::Pi());
@@ -1222,6 +1226,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     }
     maxdY               = maxdY*10;
     mindY               = mindY*0.05;
+    if (mindY==0)  mindY=1.e-3;
 
     TLegend* legendGammasY                                      = GetAndSetLegend2(0.2, 0.96-(40*1.15*nRows/1200), 0.95, 0.96, 40, 7);
     legendGammasY->SetHeader("#gamma from");
@@ -1262,6 +1267,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     }
     maxdPhi             = maxdPhi*20;
     mindPhi             = mindPhi*0.05;
+    if (mindPhi==0)  mindPhi=1.e-3;
 
     TLegend* legendGammasPhi                                    = GetAndSetLegend2(0.2, 0.97-(40*1.1*(nRows+1)/1200), 0.95, 0.97, 40, 7);
     legendGammasPhi->SetBorderSize(0);
@@ -2460,8 +2466,21 @@ void MakeSpectrumAndParamPlot(  TList* list,TList* cocktailParamList,
         addParamsAvail                            = kFALSE;
     }
     TString                             listNameAddParam            = "";
-    if (collSys.Contains("pp"))        listNameAddParam            = Form("pp_%s", fEnergyFlag.Data());
-    else if (collSys.Contains("pPb"))  listNameAddParam            = Form("pPb_%s",  fEnergyFlag.Data());
+    if (collSys.Contains("pp")) {
+      listNameAddParam            = Form("pp_%s", fEnergyFlag.Data());
+      if( fEnergyFlag.CompareTo("13TeVRBins") == 0 ) {
+	listNameAddParam            = "pp_13TeV";
+      }
+      if( fEnergyFlag.CompareTo("13TeVRBinsLowB") == 0 ) {
+	listNameAddParam            = "pp_13TeV";
+      }
+
+    }else if (collSys.Contains("pPb")) {
+      listNameAddParam            = Form("pPb_%s",  fEnergyFlag.Data());
+    }
+
+
+
     TList* listAddParam                                                 = (TList*)fileAddParams.Get(listNameAddParam.Data());
     if (!listAddParam) {
       cout << "list " << listNameAddParam.Data() << " not contained in file " << fileNameAddParams.Data() << "!" << endl;
@@ -2471,6 +2490,7 @@ void MakeSpectrumAndParamPlot(  TList* list,TList* cocktailParamList,
     // get yRange
     Double_t yMin                           = GetYRangeExtremaFromList(list, kTRUE, kFALSE, collSys) * 0.5;
     Double_t yMax                           = GetYRangeExtremaFromList(list, kTRUE, kTRUE, collSys) * 12;
+    if (yMin<4.e-9) yMin=1.e-3;
 
     TCanvas* canvas                         = GetAndSetCanvas("canvas", 0, 0, 1700, 2000);
     DrawCanvasSettings(canvas, 0.152, 0.015, 0.015, 0.068);
@@ -2538,6 +2558,7 @@ void MakeSpectrumAndParamPlot(  TList* list,TList* cocktailParamList,
     TString methodMeson                     = "";
     Int_t nParticlesPlot                    = nParticles;
     if (!fEnergyFlag.CompareTo("2.76TeV") ) nParticlesPlot=12;
+    if (fEnergyFlag.Contains("13TeV") ) nParticlesPlot=10;
     for (Int_t i=0; i<nParticlesPlot; i++) {
       if(i==0||i==1)
         methodMeson = fSpecialFoldername;

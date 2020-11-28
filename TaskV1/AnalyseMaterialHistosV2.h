@@ -24,15 +24,15 @@ Double_t fMinPt1                  = 0.8;
 Double_t fMaxPt                   = 20.;
 
 Int_t rebinRPlots                 = 1;
-Int_t rebinZPlots                 = 4;
-Int_t rebinPtPlots                = 2;
-Int_t rebinPhiPlots               = 3;
+Int_t rebinZPlots                 = 1;
+Int_t rebinPtPlots                = 1;
+Int_t rebinPhiPlots               = 1;
 
 Double_t rMinGas                  = 95.;
 Double_t rMaxGas                  = 145.;
 
 const int nBinsPt=69;
-Double_t arrayPtBins[nBinsPt]; 
+Double_t arrayPtBins[nBinsPt+1]; 
 const int nBinsPtTwo=31;
 Double_t arrayPtBinsTwo[nBinsPtTwo]; 
 const int nBinsPtThree=23;
@@ -52,7 +52,17 @@ TH1F *histoRinPtBinData[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
 TH1F *histoRinPtBinMC[6] = {NULL, NULL, NULL, NULL, NULL, NULL};
 
 const int nBinsPtFine             = 8;
-Double_t projPtBinsFine[nBinsPtFine]     = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7};
+Double_t projPtBinsFine[nBinsPtFine]  = {0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7};
+const int nBinsPtMin= 8;
+Double_t  arrayBinsPtMin[nBinsPtMin+1];
+//Double_t  arrayBinsPtDiff[nBinsPtMin+1];
+
+const int nBinsPtFineTwo             = 14;
+Double_t projPtBinsFineTwo[nBinsPtFineTwo+1]     = {0.0, 0.05, 0.1,  0.15, 0.2 , 0.25,
+                                                   0.3, 0.35, 0.4 , 0.45, 0.5 ,
+						  0.55, 0.6 , 0.65, 0.7 };
+
+Double_t  arrayBinsPtDiff[nBinsPtFineTwo];
 
 
 TH1F *histoRinPtBinDataFine[nBinsPtFine] = {NULL, NULL, NULL, NULL, NULL,NULL, NULL, NULL}; 
@@ -105,9 +115,6 @@ TString arrayNamesRBins[12]       = { "Vertex",                                 
                                       "Ne: CO_{2}: N_{2}"                             //11
                                     };
 
-Double_t fMaterialWeightsForSecEffCor[12]={1.0377,1.19547,1.24405,1.22941,1.07585,1.12396, 1.09077, 1.03798,0.948079,0.981036, 1.,0.964843};
-//1.0313, 1.18782, 1.23548, 1.22107 ,1.07171, 1.11886, 1.08748, 1.0367, 0.950803, 0.982077, 1., 0.966804};
-//{1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.,1.};
 
 TH1F * histoTrueRecEffEachRBin[nBinsR];
 TH1F * histoConvPtEachRBinMC[nBinsR];
@@ -158,13 +165,14 @@ TH1F *histoPtEachRBinMCSecSubtracted[nBinsR] = {NULL, NULL, NULL, NULL, NULL, NU
 TH1F *histoPtEachRBinDataSecYieldFromSecFrac[nBinsR] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 TH1F *histoPtEachRBinMCSecYieldFromSecFrac[nBinsR] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
+TH1F * histoConvProbPtEachRBinRebinMC[nBinsR]= {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
-const int nBinsPtMin= 8;
-Double_t  arrayBinsPtMin[nBinsPtMin+1];
 TH1F * histoWeightsEachRPtMin[nBinsR] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 TH1F * histoWeightsEachRPtMinSecSub[nBinsR] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 TH1F * histoWeightsEachRPtMinSecSubUsingCocktail[nBinsR] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 TH1F * histoWeightsEachRPtMinSecSubUsingCocktailNorm[nBinsR] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
+
+TH1F * histoWeightsEachRPtDiffSecSubUsingCocktail[nBinsR] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
 Double_t nConvInRangeFromPtMinSecSubtractedData[nBinsR][nBinsPtFine];
 Double_t nConvInRangeFromPtMinSecSubtractedDataRelErr[nBinsR][nBinsPtFine];
@@ -185,6 +193,19 @@ Double_t nConvInRangeFromPtMinSecSubtractedDataUsingCocktailToGasRelErr[nBinsR][
 Double_t nConvInRangeFromPtMinSecSubtractedMCToGasRelErr[nBinsR][nBinsPtFine];
 Double_t weightInRangeFromPtMinSecSubtractedRelErr[nBinsR][nBinsPtFine];
 Double_t weightInRangeFromPtMinSecSubtractedUsingCocktailRelErr[nBinsR][nBinsPtFine];
+
+
+Double_t nConvInRangeDiffPtMinMaxSecSubtractedData[nBinsR][nBinsPtFineTwo];
+Double_t nConvInRangeDiffPtMinMaxSecSubtractedDataRelErr[nBinsR][nBinsPtFineTwo];
+
+Double_t nConvInRangeDiffPtMinMaxSecSubtractedDataUsingCocktail[nBinsR][nBinsPtFineTwo];
+Double_t nConvInRangeDiffPtMinMaxSecSubtractedDataUsingCocktailRelErr[nBinsR][nBinsPtFineTwo];
+
+Double_t nConvInRangeDiffPtMinMaxSecSubtractedMC[nBinsR][nBinsPtFineTwo];
+Double_t nConvInRangeDiffPtMinMaxSecSubtractedMCRelErr[nBinsR][nBinsPtFineTwo];
+Double_t weightInRangeDiffPtMinMaxSecSubtractedUsingCocktail[nBinsR][nBinsPtFineTwo];
+Double_t weightInRangeDiffPtMinMaxSecSubtractedUsingCocktailRelErr[nBinsR][nBinsPtFineTwo];
+
 
 TH1F *histoPtinRBinTrueMC[3]     = {NULL, NULL, NULL};
 TH1F *histoPtinRBinTruePrimMC[3] = {NULL, NULL, NULL};
@@ -239,6 +260,14 @@ TH1F*   histoDataMCRatioRScaledToGasSecSubPtBin3;
 
 TH1F*	histoDataMCRatioR;
 TH1F*	histoDataMCRatioRRebin;
+TH1F*	histoDataMCRatioRRebinpt200;
+TH1F*	histoDataMCRatioRRebinpt300;
+TH1F*	histoDataMCRatioRRebinpt400;
+TH1F*   histoDataMCRatioRRebinFullRange;
+TH1F*   histoDataMCRatioRRebinPtBin1;
+TH1F*   histoDataMCRatioRRebinPtBin2;
+TH1F*   histoDataMCRatioRRebinPtBin3;
+
 TH1F*	histoMidPtDataMCRatioR;
 TH1F*	histoPurityR;
 TH1F*	histoPurityPrimR;
@@ -283,6 +312,17 @@ TH1D*   histoIntegralGasMCFullRange;
 TH1D*   histoIntegralGasMCPtBin1;
 TH1D*   histoIntegralGasMCPtBin2;
 TH1D*   histoIntegralGasMCPtBin3;
+
+TH1D*   histoIntegralDataSecSubFullRange;
+TH1D*   histoIntegralDataSecSubPtBin1;
+TH1D*   histoIntegralDataSecSubPtBin2;
+TH1D*   histoIntegralDataSecSubPtBin3;
+
+TH1D*   histoIntegralMCSecSubFullRange;
+TH1D*   histoIntegralMCSecSubPtBin1;
+TH1D*   histoIntegralMCSecSubPtBin2;
+TH1D*   histoIntegralMCSecSubPtBin3;
+
 
 TH1F*   histoRDataRebin;
 TH1F*   histoRinPtBinDataPtBin1Rebin;
@@ -378,8 +418,8 @@ TH1F * histoConvProbPrimaryEachRBin[nBinsR];
 
 // Taken from ExtractGammaSignalV2.h
 TFile*      fFileCocktailInput                                          = NULL;
-TH1F*       fHistoSecGammaCocktailFromXPt[4]                                              = { NULL, NULL, NULL, NULL };
-TH1F*       fHistoSecGammaCocktailFromXPtOrBin[4]                                         = { NULL, NULL, NULL, NULL };
+TH1D*       fHistoSecGammaCocktailFromXPt[4]                                              = { NULL, NULL, NULL, NULL };
+TH1D*       fHistoSecGammaCocktailFromXPtOrBin[4]                                         = { NULL, NULL, NULL, NULL };
 TString     fSecondaries[4]                                         = {"K0s", "K0l", "Lambda", "Rest"};
 
 Bool_t   LoadSecondariesFromCocktailFile    (   TString,

@@ -607,6 +607,39 @@ void  CorrectGammaV2(   const char *nameUnCorrectedFile     = "myOutput",
         FitSecFunction[2]                                           = kFitSecLinear;
         minPtFitSec[2]                                              = 1.0;
         maxPtFitSec[2]                                              = 6.0;
+    } else if ( energy.CompareTo("13TeV")==0 && mode == 0) {
+        FitSecFunction[0]                                           = kFitSecPower;
+	minPtFitSec[0]                                              = 0.5;
+        maxPtFitSec[0]                                              = maxPtGamma;
+
+        minPtFitSec[1]                                              = 1.0;
+        maxPtFitSec[1]                                              = 4.0;
+
+        minPtFitSec[2]                                              = 0.5;
+        maxPtFitSec[2]                                              = 5.5;
+    } else if ( energy.CompareTo("13TeVRBins")==0 && mode == 0) {
+      //FitSecFunction[0]                                           = kFitSecLinear;
+        FitSecFunction[0]                                           = kFitSecPower;
+	minPtFitSec[0]                                              = 0.6;
+        maxPtFitSec[0]                                              = 7.;
+
+        minPtFitSec[1]                                              = 1.0;
+        maxPtFitSec[1]                                              = 4.0;
+
+        minPtFitSec[2]                                              = 0.5;
+        maxPtFitSec[2]                                              = 5.5;
+    } else if ( energy.CompareTo("13TeVRBinsLowB")==0 && mode == 0) {
+      FitSecFunction[0]                                           = kFitSecPower;
+      //  FitSecFunction[0]                                           = kFitSecExp;
+	minPtFitSec[0]                                              = 0.6;
+        maxPtFitSec[0]                                              = 7.;
+
+        minPtFitSec[1]                                              = 1.0;
+        maxPtFitSec[1]                                              = 4.0;
+
+        minPtFitSec[2]                                              = 0.5;
+        maxPtFitSec[2]                                              = 5.5;
+
     } else if (energy.Contains("PbPb_2.76TeV")) {
         FitSecFunction[0]                                           = kFitSecExp;
         maxPtFitSec[0]                                              = 5.;
@@ -666,6 +699,9 @@ void  CorrectGammaV2(   const char *nameUnCorrectedFile     = "myOutput",
                 powerMCPt->SetParameter(1,2.);
                 powerMCPt->SetParameter(2,constOffsetEffRecPt[k]);
                 powerMCPt->SetParLimits(2,0.,2.);
+		if( energy.Contains("13TeV")) {
+		   powerMCPt->SetParLimits(2,0.,4.);
+		}
                 ratioGammaSecEffRecPt[k]->Fit(powerMCPt,"SMNR0E+","", minPtFitSec[k], maxPtFitSec[k]);
             }
 
@@ -688,6 +724,9 @@ void  CorrectGammaV2(   const char *nameUnCorrectedFile     = "myOutput",
                 powerRecPt->SetParameter(1,2.);
                 powerRecPt->SetParameter(2,constOffsetEffRecPt[k]);
                 powerRecPt->SetParLimits(2,0.,2.);
+		if( energy.Contains("13TeV")) {
+		  powerRecPt->SetParLimits(2,0.,4.);
+		}
                 ratioGammaSecEffRecPt[k]->Fit(powerRecPt,"SMNR0E+","", minPtFitSec[k], maxPtFitSec[k]);
             }
 
@@ -891,6 +930,19 @@ void  CorrectGammaV2(   const char *nameUnCorrectedFile     = "myOutput",
         minPtFitSec[0]                                                  = 1.0;
         maxPtFitSec[0]                                                  = 16.;
         FitConvProbFunction[1]                                          = kFitConvProbPowerOffset;
+    } else if (energy.Contains("13TeV") && mode == 0) {
+ 	FitConvProbFunction[0]                                      = kFitConvProbPowerOffset;
+	minPtFitSec[0]                                              = 1.;
+        maxPtFitSec[0]                                              = 12.;
+	FitConvProbFunction[1]                                      = kFitConvProbPowerOffset;
+
+        minPtFitSec[1]                                              = 2.0;
+        maxPtFitSec[1]                                              = 12.0;
+	FitConvProbFunction[2]                                      = kFitConvProbPowerOffset;
+        minPtFitSec[2]                                              = 0.5;
+        maxPtFitSec[2]                                              = 5.5;
+
+
     } else if(energy.CompareTo("pPb_5.023TeVRun2") == 0 && mode == 0){
         minPtFitSec[2]                                                  = 0.9;
         maxPtFitSec[2]                                                  = 3.0;
@@ -967,7 +1019,7 @@ void  CorrectGammaV2(   const char *nameUnCorrectedFile     = "myOutput",
                 tempEval                                            = tempFunction->Integral(histoGammaSecondaryFromXConvProb_MCPt_OrBin[k]->GetXaxis()->GetBinLowEdge(i),
                                                                                       histoGammaSecondaryFromXConvProb_MCPt_OrBin[k]->GetXaxis()->GetBinUpEdge(i));
                 tempEval                                            = tempEval / histoGammaSecondaryFromXConvProb_MCPt_OrBin[k]->GetBinWidth(i);
-
+		if (!TMath::Finite(tempEval)) tempEval = 1;   // Check that for RBins (l,g?) does not make a problem
                 histoGammaSecondaryFromXConvProb_MCPt_OrBin[k]->SetBinContent(i, histoGammaConvProb_MCPt_OrBin->GetBinContent(i) * tempEval);
                 histoGammaSecondaryFromXConvProb_MCPt_OrBin[k]->SetBinError(  i, histoGammaConvProb_MCPt_OrBin->GetBinError(i)   * tempEval);
             }
@@ -1186,13 +1238,16 @@ void  CorrectGammaV2(   const char *nameUnCorrectedFile     = "myOutput",
         cout << "fitting ratio gamma raw yield to raw yield after pileup subtraction to extract the pileup correction factor" << endl;
         //otherwise function is null
         Double_t rangeShift = 0.;
-        if( energy.Contains("PbPb") ||
+        if( energy.Contains("PbPb") ||  energy.Contains("13TeV") ||
             (energy.CompareTo("pPb_5.023TeVRun2")==0 ) ||
 
             (energy.BeginsWith("8TeV") && mode == 2))
             rangeShift = 0.5;
         else if ((energy.CompareTo("pPb_5.023TeV")==0 && centrality.CompareTo("0-100%") != 0 && mode == 2) )
             rangeShift = 0.8;
+
+	TString rBin = fGammaCutSelection(2,1);
+	if( (rBin.CompareTo("c") ==0)  ||  (rBin.CompareTo("l") ==0)||  (rBin.CompareTo("g") ==0))  rangeShift = 0.8;
 
         Int_t   fitStatus                                           = 0;
                 histoRatioWithWithoutPileUpFit                      = new TF1("histoRatioWithWithoutPileUpFit", "1+[0]/TMath::Power((x-[1]), [2])",
@@ -1432,7 +1487,7 @@ void  CorrectGammaV2(   const char *nameUnCorrectedFile     = "myOutput",
 
 
 	if( energy.Contains("13TeV") )  {
-	  SetHistogramm(histoPileUpCorrectionFactor_PtTemp,"#it{p}_{T} (GeV/#it{c})","Correction Factor (%)",0.64,1.02);
+	  SetHistogramm(histoPileUpCorrectionFactor_PtTemp,"#it{p}_{T} (GeV/#it{c})","Correction Factor (%)",0.45,1.02);
 	} else {
 	  SetHistogramm(histoPileUpCorrectionFactor_PtTemp,"#it{p}_{T} (GeV/#it{c})","Correction Factor (%)",0.84,1.02);
 	}

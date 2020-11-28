@@ -621,7 +621,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     Int_t combTriggerSet            = -1;
     if (( optionEnergy.CompareTo("pPb_5.023TeV") == 0 || optionEnergy.CompareTo("5TeVRefpPb") == 0 )&& numberOfTrigg == 1 && mode == 2) // need to make exception for RpA as pp only has MB
-        combTriggerSet              = 0;
+      combTriggerSet              = 0;
+
+    if ( optionEnergy.Contains("13TeV") &&  mode == 0) 
+      combTriggerSet              = 0;
+
 
     Double_t binningPi0[400];
     Int_t maxNBinsPi0Abs            = 0;
@@ -1202,7 +1206,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             isV0AND         = 1;
         }
     }
-    if (optionEnergy.BeginsWith("5TeV") || optionEnergy.BeginsWith("8TeV") || optionEnergy.CompareTo("13TeV") == 0 || optionEnergy.CompareTo("13TeVLowB") == 0){
+
+    if (optionEnergy.BeginsWith("5TeV") || optionEnergy.BeginsWith("8TeV") || optionEnergy.CompareTo("13TeV") == 0  || optionEnergy.CompareTo("13TeVLowB") == 0 || optionEnergy.CompareTo("13TeVRBins") == 0){
         isV0AND             = 1;
     }
     Double_t xSection       = ReturnCorrectXSection( optionEnergy, isV0AND);

@@ -1514,7 +1514,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
         maxFracBG       = 20;
     if (optionEnergy.BeginsWith("8TeV") || optionEnergy.BeginsWith("5TeV"))
         maxFracBG       = 40;
-    if (optionEnergy.CompareTo("13TeV") == 0 || optionEnergy.CompareTo("13TeVRBins") == 0)
+    if (optionEnergy.CompareTo("13TeV") == 0 || optionEnergy.CompareTo("13TeVRBins") == 0  || optionEnergy.CompareTo("13TeVRBinsLowB") == 0 )
         maxFracBG       = 80;
     if (optionEnergy.Contains("pPb") )
         maxFracBG       = 40;
@@ -1605,7 +1605,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
                                                                                     resultCorrectionFactorsHistvsPt->GetCovarianceMatrix().GetMatrixArray() ) / binWidth )/100.;
             histoBGEstimateA->SetBinContent(i, bgEstimate);
             histoBGEstimateA->SetBinError(i, errorBGEstimate);
-            if (fitCorrectionFactorsFitvsPt){
+            if (fitCorrectionFactorsFitvsPt  && resultCorrectionFactorsFitvsPt>=0 ){  // avoid crashes
                 for(UInt_t ipar = 0; ipar < resultCorrectionFactorsFitvsPt->NPar(); ipar++) fitCorrectionFactorsFitvsPt->SetParameter(ipar, resultCorrectionFactorsFitvsPt->GetParams()[ipar]);
                 bgEstimate      = (100-fitCorrectionFactorsFitvsPt->Integral(ptStart, ptEnd) / binWidth )/100.;
                 errorBGEstimate = (fitCorrectionFactorsFitvsPt->IntegralError(ptStart, ptEnd, resultCorrectionFactorsFitvsPt->GetParams(),
@@ -2237,7 +2237,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             DrawAutoGammaMesonHistos( histoRatioRecFWHM,
                                       "", "#it{p}_{T} (GeV/#it{c})", Form("Ratio #sigma_{MC}/#sigma_{data} for %s in |#it{y}| < %s (GeV/#it{c}^{2})",textMeson.Data(), rapidityRange.Data()),
                                       kFALSE, 0., 0.7, kFALSE,
-                                      kTRUE, 0.6, 1.2,
+                                      kTRUE, 0.6, 2.5,
                                       kFALSE, 0., 10.);
             DrawGammaSetMarker(histoRatioRecFWHM, 20, 0.8, kBlack, kBlack);
             histoRatioRecFWHM->DrawCopy("e1,p");
@@ -2458,6 +2458,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             optionEnergy.BeginsWith("5TeV")    ||
             optionEnergy.CompareTo("13TeV") == 0       ||
             optionEnergy.CompareTo("13TeVRBins") == 0 ||
+            optionEnergy.CompareTo("13TeVRBinsLowB") == 0 ||
             ((mode == 2 || mode == 3 || mode == 4) && optionEnergy.Contains("pPb_5.023TeV")) ||
             ((mode == 2 || mode == 3 || mode == 4) && optionEnergy.Contains("pPb_8TeV"))
         )
@@ -3725,12 +3726,16 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
 
             DrawGammaSetMarker(RatioTrue[0], 20, 1., kBlack, kBlack);
             for(Int_t b = 0; b< RatioTrue[0]->GetNbinsX(); b++){
+	      if (histoCorrectedYieldTrue[0]->GetBinContent(b+1) != 0 ) {
                 RatioTrue[0]->SetBinError(b+1,histoCorrectedYieldTrue[0]->GetBinError(b+1)/histoCorrectedYieldTrue[0]->GetBinContent(b+1));
+	      } else {
+		RatioTrue[0]->SetBinError(b+1,0.);
+	      }
             }
             RatioTrue[0]->SetFillColor(kGray+2);
             RatioTrue[0]->SetFillStyle(1);
 
-            RatioTrue[0]->DrawCopy("p,e2");
+            RatioTrue[0]->DrawCopy("p,e2,same");
             DrawGammaSetMarker(RatioTrueMCInput, 24, 1., kRed+2, kRed+2);
             RatioTrueMCInput->DrawCopy("e1,same");
             DrawGammaSetMarker(RatioNormalToTrue, 25, 1., kGreen+2, kGreen+2);
@@ -3854,7 +3859,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             if (mode == 0){
                 if(kCollisionSystem==1) rangeSecRatio[1]        = 0.07;
                 else if(optionEnergy.BeginsWith("5TeV")) rangeSecRatio[1]        = 0.06;
-                else if( (optionEnergy.CompareTo("13TeV") == 0 || optionEnergy.CompareTo("13TeVRBins") == 0) ) rangeSecRatio[1]        = 0.06;
+                else if( (optionEnergy.CompareTo("13TeV") == 0 || optionEnergy.CompareTo("13TeVRBins") == 0 || optionEnergy.CompareTo("13TeVRBinsLowB") == 0 ) ) rangeSecRatio[1]        = 0.06;
                 else rangeSecRatio[1]        = 0.05;
             } else if (mode == 2 || mode == 13){
                 rangeSecRatio[1]        = 0.05;

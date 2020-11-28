@@ -28,11 +28,30 @@
         90.0,  100.,  110.,  120.,  130.,        140.,  150.,  175.,  200.
         };
 
+
+   std::vector<Double_t> fBinsPi013TeV_PCM_CombinedBinning {   // size: 68
+        0.00,  0.20, 0.30,  0.40,  0.50,  0.60,        0.70,  0.80,  0.90,  1.00,  1.10,
+	1.20,  1.30,  1.40,  1.50,  1.60,        1.70,  1.80,  1.90,  2.00,  2.10,
+	2.20,  2.30,  2.40,  2.50,  2.60,        2.70,  2.80,  2.90,  3.00,  3.10,
+	3.20,  3.30,  3.40,  3.50,  3.60,        3.70,  3.80,  3.90,  4.00,  4.20,
+        4.40,  4.60,  4.80,  5.00,  5.20,        5.40,  5.60,  5.80,  6.00,  6.20,
+	6.40,  6.60,  6.80,  7.00,  7.20,        7.40,  7.60,  7.80,  8.00,  8.40, 
+        9.20,  10.0,  11.0,  12.0,  16.0,        20.0 };
+
+
+
+
     std::vector<Double_t> fBinsEta13TeV_CombinedBinning { // size: 37
       0.00, 0.40, 0.60, 0.80, 1.00,  1.20, 1.40, 1.60, 1.80, 2.00,
       2.20, 2.40, 2.60, 2.80, 3.00,  3.40, 3.80, 4.20, 4.60, 5.00,
       6.00, 7.00, 8.00, 10.0, 12.0,  14.0, 16.0, 18.0, 20.0, 22.0,
       24.0, 26.0, 30.0,  35.0, 40.0, 50.0, 60.0};
+
+
+   std::vector<Double_t> fBinsEta13TeV_PCM_CombinedBinning {  //size 29
+     0.00,  0.2, 0.40, 0.60, 0.80, 1.00,   1.20, 1.40, 1.60, 1.80, 2.00, 
+        2.20, 2.40, 2.60, 2.80, 3.00,   3.40, 3.80, 4.20, 4.60, 5.00, 
+	6.00, 7.00, 8.00, 10.0, 12.0,   16.0, 20.0};
 
     std::vector<Int_t>    fBinsPi013TeV_PCMEMC_Rebin_CombinedBinning { // size: 138
         4,  4,  1,  1,  1,          1,  1,  1,  1,  1,
@@ -49,6 +68,17 @@
         16, 16, 16, 16, 16,         16, 16, 16, 16, 16,
         16, 16, 16, 16, 16,         16, 16, 16, 16, 16,
         16, 16, 16, 16, 16,         16, 16, 16};
+
+
+   std::vector<Int_t>    fBinsPi013TeV_PCM_Rebin_CombinedBinning { // size: 108
+     4, 4, 4, 1, 1, 1,      1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1,      1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1,      1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1,      1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,      1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1,      2, 2, 2, 2, 2,
+	4, 4, 4, 4, 4};
+
     std::vector<Int_t>    fBinsEta13TeV_PCMEMC_Rebin_CombinedBinning { // size: 70
         8,  8,  8,  4,  4,          4,  4,  4,  4,  4,
         4,  4,  4,  4,  4,          4,  4,  4,  4,  4,
@@ -57,6 +87,13 @@
         16, 16, 16, 16, 16,         16, 16, 16, 16, 16,
         16, 16, 16, 16, 16,         16, 16, 16, 16, 16,
         16, 16, 16, 16, 16,         16, 16, 16, 16, 16};
+
+
+    std::vector<Int_t>    fBinsEta13TeV_PCM_Rebin_CombinedBinning { // size: 28
+       8,  8,  8,  8, 4,          4,  4,  4,  4,  4,
+       4,  4,  4,  4, 4,          4,  4,  4,  4,  4,
+       4,  4,  4,  4, 8,          8};
+
 
     /*std::vector<Int_t>    fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning { // size: 109
         4,  4,  1,  1,  1,          1,  1,  1,  1,  1,
@@ -117,12 +154,13 @@
         32,32,32,32};
 
     // PCM binning fir Pi0 in RBins
-    std::vector<Double_t> fBinsPi013TeVPCMTrigINT7RBinsPt {      // size: 19
-      0.0, 0.3, 0.4, 0.6, 0.8, 1., 1.4, 1.8,  2.2, 2.6, 3., 4.0,
-        5.0, 6.0, 7.0, 8.0, 10., 12., 16. };
+    std::vector<Double_t> fBinsPi013TeVPCMTrigINT7RBinsPt {      // size: 20
+      0.0, 0.2, 0.3, 0.4, 0.6,   0.8, 1., 1.4, 1.8,  2.2, 
+      2.6, 3., 4.0,  5.0, 6.0,   7.0, 8.0, 10., 12., 16. };
 
-    std::vector<Int_t>    fBinsPi013TeVPCMTrigINT7RBinsPtRebin { // size: 18
-      5, 5, 4,4,4,4,4,4,4,4, 4, 4, 4, 4, 5, 5, 5, 5 };
+    std::vector<Int_t>    fBinsPi013TeVPCMTrigINT7RBinsPtRebin { // size: 19
+      5, 5, 5 ,4, 4,    4, 4, 4, 4, 4, 
+      4, 4, 4, 4, 5,    5, 5, 5, 5  };
 
     // PCM dca binning for pi0
     std::vector<Double_t> fBinsPi013TeVPCMTrigINT7PtDCA { // size: 28
@@ -1125,12 +1163,13 @@
        16,16,16,16,16,16,16,32,32};
 
     // PCM binning  in RBins
-    std::vector<Double_t> fBinsEta13TeVPCMTrigINT7RBinsPt {      // size: 19
-      0.0, 0.3, 0.4, 0.6, 0.8, 1., 1.4, 1.8,  2.2, 2.6, 3., 4.0,
-        5.0, 6.0, 7.0, 8.0, 10., 12., 16. };
+    std::vector<Double_t> fBinsEta13TeVPCMTrigINT7RBinsPt {      // size: 20
+      0.0, 0.2, 0.3, 0.4, 0.6,  0.8, 1., 1.4, 1.8,  2.2, 
+      2.6, 3., 4.0, 5.0, 6.0,   7.0, 8.0, 10., 12., 16. };
 
-    std::vector<Int_t>    fBinsEta13TeVPCMTrigINT7RBinsPtRebin { // size: 18
-      8, 8, 8,8,6,4,4,4,4,4, 4, 4, 4, 4, 5, 6, 10, 10 };
+    std::vector<Int_t>    fBinsEta13TeVPCMTrigINT7RBinsPtRebin { // size: 19
+      8, 8, 8, 8, 8,   6, 4,  4,  4, 4,
+      4, 4, 4, 4, 4,   5, 6, 10, 10 };
 
 
     // PCM dca binning

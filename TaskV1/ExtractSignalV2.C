@@ -6209,7 +6209,7 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
         if(fEnergyFlag.Contains("13TeV") ){
             if(fMode == 0 ) {
                 if( ptBin < 3){
-                    fFitReco->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1);
+                    fFitReco->SetParLimits(1,fMesonMassExpect*0.9,fMesonMassExpect*1.1);
                 }
             }
             if (fMode == 5){

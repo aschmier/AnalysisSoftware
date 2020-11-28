@@ -128,6 +128,10 @@ void AnalyseDCADist(    TString meson           ="",
     // Set date
     fdate                                   = ReturnDateString();
 
+    // get shared electron cut
+     TString fSharedElecCut                  = fGammaCutSelection(21, 1);
+
+
     // Set Output directory
     TString outputDir                       = Form("%s/%s/%s/%s/AnalyseDCADist", cutSelection.Data(), optionEnergy.Data(), optionPeriod.Data(), suffix.Data());
     gSystem->Exec("mkdir -p "+outputDir);
@@ -246,9 +250,14 @@ void AnalyseDCADist(    TString meson           ="",
 	return;
       }
       TList *DCAContainer                     = (TList*) HistosGammaConversion->FindObject(Form("%s Meson DCA tree", fCutSelection.Data()));
+      TTree * testtree = NULL;
+      TTree * testtreeMBW = NULL; 
+
       if (!DCAContainer){
-        TTree * testtree = (TTree*)f->Get(Form("%s Meson DCA tree", fCutSelection.Data()));
-        if(testtree){
+        testtree = (TTree*)f->Get(Form("%s Meson DCA tree", fCutSelection.Data()));
+        testtreeMBW = (TTree*)f->Get(Form("%s MBW Meson DCA tree", fCutSelection.Data()));
+
+        if(testtree || testtreeMBW ){
           cout << "found Meson DCA tree in file instead of TList!" << endl;
         }else{
           cout<<"ERROR: " << Form("%s Meson DCA tree",fCutSelection.Data()) << " not Found in File"<<endl;
@@ -292,11 +301,17 @@ void AnalyseDCADist(    TString meson           ="",
 
 
       // Read DCA tree from DCA container
-      TTree* dcaTree;
-      if(DCAContainer)
+      TTree* dcaTree = NULL;
+      if(DCAContainer){
         dcaTree                     = (TTree*)DCAContainer->FindObject("ESD_Mesons_InvMass_Pt_DcazMin_DcazMax_Flag");
-      else
+      }	else if (testtree)  {
         dcaTree                     = (TTree*)f->Get(Form("%s Meson DCA tree", fCutSelection.Data()));
+      }	else if (testtreeMBW)  {
+        dcaTree                     = (TTree*)f->Get(Form("%s MBW Meson DCA tree", fCutSelection.Data()));
+      }
+
+
+
       Float_t dcaZMin, dcaZMax, pt, invMass;
       UChar_t quality, mesonMCInfo;
       dcaTree->SetBranchAddress("InvMass",&invMass);
@@ -1008,11 +1023,12 @@ void AnalyseDCADist(    TString meson           ="",
 
 	Int_t nCatFit=3;
 	TString rBin = fGammaCutSelection(2,1);
-	if( (rBin.CompareTo("c") ==0)  || (rBin.CompareTo("k") ==0)  || (rBin.CompareTo("l") ==0)  || (rBin.CompareTo("g") ==0)   ){
-	  //&& (kMC==1)
+	// The crash is fixed, not needed
+	// if( (rBin.CompareTo("c") ==0)  || (rBin.CompareTo("k") ==0)  || (rBin.CompareTo("l") ==0)  || (rBin.CompareTo("g") ==0)   ){
+	//   //&& (kMC==1)
 
- 	  nCatFit=2;
- 	}
+ 	//   nCatFit=2;
+ 	// }
 
         for (Int_t k = 0; k< 5; k++){
             for (Int_t i = 0; i< nCatFit; i++){
@@ -1039,21 +1055,24 @@ void AnalyseDCADist(    TString meson           ="",
 		    // cout<<endl;
 		    // cout<< "From results::"<<resultFracIntHistBGvsPt1->GetParams()[0]<< "  "<< resultFracIntHistBGvsPt1->GetParams()[1]<< endl;
 		    // cout<< " from fit function before::"<< fitFracIntHistBGvsPt[k][i]->GetParameter(0)<< " " <<  fitFracIntHistBGvsPt[k][i]->GetParameter(1)<< endl;
+		    if(resultFracIntHistBGvsPt1 >=0){   // To avoid crashes
+		      for(UInt_t ipar = 0; ipar < resultFracIntHistBGvsPt1->NPar(); ipar++) fitFracIntHistBGvsPt[k][i]->SetParameter(ipar, resultFracIntHistBGvsPt1->GetParams()[ipar]);
+		      // cout<< " from fit function after::"<< fitFracIntHistBGvsPt[k][i]->GetParameter(0)<< " " <<  fitFracIntHistBGvsPt[k][i]->GetParameter(1)<< endl;
+		      // cout<<endl;
+		      // cout<<endl;
 
-		    for(UInt_t ipar = 0; ipar < resultFracIntHistBGvsPt1->NPar(); ipar++) fitFracIntHistBGvsPt[k][i]->SetParameter(ipar, resultFracIntHistBGvsPt1->GetParams()[ipar]);
-		    // cout<< " from fit function after::"<< fitFracIntHistBGvsPt[k][i]->GetParameter(0)<< " " <<  fitFracIntHistBGvsPt[k][i]->GetParameter(1)<< endl;
- 		    // cout<<endl;
-		    // cout<<endl;
-
-		    Double_t bgEstimate                 = (fitFracIntHistBGvsPt[k][i]->Integral(ptStart, ptEnd) / binWidth );
-                    Double_t errorBGEstimate            = (fitFracIntHistBGvsPt[k][i]->IntegralError(ptStart, ptEnd, resultFracIntHistBGvsPt1->GetParams(),
-                                                                                                resultFracIntHistBGvsPt1->GetCovarianceMatrix().GetMatrixArray() ) / binWidth );
-                    fHistFracIntHistBGFittedvsPt[k][i]->SetBinContent(pt, bgEstimate);
-                    fHistFracIntHistBGFittedvsPt[k][i]->SetBinError(pt, errorBGEstimate);
-                    if (fEnergyFlag.CompareTo("PbPb_2.76TeV") == 0 && ptEnd> 4.) {
+		      Double_t bgEstimate                 = (fitFracIntHistBGvsPt[k][i]->Integral(ptStart, ptEnd) / binWidth );
+		      Double_t errorBGEstimate            = (fitFracIntHistBGvsPt[k][i]->IntegralError(ptStart, ptEnd, resultFracIntHistBGvsPt1->GetParams(),
+												       resultFracIntHistBGvsPt1->GetCovarianceMatrix().GetMatrixArray() ) / binWidth );
+		      fHistFracIntHistBGFittedvsPt[k][i]->SetBinContent(pt, bgEstimate);
+		      fHistFracIntHistBGFittedvsPt[k][i]->SetBinError(pt, errorBGEstimate);
+		      if (fEnergyFlag.CompareTo("PbPb_2.76TeV") == 0 && ptEnd> 4.) {
                         fHistFracIntHistBGvsPt[k][i]->SetBinContent(pt, bgEstimate);
                         fHistFracIntHistBGvsPt[k][i]->SetBinError(pt, errorBGEstimate);
-                    }
+		      }
+		    } else{
+		      //		      cout<< " the fit failed::"  << resultFracIntHistBGvsPt1<< endl;
+		    }
                 }
                 if (i == 0 )fHistFracIntHistBGvsPt[k][i]->DrawCopy("p,e1");
                 else fHistFracIntHistBGvsPt[k][i]->DrawCopy("same,p,e1");
@@ -2923,17 +2942,27 @@ void PlotDCADistPtBinSubtractedRatioSplitCat(TString namePlot, TString nameCanva
             DrawGammaLines(-4.99,  4.99 , 0.9, 0.9,0.1, kGray, 7);
 
             if(fHistDCAZSubtractedUnderMeson_Visual_CatIter_Data_PtWise[category-1][iPt] && fHistDCAZUnderMeson_Visual_CatIter_MC_PtWise[category-1][iPt] ){
-                TH1D* fHistDCARatio_CatIter_DataToMC =  (TH1D*)fHistDCAZSubtractedUnderMeson_Visual_CatIter_Data_PtWise[category-1][iPt]->Clone("fHistDCARatio_CatIter_DataToMC");
-                fHistDCARatio_CatIter_DataToMC->Divide(fHistDCAZUnderMeson_Visual_CatIter_MC_PtWise[category-1][iPt]);
-                DrawGammaSetMarker(fHistDCARatio_CatIter_DataToMC, markerstylesPlot[0], markersizePlot[0], colorDataPlot[0], colorDataPlot[0]);
-                fHistDCARatio_CatIter_DataToMC->SetLineWidth(2.);
-                fHistDCARatio_CatIter_DataToMC->Draw("hist,same");
+                if (std::isnan(fHistDCAZSubtractedUnderMeson_Visual_CatIter_Data_PtWise[category-1][iPt]->GetEntries()) ||
+                    fHistDCAZUnderMeson_Visual_CatIter_MC_PtWise[category-1][iPt]->GetEntries() == 0) {
+                        TLatex* errorText = new TLatex(-3, 2, Form("#splitline{Data subtracted is nan: %d}{MC is 0: %d}",
+                                                                      std::isnan(fHistDCAZSubtractedUnderMeson_Visual_CatIter_Data_PtWise[category-1][iPt]->GetEntries()),
+                                                                      fHistDCAZUnderMeson_Visual_CatIter_MC_PtWise[category-1][iPt]->GetEntries() == 0));
+                        errorText->SetTextSize(0.062);
+                        errorText->Draw();
+                } else {
 
-                TLatex *pTLabel = new TLatex(0.1,0.95,Form("%3.2f GeV/c < #it{p}_{T,%s} < %3.2f GeV/c", startPt, fMesonType.Data(), endPt)); // Bo: this was
-                pTLabel->SetNDC();
-                pTLabel->SetTextColor(1);
-                pTLabel->SetTextSize(0.062);
-                pTLabel->Draw();
+		  TH1D* fHistDCARatio_CatIter_DataToMC =  (TH1D*)fHistDCAZSubtractedUnderMeson_Visual_CatIter_Data_PtWise[category-1][iPt]->Clone("fHistDCARatio_CatIter_DataToMC");
+		  fHistDCARatio_CatIter_DataToMC->Divide(fHistDCAZUnderMeson_Visual_CatIter_MC_PtWise[category-1][iPt]);
+		  DrawGammaSetMarker(fHistDCARatio_CatIter_DataToMC, markerstylesPlot[0], markersizePlot[0], colorDataPlot[0], colorDataPlot[0]);
+		  fHistDCARatio_CatIter_DataToMC->SetLineWidth(2.);
+		  fHistDCARatio_CatIter_DataToMC->Draw("hist,same");
+		  
+		  TLatex *pTLabel = new TLatex(0.1,0.95,Form("%3.2f GeV/c < #it{p}_{T,%s} < %3.2f GeV/c", startPt, fMesonType.Data(), endPt)); // Bo: this was
+		  pTLabel->SetNDC();
+		  pTLabel->SetTextColor(1);
+		  pTLabel->SetTextSize(0.062);
+		  pTLabel->Draw();
+		}
             }
         }
     }

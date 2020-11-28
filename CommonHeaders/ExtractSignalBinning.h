@@ -496,7 +496,7 @@
                 } else {                    // other modes
                     return 3;
                 }
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0  ) {
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  ) {
                 if (mode == 0){//PCM
                     return 5;
                 } else if ( mode == 1 ){
@@ -1082,7 +1082,7 @@
                 } else {                    // other modes
                     return 6;
                 }
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0) {
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0   ) {
                 if (mode == 0){
                     return 4;
                 } else if ( mode == 1 ){
@@ -1624,7 +1624,7 @@
                 } else {
                     startPtBin     = 1;
                 }
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 ){
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ){
                 if ( mode == 0 ){ //PCM-PCM
                     startPtBin     = 1;
                     if (specialTrigg == 1)  startPtBin = 7;
@@ -2178,7 +2178,7 @@
                 } else if (mode == 20){
                     startPtBin     = 1;
                 }
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0){
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ){
                 if( mode==0){ //PCM-PCM
                     startPtBin = 1;}
                 else if( mode==1 ) startPtBin = 1;
@@ -2926,7 +2926,9 @@
                         binning[i] = fBinsPi08TeVPtmEMCComb[i];
                     }
                 }
-            } else if (energy.CompareTo("13TeV") == 0  || energy.CompareTo("13TeVRBins") == 0 ){
+
+            } else if (energy.CompareTo("13TeV") == 0  || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0){
+
                 Int_t BinningChoice_Pi0_PCMPHOS=1;
                 if (DCAcase==kTRUE) CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7PtDCA, binning, 27 );
                 // Copy binning according to cases
@@ -2940,8 +2942,8 @@
                             case 0:
                                 if(energy.Contains("RBins")) maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 else {
-                                    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7Pt"<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7Pt, binning, 84 );
+                                   cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeV_PCM_CombinedBinning"<<endl;
+				   maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCM_CombinedBinning, binning, 66 );
                                 }
                                 break;
                             case 1: cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7Pt"<<endl; maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigEMC7Pt, binning, 64 ); break;
@@ -2988,7 +2990,9 @@
                                     //maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMPHOSTrigINT7Pt, binning, 82 );
                                     //------------------------------------Std PCM RBins
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => MB; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7RBinsPt"<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
+
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 19 );
+
                                 } else {
                                     if (BinningChoice_Pi0_PCMPHOS==1){//------------------------------------Std PCM-PHOS Binning MB_Preview
                                         cout<<"; Special Trigger: "<<SpecialTrigger<<" => MB; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_CombinedBinning_Reduced_INT7_Preview"<<"; Line: "<<__LINE__<<endl;
@@ -3827,7 +3831,9 @@
                         binning[i] = fBinsEtaPiPlPiMiPiZero7TevSysPtPCM[i];
                     }
                 }
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0){
+
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  ){
+
                 Int_t BinningChoice_Eta_PCMPHOS=1;
                 switch(mode) {
                     case 0: //PCM-PCM
@@ -3837,10 +3843,10 @@
                             case -1: cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeVPCMTrigCombPt"<<endl; maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigCombPt, binning, 45 ); break;
                             case 0:
                                 if(energy.Contains("RBins")){
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 18 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 19 );
                                 }else  {
-                                    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeVPCMTrigINT7Pt"<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7Pt, binning, 40 ) ;
+				    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCM_CombinedBinning"<<endl;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCM_CombinedBinning, binning, 28 ) ;
                                 }
                                 cout << "maxNBins"<< maxNBins<< endl;
                                 break;
@@ -4913,7 +4919,7 @@
                 }
             }
 
-        } else if( energy.EqualTo("13TeV") || energy.EqualTo("13TeVLowB") || energy.EqualTo("13TeVRBins") ) {
+        } else if( energy.EqualTo("13TeV") || energy.EqualTo("13TeVLowB") || energy.EqualTo("13TeVRBins") || energy.EqualTo("13TeVRBinsLowB")   ) {
             if( modi!=0 && modeHeavy<100 ) {
 
                 if ( (modi == 60 ) || (modi == 62 ) || (modi == 65) || (modi == 61) || (modi == 64)){
@@ -5057,7 +5063,7 @@
             } else {
                 triggerSetTemp = 0; // MB
             }
-        } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0) {
+        } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0  || energy.CompareTo("13TeVRBinsLowB") == 0  ) {
             if     ( trigger.EqualTo("10") ) triggerSetTemp = 0; // MinBias
             else if( trigger.EqualTo("52") ) triggerSetTemp = 1; // L0 EMC7 3GeV
             else if( trigger.EqualTo("83") || trigger.EqualTo("89") ) triggerSetTemp = 2; // EG1 8GeV (EMC || DMC)
@@ -5460,6 +5466,78 @@
                         optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
                         optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
                         optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+TString rBin = photonCutSelection(2,1);
+                        if (rBin.CompareTo("2") ==0){
+                          nIterBGFit                  = 9;
+                          fMaxYFracBGOverIntHist      = 70;
+                          //                      optionBGSmoothingStandard   = "BackDecreasingWindow,NoSmoothing";
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                        }else if( rBin.CompareTo("m") ==0){
+                          nIterBGFit                  = 7;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                        }else if( rBin.CompareTo("a") ==0){
+                          nIterBGFit                  = 6;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                        }else if( rBin.CompareTo("b") ==0){
+                          nIterBGFit                  = 7;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                       }else if( rBin.CompareTo("c") ==0){
+                          nIterBGFit                  = 6;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                        }else if( rBin.CompareTo("h") ==0){
+                          nIterBGFit                  = 8;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+
+                        }else if( rBin.CompareTo("i") ==0){
+                          nIterBGFit                  = 7;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+
+                        }else if( rBin.CompareTo("j") ==0){
+                          nIterBGFit                  = 8;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+			}else if( rBin.CompareTo("k") ==0){
+                          nIterBGFit                  = 4;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+			}else if( rBin.CompareTo("l") ==0){
+                          nIterBGFit                  = 6;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                        }else if( rBin.CompareTo("g") ==0){
+                          nIterBGFit                  = 6;
+                          fMaxYFracBGOverIntHist      = 100;
+                          optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                          optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                          optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                        }
+
                     } else {
                         nIterBGFit                  = 10;
                         fMaxYFracBGOverIntHist      = 60;
@@ -5663,7 +5741,7 @@
             //*********************************************************************************************
             //********************************** Pi0 for pp 13TeV******************************************
             //*********************************************************************************************
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0) {
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ) {
                 if (directPhoton.CompareTo("directPhoton") == 0){
                     fStartPtBin                 = GetStartBin("Pi0", energy, modi, specialTrigg, centrality);
                     if (fNBinsPt > 75) {
@@ -5714,7 +5792,7 @@
                                     if (energy.Contains("RBins")){
                                         fNRebin[i]      = fBinsPi013TeVPCMTrigINT7RBinsPtRebin[i];
                                     }else {
-                                        fNRebin[i]      = fBinsPi013TeVPCMTrigINT7PtRebin[i];
+					fNRebin[i]      = fBinsPi013TeV_PCM_Rebin_CombinedBinning[i];
                                     }
                                 } else if (specialTrigg==1){
                                     fNRebin[i]      = fBinsPi013TeVPCMTrigEMC7PtRebin[i];
@@ -5875,81 +5953,217 @@
                 //		    optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
                 //		    optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
                 TString rBin = photonCutSelection(2,1);
+		TString iDet = photonCutSelection(21,1);
+		if (rBin.CompareTo("2") ==0){
+		      if( iDet == 7 ){
+			nIterBGFit                  = 9;
+		      }else {
+			nIterBGFit                  = 6;
+		      }
 
-                if (rBin.CompareTo("2") ==0){
-                      nIterBGFit                  = 7;
-                      fMaxYFracBGOverIntHist      = 100;
-                      //                      optionBGSmoothingStandard   = "BackDecreasingWindow,NoSmoothing";
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-                    }else if( rBin.CompareTo("a") ==0){
-                      nIterBGFit                  = 8;
-                      fMaxYFracBGOverIntHist      = 100;
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-                    }else if( rBin.CompareTo("b") ==0){
-                      nIterBGFit                  = 8;
-                      fMaxYFracBGOverIntHist      = 100;
-                      //                      optionBGSmoothingStandard   = "BackDecreasingWindow,NoSmoothing";
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-                    }else if( rBin.CompareTo("c") ==0){
-                      nIterBGFit                  = 6;
-                      fMaxYFracBGOverIntHist      = 110;
-                      //optionBGSmoothingStandard   = "BackDecreasingWindow,NoSmoothing";
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
-                      //fStartPtBin  = 1;
+		      fMaxYFracBGOverIntHist      = 100;
+		      //                      optionBGSmoothingStandard   = "BackDecreasingWindow,NoSmoothing";
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		      
+		    }else if( rBin.CompareTo("m") ==0){
+		      if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 9;
+			}else {
+			  //			  nIterBGFit                  = 8;    // LHC16-LHC18
+			  nIterBGFit                  = 9;    // LHC16-LHC18  // AM 20/11/17 8->9 pile up higher , was needed for pT>1.5
+			}
+		      } else {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 9;
+			}else {
+			  nIterBGFit                  = 6;    // LHC16-LHC18
+			}
+		      }
+		      fMaxYFracBGOverIntHist      = 100;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		    }else if( rBin.CompareTo("d") ==0){
+		      if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 8;
+			}else {
+			  nIterBGFit                  = 8;    // LHC16-LHC18
+			}
+		      } else {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 8;
+			}else {
+			  nIterBGFit                  = 7;    // 
+			}
+		      }
+		      fMaxYFracBGOverIntHist      = 100;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		      
+		    }else if( rBin.CompareTo("a") ==0){
+		      nIterBGFit                  = 6;
+		      fMaxYFracBGOverIntHist      = 100;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		    }else if( rBin.CompareTo("b") ==0){
+		      nIterBGFit                  = 5;
+		      fMaxYFracBGOverIntHist      = 100;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		    }else if( rBin.CompareTo("c") ==0){
+		      nIterBGFit                  = 4;
+		      fMaxYFracBGOverIntHist      = 110;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
 		    }else if( rBin.CompareTo("h") ==0){
-                      nIterBGFit                  = 8;
-                      fMaxYFracBGOverIntHist      = 100;
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-                    }else if( rBin.CompareTo("i") ==0){
-                      nIterBGFit                  = 8;
-                      fMaxYFracBGOverIntHist      = 100;
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-                    }else if( rBin.CompareTo("k") ==0){
-                      nIterBGFit                  = 5;
-                      fMaxYFracBGOverIntHist      = 100;
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		      if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 10;
+			}else {
+			  //			  nIterBGFit                  = 8;    // LHC16-LHC18
+			  nIterBGFit                  = 9;  // AM 20/11/17 8->9 pile up higher , was needed
+			}
+		      } else {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 7;
+			}else {
+			  nIterBGFit                  = 6;    // LHC16-LHC18
+			}
 
+		      }
+
+		      fMaxYFracBGOverIntHist      = 100;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		    }else if( rBin.CompareTo("i") ==0){
+		      if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 8;
+			}else {
+			  nIterBGFit                  = 7;    // LHC16-LHC18
+			}
+		      } else {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 7;
+			}else {
+			  //			  nIterBGFit                  = 6;    // LHC16-LHC18
+			  nIterBGFit                  = 7;   // AM  20/11/17 more pileup was needed
+			}
+		      }
+		      fMaxYFracBGOverIntHist      = 100;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
 		    }else if( rBin.CompareTo("j") ==0){
-                      nIterBGFit                  = 8;
-                      fMaxYFracBGOverIntHist      = 100;
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-		    }else if( rBin.CompareTo("l") ==0){
-                      nIterBGFit                  = 5;
-                      fMaxYFracBGOverIntHist      = 110;
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		      if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 9;
+			}else {
+			  nIterBGFit                  = 8;    // LHC16-LHC18
+			}
+		      } else {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 9;
+			}else {
+			  //			  nIterBGFit                  = 7;    // LHC16-LHC18 // AM.20/11/13
+			  nIterBGFit                  = 8;    // LHC16-LHC18 // AM.20/11/13
+			}
+		      }
 
-                    }else if( rBin.CompareTo("g") ==0){
-                      nIterBGFit                  = 5;
-                      fMaxYFracBGOverIntHist      = 110;
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-                    }else{
-                      nIterBGFit                  = 6;
-                      fMaxYFracBGOverIntHist      = 100;
-                      //                      optionBGSmoothingStandard   = "BackDecreasingWindow,NoSmoothing";
-                      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
-                      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-                    }
+		      fMaxYFracBGOverIntHist      = 100;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		}else if( rBin.CompareTo("k") ==0){
+		      if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 12;
+			}else {
+			  //			  nIterBGFit                  = 4;    // LHC16-LHC18
+			  //			  nIterBGFit                  = 5;    // LHC16-LHC18
+			  nIterBGFit                  = 6;    // LHC16-LHC18   // AM 20/11/17
+			}
+		      } else {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 10;
+			}else {
+			  //			  nIterBGFit                  = 7;    // LHC16-LHC18
+			  //	  nIterBGFit                  = 5;    // LHC16-LHC18
+			  nIterBGFit                  = 6;    // LHC16-LHC18   AM.20/11/13
+			}
+		      }
+
+		      fMaxYFracBGOverIntHist      = 100;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+
+		}else if( rBin.CompareTo("l") ==0){
+		      if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 13;
+			}else {
+			  //			  nIterBGFit                  = 5;    // LHC16-LHC18
+			  //			  nIterBGFit                  = 6;    // LHC16-LHC18
+			  nIterBGFit                  = 7;    // LHC16-LHC18   //AM 20/11/17
+			}
+		      } else {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 10;
+			}else {
+			  //			  nIterBGFit                  = 4;    // LHC16-LHC18
+			  //			  nIterBGFit                  = 5;    // LHC16-LHC17-LHC18
+			  nIterBGFit                  = 6;    // LHC16-LHC17-LHC18  AM 20/11/13
+			}
+		      }
+		      fMaxYFracBGOverIntHist      = 110;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		      
+		}else if( rBin.CompareTo("g") ==0){
+		  if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 5;
+			}else {
+			  //			  nIterBGFit                  = 4;    // LHC16-LHC18
+			  //			  nIterBGFit                  = 5;    // LHC16-LHC18
+			  nIterBGFit                  = 6;    // LHC16-LHC18  // AM 20/11/17
+			}
+		      } else {
+			if( iDet == 7 ){       //with TRD
+			  nIterBGFit                  = 5;
+			}else {
+			  //			  nIterBGFit                  = 3;    // LHC16-LHC18
+			  //			  nIterBGFit                  = 4;    // LHC16-LHC18
+			  nIterBGFit                  = 5;    // LHC16-LHC18   // AM 20/11/13
+			}
+		      }
+		      fMaxYFracBGOverIntHist      = 110;
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		      
+		      
+		    }else{
+		      nIterBGFit                  = 6;
+		      fMaxYFracBGOverIntHist      = 100;
+		      //                      optionBGSmoothingStandard   = "BackDecreasingWindow,NoSmoothing";
+		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+		      
+		    } 
+
                 }
             //*********************************************************************************************
             //**************************************** Pi0 for 13TeV low B field **************************
@@ -6914,7 +7128,7 @@
             //*********************************************************************************************
             //********************************** Eta for pp 13TeV******************************************
             //*********************************************************************************************
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 ) {
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  ) {
                 fStartPtBin                 = GetStartBin("Eta", energy, modi, specialTrigg);
                 Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Eta", energy, modi, specialTrigg, isDCA, DoJetAnalysis );
                 if (fNBinsPt > maxPtBinTheo) {
@@ -6935,8 +7149,8 @@
                                     if (energy.Contains("RBins")) {
                                       CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin,fNRebin);
                                     }else{
-                                        cout<<"Use Rebin Vector: fBinsEta13TeVPCMTrigINT7PtRebin"<<endl;
-                                      CopyVectorToArray(fBinsEta13TeVPCMTrigINT7PtRebin,fNRebin);
+				      cout<<"Use Rebin Vector: fBinsEta13TeV_PCM_Rebin_CombinedBinning"<<endl;
+                                      CopyVectorToArray(fBinsEta13TeV_PCM_Rebin_CombinedBinning,fNRebin);
                                     }
                                     break;
                                 case 1: CopyVectorToArray(fBinsEta13TeVPCMTrigEMC7PtRebin,fNRebin); break;

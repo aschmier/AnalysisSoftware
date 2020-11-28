@@ -270,7 +270,8 @@ void  CalculateGammaToPi0V4(    TString nameFileGamma       = "",
 
         cout<<"loading cocktail file: "<<nameFileCocktail<<endl;
 
-        if (!fEnergy.CompareTo("900GeV") || !fEnergy.CompareTo("2.76TeV")|| !fEnergy.CompareTo("7TeV") || fEnergy.BeginsWith("8TeV") || !fEnergy.CompareTo("13TeV") ||
+        if (!fEnergy.CompareTo("900GeV") || !fEnergy.CompareTo("2.76TeV")|| !fEnergy.CompareTo("7TeV") || fEnergy.BeginsWith("8TeV") ||
+	    !fEnergy.CompareTo("13TeV") || !fEnergy.CompareTo("13TeVRBins") || !fEnergy.CompareTo("13TeVRBinsLowB") || 
             fEnergy.BeginsWith("5TeV")  ||
             !fEnergy.CompareTo("pPb_8TeV") ||
             !fEnergy.CompareTo("pPb_5.023TeV") || !fEnergy.CompareTo("pPb_5.023TeVCent") || !fEnergy.CompareTo("pPb_5.023TeVRun2") ||
@@ -406,6 +407,35 @@ void  CalculateGammaToPi0V4(    TString nameFileGamma       = "",
       canvasGammaSpectraSingle->Print(Form("%s/%s_%s_GammaSpectrum_%s.%s",outputDir.Data(),nameOutputLabel.Data(),nameRec.Data(),addNameBinshift.Data(),suffix.Data()));
     }
     delete canvasGammaSpectraSingle;
+
+
+    TCanvas* canvasGammaSpectraSingleRatio           = GetAndSetCanvas("canvasGammaSpectraSingleRatio", 0.12, 0.1, 1000 ,1350);
+    DrawGammaCanvasSettings( canvasGammaSpectraSingleRatio, 0.16, 0.02, 0.015, 0.07);
+    canvasGammaSpectraSingleRatio->SetLogx();
+    TH2F * histoDummyRatio                          = new TH2F("histoDummyRatio","histoDummyRatio",10000,minPt,20.,10000,0.5,1.5);
+    SetStyleHistoTH2ForGraphs(histoDummyRatio, "#it{p}_{T} (GeV/#it{c})","GammaInc/GammaCocktail",
+                                0.85*textSizeSpectra,textSizeSpectra, textSizeSpectra,textSizeSpectra, 0.77,1.78);
+    histoDummyRatio->GetXaxis()->SetLabelOffset(-0.01);
+    histoDummyRatio->Draw();
+
+
+
+
+    TH1F * histoInclusiveGammaToCocktailGamma = (TH1F*)histoGammaSpecCorrPurity->Clone("histoInclusiveGammaToCocktailGamma");
+    histoInclusiveGammaToCocktailGamma->Sumw2();
+    histoInclusiveGammaToCocktailGamma->Divide(histoInclusiveGammaToCocktailGamma,cocktailAllGamma,1,1.,"");
+    histoInclusiveGammaToCocktailGamma->DrawCopy("same");
+    DrawGammaLines(0.1,20.,1., 1.,1.,kGray,1);
+    DrawGammaLines(0.1,20.,1.15, 1.15,1.,kGray,4);
+    DrawGammaLines(0.1,20.,1.1, 1.1,1.,kGray,2);
+    DrawGammaLines(0.1,20.,1.05, 1.05,1.,kGray,3);
+    DrawGammaLines(0.1,20.,0.95, 0.95,1.,kGray,3);
+
+    canvasGammaSpectraSingleRatio->Print(Form("%s/%s_%s_GammaSpectrumRatio.%s",outputDir.Data(),nameOutputLabel.Data(),nameRec.Data(),suffix.Data()));
+
+
+
+
 
     //**********************************************************************************
     //***                      Fitting photon spectrum                               ***
@@ -788,7 +818,12 @@ void  CalculateGammaToPi0V4(    TString nameFileGamma       = "",
         SetStyleHistoTH1ForGraphs(histoDummy4, "#it{p}_{T} (GeV/#it{c})", "#frac{1}{2#pi #it{N}_{ev.}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (GeV^{-2}#it{c})",
                                   0.85*textSizeSpectra, textSizeSpectra, 0.85*textSizeSpectra, textSizeSpectra, 0.77,1.7);
         histoDummy4->GetXaxis()->SetLabelOffset(-0.02);
-        histoDummy4->GetYaxis()->SetRangeUser(FindSmallestBin1DHist(histoCorrectedPi0Yield[0])/100.,FindLargestBin1DHist(histoCorrectedPi0Yield[0])*50.);
+	if (FindSmallestBin1DHist(histoCorrectedPi0Yield[0])> 0){  // avoid problems with log scale and negative values
+	  histoDummy4->GetYaxis()->SetRangeUser(FindSmallestBin1DHist(histoCorrectedPi0Yield[0])/100.,FindLargestBin1DHist(histoCorrectedPi0Yield[0])*50.);
+	}else{
+	  histoDummy4->GetYaxis()->SetRangeUser(2.e-8,FindLargestBin1DHist(histoCorrectedPi0Yield[0])*50.);
+	}
+
         histoDummy4->DrawCopy();
 
             DrawGammaSetMarker(cocktailPi0, 20, 2.0,kRed+2,kRed+2);
@@ -1089,6 +1124,8 @@ void  CalculateGammaToPi0V4(    TString nameFileGamma       = "",
         // gamma quantities
         if (fitGammaA)                  fitGammaA->Write(                   fitGammaA->GetName(),                   TObject::kOverwrite);
         if (histoGammaSpecCorrPurity)   histoGammaSpecCorrPurity->Write(    "histoGammaSpecCorrPurity",             TObject::kOverwrite);
+	if (histoInclusiveGammaToCocktailGamma) histoInclusiveGammaToCocktailGamma->Write("histoInclusiveGammaToCocktailGamma",TObject::kOverwrite);
+
         if (doBinShiftForDR){
           if (histoGammaSpecCorrPurityBinShift)   histoGammaSpecCorrPurityBinShift->Write(    Form("histoGammaSpecCorrPurity_%s",addNameBinshift.Data()), TObject::kOverwrite);
           if (histoGammaSpecCorrPurityBinShiftCorr)   histoGammaSpecCorrPurityBinShiftCorr->Write(    "histoGammaSpecCorrPurityBinShiftCorr",             TObject::kOverwrite);

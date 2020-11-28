@@ -135,7 +135,7 @@ void  ProduceFinalResultsV2( const char *fileNamePi0 = "myOutput",
         }
         fileNameSysErrEta = "SystematicErrorsNew/SystematicErrorAveraged_Eta_Dummy_pp13TeV.dat";
         cout << "You have choosen 13TeV. Note that you will use Dummy systematic errors." << endl;
-   } else if( optionEnergy.CompareTo("13TeVRBins") == 0) {
+   } else if( optionEnergy.CompareTo("13TeVRBins") == 0 ||  optionEnergy.CompareTo("13TeVRBinsLowB") == 0  ) {
         minPtForFits=0.4;
         minPtForFitsEta=0.4;
 
@@ -433,7 +433,7 @@ void  ProduceFinalResultsV2( const char *fileNamePi0 = "myOutput",
 
 
     TFile* fileMCGenerated =     new TFile("ExternalInput/PCM/MCGeneratedSpectra.root");
-    if(!optionEnergy.CompareTo("8TeV")||!optionEnergy.CompareTo("13TeV")||!optionEnergy.CompareTo("13TeVRBins")||!optionEnergy.CompareTo("5TeV")){
+    if(!optionEnergy.CompareTo("8TeV") || !optionEnergy.CompareTo("13TeV") || !optionEnergy.CompareTo("13TeVRBins") || !optionEnergy.CompareTo("13TeVRBinsLowB")  || !optionEnergy.CompareTo("5TeV")){
 		cout << "Caution!!! using 7TeV MC generated EtaToPi0 spectra" << endl;
 		use7TeVPytPho = kTRUE;
         histoEtaToPi0Phojet = (TH1D*)fileMCGenerated->Get(Form("EtaToPi0_generatedSpectrum_%s_Phojet","7TeV"));
@@ -468,6 +468,10 @@ void  ProduceFinalResultsV2( const char *fileNamePi0 = "myOutput",
     if (optionEnergy.CompareTo("13TeVRBins") == 0){
         isV0AND             = 1;
     }
+   if (optionEnergy.CompareTo("13TeVRBinsLowB") == 0){
+        isV0AND             = 1;
+    }
+ 
     if (optionEnergy.CompareTo("5TeV2017") == 0){
         isV0AND             = 1;
     }
@@ -488,11 +492,13 @@ void  ProduceFinalResultsV2( const char *fileNamePi0 = "myOutput",
 	   //**********************************************************************************
 	   //******************** Mass Plot ***************************************************
 	   //**********************************************************************************
-	   Double_t minYMass=0.97*histoMassMesonPi0->GetBinContent(histoMassMesonPi0->GetMaximumBin());
+		//	   Double_t minYMass=0.97*histoMassMesonPi0->GetBinContent(histoMassMesonPi0->GetMaximumBin());
+           Double_t minYMass=131; 	
 	   Double_t maxYMass=1.03*histoMassMesonPi0->GetBinContent(histoMassMesonPi0->GetMaximumBin());
 	   PlotFinalOutput("Masspi0",histoMassMesonPi0,histoTrueMassMesonPi0,NULL,NULL,minYMass,maxYMass,"#it{M}_{#pi^{0}} (GeV/c^{2})","#pi^{0}",optionEnergy,mode,outputDir,prefix2,useSameBinningPi0Eta,cutSelection,suffix,"");
-
-	   minYMass=0.97*histoMassMesonEta->GetBinContent(histoMassMesonEta->GetMaximumBin());
+           
+	   //	   minYMass=0.97*histoMassMesonEta->GetBinContent(histoMassMesonEta->GetMaximumBin());
+           minYMass=535; 
 	   maxYMass=1.03*histoMassMesonEta->GetBinContent(histoMassMesonEta->GetMaximumBin());
 	   PlotFinalOutput("Masseta",histoMassMesonEta,histoTrueMassMesonEta,NULL,NULL,minYMass,maxYMass,"#it{M}_{#eta} (GeV/c^{2})","#eta",optionEnergy,mode,outputDir,prefix2,useSameBinningPi0Eta,cutSelection,suffix,"");
 
@@ -555,7 +561,7 @@ void  ProduceFinalResultsV2( const char *fileNamePi0 = "myOutput",
     Double_t minCorrYieldEta = 0.2*histoCorrectedYieldEta->GetBinContent(histoCorrectedYieldEta->GetNbinsX());
     Double_t maxCorrYieldEta = 5.0*histoCorrectedYieldEta->GetBinContent(histoCorrectedYieldEta->GetMaximumBin());
 
-   if( optionEnergy.CompareTo("13TeV") == 0  || optionEnergy.CompareTo("13TeVRBins") == 0 ) {
+   if( optionEnergy.CompareTo("13TeV") == 0  || optionEnergy.CompareTo("13TeVRBins") == 0  || optionEnergy.CompareTo("13TeVRBinsLowB") == 0  ) {
       minCorrYieldPi0 = 0.02*histoCorrectedYieldPi0->GetBinContent(histoCorrectedYieldPi0->GetNbinsX()-2);
       minCorrYieldEta = 0.02*histoCorrectedYieldEta->GetBinContent(histoCorrectedYieldEta->GetNbinsX()-2);
     } else if( optionEnergy.CompareTo("5TeV2017") == 0 ) {

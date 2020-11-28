@@ -24,6 +24,7 @@ COCKTAILROOTFILE=$4
 CUT=$5
 ENERGY=$6
 FINDERTYPE=$7
+SEQUENCE=$8
 
 CUT1=""
 CUT2=""
@@ -105,8 +106,11 @@ if [ $FINDERTYPE -eq 2 ]; then
 
     echo "  "
     echo "Running systematic evaluation"
+#    if [ $SEQUENCE -eq 0 ]; then
+	root -l -b -x -q TaskV1/WeightStudiesOverview.C\+\(\"weightStudies.log\"\,\"pdf\"\,\"$ENERGY\"\,\"PythiaPhojetMultWeightsPtWeights$ENERGY\",4,0,$SEQUENCE,\"kFALSE\"\)  
+#    fi
 
-    root -l -b -x -q TaskV1/WeightStudiesOverview.C\+\(\"weightStudies.log\"\,\"pdf\"\,\"$ENERGY\"\,\"PythiaPhojetMultWeightsPtWeights$ENERGY\",4,0,0,\"kFALSE\"\)  
+
 fi
 
 

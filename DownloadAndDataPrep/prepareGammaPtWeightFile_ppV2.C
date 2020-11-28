@@ -60,14 +60,31 @@ void prepareGammaPtWeightFile_ppV2(TString inputPath = "/Users/marin/analysis/ga
 
     // file names for Pythia - Phojet - all  MB
     TString productionNames13TeV[nProductions] = {"LHC16d", "LHC16P1Pyt8","LHC18d6a2" };
-    TString fileNames13TeV[nProductions]       = {"AdditionalMBHistosLHC16_Pythia_00010103_0d000009266300008850404000.root",  // LHC16d
-                                                  "AdditionalMBHistosLHC16_Pythia_00010103_0d000009266300008850404000.root", // Pythia 13 TeV
-                                                  "AdditionalMBHistosLHC16_Phojet_00010103_0d000009266300008850404000.root" };  // Phojet 13 TeV
+    // TString fileNames13TeV[nProductions]       = {"AdditionalMBHistosLHC16_Pythia_00010103_0d000009266300008850404000.root",  // LHC16d
+    //                                               "AdditionalMBHistosLHC16_Pythia_00010103_0d000009266300008850404000.root", // Pythia 13 TeV
+    //                                               "AdditionalMBHistosLHC16_Phojet_00010103_0d000009266300008850404000.root" };  // Phojet 13 TeV
+
+    TString fileNames13TeV[nProductions]       = {"AdditionalMBHistosLHC16_Pythia_00010103_0d0000t9266300008850404000.root",  // LHC16d
+                                                  "AdditionalMBHistosLHC16_Pythia_00010103_0d0000t9266300008850404000.root", // Pythia 13 TeV
+                                                  "AdditionalMBHistosLHC16_Phojet_00010103_0d0000t9266300008850404000.root" };  // Phojet 13 TeV
+
+
+
 
     TString productionNames5TeV[nProductions] = {"LHC17p", "LHC17l3b","LHC18d6b" };
-    TString fileNames5TeV[nProductions]       = {"MaterialBudget_LHC17p_fastwoSDD_LowInt_23.root",  // LHC16d
-                                                 "MaterialBudget_PythiaLowInt_fastwoSDD_23.root", // Pythia 13 TeV
-                                                 "MaterialBudget_PhojetLowInt_fastwoSDD_23.root" };  // Phojet 13 TeV
+    // TString fileNames5TeV[nProductions]       = {"MaterialBudget_LHC17p_fastwoSDD_LowInt_23.root",  // LHC16d
+    //                                              "MaterialBudget_PythiaLowInt_fastwoSDD_23.root", // Pythia 13 TeV
+    //                                              "MaterialBudget_PhojetLowInt_fastwoSDD_23.root" };  // Phojet 13 TeV
+
+    // TString fileNames5TeV[nProductions]       = {"AdditionalMBHistosLHC17_Pythia_00010103_0d000009266300008850404000.root",   // LHC17p
+    // 						 "AdditionalMBHistosLHC17_Pythia_00010103_0d000009266300008850404000.root",   // Pythia 5 TeV
+    // 						 "AdditionalMBHistosLHC17_Phojet_00010103_0d000009266300008850404000.root" }; // Phojet 5 TeV
+
+    TString fileNames5TeV[nProductions]       = {"AdditionalMBHistosLHC17_Pythia_00010103_0d0000t9266300008850404000.root",   // LHC17p
+						 "AdditionalMBHistosLHC17_Pythia_00010103_0d0000t9266300008850404000.root",   // Pythia 5 TeV
+						 "AdditionalMBHistosLHC17_Phojet_00010103_0d0000t9266300008850404000.root" }; // Phojet 5 TeV
+
+
 
     TString productions;
     TString fileNames;
@@ -103,7 +120,10 @@ void prepareGammaPtWeightFile_ppV2(TString inputPath = "/Users/marin/analysis/ga
 
         TString fullCutString = Form("%s", eventAndphotonCutNo.Data());
         TString inputFileName = Form("%s/%s/%s", inputPath.Data(), productions.Data(), fileNames.Data());
-        if(energy.Contains("5TeV")) inputFileName = Form("%s/%s", inputPath.Data(), fileNames.Data());
+	//        if(energy.Contains("5TeV")) inputFileName = Form("%s/%s", inputPath.Data(), fileNames.Data());
+	if(energy.Contains("5TeV")) inputFileName = Form("%s/%s/%s", inputPath.Data(), productions.Data(),fileNames.Data());
+
+
         cout<< inputFileName.Data()<< endl;
         cout<< fullCutString.Data() << endl;
 
