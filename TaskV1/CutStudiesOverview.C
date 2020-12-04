@@ -1757,6 +1757,9 @@ cout << "line " << __LINE__ << endl;
         DrawGammaPadSettings( padCorrectedYieldRatios, 0.12, 0.02, 0.0, 0.2);
         padCorrectedYieldRatios->SetLogy(0);
         padCorrectedYieldRatios->SetLogx(1);
+	if( optionEnergy.Contains("13TeVRBins") ){
+	  padCorrectedYieldRatios->SetLogx(0);
+	}
         padCorrectedYieldRatios->Draw();
 
         // Plot corrected yield in upper panel
@@ -1892,6 +1895,12 @@ cout << "line " << __LINE__ << endl;
                 if( optionEnergy.Contains("13TeV") ){
                   minYRatio = 0.8;
                   maxYRatio = 1.2;
+		  //		  padCorrectedYieldRatios->SetLogy(1);
+                }
+
+                if( optionEnergy.Contains("13TeVRBins") ){
+                  minYRatio = 0.5;
+                  maxYRatio = 1.5;
 		  //		  padCorrectedYieldRatios->SetLogy(1);
                 }
 

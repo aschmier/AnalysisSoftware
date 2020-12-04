@@ -2243,6 +2243,7 @@ void ExtractSignalV2(
                                                     fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem, fMode);
 
         }
+
         //cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;
         if (fAdvancedMesonQA && (fMode == 4 || fMode == 12 || fMode == 5 || fMode==14)){
             nameMesonTrue       = Form("%s_TrueMesonMixedCaloConvPhoton%s", plotPrefix.Data(), plotSuffix.Data());
@@ -2293,6 +2294,7 @@ void ExtractSignalV2(
 
     CreatePtHistos();
     FillPtHistos();
+
 
     if(fDoJetAnalysis == kTRUE && fIsMC == 0){
         JetOutputDir   = Form("%s/%s/%s/JetOuput",cutSelection.Data(),optionEnergy.Data(),Suffix.Data());
@@ -5546,10 +5548,12 @@ void FillPtHistos(){
         fHistoLambdaTail->SetBinContent(iPt,fMesonLambdaTailpar[iPt-1]);
         fHistoLambdaTail->SetBinError(iPt,fMesonLambdaTailparError[iPt-1]);
 
-        if(fFitSignalInvMassPtBinStd[iPt]->GetNpar() == 7){
+	if (fFitSignalInvMassPtBinStd[iPt]!=0x00) {
+	  if(fFitSignalInvMassPtBinStd[iPt]->GetNpar() == 7){
             fHistoLambdaTailRight->SetBinContent(iPt,fMesonLambdaTailRightpar[iPt-1]);
             fHistoLambdaTailRight->SetBinError(iPt,fMesonLambdaTailRightparError[iPt-1]);
-        }
+	  }
+	}
 
         fHistoAmplitude->SetBinContent(iPt,fMesonAmplitudepar[iPt-1]);
         fHistoAmplitude->SetBinError(iPt,fMesonAmplitudeparError[iPt-1]);
@@ -5557,16 +5561,19 @@ void FillPtHistos(){
             fHistoTrueAmplitude->SetBinContent(iPt, fMesonTrueAmplitudepar[iPt-1]);
             fHistoTrueAmplitude->SetBinError(iPt, fMesonTrueAmplitudeparError[iPt-1]);
         }
+
         fHistoSigma->SetBinContent(iPt,fMesonSigmapar[iPt-1]);
         fHistoSigma->SetBinError(iPt,fMesonSigmaparError[iPt-1]);
         if (fIsMC) {
             fHistoTrueSigma->SetBinContent(iPt,fMesonTrueSigmapar[iPt-1]);
             fHistoTrueSigma->SetBinError(iPt,fMesonTrueSigmaparError[iPt-1]);
         }
+
         fHistoResidualBGlin->SetBinContent(iPt,fMesonResidualBGlin[iPt-1]);      // slope of linear remaining BG fit
         fHistoResidualBGlin->SetBinError(iPt,fMesonResidualBGlinError[iPt-1]);
         fHistoResidualBGcon->SetBinContent(iPt,fMesonResidualBGcon[iPt-1]);      // constant of linear remaining BG fit
         fHistoResidualBGcon->SetBinError(iPt,fMesonResidualBGconError[iPt-1]);
+
         if (fTotalBckYields[0][iPt-1] != 0){
             Double_t ratio      = fMesonYieldsResidualBckFuncStd[0][iPt-1]/fTotalBckYields[0][iPt-1];    // std remaining BG / total BG
             fHistoRatioResBGYield->SetBinContent(iPt,ratio);

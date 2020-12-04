@@ -2991,7 +2991,7 @@
                                     //------------------------------------Std PCM RBins
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => MB; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7RBinsPt"<<endl;
 
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 19 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
 
                                 } else {
                                     if (BinningChoice_Pi0_PCMPHOS==1){//------------------------------------Std PCM-PHOS Binning MB_Preview
@@ -3843,7 +3843,7 @@
                             case -1: cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeVPCMTrigCombPt"<<endl; maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigCombPt, binning, 45 ); break;
                             case 0:
                                 if(energy.Contains("RBins")){
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 19 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 }else  {
 				    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCM_CombinedBinning"<<endl;
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCM_CombinedBinning, binning, 28 ) ;
@@ -5934,7 +5934,7 @@ TString rBin = photonCutSelection(2,1);
                             cout<<" "<< fNRebin[i];
                         }
                         cout<<endl;
-                        cout<<"Rebinning->Binning, Pi0 13TeV, fBinsPt"<<endl;
+                        cout<<"Rebinning->Binning, Pi0 13TeV, fBinsPt::"<< fNBinsPt<< endl;
                         for (Int_t i = 0; i < fNBinsPt; i++) {
                             cout<<" "<< fBinsPt[i];
                         }
@@ -5967,13 +5967,13 @@ TString rBin = photonCutSelection(2,1);
 		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
 		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
 		      
-		    }else if( rBin.CompareTo("m") ==0){
+		}else if( rBin.CompareTo("m") ==0){
 		      if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
 			if( iDet == 7 ){       //with TRD
 			  nIterBGFit                  = 9;
 			}else {
 			  //			  nIterBGFit                  = 8;    // LHC16-LHC18
-			  nIterBGFit                  = 9;    // LHC16-LHC18  // AM 20/11/17 8->9 pile up higher , was needed for pT>1.5
+			  nIterBGFit                  = 7;    // LHC16-LHC18  // AM 20/11/17 8->9->7 pile up higher , was needed for pT>1.5
 			}
 		      } else {
 			if( iDet == 7 ){       //with TRD
@@ -6029,7 +6029,7 @@ TString rBin = photonCutSelection(2,1);
 			  nIterBGFit                  = 10;
 			}else {
 			  //			  nIterBGFit                  = 8;    // LHC16-LHC18
-			  nIterBGFit                  = 9;  // AM 20/11/17 8->9 pile up higher , was needed
+			  nIterBGFit                  = 7;  // AM 20/11/17 8->9 pile up higher , was needed
 			}
 		      } else {
 			if( iDet == 7 ){       //with TRD
