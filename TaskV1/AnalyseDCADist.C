@@ -1072,6 +1072,9 @@ void AnalyseDCADist(    TString meson           ="",
 		      }
 		    } else{
 		      //		      cout<< " the fit failed::"  << resultFracIntHistBGvsPt1<< endl;
+		      fHistFracIntHistBGFittedvsPt[k][i]->SetBinContent(pt, 0.);
+		      fHistFracIntHistBGFittedvsPt[k][i]->SetBinError(pt, 0.);
+
 		    }
                 }
                 if (i == 0 )fHistFracIntHistBGvsPt[k][i]->DrawCopy("p,e1");
