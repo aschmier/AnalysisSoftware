@@ -274,7 +274,7 @@ void CombineMesonMeasurementsPbPb5TeVCent(  TString fileNamePCM             = ""
         tPbPb[cent]                             = GetTAAFromName(centArrayOutput[cent], "PbPb_5.02TeV")*1e3*(1/recalcBarn);
         tPbPbErr[cent]                          = GetTAAErrFromName(centArrayOutput[cent], "PbPb_5.02TeV")*1e3*(1/recalcBarn);
         cout << markerStyleCent[cent] << "\t" << markerStyleCentMC[cent] << "\t"<<markerSizeCent[cent] << "\t" << markerSizeCentMC[cent] << endl;
-        clog << cent << "\t" << centArrayOutput[cent]+addCentString[cent] << "\t"<< nCollPbPb[cent] << "\t" << nCollErrPbPb[cent] << "\t"<< tPbPb[cent] << "\t"<< tPbPbErr[cent] << endl;;
+        std::clog << cent << "\t" << centArrayOutput[cent]+addCentString[cent] << "\t"<< nCollPbPb[cent] << "\t" << nCollErrPbPb[cent] << "\t"<< tPbPb[cent] << "\t"<< tPbPbErr[cent] << std::endl;;
     }
 
     Double_t xSection5TeV                       = ReturnCorrectXSection("5TeV", 1);
@@ -7800,6 +7800,10 @@ void CombineMesonMeasurementsPbPb5TeVCent(  TString fileNamePCM             = ""
             if (fitInvYieldPi0[cent]) fitInvYieldPi0[cent]->Write("TsallisFitPi0");
             if (fitTCMInvYieldPi0[cent]) fitTCMInvYieldPi0[cent]->Write("TwoComponentModelFitPi0",TObject::kOverwrite);
 
+            if (graphRAACombCombPi0[cent]) graphRAACombCombPi0[cent]->Write("graphRAAPi0CombTotErr",TObject::kOverwrite);
+            if (graphRAACombStatPi0[cent]) graphRAACombStatPi0[cent]->Write("graphRAAPi0CombStatErr",TObject::kOverwrite);
+            if (graphRAACombSystPi0[cent]) graphRAACombSystPi0[cent]->Write("graphRAAPi0CombSysErr",TObject::kOverwrite);
+            
             // Final inv yield INEL
             if (bWCorrection.Contains("Y")){
                 // Final spectrum correlations Method A
@@ -7818,6 +7822,10 @@ void CombineMesonMeasurementsPbPb5TeVCent(  TString fileNamePCM             = ""
                         if (graphIndPi0InvYieldSys_yShifted[cent][meth]) graphIndPi0InvYieldSys_yShifted[cent][meth]->Write(Form("graphInvYieldPi0%sSysErr_yShifted", nameMeasGlobalLabel[meth].Data()),
                                                                                                                             TObject::kOverwrite);
                     }
+                    
+                    if (graphRAAIndCombPi0[cent][meth]) graphRAAIndCombPi0[cent][meth]->Write(Form("graphRAAPi0%sTotErr", nameMeasGlobalLabel[meth].Data()),TObject::kOverwrite);
+                    if (graphRAAIndStatPi0[cent][meth]) graphRAAIndStatPi0[cent][meth]->Write(Form("graphRAAPi0%sStatErr", nameMeasGlobalLabel[meth].Data()),TObject::kOverwrite);
+                    if (graphRAAIndSystPi0[cent][meth]) graphRAAIndSystPi0[cent][meth]->Write(Form("graphRAAPi0%sSysErr", nameMeasGlobalLabel[meth].Data()),TObject::kOverwrite);
                 }
             }
 
@@ -7856,6 +7864,9 @@ void CombineMesonMeasurementsPbPb5TeVCent(  TString fileNamePCM             = ""
             if (graphCombEtaToPi0Stat[cent])    graphCombEtaToPi0Stat[cent]->Write("graphEtaToPi0CombStatErr",TObject::kOverwrite);
             if (graphCombEtaToPi0Sys[cent])     graphCombEtaToPi0Sys[cent]->Write("graphEtaToPi0CombSysErr",TObject::kOverwrite);
 
+            if (graphRAACombCombEta[cent])      graphRAACombCombEta[cent]->Write("graphRAAEtaCombTotErr",TObject::kOverwrite);
+            if (graphRAACombStatEta[cent])      graphRAACombStatEta[cent]->Write("graphRAAEtaCombStatErr",TObject::kOverwrite);
+            if (graphRAACombSystEta[cent])      graphRAACombSystEta[cent]->Write("graphRAAEtaCombSysErr",TObject::kOverwrite);
 
             // Final inv yield INEL
             if (bWCorrection.Contains("Y")){
@@ -7877,6 +7888,9 @@ void CombineMesonMeasurementsPbPb5TeVCent(  TString fileNamePCM             = ""
                 if (histoEtaToPi0Stat[cent][meth]) histoEtaToPi0Stat[cent][meth]->Write(Form("histoEtaToPi0%sStatErr", nameMeasGlobalLabel[meth].Data()), TObject::kOverwrite);
                 if (graphEtaToPi0Stat[cent][meth]) graphEtaToPi0Stat[cent][meth]->Write(Form("graphEtaToPi0%sStatErr", nameMeasGlobalLabel[meth].Data()), TObject::kOverwrite);
                 if (graphEtaToPi0Sys[cent][meth]) graphEtaToPi0Sys[cent][meth]->Write(Form("graphEtaToPi0%sSysErr", nameMeasGlobalLabel[meth].Data()), TObject::kOverwrite);
+                if (graphRAAIndCombEta[cent][meth]) graphRAAIndCombEta[cent][meth]->Write(Form("graphRAAEta%sTotErr", nameMeasGlobalLabel[meth].Data()),TObject::kOverwrite);
+                if (graphRAAIndStatEta[cent][meth]) graphRAAIndStatEta[cent][meth]->Write(Form("graphRAAEta%sStatErr", nameMeasGlobalLabel[meth].Data()),TObject::kOverwrite);
+                if (graphRAAIndSystEta[cent][meth]) graphRAAIndSystEta[cent][meth]->Write(Form("graphRAAEta%sSysErr", nameMeasGlobalLabel[meth].Data()),TObject::kOverwrite);
             }
 
             TDirectoryFile* supportingEta  = NULL;

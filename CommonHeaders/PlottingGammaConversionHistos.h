@@ -68,7 +68,7 @@
         gStyle->SetTitleFillColor(0);
         gStyle->SetTextSize(0.5);
         gStyle->SetLabelSize(0.03,"xyz");
-        gStyle->SetLabelOffset(0.002,"xyz");
+        gStyle->SetLabelOffset(0.006,"xyz");
         gStyle->SetTitleFontSize(0.04);
         gStyle->SetTitleOffset(1,"y");
         gStyle->SetTitleOffset(0.7,"x");

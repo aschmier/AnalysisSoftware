@@ -117,6 +117,8 @@ void ProduceExperimentalDataGraphsPbPb(){
         graphPHENIX200GeVRAA_0020->SetPointError(i, 0.05, 0.05, quadErr3,quadErr3);
     }
 
+    cout << "here: " << __LINE__ << endl; 
+    
     Double_t PHENIX200GeVpt_2030[22] =  { 1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75, 6.25, 6.75, 7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 11, 13, 15, 17};
     Double_t PHENIX200GeVRAA_2030[22] =  {4.524e-01, 5.142e-01, 5.025e-01, 4.535e-01, 3.990e-01, 3.802e-01, 3.604e-01, 3.516e-01, 3.282e-01, 3.223e-01, 3.351e-01, 3.262e-01, 3.003e-01, 3.102e-01, 3.324e-01, 3.566e-01, 3.445e-01, 3.502e-01, 3.198e-01, 3.356e-01, 4.554e-01, 5.281e-01};
     Double_t PHENIX200GeVRAAErr_2030[22] =  {4.457e-02, 5.178e-02, 5.395e-02, 5.082e-02, 4.596e-02, 4.413e-02, 4.363e-02, 4.256e-02, 3.966e-02, 3.887e-02, 4.031e-02, 3.921e-02, 3.610e-02, 3.738e-02, 4.029e-02, 4.350e-02, 4.235e-02, 4.378e-02, 4.327e-02, 5.544e-02, 9.300e-02, 1.241e-01};
@@ -142,6 +144,8 @@ void ProduceExperimentalDataGraphsPbPb(){
     }
     inPi0yield2030.close();
 
+    cout << "here: " << __LINE__ << endl; 
+    
     TString fileNamePHENIXPi0InvYield200GeV_3040 = "ExternalInputPbPb/OtherExperiments/pi0yield_3040AuAu200GeV.txt";
     Int_t nlinesPi03040 = 0;
     Double_t PHENIX200GeVInvYield_3040[22];
@@ -157,6 +161,7 @@ void ProduceExperimentalDataGraphsPbPb(){
     }
     inPi0yield3040.close();
 
+    cout << "here: " << __LINE__ << endl; 
 
     TGraphAsymmErrors* graphPHENIX200GeVInvYield_2030 = new TGraphAsymmErrors(22);
     TGraphAsymmErrors* graphPHENIX200GeVInvYield_3040 = new TGraphAsymmErrors(22);
@@ -195,6 +200,8 @@ void ProduceExperimentalDataGraphsPbPb(){
         graphPHENIX200GeVRAA_2040->SetPointError(i, 0.05, 0.05, error,error);
     }
 
+    cout << "here: " << __LINE__ << endl; 
+    
     Double_t PHENIX200GeVpt_4050[21] =  { 1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75, 6.25, 6.75, 7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 11, 13, 15};
     Double_t PHENIX200GeVRAA_4050[21] =  {5.491e-01, 6.287e-01, 6.235e-01, 6.007e-01, 5.724e-01, 5.417e-01, 5.463e-01, 5.217e-01, 5.247e-01, 5.462e-01, 5.258e-01, 5.114e-01, 4.716e-01, 4.980e-01, 5.567e-01, 5.173e-01, 5.330e-01, 5.254e-01, 4.746e-01, 5.588e-01, 6.307e-01};
     Double_t PHENIX200GeVRAAErr_4050[21] = {4.981e-02, 6.237e-02, 6.655e-02, 6.711e-02, 6.576e-02, 6.280e-02, 6.609e-02, 6.313e-02, 6.341e-02, 6.591e-02, 6.330e-02, 6.151e-02, 5.678e-02, 6.036e-02, 6.767e-02, 6.333e-02, 6.705e-02, 6.598e-02, 6.548e-02, 9.548e-02, 1.309e-01};
@@ -220,6 +227,7 @@ void ProduceExperimentalDataGraphsPbPb(){
     }
     inPi0yield4050.close();
 
+    cout << "here: " << __LINE__ << endl; 
     TGraphAsymmErrors* graphPHENIX200GeVInvYield_4050 = new TGraphAsymmErrors(21);
     TGraphAsymmErrors* graphPHENIX200GeVInvYield_2050 = new TGraphAsymmErrors(21);
     TGraphAsymmErrors* graphPHENIX200GeVRAA_2050 = new TGraphAsymmErrors(21);
@@ -260,6 +268,7 @@ void ProduceExperimentalDataGraphsPbPb(){
         graphPHENIX200GeVRAA_4060->SetPointError(i, 0.05, 0.05, error,error);
     }
 
+    cout << "here: " << __LINE__ << endl; 
     Double_t PHENIX200GeVpt_6070[20] =  {1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75, 6.25, 6.75, 7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 11, 13};
     Double_t PHENIX200GeVRAA_6070[20] =  {6.802e-01, 7.472e-01, 7.341e-01, 7.351e-01, 7.309e-01, 7.178e-01, 7.337e-01, 7.286e-01, 7.362e-01, 7.611e-01, 7.287e-01, 7.747e-01, 7.629e-01, 6.946e-01, 7.066e-01, 7.793e-01, 6.991e-01, 8.433e-01, 6.871e-01, 8.026e-01};
     Double_t PHENIX200GeVRAAErr_6070[20] = {6.492e-02, 7.429e-02, 7.818e-02, 8.183e-02, 8.361e-02, 8.282e-02, 8.832e-02, 8.771e-02, 8.851e-02, 9.135e-02, 8.715e-02, 9.315e-02, 1.024e-01, 8.469e-02, 8.688e-02, 9.648e-02, 8.815e-02, 1.077e-01, 9.681e-02, 1.415e-01};
@@ -294,6 +303,7 @@ void ProduceExperimentalDataGraphsPbPb(){
 
     }
 
+    cout << "here: " << __LINE__ << endl; 
     //PHENIX 200 GeV
     //---> yields and RAA 0-20, 20-60, (60-92) from 2GeV/c
     //---> RAA in 0-10%, 20-40%, 20-60%, (60-92%)
@@ -306,7 +316,7 @@ void ProduceExperimentalDataGraphsPbPb(){
     Double_t PHENIX200GeVEtaInvYielPtUncorrErr_0020[10];
     Double_t PHENIX200GeVEtaInvYieldSystErr_0020[10];
     ifstream inEtayield0020;
-    inEtayield0020.open(fileNamePHENIXPi0InvYield200GeV_3040,ios_base::in);
+    inEtayield0020.open(fileNamePHENIXEtaInvYield200GeV_0020,ios_base::in);
     while(!inEtayield0020.eof()){
         //     pT err.pT  tot.err.  point-to-point.err. % tot.err. stat.err.   syst.err. CC-uncorr.err. pT-corr.err
         inEtayield0020 >> PHENIX200GeVEtaPt_0020[nlinesEta0020] >> notneeded >> PHENIX200GeVEtaInvYield_0020[nlinesEta0020] >> PHENIX200GeVEtaInvYielPtUncorrErr_0020[nlinesEta0020] >> notneeded >> PHENIX200GeVEtaInvYieldStatErr_0020[nlinesEta0020] >> notneeded >> notneeded >> PHENIX200GeVEtaInvYieldSystErr_0020[nlinesEta0020];
@@ -314,6 +324,9 @@ void ProduceExperimentalDataGraphsPbPb(){
     }
     inEtayield0020.close();
 
+    cout << "here: " << __LINE__ << endl; 
+
+    
     TString fileNamePHENIXEtaInvYield200GeV_2060 = "ExternalInputPbPb/OtherExperiments/eta_AuAu_20_60_phenix_run2.txt";
     Int_t nlinesEta2060 = 0;
     Double_t PHENIX200GeVEtaPt_2060[10];
@@ -322,7 +335,7 @@ void ProduceExperimentalDataGraphsPbPb(){
     Double_t PHENIX200GeVEtaInvYielPtUncorrErr_2060[10];
     Double_t PHENIX200GeVEtaInvYieldSystErr_2060[10];
     ifstream inEtayield2060;
-    inEtayield2060.open(fileNamePHENIXPi0InvYield200GeV_3040,ios_base::in);
+    inEtayield2060.open(fileNamePHENIXEtaInvYield200GeV_2060,ios_base::in);
     while(!inEtayield2060.eof()){
         //     pT err.pT  tot.err.  point-to-point.err. % tot.err. stat.err.   syst.err. CC-uncorr.err. pT-corr.err
         inEtayield2060 >> PHENIX200GeVEtaPt_2060[nlinesEta2060] >> notneeded >> PHENIX200GeVEtaInvYield_2060[nlinesEta2060] >> PHENIX200GeVEtaInvYielPtUncorrErr_2060[nlinesEta2060] >> notneeded >> PHENIX200GeVEtaInvYieldStatErr_2060[nlinesEta2060] >> notneeded >> notneeded >> PHENIX200GeVEtaInvYieldSystErr_2060[nlinesEta2060];
@@ -330,6 +343,9 @@ void ProduceExperimentalDataGraphsPbPb(){
     }
     inEtayield2060.close();
 
+    cout << "here: " << __LINE__ << endl; 
+
+    
     TGraphAsymmErrors* graphPHENIX200GeVEtaInvYield_0020 = new TGraphAsymmErrors(10);
     TGraphAsymmErrors* graphPHENIX200GeVEtaInvYield_2060 = new TGraphAsymmErrors(10);
     for(Int_t i=0; i<10; i++){
@@ -342,6 +358,7 @@ void ProduceExperimentalDataGraphsPbPb(){
         graphPHENIX200GeVEtaInvYield_2060->SetPointError(i, 0.05, 0.05, quadErrEta_2060,quadErrEta_2060);
     }
 
+    cout << "here: " << __LINE__ << endl; 
     Double_t PHENIX200GeVEtaToPi0Ratiopt_0020[10] =  { 2.35, 2.85, 3.35, 3.85, 4.6, 5.6, 6.6, 7.6, 8.6, 9.6};
     Double_t PHENIX200GeVEtaToPi0Ratio_0020[10] =  {0.4, 0.55, 0.37, 0.24, 0.36, 0.38, 0.35, 0.53, 0.47, 0.49};
     Double_t PHENIX200GeVEtaToPi0RatioErr_0020[10] = {0.12, 0.17, 0.11, 0.13, 0.11, 0.11, 0.16, 0.12, 0.24, 0.28};
@@ -585,6 +602,7 @@ void ProduceExperimentalDataGraphsPbPb(){
         graphPHENIX62GeVRAA_6086->SetPointError(i, 0.0, 0.0, quadErr,quadErr);
     }
 
+    cout << "here: " << __LINE__ << endl; 
 
     // 200 GeV: http://arxiv.org/abs/1208.2254, link to data: http://www.phenix.bnl.gov/phenix/WWW/info/data/ppg133_data.html
     // 39, 62.4 GeV: http://arxiv.org/abs/1204.1526, link to data: http://www.phenix.bnl.gov/phenix/WWW/info/data/ppg138_data.html
@@ -614,6 +632,7 @@ void ProduceExperimentalDataGraphsPbPb(){
     g39->SetPoint(g39->GetN(), 138.7, 0.795080681242186); g39->SetPointError(g39->GetN()-1, 0, 0.308308947471857);
     g39->SetPoint(g39->GetN(), 59.7, 0.905331401541957); g39->SetPointError(g39->GetN()-1, 0, 0.493815618562743);
 
+    cout << "here: " << __LINE__ << endl; 
 
     //==========================================================================================
     //                                         WA98 pi0s
@@ -633,6 +652,7 @@ void ProduceExperimentalDataGraphsPbPb(){
 // }
 // graphWA98_Gamma_Tot_0010                    = ScaleGraph(graphWA98_Gamma_Tot_0010, 1./(2*TMath::Pi()));
 
+    cout << "here: " << __LINE__ << endl; 
     TFile* fileWA98Gamma                        = new TFile("ExternalInputPbPb/OtherExperiments/WA98_gdir_all.root");
     TGraphAsymmErrors* graphWA98_Gamma_Tot_0010 = (TGraphAsymmErrors*)fileWA98Gamma->Get("Graph");
     Int_t nUpperLimitsWA98                      = 0;
@@ -655,7 +675,7 @@ void ProduceExperimentalDataGraphsPbPb(){
         }
     }
 
-
+    cout << "here: " << __LINE__ << endl; 
 
     //==========================================================================================
     //                                         PHENIX gammas
@@ -678,10 +698,16 @@ void ProduceExperimentalDataGraphsPbPb(){
     TGraphErrors* graphPHENIX200GeVGamma_Stat_IntConv[5];
     TGraphErrors* graphPHENIX200GeVGamma_Sys_IntConv[5];
     TGraphErrors* graphPHENIX200GeVGamma_Tot_IntConv[5];
+    
     for (Int_t i = 0; i < 5; i++){
         graphPHENIX200GeVGamma_Stat_EMCal[i]    = (TGraphErrors*)filePHENIXPhoton->Get(Form("tEAuAu200EMCal%s",centsAuAu200[i].Data()));
         graphPHENIX200GeVGamma_Sys_EMCal[i]     = (TGraphErrors*)filePHENIXPhoton->Get(Form("tSAuAu200EMCal%s",centsAuAu200[i].Data()));
         graphPHENIX200GeVGamma_Tot_EMCal[i]     = (TGraphErrors*)filePHENIXPhoton->Get(Form("tSUMAuAu200EMCal%s",centsAuAu200[i].Data()));
+        while (graphPHENIX200GeVGamma_Stat_EMCal[i]->GetY()[graphPHENIX200GeVGamma_Stat_EMCal[i]->GetN()-1] == 0){
+          graphPHENIX200GeVGamma_Stat_EMCal[i]->RemovePoint(graphPHENIX200GeVGamma_Stat_EMCal[i]->GetN()-1);
+          graphPHENIX200GeVGamma_Sys_EMCal[i]->RemovePoint(graphPHENIX200GeVGamma_Sys_EMCal[i]->GetN()-1);
+          graphPHENIX200GeVGamma_Tot_EMCal[i]->RemovePoint(graphPHENIX200GeVGamma_Tot_EMCal[i]->GetN()-1);
+        }
         graphPHENIX200GeVGamma_Stat_ExtConv[i]  = (TGraphErrors*)filePHENIXPhoton->Get(Form("tEAuAu200ExtConv%s",centsAuAu200[i].Data()));
         graphPHENIX200GeVGamma_Sys_ExtConv[i]   = (TGraphErrors*)filePHENIXPhoton->Get(Form("tSAuAu200ExtConv%s",centsAuAu200[i].Data()));
         graphPHENIX200GeVGamma_Tot_ExtConv[i]   = (TGraphErrors*)filePHENIXPhoton->Get(Form("tSUMAuAu200ExtConv%s",centsAuAu200[i].Data()));
@@ -690,6 +716,23 @@ void ProduceExperimentalDataGraphsPbPb(){
         graphPHENIX200GeVGamma_Tot_IntConv[i]   = (TGraphErrors*)filePHENIXPhoton->Get(Form("tSUMAuAu200IntConv%s",centsAuAu200[i].Data()));
     }
 
+    Double_t binXErrPHENIXExtConv[11] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.25, 0.5, 0.75};
+    for (Int_t i = 0; i < 5; i++){
+        if (!graphPHENIX200GeVGamma_Sys_ExtConv[i]) continue;
+        for (Int_t pt = 0; pt < graphPHENIX200GeVGamma_Sys_ExtConv[i]->GetN(); pt++)
+            graphPHENIX200GeVGamma_Sys_ExtConv[i]->SetPointError(pt, binXErrPHENIXExtConv[pt], graphPHENIX200GeVGamma_Sys_ExtConv[i]->GetEY()[pt] );
+    }
+    
+    Double_t binXErrPHENIXExtCalo[18] = {0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25, 0.25,
+                                         0.25, 0.25, 1, 1, 1, 1, 1, 1};
+    for (Int_t i = 0; i < 5; i++){
+        if (!graphPHENIX200GeVGamma_Sys_EMCal[i]) continue;
+        for (Int_t pt = 0; pt < graphPHENIX200GeVGamma_Sys_EMCal[i]->GetN(); pt++)
+            graphPHENIX200GeVGamma_Sys_EMCal[i]->SetPointError(pt, binXErrPHENIXExtCalo[pt], graphPHENIX200GeVGamma_Sys_EMCal[i]->GetEY()[pt] );
+    }
+    
+    cout << "here: " << __LINE__ << endl; 
+    
     TGraphErrors* graphPHENIX62GeVGamma_Stat_ExtConv[3];
     TGraphErrors* graphPHENIX62GeVGamma_Sys_ExtConv[3];
     TGraphErrors* graphPHENIX62GeVGamma_Tot_ExtConv[3];
@@ -699,6 +742,14 @@ void ProduceExperimentalDataGraphsPbPb(){
         graphPHENIX62GeVGamma_Tot_ExtConv[i]    = (TGraphErrors*)filePHENIXPhoton->Get(Form("tSUMAuAu062ExtConv%s",centsAuAu62[i].Data()));
     }
 
+    Double_t binXErrPHENIXExtConv62[10] = {0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.2, 0.25};
+    for (Int_t i = 0; i < 3; i++){
+        if (!graphPHENIX62GeVGamma_Sys_ExtConv[i]) continue;
+        for (Int_t pt = 0; pt < graphPHENIX62GeVGamma_Sys_ExtConv[i]->GetN(); pt++)
+            graphPHENIX62GeVGamma_Sys_ExtConv[i]->SetPointError(pt, binXErrPHENIXExtConv62[pt], graphPHENIX62GeVGamma_Sys_ExtConv[i]->GetEY()[pt] );
+    }
+    
+    
     TGraphErrors* graphPHENIXCuCu200GeVGamma_Stat_IntConv[2];
     TGraphErrors* graphPHENIXCuCu200GeVGamma_Sys_IntConv[2];
     TGraphErrors* graphPHENIXCuCu200GeVGamma_Tot_IntConv[2];
@@ -737,7 +788,7 @@ void ProduceExperimentalDataGraphsPbPb(){
         tTot_200GeV_DirPh_STAR[cent]    = AddErrorsOfGraphsQuadratically(tStat_200GeV_DirPh_STAR[cent], tSys_200GeV_DirPh_STAR[cent]);
     }
 
-
+    cout << "here: " << __LINE__ << endl; 
     //==========================================================================================
     //                                         CMS gammas
     //==========================================================================================
@@ -765,7 +816,8 @@ void ProduceExperimentalDataGraphsPbPb(){
     tSys_2760GeV_DirPh_CMS_30100                       = ScaleGraph(tSys_2760GeV_DirPh_CMS_30100, 1e-3*1.45*1e-9);
     TGraphAsymmErrors* tTot_2760GeV_DirPh_CMS_30100    = AddErrorsOfGraphsQuadratically(tStat_2760GeV_DirPh_CMS_30100, tSys_2760GeV_DirPh_CMS_30100);
 
-
+    cout << "here: " << __LINE__ << endl; 
+    
     //==========================================================================================
     //                                         ATLAS gammas
     //==========================================================================================
@@ -857,7 +909,8 @@ void ProduceExperimentalDataGraphsPbPb(){
     }
     TGraphAsymmErrors* graphATLAS2760GeVTot_0010    = AddErrorsOfGraphsQuadratically(graphATLAS2760GeVStat_0010, graphATLAS2760GeVSys_0010);
 
-
+    cout << "here: " << __LINE__ << endl; 
+    
     //==========================================================================================
     //                             writing outputfile
     //==========================================================================================

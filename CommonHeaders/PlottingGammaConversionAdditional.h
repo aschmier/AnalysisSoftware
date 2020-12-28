@@ -4203,10 +4203,12 @@
                                                 TGraphAsymmErrors* graphpTbinning = NULL){
 
         TGraphAsymmErrors* dummy = (TGraphAsymmErrors*)graph->Clone("dummyPlotErrorsAtEdge");
+        dummy->Print();
         if(!graphpTbinning){
             for (Int_t i=0; i < dummy->GetN();i++){
                 Double_t widthTickUsedUp = widthTick;
                 Double_t widthTickUsedDown = widthTick;
+                cout << i << "\t"<< dummy->GetY()[i]+dummy->GetEYhigh()[i] << endl;
                 DrawGammaLines(dummy->GetX()[i]-widthTickUsedUp, dummy->GetX()[i]+widthTickUsedDown, dummy->GetY()[i]+dummy->GetEYhigh()[i], dummy->GetY()[i]+dummy->GetEYhigh()[i],
                             dummy->GetLineWidth(), dummy->GetLineColor(),dummy->GetLineStyle());
 
