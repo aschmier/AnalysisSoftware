@@ -767,7 +767,7 @@ else
 #     LHC16qData="child_3";
 #     LHC16tData="child_4";
     
-    TRAINDIR=20200314-RerunAll
+#     TRAINDIR=20200314-RerunAll
 #     LHC16c3aMC1="1125";
 #     LHC16c3aMC2="1124";
 #     LHC16c3aMC1="1134";
@@ -821,9 +821,9 @@ else
 #     LHC19a4MC1="child_1";
 #     LHC19a4MC2="child_2";
 #     LHC16qtData="856";
-    LHC16qtData="866";
+#     LHC16qtData="866";
 #     LHC16qDataFast="child_1";
-    LHC16tDataFast="child_2";
+#     LHC16tDataFast="child_2";
 #     LHC16qData="child_3";
 #     LHC16tData="child_4";
     
@@ -869,6 +869,13 @@ else
 #     LHC18f3MCFast1="child_1";
 #     LHC18f3MCFast2="child_3";
 
+  TRAINDIR=20201230_LHC13RerunCalib
+    LHC13beData="905";
+    LHC13bData="child_1"
+    LHC13cData="child_2"
+    LHC13dData="child_3"
+    LHC13eData="child_4"
+    LHC13fData="906" 
 fi
 
 

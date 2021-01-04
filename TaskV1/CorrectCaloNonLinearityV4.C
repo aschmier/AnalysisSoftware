@@ -125,6 +125,7 @@ void CorrectCaloNonLinearityV4(
     Double_t rangeHighPtFitMass[4]  = {5, 10, 5, 10};
     Double_t rangeHighPtFitRatio[2] = {3, 10};
     Bool_t isNotFirstIte        = kFALSE;
+    Bool_t isBothData           = kFALSE;
     //**************************************************************************************************************
     //******************************* Read config file for detailed settings ***************************************
     //**************************************************************************************************************
@@ -193,6 +194,10 @@ void CorrectCaloNonLinearityV4(
         } else if (tempValue.BeginsWith("notFirstIteration",TString::kIgnoreCase)){
             if (((TString)((TObjString*)tempArr->At(1))->GetString()).CompareTo("1") == 0)
                 isNotFirstIte    = kTRUE;
+        // enable add plotting if not first iteration
+        } else if (tempValue.BeginsWith("bothData",TString::kIgnoreCase)){
+            if (((TString)((TObjString*)tempArr->At(1))->GetString()).CompareTo("1") == 0)
+                isBothData    = kTRUE;
         // reading maximum number of pt bins
         } else if (tempValue.BeginsWith("maxNPtBins",TString::kIgnoreCase)){
             fNBinsPt        = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
@@ -679,22 +684,22 @@ void CorrectCaloNonLinearityV4(
                 sliceHist->Add( sliceBGHist, -1);
             }
 
-            sliceHistCopy->GetXaxis()->SetRangeUser(0.0,0.3);
+            sliceHistCopy->GetXaxis()->SetRangeUser(0.0, 0.29);
             sliceHistCopy->Write(Form("slice%sAlpha_%f-%f-withWithBG",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             sliceBGHist->SetLineColor(kGreen+2);
-            sliceBGHist->GetXaxis()->SetRangeUser(0.0,0.3);
+            sliceBGHist->GetXaxis()->SetRangeUser(0.0, 0.29);
             sliceBGHist->Write(Form("slice%sAlpha_%f-%f-BG",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             sliceHist->SetLineColor(kRed+2);
-            sliceHist->GetXaxis()->SetRangeUser(0.0,0.3);
+            sliceHist->GetXaxis()->SetRangeUser(0.0, 0.29);
             sliceHist->Write(Form("slice%sAlpha_%f-%f-withRemainingBckg",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             if(enablePol1Scaling){
                 sliceHistRatio->SetLineColor(kBlack+2);
-                sliceHistRatio->GetXaxis()->SetRangeUser(0.0,0.3);
+                sliceHistRatio->GetXaxis()->SetRangeUser(0.0, 0.29);
                 sliceHistRatio->Write(Form("slice%sAlpha_%f-%f-sliceHistRatio",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             }
 
             sliceHistCopy->GetYaxis()->SetRangeUser(sliceHist->GetMinimum(),sliceHistCopy->GetMaximum());
-            sliceHistCopy->GetXaxis()->SetRangeUser(0.0,0.3);
+            sliceHistCopy->GetXaxis()->SetRangeUser(0.0, 0.29);
             sliceHistCopy->DrawCopy();
             sliceBGHist->DrawCopy("same");
             sliceHist->DrawCopy("same");
@@ -707,11 +712,11 @@ void CorrectCaloNonLinearityV4(
                 }
             }
             canvas->Clear();
-            sliceHist->GetXaxis()->SetRangeUser(0.0,0.3);
+            sliceHist->GetXaxis()->SetRangeUser(0.0, 0.29);
 
             if(enablePol1Scaling){
                 sliceHistRatio->GetYaxis()->SetRangeUser(sliceHistRatio->GetMinimum()-0.2,sliceHistRatio->GetMaximum()+0.2);
-                sliceHistRatio->GetXaxis()->SetRangeUser(0.0,0.3);
+                sliceHistRatio->GetXaxis()->SetRangeUser(0.0, 0.29);
                 sliceHistRatio->DrawCopy();
                 fFitBckPol1->DrawCopy("same");
                 for (Int_t i = 0; i < nExampleBins; i++ ){
@@ -730,7 +735,7 @@ void CorrectCaloNonLinearityV4(
             if( mode == 2 || mode == 13 || mode == 14 ){
                 if (optionEnergy.Contains("PbPb") || optionEnergy.Contains("XeXe")){
                     minMax[1]   = 0.3;
-                } else if (optionEnergy.Contains("pPb_5.023TeVRun2") ){
+                } else if (optionEnergy.Contains("pPb_5.023TeV") ){
                     if (fBinsPt[iClusterPt] < 1.5)
                         minMax[1]       = 0.18;
                     else if (fBinsPt[iClusterPt] < 2)
@@ -755,7 +760,7 @@ void CorrectCaloNonLinearityV4(
             // special setting for PCM-PHOS
             } else if( mode == 3 ){
                 minMax[0]       = 0.03;
-                if (optionEnergy.Contains("pPb_5.023TeVRun2") ){
+                if (optionEnergy.Contains("pPb_5.023TeV") ){
                     if (fBinsPt[iClusterPt] < 1.5)
                         minMax[1]       = 0.18;
                     else if (fBinsPt[iClusterPt] < 2)
@@ -782,7 +787,7 @@ void CorrectCaloNonLinearityV4(
 
                 if (optionEnergy.Contains("PbPb") || optionEnergy.Contains("XeXe")){
                     minMax[1]   = 0.3;
-                } else if (optionEnergy.Contains("pPb_5.023TeVRun2") ){
+                } else if (optionEnergy.Contains("pPb_5.023TeV") ){
                     if (fBinsPt[iClusterPt] < 1.5)
                         minMax[1]       = 0.18;
                     else if (fBinsPt[iClusterPt] < 2)
@@ -790,7 +795,7 @@ void CorrectCaloNonLinearityV4(
                     else if (fBinsPt[iClusterPt] < 3)
                         minMax[1]       = 0.25;
                     else
-                        minMax[1]       = 0.3;
+                        minMax[1]       = 0.28;
                 }
 
             // special setting for PHOS
@@ -846,10 +851,10 @@ void CorrectCaloNonLinearityV4(
             fFitReco->SetNpx(100000);
 
             sliceHist->GetListOfFunctions()->Add(fFitReco);
-            sliceHist->GetXaxis()->SetRangeUser(0.0,0.3);
+            sliceHist->GetXaxis()->SetRangeUser(0.0, 0.29);
             cout << "mean: " << sliceHist->GetMean() << "\tmaximum: " << sliceHist->GetMaximum() << endl;
             sliceHist->DrawCopy();
-            DrawGammaLines(0., 0.3, 0, 0, 1, kGray+1, 7);
+            DrawGammaLines(0., 0.29, 0, 0, 1, kGray+1, 7);
             canvas->SetLogx(0); canvas->SetLogy(0); canvas->SetLogz(0); canvas->Update();
             for (Int_t i = 0; i < nExampleBins; i++ ){
                 if(iClusterPt==exampleBin[i] ){
@@ -869,6 +874,9 @@ void CorrectCaloNonLinearityV4(
     if(mode == 2 || mode == 3 || mode == 14) histDataMCResults->Multiply(histDataMCResults,histDataMCResults,1.,1.,"B");
     DrawGammaSetMarker(histDataMCResults, 24, 2, kBlack, kBlack);
 
+    TGraphErrors* graphDataMCResults = new TGraphErrors(histDataMCResults);
+    DrawGammaSetMarkerTGraphErr(graphDataMCResults, 24, 2, kBlack, kBlack);
+    
     Double_t minPlotY = 0.93;
     if (select.Contains("LHC10-Calo"))      minPlotY = 0.9;
     if (select.Contains("LHC12-JetJet"))    minPlotY = 0.93;
@@ -881,7 +889,7 @@ void CorrectCaloNonLinearityV4(
     if (mode == 4 || mode == 12 || mode == 15){
         minMass  = 0.87;
         maxMass  = 1.25;
-    } else if ((mode == 2 || mode == 13 || mode == 14) && select.Contains("LHC16")){
+    } else if ((mode == 2 || mode == 13 || mode == 14) && ( select.Contains("LHC16") || select.Contains("LHC13"))){
         minMass  = 0.89;
         maxMass  = 1.14;
     } else if ((mode == 2 || mode == 13 || mode == 14) && select.Contains("LHC11cd")){
@@ -934,7 +942,10 @@ void CorrectCaloNonLinearityV4(
       histDataResultsVsPDG->SetYTitle("#LT M^{2}_{#pi^{0} (data)} #GT / M^{2}_{#pi^{0} (PDG)}");
     }
     DrawGammaSetMarker(histDataResultsVsPDG, markerStyle[0], 1, color[0], color[0]);
-
+    TGraphErrors* graphDataResultsVsPDG = new TGraphErrors(histDataResultsVsPDG);
+    DrawGammaSetMarkerTGraphErr(graphDataResultsVsPDG, markerStyle[0], 1, color[0], color[0]);
+    
+    
     TH1D* histMCResultsVsPDG =  (TH1D*)histMCResults->Clone("Mean mass MC div mass PDG Pi0");
     histMCResultsVsPDG->Scale(1/massPi0);
     SetStyleHistoTH1ForGraphs(histMCResultsVsPDG, "#it{E}_{Cluster} (GeV)","#LT M_{#pi^{0} (MC)} #GT / M_{#pi^{0} (PDG)}",0.035,0.043, 0.035,0.043, 1.,1.);
@@ -944,7 +955,9 @@ void CorrectCaloNonLinearityV4(
       histMCResultsVsPDG->SetYTitle("#LT M^{2}_{#pi^{0} (MC)} #GT / M^{2}_{#pi^{0} (PDG)}");
     }
     DrawGammaSetMarker(histMCResultsVsPDG, markerStyle[1], 1, color[1], color[1]);
-
+    TGraphErrors* graphMCResultsVsPDG = new TGraphErrors(histMCResultsVsPDG);
+    DrawGammaSetMarkerTGraphErr(graphMCResultsVsPDG, markerStyle[1], 1, color[1], color[1]);
+    
     // fitting data mass positions
     FittingFunction="[0] + [1]*TMath::Power(x,[2])";
     if (mode==3) {
@@ -1069,7 +1082,7 @@ void CorrectCaloNonLinearityV4(
     fitMassDataVsPDGConst->Draw("same");
     DrawGammaSetMarkerTF1( fitMassDataVsPDG2, 7, 2, kGray+1);
     fitMassDataVsPDG2->Draw("same");
-    histDataResultsVsPDG->DrawCopy("same");
+    graphDataResultsVsPDG->Draw("same,pe");
     legend->AddEntry(histDataResultsVsPDG,"Data");
 
     DrawGammaSetMarkerTF1( fitMassMCVsPDG, 1, 2, kRed+2);
@@ -1078,7 +1091,7 @@ void CorrectCaloNonLinearityV4(
     fitMassMCVsPDGConst->Draw("same");
     DrawGammaSetMarkerTF1( fitMassMCVsPDG2, 7, 2, kRed-6);
     fitMassMCVsPDG2->Draw("same");
-    histMCResultsVsPDG->DrawCopy("same");
+    graphMCResultsVsPDG->Draw("same,pe");
     legend->AddEntry(histMCResultsVsPDG,"MC");
 
     PutProcessLabelAndEnergyOnPlot(0.94, 0.915, 0.03, fCollisionSystem.Data(), fTextMeasurement.Data(), recGamma.Data(), 42, 0.03, "", 1, 1.25, 31);
@@ -1327,7 +1340,7 @@ void CorrectCaloNonLinearityV4(
     histoDummyDataMCRatio->GetXaxis()->SetLabelOffset(-0.01);
     histoDummyDataMCRatio->DrawCopy("");
 
-    DrawGammaSetMarker(histDataMCResults, 20, 1, color[0], color[0]);
+    DrawGammaSetMarkerTGraphErr(graphDataMCResults, 20, 1, color[0], color[0]);
 //     histDataMCResults->Draw("same");
 
     Int_t nCorrections      = 3;
@@ -1348,7 +1361,7 @@ void CorrectCaloNonLinearityV4(
     fFitMassPos->Draw("same");
     if (!(select.Contains("LHC11cd") && mode == 2))fFitComposit->Draw("same");
     fFitExpComb->Draw("same");
-    histDataMCResults->Draw("same,pe");
+    graphDataMCResults->Draw("same,pe");
 
     PutProcessLabelAndEnergyOnPlot(0.94, 0.96, 0.03, fCollisionSystem.Data(), fTextMeasurement.Data(), recGamma.Data(), 42, 0.03, "", 1, 1.25, 31);
     for (Int_t i = 0; i < nSets; i++){
@@ -1359,7 +1372,7 @@ void CorrectCaloNonLinearityV4(
     legendCorrectionFunctions->AddEntry(fFitMassPos,"Exponential function fitted","l");
     if (!(select.Contains("LHC11cd") && mode == 2))legendCorrectionFunctions->AddEntry(fFitComposit,"Ind. Mass fitted with powerlaws","l");
     legendCorrectionFunctions->AddEntry(fFitExpComb,"Ind. Mass fitted with exponentials","l");
-    if(isNotFirstIte) legendCorrectionFunctions->AddEntry(fFitConstFull,"Constant fitted","l");
+    if(isNotFirstIte) legendCorrectionFunctions->AddEntry(fFitConstFull,Form("constant fit: %1.04f #pm %1.04f", fFitConstFull->GetParameter(0), fFitConstFull->GetParError(0) ),"l");
     legendCorrectionFunctions->Draw();
 
     DrawGammaLines(fBinsPt[ptBinRange[0]]/1.5, fBinsPt[ptBinRange[1]]*1.5, 1.0, 1.0, 1, kGray+2, 2);
@@ -1577,10 +1590,10 @@ TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t 
     if(TString(gMinuit->fCstatu.Data()).Contains("CONVERGED") == 1 || TString(gMinuit->fCstatu.Data()).Contains("SUCCESSFUL") == 1 || TString(gMinuit->fCstatu.Data()).Contains("PROBLEMS") == 1){
         cout << "Parameter for exponential+Gaussian "<< endl;
         cout << gMinuit->fCstatu.Data() << endl;
-        cout << "Gausexp: \t" << fFitReco->GetParameter(0) <<"+-" << fFitReco->GetParError(0) << "\t " << fFitReco->GetParameter(1)<<"+-" << fFitReco->GetParError(1) << "\t "<< fFitReco->GetParameter(2) <<"+-" << fFitReco->GetParError(2)<<endl;
+        cout << "Gauss: \t" << fFitReco->GetParameter(0) <<"+-" << fFitReco->GetParError(0) << "\t " << fFitReco->GetParameter(1)<<"+-" << fFitReco->GetParError(1) << "\t "<< fFitReco->GetParameter(2) <<"+-" << fFitReco->GetParError(2)<<endl;
         cout << "chi2/ndf:" << fFitReco->GetChisquare()/fFitReco->GetNDF() << endl;
     } else {
-        cout << "Exp+Gaussian fitting failed in with status " << gMinuit->fCstatu.Data() <<endl << endl;
+        cout << "Gaussian fitting failed in with status " << gMinuit->fCstatu.Data() <<endl << endl;
     }
     return fFitReco;
 }

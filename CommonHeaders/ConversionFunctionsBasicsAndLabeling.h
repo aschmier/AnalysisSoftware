@@ -1223,7 +1223,7 @@
             return "Pb-Pb, #sqrt{#it{s}_{_{NN}}} = 5.02 TeV";
         } else if( (fEnergyFlagOpt.CompareTo("XeXe_5.44TeV") == 0) ) {
             return "Xe-Xe, #sqrt{#it{s}_{_{NN}}} = 5.44 TeV";
-        } else if( fEnergyFlagOpt.CompareTo("pPb_5.023TeV") == 0 || fEnergyFlagOpt.CompareTo("pPb_5.023TeVCent") == 0 || fEnergyFlagOpt.CompareTo("pPb_5.02TeV") == 0 || fEnergyFlagOpt.CompareTo("pPb_5.023TeVRun2") == 0) {
+        } else if( fEnergyFlagOpt.CompareTo("pPb_5.023TeV") == 0 || fEnergyFlagOpt.CompareTo("pPb_5.023TeVCent") == 0 || fEnergyFlagOpt.CompareTo("pPb_5.02TeV") == 0 || fEnergyFlagOpt.CompareTo("pPb_5.023TeVRun2") == 0 || fEnergyFlagOpt.CompareTo("pPb_5.023TeVRun1") == 0 ) {
             return "p-Pb, #sqrt{#it{s}_{_{NN}}} = 5.02 TeV";
         } else if( fEnergyFlagOpt.Contains("pPb_8TeV")) {
             return "p-Pb, #sqrt{#it{s}_{_{NN}}} = 8 TeV";
