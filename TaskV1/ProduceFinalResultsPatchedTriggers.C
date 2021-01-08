@@ -2937,9 +2937,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsPi0[4] = 30; //EG2
             offSetsPi0[5] = 50; //EG1
         }else if(mode == 10){
-            offSetsPi0[1] = 20; //INT7
-            offSetsPi0[4] = 20; //EG2
-            offSetsPi0[5] = 20; //EG1
+            offSetsPi0[1] = 0; //INT7
+            offSetsPi0[4] = 0; //EG2
+            offSetsPi0[5] = 4; //EG1
         }else if(mode == 3){
             offSetsPi0[1] = 2; //INT7
             offSetsPi0[3] = 37; //EMC7
@@ -3425,9 +3425,9 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsPi0Sys[4]=48;//29 + offSetsPi0Sys[1];
             offSetsPi0Sys[5]=62 + offSetsPi0Sys[1];
         } else if(mode == 10){
-            offSetsPi0Sys[1]=11;
-            offSetsPi0Sys[4]=17;
-            offSetsPi0Sys[5]=17;
+            offSetsPi0Sys[1]+=0;
+            offSetsPi0Sys[4]+=0;
+            offSetsPi0Sys[5]+=4;
         } else if(mode == 3 ){
             offSetsPi0Sys[1]+=2;
             offSetsPi0Sys[3]+=37;
