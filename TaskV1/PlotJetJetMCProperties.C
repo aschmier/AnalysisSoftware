@@ -209,7 +209,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     TString fCent = "";
     if ((optionEnergy.Contains("Pb") || optionEnergy.Contains("Xe")) )
         fCent = "0-100%";
-    
+
     Double_t binningPi0[400];
     Int_t maxNBinsPi0Abs            = 0;
     Int_t maxNBinsPi0               = GetBinning( binningPi0, maxNBinsPi0Abs, "Pi0", optionEnergy, mode, -1, kFALSE, fCent, kFALSE );
@@ -230,7 +230,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     }
     cout << endl;
 
-    
+
     const Int_t MaxNumberOfFiles = 22;
 
     Color_t colorBins[22]       = { kBlack, kRed+2, kBlue+2, kGreen+2, kCyan+2,
@@ -283,6 +283,8 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         maxPt           = 50;
     } else if (period.Contains("LHC17g5a1")){
         maxPt           = 50;
+    } else if (period.Contains("LHC18f5") || period.Contains("LHC18l6b1") || period.Contains("LHC18l6c1")  ){
+        maxPt           = 100;
     }
     cout << "going to maxPt: " << maxPt << endl;
 
@@ -332,6 +334,9 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     Double_t weightNew              [MaxNumberOfFiles];
     Double_t weightApplied          [MaxNumberOfFiles];
     Double_t deltaRapid             [MaxNumberOfFiles];
+    ofstream LatexFile;
+    LatexFile.open("JJ_MC_Properties_Latex.txt");
+
 
     TString anchoredTo                  = "LHC11a";
     if (period.Contains("LHC13b4_fix"))
@@ -354,8 +359,10 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         anchoredTo                      = "LHC17pq";
     else if (period.Contains("LHC18b9") || period.Contains("LHC17g6b1a"))
         anchoredTo                      = "LHC16rs";
-    else if (period.Contains("LHC18l6b1") || period.Contains("LHC18l6c1"))
-        anchoredTo                      = "LHC17";
+    else if (period.Contains("LHC18l6b1") || period.Contains("LHC18l6c1") || period.Contains("LHC18f5"))
+        anchoredTo                      = "LHC17[h-r]";
+    else if (period.Contains("LHC20b1"))
+        anchoredTo                      = "LHC16[g-p]";
 
     TString acceptanceOf = "";
     if (mode == 0 || mode == 60) acceptanceOf     = "|#eta_{#gamma}| < 0.9 (PCM acc.)";
@@ -373,8 +380,8 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     cout << __LINE__ << endl;
     for (Int_t i=0; i< nrOfPtHardBins; i++){
         // Define CutSelections
-        TString fType                                   = "";    
-        TString fEventCutSelection                      = "";                   
+        TString fType                                   = "";
+        TString fEventCutSelection                      = "";
         TString fGammaCutSelection                      = "";
         TString fClusterCutSelection                    = "";
         TString fElectronCutSelection                   = "";
@@ -427,7 +434,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         if(!histoNEvents[i]){
             cout << "WARNING: could not finde NEventsWOWeight. Will use NEvents as well instead." << endl;
             histoNEvents[i]        = (TH1F*)histoNEventsWWeight[i]->Clone();
-        } 
+        }
         histoNEvents[i]->SetName(Form("NEventsWOWeight%d",i));
         cout << " test" << endl;
         nGeneratedEvents[i]                         = histoNEvents[i]->GetEntries();
@@ -445,7 +452,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         weightNew[i]                                = xSection[i]/(nTrials[i]/(nGeneratedEvents[i]-nTriggered));
         weightApplied[i]                            = histoNEventsWWeight[i]->GetBinContent(1)/histoNEvents[i]->GetBinContent(1);
 
-        
+
         TList *TrueContainer                        = (TList*)HistosGammaConversion->FindObject(Form("%s True histograms",cutSelection.Data()));
         if(TrueContainer == NULL){
             cout<<"ERROR: " << Form("True histograms %s",cutSelection.Data()) << " not Found in File"<<endl;
@@ -455,14 +462,14 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         histoTruePi0Pt[i]                           = (TH1D*)histoTruePi0InvMassPt[i]->ProjectionY("TruePi0Pt",histoTruePi0InvMassPt[i]->GetXaxis()->FindBin(0.05),histoTruePi0InvMassPt[i]->GetXaxis()->FindBin(0.18),"e");
         histoTruePi0PtWOWeight[i]                   = (TH1D*)histoTruePi0Pt[i]->Clone("TruePi0PtWOWeight");
         histoTruePi0PtWOWeight[i]->Scale(1./weightApplied[i]);
-        histoTruePi0PtWOWeight[i]                   = (TH1D*)histoTruePi0PtWOWeight[i]->Rebin(maxNBinsPi0,"TruePi0PtWOWeight",binningPi0); // 
-        
+        histoTruePi0PtWOWeight[i]                   = (TH1D*)histoTruePi0PtWOWeight[i]->Rebin(maxNBinsPi0,"TruePi0PtWOWeight",binningPi0); //
+
         if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) ){
             histoTrueEtaInvMassPt[i]                    = (TH2F*)TrueContainer->FindObject("ESD_TrueEta_InvMass_Pt");
             histoTrueEtaPt[i]                           = (TH1D*)histoTrueEtaInvMassPt[i]->ProjectionY("TrueEtaPt",histoTrueEtaInvMassPt[i]->GetXaxis()->FindBin(0.45),histoTrueEtaInvMassPt[i]->GetXaxis()->FindBin(0.6),"e");
             histoTrueEtaPtWOWeight[i]                   = (TH1D*)histoTrueEtaPt[i]->Clone("TrueEtaPtWOWeight");
             histoTrueEtaPtWOWeight[i]->Scale(1./weightApplied[i]);
-            histoTrueEtaPtWOWeight[i]                   = (TH1D*)histoTrueEtaPtWOWeight[i]->Rebin(maxNBinsEta,"TrueEtaPtWOWeight",binningEta); // 
+            histoTrueEtaPtWOWeight[i]                   = (TH1D*)histoTrueEtaPtWOWeight[i]->Rebin(maxNBinsEta,"TrueEtaPtWOWeight",binningEta); //
         }
         TList *MCContainer                          = (TList*)HistosGammaConversion->FindObject(Form("%s MC histograms",cutSelection.Data()));
         if(MCContainer == NULL){
@@ -540,6 +547,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         cout << "ntrials: " <<  nTrials[i] << "\t xSection: " << xSection[i] << "\t number of generated events: " << nGeneratedEvents[i] << "\t weight: "
             << Form("%2.8e",weight[i]) << "\t weight new: "
             << weightNew[i] << "\t weight ratio: "<< weightNew[i]/weight[i] << "\t weight applied: "<<  Form("%2.5e",weightApplied[i])<< endl;
+        LatexFile << minPtHard[i] << "\t&\t" << maxPtHard[i] << "\t&\t" << nTrials[i] << "\t&\t" <<  xSection[i] << "\t&\t" << nGeneratedEvents[i]  << "\t&\t" << weightNew[i] << "\t \\\\ \n";
         delete TopDir;
 
         fileInput[i]->Close();
@@ -555,7 +563,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70) )
             histoTrueEtaPtWOWeight[0]->Add(histoTrueEtaPtWOWeight[i]);
     }
-    
+
     //***************************************************************************************************************
     //************************************Plotting unscaled inputs **************************************************
     //***************************************************************************************************************
@@ -565,6 +573,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
 
     Float_t maximumPi0Unscaled = FindLargestEntryIn1D(histoMCPi0InputW0EvtWeigth[0])*10;
     if(period.Contains("LHC16c2")) maximumPi0Unscaled*=10;
+    if(period.Contains("LHC18f5")) maximumPi0Unscaled*=10;
     Float_t minimumPi0Unscaled = FindSmallestEntryIn1D(histoMCPi0InputW0EvtWeigth[nrOfPtHardBins-1]);
 
     TH2F * histo2DInputUnscaledPi0;
@@ -601,6 +610,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     if ( !(mode == 10 || mode == 11) && !(mode >= 60 && mode < 70)){
         Float_t maximumEtaUnscaled = FindLargestEntryIn1D(histoMCEtaInputW0EvtWeigth[0])*10;
         if(optionEnergy.CompareTo("8TeV")==0) maximumEtaUnscaled*=5;
+        if(period.Contains("LHC18f5")) maximumEtaUnscaled*=10;
         Float_t minimumEtaUnscaled = FindSmallestEntryIn1D(histoMCEtaInputW0EvtWeigth[nrOfPtHardBins-1]);
 
         TH2F * histo2DInputUnscaledEta;
@@ -656,6 +666,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
 
             Float_t maximumEtaUnscaled = FindLargestEntryIn1D(histoMCEtaInputW0EvtWeigth[0])*10;
             if(optionEnergy.CompareTo("8TeV")==0) maximumEtaUnscaled*=5;
+            if(period.Contains("LHC18f5")) maximumEtaUnscaled*=10;
             Float_t minimumEtaUnscaled = FindSmallestEntryIn1D(histoMCEtaInputW0EvtWeigth[nrOfPtHardBins-1]);
             TH2F * histo2DInputUnscaledEta;
             histo2DInputUnscaledEta = new TH2F("histo2DInputUnscaledEta","histo2DInputUnscaledEta",1000,0., maxPt,10000,minimumEtaUnscaled,maximumEtaUnscaled);
@@ -905,7 +916,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
         canvasReconstructed->Update();
         canvasReconstructed->SaveAs(Form("%s/Eta_MC_Reconstructed.%s",outputDir.Data(),suffix.Data()));
     }
-    
+
     canvasReconstructed->Clear();
     maxPi0Rec = FindLargestEntryIn1D(histoTruePi0PtWOWeight[nrOfPtHardBins-1])*1000;
     minPi0Rec = FindSmallestEntryIn1D(histoTruePi0PtWOWeight[1]);
@@ -960,21 +971,21 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
     }    delete canvasInputScaled;
     delete canvasReconstructed;
 
-    
+
     for (Int_t i = 1; i < nrOfPtHardBins; i++){
         Double_t maxPtTrustPi0 = 100;
         Double_t maxPtTrustEta = 100;
         Int_t k = histoTruePi0PtWOWeight[i]->GetNbinsX();
         while (histoTruePi0PtWOWeight[i]->GetBinContent(k) < 10 && k > 0) {
-          k--;   
+          k--;
         }
         maxPtTrustPi0 = histoTruePi0PtWOWeight[i]->GetXaxis()->GetBinUpEdge(k);
         k = histoTrueEtaPtWOWeight[i]->GetNbinsX();
         while (histoTrueEtaPtWOWeight[i]->GetBinContent(k) < 10 && k > 0) {
-          k--;   
+          k--;
         }
         maxPtTrustEta = histoTrueEtaPtWOWeight[i]->GetXaxis()->GetBinUpEdge(k);
-        cout << i << "\t" << maxPtTrustPi0 << "\t" << maxPtTrustEta << endl; 
+        cout << i << "\t" << maxPtTrustPi0 << "\t" << maxPtTrustEta << endl;
     }
     //**************************************************************************************************************
     //*************************** Cross sections for pi0 and eta **************************************************
@@ -1005,6 +1016,7 @@ void  PlotJetJetMCProperties(   TString fileListInput   = "InputFile.txt",
                 histoEtaInvYield[i]->Write();
             }
         }
+    LatexFile.close();
     output->Write();
     output->Close();
 
