@@ -414,6 +414,83 @@ elif [[ "$1" == *-mJJ5TeVmergedA* ]] ; then
     minPtMergePi0=2
     minPtMergeEta=4
     ADDEDSIG=2
+elif [[ "$1" == *-mJJ13TeVEDC* ]] ; then
+    MERGINGMC=1
+    DIRECTORY=$2
+    SUFFIX=$3
+    DATAROOTFILE=$DIRECTORY/data_complete/GammaCalo_2050_data.root
+    MCROOTFILE=$DIRECTORY/MC_complete/GammaCalo_2050_MC.root
+    MCROOTFILEADDSIG=$DIRECTORY/MC_complete/GammaCalo_2050_JJ.root
+    MCROOTFILEADDSIGETA=$DIRECTORY/MC_complete/GammaCalo_2050_JJ.root
+    minPtMergePi0=10
+    minPtMergeEta=10
+    ADDEDSIG=2
+elif [[ "$1" == *-mJJ13TeV_cutstudy_EDC* ]] ; then
+    MERGINGMC=1
+    DIRECTORY=$2
+    SUFFIX=$3
+    DATAROOTFILE=$DIRECTORY/data_complete/GammaCalo_2079_data_2018.root
+    MCROOTFILE=$DIRECTORY/MC_complete/GammaCalo_2079_MC_2018.root
+    MCROOTFILEADDSIG=$DIRECTORY/MC_complete/GammaCalo_2079_JJ.root
+    MCROOTFILEADDSIGETA=$DIRECTORY/MC_complete/GammaCalo_2079_JJ.root
+    minPtMergePi0=10
+    minPtMergeEta=10
+    ADDEDSIG=2
+elif [[ "$1" == *-mJJ13TeV_stdV2_EDC* ]] ; then
+    MERGINGMC=1
+    DIRECTORY=$2
+    SUFFIX=$3
+    DATAROOTFILE=$DIRECTORY/2020_12_09_pp13TeV_CutStudy/MC_complete/GammaCalo_2050.root
+    MCROOTFILE=$DIRECTORY/2020_12_09_pp13TeV_CutStudy/MC_complete/GammaCalo_2050.root
+    MCROOTFILEADDSIG=$DIRECTORY/2020_12_09_pp13TeVJJ_CutStudy/JJ_complete/GammaCalo_2050.root
+    MCROOTFILEADDSIGETA=$DIRECTORY/2020_12_09_pp13TeVJJ_CutStudy/JJ_complete/GammaCalo_2050.root
+    minPtMergePi0=10
+    minPtMergeEta=10
+    ADDEDSIG=2
+elif [[ "$1" == *-mJJ13TeV_cutstudyV2_EDC* ]] ; then
+    MERGINGMC=1
+    DIRECTORY=$2
+    SUFFIX=$3
+    DATAROOTFILE=$DIRECTORY/2020_12_09_pp13TeV_CutStudy/MC_complete/GammaCalo_2074.root
+    MCROOTFILE=$DIRECTORY/2020_12_09_pp13TeV_CutStudy/MC_complete/GammaCalo_2074.root
+    MCROOTFILEADDSIG=$DIRECTORY/2020_12_09_pp13TeVJJ_CutStudy/JJ_complete/GammaCalo_2074.root
+    MCROOTFILEADDSIGETA=$DIRECTORY/2020_12_09_pp13TeVJJ_CutStudy/JJ_complete/GammaCalo_2074.root
+    minPtMergePi0=10
+    minPtMergeEta=10
+    ADDEDSIG=2
+elif [[ "$1" == *-mJJ13TeV_stdV1_EDC* ]] ; then
+    MERGINGMC=1
+    DIRECTORY=$2
+    SUFFIX=$3
+    DATAROOTFILE=$DIRECTORY/2020_12_09_pp13TeV_CutStudy/MC_complete/GammaCalo_2059.root
+    MCROOTFILE=$DIRECTORY/2020_12_09_pp13TeV_CutStudy/MC_complete/GammaCalo_2059.root
+    MCROOTFILEADDSIG=$DIRECTORY/2020_12_09_pp13TeVJJ_CutStudy/JJ_complete/GammaCalo_2059.root
+    MCROOTFILEADDSIGETA=$DIRECTORY/2020_12_09_pp13TeVJJ_CutStudy/JJ_complete/GammaCalo_2059.root
+    minPtMergePi0=10
+    minPtMergeEta=10
+    ADDEDSIG=2
+elif [[ "$1" == *-mJJ13TeV_cutstudyV1_EDC* ]] ; then
+    MERGINGMC=1
+    DIRECTORY=$2
+    SUFFIX=$3
+    DATAROOTFILE=$DIRECTORY/2020_12_09_pp13TeV_CutStudy/MC_complete/GammaCalo_2076.root
+    MCROOTFILE=$DIRECTORY/2020_12_09_pp13TeV_CutStudy/MC_complete/GammaCalo_2076.root
+    MCROOTFILEADDSIG=$DIRECTORY/2020_12_09_pp13TeVJJ_CutStudy/JJ_complete/GammaCalo_2076.root
+    MCROOTFILEADDSIGETA=$DIRECTORY/2020_12_09_pp13TeVJJ_CutStudy/JJ_complete/GammaCalo_2076.root
+    minPtMergePi0=10
+    minPtMergeEta=10
+    ADDEDSIG=2
+elif [[ "$1" == *-mJJ13TeV_V1_EDC* ]] ; then
+    MERGINGMC=1
+    DIRECTORY=$2
+    SUFFIX=$3
+    DATAROOTFILE=$DIRECTORY/GammaCalo_2059.root
+    MCROOTFILE=$DIRECTORY/GammaCalo_2059.root
+    MCROOTFILEADDSIG=$DIRECTORY/GammaCalo_2059_JJ_merged.root
+    MCROOTFILEADDSIGETA=$DIRECTORY/GammaCalo_2059_JJ_merged.root
+    minPtMergePi0=10
+    minPtMergeEta=10
+    ADDEDSIG=2
 elif [[ "$1" == *-mAddSigPbPbLHC13d2A* ]] ; then
     MERGINGMC=1
     DIRECTORY=$2
@@ -1318,6 +1395,27 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                             OPTIONSGAMMAMC=\"Pi0\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$DIRECTPHOTON\"\,\"\"\,$BINSPTGAMMA\,kFALSE\,$MODE
                             ExtractSignalGammaV2 $OPTIONSGAMMAMC $OPTMINBIASEFF
                         fi
+
+                        if [ $ADDEDSIG -eq 2 ]; then
+                          OPTIONSGAMMAMC=\"Pi0\"\,\"$MCROOTFILEADDSIG\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$DIRECTPHOTON\"\,\"JetJetMC\"\,$BINSPTGAMMA\,kFALSE\,$MODE
+                          ExtractSignalGammaV2 $OPTIONSGAMMAMC $OPTMINBIASEFF
+                          PI0MCCORRECTION=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1WithoutCorrection_*.root`
+                          PI0MCCORRECTIONADDSIG=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1WithoutCorrectionJetJetMC_*.root`
+                          if [ $ISROOT6 -eq 0 ]; then
+                              root -b -x -q -l TaskV1/MergeSignalExtraction.C\+\(\"$CUTSELECTION\"\,\"Pi0\"\,\"$SUFFIX\"\,\"$ENERGY\"\,\"$PI0MCCORRECTION\"\,\"$CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1WithoutCorrectionMinBias_$CUTSELECTION.root\"\,\"$PI0MCCORRECTIONADDSIG\"\,$minPtMergePi0\,30\)
+                          else
+                              root -b -x -q -l TaskV1/MergeSignalExtraction.C\(\"$CUTSELECTION\"\,\"Pi0\"\,\"$SUFFIX\"\,\"$ENERGY\"\,\"$PI0MCCORRECTION\"\,\"$CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1WithoutCorrectionMinBias_$CUTSELECTION.root\"\,\"$PI0MCCORRECTIONADDSIG\"\,$minPtMergePi0\,30\)
+                          fi
+
+
+                          PI0MCCORRECTION=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1CorrectionHistos_*.root`
+                          PI0MCCORRECTIONADDSIG=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1CorrectionHistosJetJetMC_*.root`
+                          if [ $ISROOT6 -eq 0 ]; then
+                              root -b -x -q -l TaskV1/MergeSignalExtraction.C\+\(\"$CUTSELECTION\"\,\"Pi0\"\,\"$SUFFIX\"\,\"$ENERGY\"\,\"$PI0MCCORRECTION\"\,\"$CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1CorrectionHistosMinBias_$CUTSELECTION.root\"\,\"$PI0MCCORRECTIONADDSIG\"\,$minPtMergePi0\,30\)
+                          else
+                              root -b -x -q -l TaskV1/MergeSignalExtraction.C\(\"$CUTSELECTION\"\,\"Pi0\"\,\"$SUFFIX\"\,\"$ENERGY\"\,\"$PI0MCCORRECTION\"\,\"$CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1CorrectionHistosMinBias_$CUTSELECTION.root\"\,\"$PI0MCCORRECTIONADDSIG\"\,$minPtMergePi0\,30\)
+                          fi
+                        fi
                     fi
                 fi
                 if [ $DOPI0INETABINS -eq 1 ]; then
@@ -1841,12 +1939,12 @@ echo ""
     done
 
     if [ $DOPI0 -eq 1 ]; then
-        root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0EtaBinning\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
-        root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0EtaBinning\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
-    fi
-    if [ $DOPI0INETABINS -eq 1 ]; then
         root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
         root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
+    fi
+    if [ $DOPI0INETABINS -eq 1 ]; then
+      root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0EtaBinning\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
+      root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Pi0EtaBinning\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
     fi
     if [ $DOETA -eq 1 ]; then
         root -l -b -x -q TaskV1/CutStudiesOverviewMerged.C\+\(\"CutSelection.log\"\,\"$SUFFIX\"\,\"Eta\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$NAMECUTSTUDIES\"\,$NORMALCUTS\,\"$PERIODNAME\"\,$MODE\)
