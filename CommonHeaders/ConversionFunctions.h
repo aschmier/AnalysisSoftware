@@ -88,6 +88,7 @@
     void                RecalculateErrorsBasedOnDetailedInputFile (TGraphAsymmErrors* , TString );
     TGraph*             AverageNGraphs(TGraph*&, const Int_t );
     void                SmoothSystematicErrors(Double_t*, Double_t*, Double_t*, Double_t*, Int_t, Double_t*, Int_t);
+    void                NormalizeBinWidth2d(TH2* h);
 
     // ****************************************************************************************************************
     // ********************** definition of functions defined in this header ******************************************
@@ -745,7 +746,7 @@
                 Double_t binwidth = xErrorHigh[i]+xErrorLow[i];
                 yValue[i]                   = yValue[i]/(fit->Integral(xValue[i]-xErrorLow[i],xValue[i]+xErrorHigh[i])/binwidth);
                 yErrorLow[i]                = yErrorLow[i]/(fit->Integral(xValue[i]-xErrorLow[i],xValue[i]+xErrorHigh[i])/binwidth);
-                yErrorHigh[i]               = yErrorHigh[i]/(fit->Integral(xValue[i]-xErrorLow[i],xValue[i]+xErrorHigh[i])/binwidth); 
+                yErrorHigh[i]               = yErrorHigh[i]/(fit->Integral(xValue[i]-xErrorLow[i],xValue[i]+xErrorHigh[i])/binwidth);
             }
         }
         TGraphAsymmErrors* returnGraph  = new TGraphAsymmErrors(nPoints,xValue,yValue,xErrorLow,xErrorHigh,yErrorLow,yErrorHigh);
@@ -5983,6 +5984,17 @@
             printf("%.4f \t",ErrorVector[i]);
         }
         printf("\n");
+    }
+
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    void NormalizeBinWidth2d(TH2* h){
+      for(int x = 1; x <= h->GetNbinsX(); ++x){
+        for(int y = 1; y <= h->GetNbinsY(); ++y){
+          h->SetBinContent(x,y, h->GetBinContent(x,y)/(h->GetXaxis()->GetBinWidth(x)*h->GetYaxis()->GetBinWidth(y)));
+        }
+      }
     }
 
 #endif
