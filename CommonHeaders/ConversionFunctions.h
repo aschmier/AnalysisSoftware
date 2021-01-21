@@ -1535,6 +1535,8 @@
     TH1D* CalculateRelErrUpTH1D(    TH1D* histo,
                                     TString nameNewGraph    = "relativeError"
                             ){
+        Int_t debugLevel =0;
+        if (debugLevel >= 1 ){cout<<"Debug Output, ConversionFunctions.h, CalculateRelErrUpTH1D(), Line: "<<__LINE__<<endl;}
         TH1D* returnHisto               = (TH1D*)histo->Clone(nameNewGraph.Data());
         cout << nameNewGraph.Data() << endl;
         for (Int_t i = 1; i < returnHisto->GetNbinsX()+1; i++){

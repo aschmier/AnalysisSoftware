@@ -2181,7 +2181,7 @@
                 xErr[ptBin]                     = (xPtLimits[ptBin+1]-xPtLimits[ptBin])/2;
                 cout << xValue[ptBin] << "\t" << xErr[ptBin] << endl;
                 if (isPresentGeneral[meas]){
-                    cout << "current pt bin: " << binCounters[meas] << "\t offset: " << startOffsets[meas]  << "\t offset sys: " << sysOffsets[meas]  <<endl;
+                    cout << "current pt bin: " << binCounters[meas] << "\t offset: " << startOffsets[meas]  << "\t offset sys: " << sysOffsets[meas]  <<"\t  Measurement: "<<meas<<endl;
                     if ((binCounters[meas] - startOffsets[meas]) >= 0 && histoStat[meas]->GetBinContent(binCounters[meas]+1-startOffsets[meas]) > 0. ){
                         cout << nameMeas[meas].Data() << ": pt " <<  histoStat[meas]->GetBinCenter(binCounters[meas]+1-startOffsets[meas])
                             << "\t value "<<histoStat[meas]->GetBinContent(binCounters[meas]+1-startOffsets[meas])
@@ -3316,8 +3316,11 @@
         if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
 
         TGraphAsymmErrors* graphWeighted = new TGraphAsymmErrors(nPtLimits,xValue,values,xErr,xErr,errors,errors);
-        graphWeighted->Print();
-        if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
+        if (DebugOutputLevel>=1){
+            cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;
+            graphWeighted->Print();
+            cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;
+        }
         return graphWeighted;
     }
 
