@@ -18,7 +18,8 @@ Int_t fCrysFitting                                          = 0;
 Int_t fIsMC                                                 = 0;
 Int_t fMesonId                                              = 0;
 Float_t fBackgroundMultNumber;
-Int_t fTotalBackFitMode                                     = 1; // 0: pol1 only 1: pol2 only 2: gauss + pol1 3: gauss + pol2
+Int_t fTotalBackFitMode                                     = 1; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3
+Int_t fFitRangeForMaximumMode                               = 0; // MesonRange for Maximum extraction for Fit: 0==Meson, 1==Peak, 2==Fit
 
 Double_t fYMaxMeson                                         = 0.9;
 Double_t fMesonMassExpect                                   = 0;   // expected meson mass
@@ -240,6 +241,10 @@ TH1D** 	fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero=	NULL;
 TH1D** 	fHistoMappingGGInvMassBackFitWithoutSignalPtBin=	NULL;
 TH1D**  fHistoMappingTruePiPlPiMiPiZeroCombinatoricalPtBin= NULL;
 TH1D**  fHistoMappingTruePiPlPiMiPiZeroContaminationPtBin=  NULL;
+TH1D**  fHistoMapping_bck_Combinatorical=                   NULL;
+TH1D**  fHistoMapping_bck_Combinatorical_SubPiZero=         NULL;
+TH1D**  fHistoMapping_bck_Combinatorical_FixedPzPiZero=     NULL;
+TH1D**  fHistoMapping_bck_Contamination=                    NULL;
 
 TH1D** 	fHistoMappingBackInvMassPtBin[5]=				      {NULL,NULL,NULL,NULL,NULL};
 TH1D** 	fHistoMappingBackInvMassPtBin_SubPiZero[5]=		      {NULL,NULL,NULL,NULL,NULL};
@@ -323,6 +328,12 @@ Int_t 	fNRebinGlobal = 									2;
 Double_t 	*fBGFitRangeLeft = 								NULL;
 Double_t 	*fBGFitRangeLeft_SubPiZero = 					NULL;
 Double_t 	*fBGFitRangeLeft_FixedPzPiZero =				NULL;
+Double_t 	*fBGFitRange_ContamintationFit =                NULL;
+Double_t 	*fBGFitRange_SubPiZero_ContamintationFit =      NULL;
+Double_t 	*fBGFitRange_FixedPzPiZero_ContamintationFit =  NULL;
+Double_t 	*fBGFitRangeLeft_ContamintationFit =    		NULL;
+Double_t 	*fBGFitRangeLeft_SubPiZero_ContamintationFit = 	NULL;
+Double_t 	*fBGFitRangeLeft_FixedPzPiZero_ContamintationFit = NULL;
 Double_t 	*fMesonPlotRange = 								NULL;
 
 // Names
@@ -702,6 +713,16 @@ TH2D*   hist_true_PiMiPiZero_SameMother[4]=                   {NULL,NULL,NULL,NU
 TH2D*   hist_true_PiPlPiZero_SameMother[4]=                   {NULL,NULL,NULL,NULL};
 TH2D*   hist_bck_SubPiZero[4]=                              {NULL,NULL,NULL,NULL};
 TH2D*   hist_bck_FixedPzPiZero[4]=                          {NULL,NULL,NULL,NULL};
+TH2D*   hist_bck_Signal=                                    NULL;
+TH2D*   hist_bck_True=                                      NULL;
+TH2D*   hist_bck_SubPiZero_Signal=                          NULL;
+TH2D*   hist_bck_SubPiZero_True=                            NULL;
+TH2D*   hist_bck_FixedPzPiZero_Signal=                      NULL;
+TH2D*   hist_bck_FixedPzPiZero_True=                        NULL;
+TH2D*   hist_bck_Combinatorical=                            NULL;
+TH2D*   hist_bck_Combinatorical_SubPiZero=                  NULL;
+TH2D*   hist_bck_Combinatorical_FixedPzPiZero=              NULL;
+TH2D*   hist_bck_Contamination=                             NULL;
 TH2D*	fBckInvMassVSPt[5]=									{NULL,NULL,NULL,NULL,NULL}; // 0: Background summed 1: Background Group 1 2: Background Group 2 ...
 TH2D*	fBckInvMassVSPt_SubPiZero[5]=			            {NULL,NULL,NULL,NULL,NULL}; // 0: Background summed 1: Background Group 1 2: Background Group 2 ...
 TH2D*	fBckInvMassVSPt_FixedPzPiZero[5]=                 	{NULL,NULL,NULL,NULL,NULL}; // 0: Background summed 1: Background Group 1 2: Background Group 2 ...
@@ -744,8 +765,10 @@ void ProcessEM(TH1D*,TH1D*,Double_t *);
 void ProcessEMLeftRight(    TH1D* , TH1D*, Double_t*, Double_t* );
 //void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeDummy, Double_t *fFitRangeDummy, TString energy, TString suffix, TString cutSelection, TString meson, Int_t InvMassType);
 void ProcessBckFitSubtraction(TH1D*, Int_t, Double_t* ,Double_t*, TString, TString, TString, TString, Int_t);
+void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D*, TH1D*, TH1D*, Int_t, Double_t* ,Double_t*, TString, TString, TString, TString, Int_t);
 void ProcessRatioSignalBackground(TH1D* , TH1D* );
 void FillMassHistosArray(TH2D* fGammaGammaInvMassVSPtDummy, TH2D *fGammaGammaInvMassVSPtDummy_SubPiZero, TH2D *fGammaGammaInvMassVSPtDummy_FixedPzPiZero);
+void ProjectHistogramInPtBins(TH2D* HistogramToProject, TH1D **ProjectedHistograms);
 void FillMassMCTrueMesonHistosArray(TH2D*);
 void FillMassMCTrueReweightedMesonHistosArray(TH2D*);
 void CreatePtHistos();
@@ -789,6 +812,12 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
     fBGFitRangeLeft                    = new Double_t[2];
     fBGFitRangeLeft_SubPiZero          = new Double_t[2];
     fBGFitRangeLeft_FixedPzPiZero      = new Double_t[2];
+    fBGFitRange_ContamintationFit      = new Double_t[2];
+    fBGFitRange_SubPiZero_ContamintationFit = new Double_t[2];
+    fBGFitRange_FixedPzPiZero_ContamintationFit = new Double_t[2];
+    fBGFitRangeLeft_ContamintationFit  = new Double_t[2];
+    fBGFitRangeLeft_SubPiZero_ContamintationFit = new Double_t[2];
+    fBGFitRangeLeft_FixedPzPiZero_ContamintationFit = new Double_t[2];
     fMesonPlotRange                    = new Double_t[2];
     fMesonIntDeltaRange                = new Double_t[2];
     fMesonIntDeltaRangeWide            = new Double_t[2];
@@ -818,7 +847,14 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         fMesonId                  = 223;
 
         // what function is used to fit total background (alternative to event mixing)
-        fTotalBackFitMode = 3; // pol2 only
+        fTotalBackFitMode = 3; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3
+        fFitRangeForMaximumMode = 0; //Meson Range
+        if (fEnergyFlag.Contains("13TeV")){
+            if(mode == 60 || mode == 61 || mode == 62 || mode == 64 || mode == 65){
+               fTotalBackFitMode = 3;
+               fFitRangeForMaximumMode = 0; //1 for pure fit
+            }
+        }
 
         // set medium pt range (currently for all modes the same)
         if(mode == 40 || mode == 41 || mode == 42 || mode == 44 || mode == 45){
@@ -847,7 +883,10 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
            mode == 60 || mode == 61 || mode == 62 || mode == 64 || mode == 65){
             fFitRange[0]             = 0.60;
             fFitRange[1]             = 0.99;
-
+            if (fEnergyFlag.Contains("13TeV")){
+                fFitRange[0]             = 0.60;
+                fFitRange[1]             = 0.99;
+            }
             // fFitRange[0]             = 0.60;
             // fFitRange[1]             = 0.89;
             fFitRange_SubPiZero[0]   = fFitRange[0];
@@ -872,6 +911,19 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_SubPiZero[1]             = fBGFitRangeLeft[1];
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
+
+            fBGFitRange_ContamintationFit[0]                        = fBGFitRange[0];
+            fBGFitRange_ContamintationFit[1]                        = fBGFitRange[1];
+            fBGFitRange_SubPiZero_ContamintationFit[0]              = fBGFitRange_ContamintationFit[0]; //
+            fBGFitRange_SubPiZero_ContamintationFit[1]              = fBGFitRange_ContamintationFit[1];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[0]          = fBGFitRange_ContamintationFit[0];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[1]          = fBGFitRange_ContamintationFit[1];
+            fBGFitRangeLeft_ContamintationFit[0]                    = fBGFitRangeLeft[0];
+            fBGFitRangeLeft_ContamintationFit[1]                    = fBGFitRangeLeft[1];
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[0]          = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[1]          = fBGFitRangeLeft_ContamintationFit[1];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[0]      = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[1]      = fBGFitRangeLeft_ContamintationFit[1];
         } else if (mode == 41 || mode == 61){ //PCM-EMCAL
             fBGFitRange[0]                = 0.825;
             fBGFitRange[1]                = 0.865;
@@ -885,6 +937,19 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_SubPiZero[1]             = fBGFitRangeLeft[1];
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
+
+            fBGFitRange_ContamintationFit[0]                        = fBGFitRange[0];
+            fBGFitRange_ContamintationFit[1]                        = fBGFitRange[1];
+            fBGFitRange_SubPiZero_ContamintationFit[0]              = fBGFitRange_ContamintationFit[0]; //
+            fBGFitRange_SubPiZero_ContamintationFit[1]              = fBGFitRange_ContamintationFit[1];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[0]          = fBGFitRange_ContamintationFit[0];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[1]          = fBGFitRange_ContamintationFit[1];
+            fBGFitRangeLeft_ContamintationFit[0]                    = fBGFitRangeLeft[0];
+            fBGFitRangeLeft_ContamintationFit[1]                    = fBGFitRangeLeft[1];
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[0]          = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[1]          = fBGFitRangeLeft_ContamintationFit[1];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[0]      = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[1]      = fBGFitRangeLeft_ContamintationFit[1];
         } else if (mode == 42 || mode == 62){ //PCM-PHOS
             fBGFitRange[0]                = 0.815;
             fBGFitRange[1]                = 0.85;
@@ -898,9 +963,24 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_SubPiZero[1]             = fBGFitRangeLeft[1];
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
+
+            fBGFitRange_ContamintationFit[0]                        = fBGFitRange[0];
+            fBGFitRange_ContamintationFit[1]                        = fBGFitRange[1];
+            fBGFitRange_SubPiZero_ContamintationFit[0]              = fBGFitRange_ContamintationFit[0]; //
+            fBGFitRange_SubPiZero_ContamintationFit[1]              = fBGFitRange_ContamintationFit[1];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[0]          = fBGFitRange_ContamintationFit[0];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[1]          = fBGFitRange_ContamintationFit[1];
+            fBGFitRangeLeft_ContamintationFit[0]                    = fBGFitRangeLeft[0];
+            fBGFitRangeLeft_ContamintationFit[1]                    = fBGFitRangeLeft[1];
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[0]          = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[1]          = fBGFitRangeLeft_ContamintationFit[1];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[0]      = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[1]      = fBGFitRangeLeft_ContamintationFit[1];
         } else if (mode == 44 || mode == 64){ //EMCAL
-            fBGFitRange[0]                = 0.88;
-            fBGFitRange[1]                = 0.97;
+            //fBGFitRange[0]                = 0.88;
+            //fBGFitRange[1]                = 0.97;
+            fBGFitRange[0]                = 0.83;
+            fBGFitRange[1]                = 0.86;
             fBGFitRange_SubPiZero[0]      = fBGFitRange[0]; //
             fBGFitRange_SubPiZero[1]      = fBGFitRange[1];
             fBGFitRange_FixedPzPiZero[0]  = fBGFitRange[0];
@@ -911,6 +991,22 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_SubPiZero[1]             = fBGFitRangeLeft[1];
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
+
+            //For Background: Combination and Contamination
+            fBGFitRangeLeft_ContamintationFit[0]                    = 0.6; //fBGFitRangeLeft[0];
+            fBGFitRangeLeft_ContamintationFit[1]                    = 0.70;
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[0]          = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[1]          = fBGFitRangeLeft_ContamintationFit[1];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[0]      = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[1]      = fBGFitRangeLeft_ContamintationFit[1];
+
+            fBGFitRange_ContamintationFit[0]                        = 0.85;
+            fBGFitRange_ContamintationFit[1]                        = 0.95; //fBGFitRange[1];
+            fBGFitRange_SubPiZero_ContamintationFit[0]              = fBGFitRange_ContamintationFit[0]; //
+            fBGFitRange_SubPiZero_ContamintationFit[1]              = fBGFitRange_ContamintationFit[1];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[0]          = fBGFitRange_ContamintationFit[0];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[1]          = fBGFitRange_ContamintationFit[1];
+
         } else if (mode == 45 || mode == 65){ //PHOS
             fBGFitRange[0]                = 0.81;
             fBGFitRange[1]                = 0.85;
@@ -924,6 +1020,19 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fBGFitRangeLeft_SubPiZero[1]             = fBGFitRangeLeft[1];
             fBGFitRangeLeft_FixedPzPiZero[0]         = fBGFitRangeLeft[0];
             fBGFitRangeLeft_FixedPzPiZero[1]         = fBGFitRangeLeft[1];
+
+            fBGFitRange_ContamintationFit[0]                        = fBGFitRange[0];
+            fBGFitRange_ContamintationFit[1]                        = fBGFitRange[1];
+            fBGFitRange_SubPiZero_ContamintationFit[0]              = fBGFitRange_ContamintationFit[0]; //
+            fBGFitRange_SubPiZero_ContamintationFit[1]              = fBGFitRange_ContamintationFit[1];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[0]          = fBGFitRange_ContamintationFit[0];
+            fBGFitRange_FixedPzPiZero_ContamintationFit[1]          = fBGFitRange_ContamintationFit[1];
+            fBGFitRangeLeft_ContamintationFit[0]                    = fBGFitRangeLeft[0];
+            fBGFitRangeLeft_ContamintationFit[1]                    = fBGFitRangeLeft[1];
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[0]          = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_SubPiZero_ContamintationFit[1]          = fBGFitRangeLeft_ContamintationFit[1];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[0]      = fBGFitRangeLeft_ContamintationFit[0];
+            fBGFitRangeLeft_FixedPzPiZero_ContamintationFit[1]      = fBGFitRangeLeft_ContamintationFit[1];
         }
 
         // Initialize default Plot range for meson
@@ -1573,3 +1682,47 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
     }
 }
+
+
+class BackgroundClass
+{
+public:
+  BackgroundClass(TH1 *s, TH1 *b, Double_t ignoreMin0, Double_t ignoreMax0, Double_t ignoreMin1, Double_t ignoreMax1, Double_t ignoreMin2, Double_t ignoreMax2)
+  {
+    fCombinatorical     = s;
+    fContamination      = b;
+
+    ignoreMinX0         = ignoreMin0;
+    ignoreMinX0         = ignoreMax0;
+    ignoreMinX1         = ignoreMin1;
+    ignoreMinX1         = ignoreMax1;
+    ignoreMinX2         = ignoreMin2;
+    ignoreMinX2         = ignoreMax2;
+  }
+
+  double operator()(double *xvals, double *pars)
+  {
+    Double_t totScale       = pars[0];       // total scale parameter
+    Double_t contScale      = pars[1];       // scale of contamination contribution
+    Double_t x              = xvals[0];
+
+    Int_t binCombinatorial  = fCombinatorical->FindBin(x);
+    Int_t binContamination  = fContamination->FindBin(x);
+    Double_t sval           = fCombinatorical->GetBinContent(binCombinatorial);
+    Double_t bval           = fContamination->GetBinContent(binContamination);
+
+    if ((x > ignoreMinX0 && x < ignoreMaxX0)||(x > ignoreMinX1 && x < ignoreMaxX1)||(x > ignoreMinX2 && x < ignoreMaxX2)){
+        TF1::RejectPoint();
+    }
+    return totScale *( sval + (contScale * bval));
+  }
+  TH1 *fCombinatorical;
+  TH1 *fContamination;
+
+  Int_t ignoreMinX0;
+  Int_t ignoreMaxX0;
+  Int_t ignoreMinX1;
+  Int_t ignoreMaxX1;
+  Int_t ignoreMinX2;
+  Int_t ignoreMaxX2;
+};
