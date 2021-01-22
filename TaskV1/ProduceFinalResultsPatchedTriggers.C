@@ -1102,8 +1102,42 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         //***************************************************************************************************************
 
         if ((mode == 0 || mode == 2 || mode == 3 || mode == 4 || mode == 5 || mode == 10) && hasClusterOutput ){
-            histoRawClusterPt[i]                        = (TH1D*)fileUnCorrectedPi0[i]->Get("ClusterPtPerEvent");
-            histoRawClusterE[i]                         = (TH1D*)fileUnCorrectedPi0[i]->Get("ClusterEPerEvent");
+            TString histoRawClusterPtName               = "ClusterPtPerEvent";
+            TString histoRawClusterEName                = "ClusterEPerEvent";
+            Int_t ClusEOption=1;
+            if (optionEnergy.BeginsWith("13TeV")){
+                if (mode == 5){
+                    if (ClusEOption==1){
+                        if (i==0){
+                            histoRawClusterEName                = "ClustersE_BothBM_highestE_PerEvent";
+                        } else {
+                            histoRawClusterEName                = "ClustersE_BothBM_highestE_PerEvent";
+                        }
+                    } else if (ClusEOption==2){
+                        if (i==0){
+                            histoRawClusterEName                = "ClusterEPerEvent";
+                        } else {
+                            histoRawClusterEName                = "ClustersE_onlyTriggered_PerEvent";
+                        }
+                    } else if (ClusEOption==3){
+                        if (i==0){
+                            histoRawClusterEName                = "ClustersE_BothBM_PerEvent";
+                        } else {
+                            histoRawClusterEName                = "ClustersE_onlyTriggered_PerEvent";
+                        }
+                    } else {
+                        histoRawClusterEName                    = "ClusterEPerEvent";
+                    }
+                } else {
+                    histoRawClusterEName                        = "ClusterEPerEvent";
+                }
+                histoRawClusterPtName                           = histoRawClusterEName.Data();
+            } else {
+                histoRawClusterPtName                           = "ClusterPtPerEvent";
+                histoRawClusterEName                            = "ClusterEPerEvent";
+            }
+            histoRawClusterPt[i]                        = (TH1D*)fileUnCorrectedPi0[i]->Get(Form("%s", histoRawClusterPtName.Data()));
+            histoRawClusterE[i]                         = (TH1D*)fileUnCorrectedPi0[i]->Get(Form("%s", histoRawClusterEName.Data()));
             if (!histoRawClusterPt[i]){
                 cout << "INFO: couldn't find cluster input, disabeling it!" << endl;
                 hasClusterOutput                        = kFALSE;
@@ -1258,8 +1292,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maxTriggReject = 9000;
             minTriggReject = 1.0;
         } else if (optionEnergy.CompareTo("13TeV") == 0){
-            if (mode == 3 || mode ==5){
+            if (mode == 3){
                 maxTriggReject = 9000;
+            } else if (mode ==5){
+                maxTriggReject = 15000;
             } else {
                 maxTriggReject = 4200;
             }
@@ -1485,8 +1521,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         } else if( optionEnergy.CompareTo("13TeV")==0 ){
             if (mode == 2 || mode == 4 || mode == 10 ){
                 maxTriggRejectLin = 1005;
-            } else if (mode ==3 || mode == 5){
+            } else if (mode ==3){
                 maxTriggRejectLin = 10000;
+            } else if (mode == 5){
+                maxTriggRejectLin = 15000;
             }
         } else if( optionEnergy.Contains("pPb_8TeV") ){
             if (mode == 2 || mode == 4 || mode == 10 )
