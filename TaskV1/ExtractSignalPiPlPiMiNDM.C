@@ -6951,7 +6951,7 @@ Double_t CrystalBall(Double_t *x,Double_t *par) {
 
 
 void Delete(){
-    Int_t DebugOutputLevel=1;
+    Int_t DebugOutputLevel=0;
     if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete(); Line: " << __LINE__ << endl;}
     if (fBinsPt) delete fBinsPt;
     if (fPeakRange) delete fPeakRange;
