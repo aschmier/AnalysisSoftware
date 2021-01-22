@@ -63,7 +63,7 @@
 #include "RooFitResult.h"
 
 Double_t FunctionBGExclusion(Double_t *x, Double_t *par){
-    if (x[0] > fPeakRange[1] && x[0] < fPeakRange[0]) {
+    if (x[0] > fPeakRange[0] && x[0] < fPeakRange[1]) {
         TF1::RejectPoint();
         return 0;
     }
@@ -83,7 +83,9 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                                     TString optionAdvancedMesonQA  = "",
                                     Int_t numberOfBins             = 30,
                                     Bool_t addSig                  = kFALSE,
-                                    Int_t UsrMode                  = 40         // Mode given by user
+                                    Int_t UsrMode                  = 40,         // Mode given by user
+                                    TString fileMC                 = "",
+                                    Int_t useMCBck                 = 0
                                 ){
     gROOT->Reset();
 
@@ -106,7 +108,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     //Int_t fMode = -1;
     // Extract Mode from CutString
     Bool_t isNewTask = kTRUE;
-    Int_t doDebugOutputLevel    =   0;
+    Int_t doDebugOutputLevel    =   1;
     if((UsrMode>=40) && (UsrMode <= 50)) isNewTask = kFALSE;
 
     fMode                       = ReturnSeparatedCutNumberPiPlPiMiPiZero( cutSelection, fTypeCutSelection, fEventCutSelection, fGammaCutSelection, fClusterCutSelection,
@@ -224,6 +226,16 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
     TFile* f = new TFile(file.Data());
 
+    TFile* fMC = NULL;
+    if (useMCBck>0){
+        if (!(fileMC.CompareTo("") == 0)){
+            fMC = new TFile(fileMC.Data());
+        }
+        if ((!fMC)||(fMC->IsZombie())){
+            useMCBck =0;
+        }
+    }
+
     TString nameMainDir = "";
 
     nameMainDir     = AutoDetectMainTList(mode , f); // TODO: Change 40 to mode if modes are changed in ConversionFunctions correctly
@@ -240,7 +252,24 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         return;
     } 
 
+    TList *TopDirMC = NULL;
+    if (useMCBck>0){
+        TopDirMC =(TList*)fMC->Get(nameMainDir.Data());
+        if(TopDirMC == NULL){
+            cout<<"ERROR: TopDirMC not Found"<<endl;
+            useMCBck=0;
+        }
+    }
+
     TList *HistosGammaConversion = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
+
+    TList *HistosGammaConversionMC = NULL;
+    if (useMCBck>0){
+        HistosGammaConversionMC = (TList*)TopDirMC->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
+        if (HistosGammaConversionMC==NULL){
+            useMCBck=0;
+        }
+    }
 
     // if(optionMC.CompareTo("kTRUE") == 0 && mode ==64 && (fCutSelectionRead.Contains("2_00052113_111113106f032230000_0103603c00000000_32c51070a_0153503000000000"))){
     //     fCutSelectionRead = "2_00010113_111113106f032230000_0103603c00000000_32c51070a_0153503000000000";
@@ -258,6 +287,17 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     TList *MotherContainer          = (TList*) HistosGammaConversion->FindObject(Form("%s Mother histograms",fCutSelectionRead.Data()));
     fNumberOfGoodESDTracks          = (TH1D*)ESDContainer->FindObject("GoodESDTracks");
     fEventQuality                   = (TH1D*)ESDContainer->FindObject("NEvents");
+
+    TList *ESDContainerMC           = NULL;
+    TList *TrueConversionContainerMC = NULL;
+    if (useMCBck>0){
+        ESDContainerMC       = (TList*) HistosGammaConversionMC->FindObject(Form("%s ESD histograms",fCutSelectionRead.Data()));
+        TrueConversionContainerMC      = (TList*)HistosGammaConversionMC->FindObject(Form("%s True histograms",fCutSelectionRead.Data()));
+        if ((ESDContainerMC==NULL)||(TrueConversionContainerMC==NULL)){
+            useMCBck=0;
+        }
+    }
+
 
     // Get Clusters
     if((fMode >= 41 && fMode <= 50) || (fMode >= 61 && fMode <= 70) ){
@@ -342,31 +382,120 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
     TString histBckName    = "ESD_Background_LikeSign_InvMass_Pt";
     TString histBckNameSub = "ESD_Background_LikeSign_InvMass_Sub_InvMass_Neutral_Pt";
+
     if(!isNewTask) histBckNameSub = "ESD_Background_LikeSign_InvMass_Sub_InvMass(NeutralPion)_Pt";
     TString histBckNameFixed = "ESD_Background_LikeSign_InvMass_FixedPz_Neutral_Pt";
     if(!isNewTask) histBckNameFixed = "ESD_Background_LikeSign_InvMass_FixedPz(NeutralPion)_Pt";
-    if(fBackMixingMode.CompareTo("a")!=0){
-        for(Int_t k=0;k<4;k++){
-            hist_bck[k]                       = (TH2D*)ESDContainer->FindObject(ObjectNameBck[k].Data());
-            hist_bck_SubPiZero[k]             = (TH2D*)ESDContainer->FindObject(ObjectNameBckSubPiZero[k].Data());
-            hist_bck_FixedPzPiZero[k]         = (TH2D*)ESDContainer->FindObject(ObjectNameBckFixedPzPiZero[k].Data());
-        }
 
-        for(Int_t k=1;k<5;k++){
-            if(hist_bck[k-1]) fBckInvMassVSPt[k]                              = (TH2D*)hist_bck[k-1]->Clone(Form("hist_bck%i",k));
-            if(hist_bck_SubPiZero[k-1]) fBckInvMassVSPt_SubPiZero[k]          = (TH2D*)hist_bck_SubPiZero[k-1]->Clone(Form("hist_bck%i_SubPiZero",k));
-            if(hist_bck_FixedPzPiZero[k-1]) fBckInvMassVSPt_FixedPzPiZero[k]  = (TH2D*)hist_bck_FixedPzPiZero[k-1]->Clone(Form("hist_bck%i_FixedPzPiZero",k));
-            if(hist_bck[k-1]) fBckInvMassVSPt[k]->Sumw2();
-            if(hist_bck_SubPiZero[k-1]) fBckInvMassVSPt_SubPiZero[k]->Sumw2();
-            if(hist_bck_FixedPzPiZero[k-1]) fBckInvMassVSPt_FixedPzPiZero[k]->Sumw2();
+    TString ObjectNameBck_FromMC                            = "ESD_Mother_InvMass_Pt";
+    TString ObjectNameBckSubPiZero_FromMC                   = Form("ESD_InvMass_Mother_Sub_InvMass%s_Pt",oldNewTaskString.Data());
+    TString ObjectNameBckFixedPzPiZero_FromMC               = Form("ESD_InvMass_Mother_FixedPz%s_Pt",oldNewTaskString.Data());
+    TString ObjectNameTrue_FromMC                           = "ESD_TrueMotherPiPlPiMiNDM_InvMass_Pt";
+    TString ObjectNameTrueSubPiZero_FromMC                  = "ESD_TrueMotherPiPlPiMiNDM_InvMass_SubNDM_Pt";
+    TString ObjectNameTrueFixedPzPiZero_FromMC              = "ESD_TrueMotherPiPlPiMiNDM_InvMass_FixedPzNDM_Pt";
+
+    TString ObjectNameCombinatorical_FromData               = Form("%s", histBckName.Data());
+    TString ObjectNameCombinatoricalSubPiZero_FromData      = Form("%s", histBckNameSub.Data());
+    TString ObjectNameCombinatoricalFixedPzPiZero_FromData  = Form("%s", histBckNameFixed.Data());
+
+    TString ObjectNameCombinatorical_FromMC                 = Form("%s", histBckName.Data());
+    TString ObjectNameCombinatoricalSubPiZero_FromMC        = Form("%s", histBckNameSub.Data());
+    TString ObjectNameCombinatoricalFixedPzPiZero_FromMC    = Form("%s", histBckNameFixed.Data());
+
+    if(fBackMixingMode.CompareTo("a")!=0){
+        ObjectNameCombinatorical_FromData                   = Form("%s", ObjectNameBck[0].Data());
+        ObjectNameCombinatoricalSubPiZero_FromData          = Form("%s", ObjectNameBckSubPiZero[0].Data());
+        ObjectNameCombinatoricalFixedPzPiZero_FromData      = Form("%s", ObjectNameBckFixedPzPiZero[0].Data());
+
+        ObjectNameCombinatorical_FromMC                     = Form("%s", ObjectNameBck[0].Data());
+        ObjectNameCombinatoricalSubPiZero_FromMC            = Form("%s", ObjectNameBckSubPiZero[0].Data());
+        ObjectNameCombinatoricalFixedPzPiZero_FromMC        = Form("%s", ObjectNameBckFixedPzPiZero[0].Data());
+    }
+
+    TString ObjectNameCombinatoricalTrue_FromMC             = Form("ESD_TruePiPlPiMiNDMPureCombinatorical_InvMassPt");
+    TString ObjectNameContaminationTrue_FromMC              = Form("ESD_TruePiPlPiMiNDMContamination_InvMassPt");
+
+
+    if (useMCBck == 0){
+        if(fBackMixingMode.CompareTo("a")!=0){
+            for(Int_t k=0;k<4;k++){
+                hist_bck[k]                       = (TH2D*)ESDContainer->FindObject(ObjectNameBck[k].Data());
+                hist_bck_SubPiZero[k]             = (TH2D*)ESDContainer->FindObject(ObjectNameBckSubPiZero[k].Data());
+                hist_bck_FixedPzPiZero[k]         = (TH2D*)ESDContainer->FindObject(ObjectNameBckFixedPzPiZero[k].Data());
+            }
+
+            for(Int_t k=1;k<5;k++){
+                if(hist_bck[k-1]) fBckInvMassVSPt[k]                              = (TH2D*)hist_bck[k-1]->Clone(Form("hist_bck%i",k));
+                if(hist_bck_SubPiZero[k-1]) fBckInvMassVSPt_SubPiZero[k]          = (TH2D*)hist_bck_SubPiZero[k-1]->Clone(Form("hist_bck%i_SubPiZero",k));
+                if(hist_bck_FixedPzPiZero[k-1]) fBckInvMassVSPt_FixedPzPiZero[k]  = (TH2D*)hist_bck_FixedPzPiZero[k-1]->Clone(Form("hist_bck%i_FixedPzPiZero",k));
+                if(hist_bck[k-1]) fBckInvMassVSPt[k]->Sumw2();
+                if(hist_bck_SubPiZero[k-1]) fBckInvMassVSPt_SubPiZero[k]->Sumw2();
+                if(hist_bck_FixedPzPiZero[k-1]) fBckInvMassVSPt_FixedPzPiZero[k]->Sumw2();
+            }
+        } else{ // likesign exent mixing was chosen (rest of array will be empty because there is only one group for likesign mixing)
+            hist_bck[0]                                                           = (TH2D*) ESDContainer->FindObject(histBckName.Data());
+            hist_bck_SubPiZero[0]                                                 = (TH2D*) ESDContainer->FindObject(histBckNameSub.Data());
+            hist_bck_FixedPzPiZero[0]                                             = (TH2D*) ESDContainer->FindObject(histBckNameFixed.Data());
+            if(hist_bck[0]) fBckInvMassVSPt[0]                                    = (TH2D*) hist_bck[0]->Clone("hist_bck0");
+            if(hist_bck_SubPiZero[0]) fBckInvMassVSPt_SubPiZero[0]                = (TH2D*) hist_bck_SubPiZero[0]->Clone("hist_bck0_SubPiZero");
+            if(hist_bck_FixedPzPiZero[0]) fBckInvMassVSPt_FixedPzPiZero[0]        = (TH2D*) hist_bck_FixedPzPiZero[0]->Clone("hist_bck0_FixedPzPiZero");
         }
-    } else{ // likesign exent mixing was chosen (rest of array will be empty because there is only one group for likesign mixing)
-        hist_bck[0]                                                           = (TH2D*) ESDContainer->FindObject(histBckName.Data());
-        hist_bck_SubPiZero[0]                                                 = (TH2D*) ESDContainer->FindObject(histBckNameSub.Data());
-        hist_bck_FixedPzPiZero[0]                                             = (TH2D*) ESDContainer->FindObject(histBckNameFixed.Data());
-        if(hist_bck[0]) fBckInvMassVSPt[0]                                    = (TH2D*) hist_bck[0]->Clone("hist_bck0");
-        if(hist_bck_SubPiZero[0]) fBckInvMassVSPt_SubPiZero[0]                = (TH2D*) hist_bck_SubPiZero[0]->Clone("hist_bck0_SubPiZero");
-        if(hist_bck_FixedPzPiZero[0]) fBckInvMassVSPt_FixedPzPiZero[0]        = (TH2D*) hist_bck_FixedPzPiZero[0]->Clone("hist_bck0_FixedPzPiZero");
+    } else {
+        hist_bck_Signal                                                 = (TH2D*)ESDContainerMC->FindObject(ObjectNameBck_FromMC.Data());
+        hist_bck_SubPiZero_Signal                                       = (TH2D*)ESDContainerMC->FindObject(ObjectNameBckSubPiZero_FromMC.Data());
+        hist_bck_FixedPzPiZero_Signal                                   = (TH2D*)ESDContainerMC->FindObject(ObjectNameBckFixedPzPiZero_FromMC.Data());
+
+        hist_bck_True                                                   = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameTrue_FromMC.Data());
+        hist_bck_SubPiZero_True                                         = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameTrueSubPiZero_FromMC.Data());
+        hist_bck_FixedPzPiZero_True                                     = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameTrueFixedPzPiZero_FromMC.Data());
+
+        hist_bck[0]                                                     = (TH2D*)hist_bck_Signal->Clone(Form("%s_Back", ObjectNameBck_FromMC.Data()));
+        hist_bck_SubPiZero[0]                                           = (TH2D*)hist_bck_SubPiZero_Signal->Clone(Form("%s_Back", ObjectNameBckSubPiZero_FromMC.Data()));
+        hist_bck_FixedPzPiZero[0]                                       = (TH2D*)hist_bck_FixedPzPiZero_Signal->Clone(Form("%s_Back", ObjectNameBckFixedPzPiZero_FromMC.Data()));
+
+        hist_bck[0]                                                     -> Add((TH2D*)hist_bck_True,-1);
+        hist_bck_SubPiZero[0]                                           -> Add((TH2D*)hist_bck_SubPiZero_True,-1);
+        hist_bck_FixedPzPiZero[0]                                       -> Add((TH2D*)hist_bck_FixedPzPiZero_True,-1);
+        if(hist_bck[0]) fBckInvMassVSPt[0]                              = (TH2D*) hist_bck[0]->Clone("hist_bck0");
+        if(hist_bck_SubPiZero[0]) fBckInvMassVSPt_SubPiZero[0]          = (TH2D*) hist_bck_SubPiZero[0]->Clone("hist_bck0_SubPiZero");
+        if(hist_bck_FixedPzPiZero[0]) fBckInvMassVSPt_FixedPzPiZero[0]  = (TH2D*) hist_bck_FixedPzPiZero[0]->Clone("hist_bck0_FixedPzPiZero");
+
+        if (useMCBck>=2){
+            hist_bck_Contamination                                      = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameContaminationTrue_FromMC.Data());
+            if (hist_bck_Contamination == NULL){
+                useMCBck                    = 1;
+            }
+            if (useMCBck==4) {
+                hist_bck_Combinatorical                                 = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
+                hist_bck_Combinatorical_SubPiZero                       = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
+                hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
+                if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
+                    useMCBck=3;
+                }
+            }
+            if (useMCBck==3){
+                hist_bck_Combinatorical                                 = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatorical_FromMC.Data());
+                hist_bck_Combinatorical_SubPiZero                       = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatoricalSubPiZero_FromMC.Data());
+                hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatoricalFixedPzPiZero_FromMC.Data());
+                if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
+                    useMCBck=2;
+                }
+            }
+            if ((useMCBck==2)||(useMCBck>=5)) {
+                hist_bck_Combinatorical                                 = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatorical_FromData.Data());
+                hist_bck_Combinatorical_SubPiZero                       = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatoricalSubPiZero_FromData.Data());
+                hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatoricalFixedPzPiZero_FromData.Data());
+                if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
+                    useMCBck=1;
+                }
+            }
+            if (useMCBck>=2){
+                if (hist_bck_Contamination){ProjectHistogramInPtBins(hist_bck_Contamination, fHistoMapping_bck_Contamination);}
+                if (hist_bck_Combinatorical){ProjectHistogramInPtBins(hist_bck_Combinatorical, fHistoMapping_bck_Combinatorical);}
+                if (hist_bck_Combinatorical_SubPiZero){ProjectHistogramInPtBins(hist_bck_Combinatorical_SubPiZero, fHistoMapping_bck_Combinatorical_SubPiZero);}
+                if (hist_bck_Combinatorical_FixedPzPiZero){ProjectHistogramInPtBins(hist_bck_Combinatorical_FixedPzPiZero, fHistoMapping_bck_Combinatorical_FixedPzPiZero);}
+            }
+        }
     }
 
 
@@ -839,14 +968,25 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
         if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Analysis Pt Bin Loop; Pt: "<<fBinsPt[iPt]<<"; ProcessBckFitSubtraction: fHistoMappingGGInvMassPtBin";}
         if (doDebugOutputLevel>=2){
-            cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; fPeakRange: "<<*fPeakRange<<"; fFitRange:"<< *fFitRange<<endl;
+            cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; fPeakRange: "<<*fPeakRange<<"; fPeakRange[0]: "<<fPeakRange[0]<<"; fPeakRange: "<<fPeakRange[1]<<"; fFitRange:"<< *fFitRange<<"; fFitRange[0]:"<< fFitRange[0]<<"; fFitRange[1]:"<< fFitRange[1]<<endl;
             fHistoMappingGGInvMassPtBin[iPt]->Dump();
         }
-        if(fHistoMappingGGInvMassPtBin[iPt])               ProcessBckFitSubtraction(fHistoMappingGGInvMassPtBin[iPt],iPt,fPeakRange,fFitRange,optionEnergy,Suffix,cutSelection,meson,0);
-        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Analysis Pt Bin Loop; Pt: "<<fBinsPt[iPt]<<"; ProcessBckFitSubtraction: fHistoMappingGGInvMassPtBin_SubPiZero";}
-        if(fHistoMappingGGInvMassPtBin_SubPiZero[iPt])     ProcessBckFitSubtraction(fHistoMappingGGInvMassPtBin_SubPiZero[iPt],iPt,fPeakRange_SubPiZero,fFitRange_SubPiZero,optionEnergy,Suffix,cutSelection,meson,1);
-        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Analysis Pt Bin Loop; Pt: "<<fBinsPt[iPt]<<"; ProcessBckFitSubtraction: fHistoMappingGGInvMassPtBin_FixedPzPiZero";}
-        if(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt]) ProcessBckFitSubtraction(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt],iPt,fPeakRange_FixedPzPiZero,fFitRange_FixedPzPiZero,optionEnergy,Suffix,cutSelection,meson,2);
+        if (useMCBck<=1){
+            if(fHistoMappingGGInvMassPtBin[iPt])               ProcessBckFitSubtraction(fHistoMappingGGInvMassPtBin[iPt],iPt,fPeakRange,fFitRange,optionEnergy,Suffix,cutSelection,meson,0);
+            if(fHistoMappingGGInvMassPtBin_SubPiZero[iPt])     ProcessBckFitSubtraction(fHistoMappingGGInvMassPtBin_SubPiZero[iPt],iPt,fPeakRange_SubPiZero,fFitRange_SubPiZero,optionEnergy,Suffix,cutSelection,meson,1);
+            if(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt]) ProcessBckFitSubtraction(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt],iPt,fPeakRange_FixedPzPiZero,fFitRange_FixedPzPiZero,optionEnergy,Suffix,cutSelection,meson,2);
+        } else {
+            if(fHistoMappingGGInvMassPtBin[iPt]){
+                ProcessBckFitSubtraction_CombinatoricsAndContamination(fHistoMappingGGInvMassPtBin[iPt], fHistoMapping_bck_Combinatorical[iPt], fHistoMapping_bck_Contamination[iPt], iPt, fPeakRange, fFitRange, optionEnergy, Suffix, cutSelection, meson, 0);
+            }
+            if(fHistoMappingGGInvMassPtBin_SubPiZero[iPt]){
+                ProcessBckFitSubtraction_CombinatoricsAndContamination(fHistoMappingGGInvMassPtBin_SubPiZero[iPt], fHistoMapping_bck_Combinatorical[iPt], fHistoMapping_bck_Contamination[iPt], iPt, fPeakRange_SubPiZero, fFitRange_SubPiZero, optionEnergy, Suffix, cutSelection, meson, 1);
+            }
+            if(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt]){
+                ProcessBckFitSubtraction_CombinatoricsAndContamination(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt], fHistoMapping_bck_Combinatorical[iPt], fHistoMapping_bck_Contamination[iPt], iPt, fPeakRange_FixedPzPiZero, fFitRange_FixedPzPiZero, optionEnergy, Suffix, cutSelection, meson, 2);
+            }
+        }
+
         if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; After ProcessBckFitSubtraction";}
         Double_t fNormTot = 1.; // variable containing the factor used to scale the total background
         for(Int_t k=0;k<5;k++){
@@ -2968,14 +3108,14 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
       // Example bin for debugging changed to fStartPTBin
       TString HistosLegendsTitlesPiPlPiMi[7] = { "True #pi^{+}#pi^{-} same mother","True #pi^{+}#pi^{-} same mother from #eta","True #pi^{+}#pi^{-} same mother from #omega","True #pi^{+}#pi^{-} same mother from #rho","True #pi^{+}#pi^{-} same mother from #eta '","True #pi^{+}#pi^{-} same mother from K^{0}_{s}","True #pi^{+}#pi^{-} same mother from K^{0}_{l}"};
       if(fHistoMappingTruePiPlPiMiSameMotherInvMassPtBin[0]) PlotExampleInvMassSingleHistAndArray(fHistoMappingTruePiPlPiMiSameMotherInvMassPtBin[0][fStartPtBin],fHistoMappingTruePiPlPiMiSameMotherInvMassPtBin,1,7,0.46,2.0,fStartPtBin, outputDir.Data(),Suffix.Data(), fMesonMassRange_FixedPzPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                                      fThesis, fCollisionSystem, fBinsPt, fDecayChannel,HistosLegendsTitlesPiPlPiMi[0],HistosLegendsTitlesPiPlPiMi,fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig ,"TrueBackPiPlPiMi_Contributions",kFALSE,6.);
+                                      fThesis, fCollisionSystem, fBinsPt, fDecayChannel,HistosLegendsTitlesPiPlPiMi[0],HistosLegendsTitlesPiPlPiMi,fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig ,"TrueBackPiPlPiMi_Contributions",kFALSE,1.);
 
       TString HistosLegendsTitlesPiPlPiZero[5] = { "True #pi^{+}#pi^{0} same mother","True #pi^{+}#pi^{0} same mother from #eta","True #pi^{+}#pi^{0} same mother from #omega","True #pi^{+}#pi^{0} same mother from #rho","True #pi^{+}#pi^{0} same mother from K^{0}_{l}"};
       if(fHistoMappingTruePiPlPiZeroSameMotherInvMassPtBin[0]) PlotExampleInvMassSingleHistAndArray(fHistoMappingTruePiPlPiZeroSameMotherInvMassPtBin[0][fStartPtBin],fHistoMappingTruePiPlPiZeroSameMotherInvMassPtBin,1,5,0.46,2.0,fStartPtBin, outputDir.Data(),Suffix.Data(), fMesonMassRange_FixedPzPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                                      fThesis, fCollisionSystem, fBinsPt, fDecayChannel,HistosLegendsTitlesPiPlPiZero[0],HistosLegendsTitlesPiPlPiZero,fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig ,"TrueBackPiPlPiZero_Contributions",kFALSE,6.);
+                                      fThesis, fCollisionSystem, fBinsPt, fDecayChannel,HistosLegendsTitlesPiPlPiZero[0],HistosLegendsTitlesPiPlPiZero,fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig ,"TrueBackPiPlPiZero_Contributions",kFALSE,1.);
       TString HistosLegendsTitlesPiMiPiZero[5] = { "True #pi^{-}#pi^{0} same mother","True #pi^{-}#pi^{0} same mother from #eta","True #pi^{-}#pi^{0} same mother from #omega","True #pi^{-}#pi^{0} same mother from #rho","True #pi^{-}#pi^{0} same mother from K^{0}_{l}"};
       if(fHistoMappingTruePiMiPiZeroSameMotherInvMassPtBin[0]) PlotExampleInvMassSingleHistAndArray(fHistoMappingTruePiMiPiZeroSameMotherInvMassPtBin[0][fStartPtBin],fHistoMappingTruePiMiPiZeroSameMotherInvMassPtBin,1,5,0.46,2.0,fStartPtBin, outputDir.Data(),Suffix.Data(), fMesonMassRange_FixedPzPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                                      fThesis, fCollisionSystem, fBinsPt, fDecayChannel,HistosLegendsTitlesPiMiPiZero[0],HistosLegendsTitlesPiMiPiZero,fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig ,"TrueBackPiMiPiZero_Contributions",kFALSE,6.);
+                                      fThesis, fCollisionSystem, fBinsPt, fDecayChannel,HistosLegendsTitlesPiMiPiZero[0],HistosLegendsTitlesPiMiPiZero,fDetectionProcess, 0, fExampleBinScaleFac, fMode, addSig ,"TrueBackPiMiPiZero_Contributions",kFALSE,1.);
 
       // pi+pi-pi0 contributions
       cout << fHistoMappingTruePiPlPiMiSameMotherInvMassPtBin[0] << endl;
@@ -3112,7 +3252,13 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
 
     Int_t doDebugOutputLevel    =   0;
     Bool_t useTestingErrors     =   kTRUE;
-    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i] = (TH1D*)fGammaGamma->Clone(Form(\"GG_WithoutSigal_%i\",i));"<<endl;}
+    if (doDebugOutputLevel>=1){
+        cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<endl;
+        cout<<"\t fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i] = (TH1D*)fGammaGamma->Clone(Form(\"GG_WithoutSigal_%i\","<<i<<")): "<<endl<<Form("\t \t GG_WithoutSigal_%i",i)<<endl;
+        cout<<"\t fPeakRangeDummy[0]"<<fPeakRangeDummy[0]<<"; fPeakRangeDummy[1]"<<fPeakRangeDummy[1]<<endl;
+        cout<<"\t fFitRangeDummy[0]"<<fFitRangeDummy[0]<<"; fFitRangeDummy[1]"<<fFitRangeDummy[1]<<endl;
+        cout<<"\t fTotalBackFitMode: "<<fTotalBackFitMode<<endl;
+    }
     fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i] = (TH1D*)fGammaGamma->Clone(Form("GG_WithoutSigal_%i",i));
     fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Sumw2();
 
@@ -3165,20 +3311,31 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     // Loop over histo in fitrange to find min and max bin
     Int_t startBin = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->FindBin(fPeakRangeDummy[0]);
     Int_t endBin = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->FindBin(fPeakRangeDummy[1]);
+    Int_t maxContentBin=startBin;
+    Int_t minContentBin=startBin;
     if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; startBin: "<<startBin<<"; endBin: "<<endBin<<endl;}
 
     Float_t minContent = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(startBin);
     Float_t maxContent = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(startBin);
+
     if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; minContent: "<<minContent<<"; maxContent: "<<maxContent<<endl;}
     for (Int_t binx= startBin; binx < endBin+1; binx++){
            Float_t currContent = fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinContent(binx);
-           if(currContent<minContent) minContent = currContent;
-           if(currContent>maxContent) maxContent = currContent;      
+           if(currContent<minContent) {
+               minContent = currContent;
+               minContentBin=binx;
+           }
+           if(currContent>maxContent) {
+               maxContent = currContent;
+               maxContentBin=binx;
+           }
     }
+
  
     // Instead of fitting excluding peak region, fit pol2 with Gaussian
     TF1* FitPol2Gauss = NULL;
     TF1* FitPol2Only = NULL;
+    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; fTotalBackFitMode: "<<fTotalBackFitMode<<endl;}
     if(fTotalBackFitMode==1){ // pol2 with fPeakRange exluded
         FitPol2Only = new TF1  ("Pol2Exclusion",FunctionBGExclusion,fFitRangeDummy[0],fFitRangeDummy[1],3);
     }else if(fTotalBackFitMode==3){
@@ -3190,6 +3347,11 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     } else if(fTotalBackFitMode==4){ // use RooFit
         FitPol2Gauss = RooFitBckGauss;
         FitPol2Only = RooFitBckOnly;
+    } else if(fTotalBackFitMode==5){ // pol3 with fPeakRange exluded
+        FitPol2Only = new TF1  ("Pol3Exclusion",FunctionBGExclusion,fFitRangeDummy[0],fFitRangeDummy[1],4);
+    } else if(fTotalBackFitMode==6){
+        FitPol2Gauss = new TF1  ("GaussPol3","[0]+[1]*x+[2]*x*x++[3]*x*x*x+[4]*TMath::Exp(-0.5*((x-[5])/[6])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        FitPol2Only = new TF1("Linear","[0]+[1]*x+[2]*x*x+[3]*x*x*x",fFitRangeDummy[0],fFitRangeDummy[1]);
     }
 
  
@@ -3197,15 +3359,34 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     Float_t amplitude = maxContent-minContent; // rough estimate of amplitude max-min in peak range
 
     if(fTotalBackFitMode==3){
-        FitPol2Gauss->SetParameter(3,amplitude);
-        FitPol2Gauss->SetParLimits(3,amplitude*0.7,amplitude*1.2);
+        if (energy.Contains("13TeV")){
+            FitPol2Gauss->SetParameter(3,amplitude);
+            FitPol2Gauss->SetParLimits(3,amplitude*0.1,amplitude*1.2);
+        } else {
+            FitPol2Gauss->SetParameter(3,amplitude);
+            FitPol2Gauss->SetParLimits(3,amplitude*0.7,amplitude*1.2);
+        }
     } else  if(fTotalBackFitMode==2){
-        FitPol2Gauss->SetParameter(2,amplitude);
-        FitPol2Gauss->SetParLimits(2,amplitude*0.7,amplitude*1.2);
+        if (energy.Contains("13TeV")){
+            FitPol2Gauss->SetParameter(2,amplitude);
+            FitPol2Gauss->SetParLimits(2,amplitude*0.1,amplitude*1.2);
+        } else {
+            FitPol2Gauss->SetParameter(2,amplitude);
+            FitPol2Gauss->SetParLimits(2,amplitude*0.7,amplitude*1.2);
+        }
+    } else if(fTotalBackFitMode==6){
+        if (energy.Contains("13TeV")){
+            FitPol2Gauss->SetParameter(4,amplitude);
+            FitPol2Gauss->SetParLimits(4,amplitude*0.1,amplitude*1.2);
+        } else {
+            FitPol2Gauss->SetParameter(4,amplitude);
+            FitPol2Gauss->SetParLimits(4,amplitude*0.7,amplitude*1.2);
+        }
     }
     // set mass start value
     if(fTotalBackFitMode==3) FitPol2Gauss->SetParameter(4,fMesonMassExpect);
     else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(3,fMesonMassExpect);
+    else if(fTotalBackFitMode==6) FitPol2Gauss->SetParameter(5,fMesonMassExpect);
     
     // set ranges for mass fitting
     if(fPrefix.CompareTo("Eta") ==0){
@@ -3214,11 +3395,20 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     } else{
         if     (fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(4,fMesonMassExpect*0.90,fMesonMassExpect*1.1);
         else if(fTotalBackFitMode==2)  FitPol2Gauss->SetParLimits(3,fMesonMassExpect*0.90,fMesonMassExpect*1.1);
+        else if(fTotalBackFitMode==6)  FitPol2Gauss->SetParLimits(5,fMesonMassExpect*0.90,fMesonMassExpect*1.1);
+        if (energy.Contains("13TeV")){
+            if (fMode==65){
+                if     (fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(4,fMesonMassExpect*0.95,fMesonMassExpect*1.05);
+                else if(fTotalBackFitMode==2)  FitPol2Gauss->SetParLimits(3,fMesonMassExpect*0.95,fMesonMassExpect*1.05);
+                else if(fTotalBackFitMode==6)  FitPol2Gauss->SetParLimits(5,fMesonMassExpect*0.95,fMesonMassExpect*1.05);
+            }
+        }
     }
 
     // set start value for width
     if(fTotalBackFitMode==3)      FitPol2Gauss->SetParameter(5,0.06);
     else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(4,0.06);
+    else if(fTotalBackFitMode==6) FitPol2Gauss->SetParameter(6,0.06);
     if(fIsMC){
         if(fTotalBackFitMode==3)  FitPol2Gauss->SetParameter(5,0.06);
         else if(fTotalBackFitMode==2) FitPol2Gauss->SetParameter(4,0.06);
@@ -3227,16 +3417,18 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     // set ranges for width fitting
     if(fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(5,0.005,0.030);
     else if(fTotalBackFitMode==2) FitPol2Gauss->SetParLimits(4,0.005,0.030);
+    else if(fTotalBackFitMode==6)  FitPol2Gauss->SetParLimits(6,0.005,0.030);
     if(fIsMC){
         if(fTotalBackFitMode==3)  FitPol2Gauss->SetParLimits(5,0.005,0.030);
         else if(fTotalBackFitMode==2) FitPol2Gauss->SetParLimits(4,0.005,0.030);
+        else if(fTotalBackFitMode==6)  FitPol2Gauss->SetParLimits(6,0.005,0.030);
     }
-    // cout << fFitRangeDummy[0] << " ------ " << fFitRangeDummy[1] << endl;
+    if (doDebugOutputLevel>=1){ cout << "Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: " << __LINE__ << "; FitRange: " << fFitRangeDummy[0] << " ------ " << fFitRangeDummy[1] << endl;}
     TFitResultPtr resultBckFitTotal;
-    if(fTotalBackFitMode==3 || fTotalBackFitMode==2 ){
+    if(fTotalBackFitMode==6 || fTotalBackFitMode==3 || fTotalBackFitMode==2 ){
         fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
         resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
-    } else if(fTotalBackFitMode==1){
+    } else if(fTotalBackFitMode==5 ||fTotalBackFitMode==1){
         fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Only,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
         resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Only,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
     }
@@ -3256,7 +3448,7 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
         if (doDebugOutputLevel>=3){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,\"QMRES0\",\"\",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0"<<endl;}
         resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
     } else if(fTotalBackFitMode==2){
-        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; fTotalBackFitMode==3 case"<<endl;}
+        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; fTotalBackFitMode==2 case"<<endl;}
         if( (FitPol2Gauss->GetParameter(3)<fMesonMassExpect*0.95) || (FitPol2Gauss->GetParameter(4)<fMesonMassExpect*0.95)){
             // parameter jumped out of ranges! Fix it and try fitting again
             cout <<  "parameter jumped out of ranges! Fix it and try fitting again; Parameter 3 should be between"<<fMesonMassExpect*0.95<<" and "<<fMesonMassExpect*1.05<<" but is "<< FitPol2Gauss->GetParameter(3) << endl;
@@ -3267,12 +3459,23 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
         if (doDebugOutputLevel>=3){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; fFitRangeDummy[0]: "<<fFitRangeDummy[0]<<"; fFitRangeDummy[1]: "<<fFitRangeDummy[1]<<endl;}
         if (doDebugOutputLevel>=3){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,\"QMRES0\",\"\",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0"<<endl;}
          resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+    } else if(fTotalBackFitMode==6) {
+        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; fTotalBackFitMode==6 case"<<endl;}
+        if( (FitPol2Gauss->GetParameter(5)<fMesonMassExpect*0.95) || (FitPol2Gauss->GetParameter(5)>fMesonMassExpect*1.05)){
+            cout <<  "parameter jumped out of ranges! Fix it and try fitting again; Parameter 4 should be between"<<fMesonMassExpect*0.95<<" and "<<fMesonMassExpect*1.05<<" but is "<< FitPol2Gauss->GetParameter(5) << endl;
+            FitPol2Gauss->SetParameter(5,fMesonMassExpect);
+           FitPol2Gauss->SetParError(4,0.);
+            FitPol2Gauss->FixParameter(5,fMesonMassExpect);
+        }
+        if (doDebugOutputLevel>=3){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; fFitRangeDummy[0]: "<<fFitRangeDummy[0]<<"; fFitRangeDummy[1]: "<<fFitRangeDummy[1]<<endl;}
+        if (doDebugOutputLevel>=3){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,\"QMRES0\",\"\",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0"<<endl;}
+        resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Gauss,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
     }
 
     // get cov matrix of total fit ( all parameters)
     if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; get cov matrix of total fit ( all parameters)"<<endl;}
     TMatrixDSym* covTot = NULL;
-    if(resultBckFitTotal!=-1){
+    if((resultBckFitTotal!=-1)&&(resultBckFitTotal!=-5)){
         // covTot = new TMatrixDSym(0,resultBckFitTotal->GetCovarianceMatrix().GetNrows(),resultBckFitTotal->GetCovarianceMatrix().GetMatrixArray());  
         covTot = new TMatrixDSym(resultBckFitTotal->GetCovarianceMatrix()); 
     }
@@ -3282,7 +3485,7 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     if(fTotalBackFitMode==2) nrows =1 ;
     
     TMatrixDSym* covGG = NULL;
-    if((fTotalBackFitMode==2 || fTotalBackFitMode==3) && resultBckFitTotal!=-1){ // get subcovariance matrix since total fit had more parameters 
+    if((fTotalBackFitMode==2 || fTotalBackFitMode==3 || fTotalBackFitMode==6) && ((resultBckFitTotal!=-1)&&(resultBckFitTotal!=-5)) ){ // get subcovariance matrix since total fit had more parameters
         // get it in original size
         covGG = new TMatrixDSym(nrows+1); // create empty matrix 
 
@@ -3296,20 +3499,24 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
             
         } 
         
-    } else if(fTotalBackFitMode==1 && resultBckFitTotal!=-1){ // use normal matrix in case pol was fitted directly
+    } else if(fTotalBackFitMode==1 && ((resultBckFitTotal!=-1)&&(resultBckFitTotal!=-5)) ){ // use normal matrix in case pol was fitted directly
         covGG = covTot;
     }
 
     // Set parameters for pol2 background function
     if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; Set parameters for pol2 background function"<<endl;}
-    if(fTotalBackFitMode==3 || fTotalBackFitMode==2  ) {
+    if(fTotalBackFitMode==6 || fTotalBackFitMode==3 || fTotalBackFitMode==2  ) {
         FitPol2Only->SetParameter(0,FitPol2Gauss->GetParameter(0));
         FitPol2Only->SetParError(0,FitPol2Gauss->GetParError(0));
         FitPol2Only->SetParameter(1,FitPol2Gauss->GetParameter(1));
         FitPol2Only->SetParError(1,FitPol2Gauss->GetParError(1));
-        if(fTotalBackFitMode==3) {
+        if(fTotalBackFitMode==6 || fTotalBackFitMode==3) {
             FitPol2Only->SetParameter(2,FitPol2Gauss->GetParameter(2));
             FitPol2Only->SetParError(2,FitPol2Gauss->GetParError(2));
+            if(fTotalBackFitMode==6){
+                FitPol2Only->SetParameter(3,FitPol2Gauss->GetParameter(3));
+                FitPol2Only->SetParError(3,FitPol2Gauss->GetParError(3));
+            }
         }
     }
     
@@ -3324,6 +3531,11 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
         FitParamsGaussPol = new double [5];
     } else if(fTotalBackFitMode==1){ // GuassPol not needed in this case
         FitParamsPol = new double [2];
+    } else if(fTotalBackFitMode==5) {// GaussPol not needed in this case
+        FitParamsPol = new double [4];
+    } else if(fTotalBackFitMode==6) {
+        FitParamsPol = new double [4];
+        FitParamsGaussPol = new double [7];
     }
     if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; InvMassType== decision; InvMassType: "<<InvMassType<<endl;}
     if(InvMassType==0){
@@ -3333,36 +3545,48 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
       fBackgroundFitPol[i] = NULL;
       if(fTotalBackFitMode==3 || fTotalBackFitMode==1)  fBackgroundFitPol[i] = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
       else if(fTotalBackFitMode==2) fBackgroundFitPol[i] = new TF1("BGfit","pol1",fFitRangeDummy[0],fFitRangeDummy[1]);
+      if(fTotalBackFitMode==5 || fTotalBackFitMode==6)  fBackgroundFitPol[i] = new TF1("BGfit","pol3",fFitRangeDummy[0],fFitRangeDummy[1]);
+      if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; For background subtraction"<<endl;}
       FitPol2Only->GetParameters(&FitParamsPol[0]);
+      if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; For background subtraction"<<endl;}
       fBackgroundFitPol[i]->SetParameters(FitParamsPol);
+      if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; For background subtraction"<<endl;}
       fBackgroundFitPol[i]->SetRange(fFitRangeDummy[0],fFitRangeDummy[1]);
 
       // for plotting
       if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; for plotting"<<endl;}
-      if(fTotalBackFitMode!=1 ){ // not needed if Gauss wasn't used
+      if((fTotalBackFitMode!=1 )&&(fTotalBackFitMode!=5 )){ // not needed if Gauss wasn't used
+         if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
          fBackgroundFitGaussPol[i] = NULL;
         if(fTotalBackFitMode==3) fBackgroundFitGaussPol[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*x*x+[3]*TMath::Exp(-0.5*((x-[4])/[5])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
         else if(fTotalBackFitMode==2) fBackgroundFitGaussPol[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*TMath::Exp(-0.5*((x-[3])/[4])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        else if(fTotalBackFitMode==6) fBackgroundFitGaussPol[i]  = new TF1  ("BGGaussPol3","[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*TMath::Exp(-0.5*((x-[5])/[6])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
         FitPol2Gauss->GetParameters(&FitParamsGaussPol[0]);
         fBackgroundFitGaussPol[i]->SetParameters(FitParamsGaussPol);
         fBackgroundFitGaussPol[i]->SetRange(fFitRangeDummy[0],fFitRangeDummy[1]);
       } else{ // copy to avoid crashes if accidently plottet
+        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
         fBackgroundFitGaussPol[i] = fBackgroundFitPol[i];
       }
+      if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
 
       for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
           if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
               Double_t area = fBackgroundFitPol[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                              (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
+              if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
               Double_t area_err = 0.;
-              if(resultBckFitTotal!=-1) area_err= fBackgroundFitPol[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
+              if(((resultBckFitTotal!=-1)&&(resultBckFitTotal!=-5))) area_err= fBackgroundFitPol[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                                      (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx),
                                                                       fBackgroundFitPol[i]->GetParameters(), covGG->GetMatrixArray() );
+              if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
 
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));   
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));   
+              if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
           }
       }
+      if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
       // Clone histo for error band
       fHistoBckFitConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_%i",i));
       fHistoBckFitWithGaussConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_%i",i));
@@ -3386,9 +3610,12 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     }else if(InvMassType==1){
       
       // For background subtraction
+      if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; For background subtraction"<<endl;}
       fBackgroundFitGaussPol_SubPiZero[i] = NULL;
       if(fTotalBackFitMode==3 || fTotalBackFitMode==1) fBackgroundFitPol_SubPiZero[i] = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
       else if(fTotalBackFitMode==2) fBackgroundFitPol_SubPiZero[i] = new TF1("BGfit","pol1",fFitRangeDummy[0],fFitRangeDummy[1]);
+      else if(fTotalBackFitMode==6 || fTotalBackFitMode==1) fBackgroundFitPol_SubPiZero[i] = new TF1("BGfit","pol3",fFitRangeDummy[0],fFitRangeDummy[1]);
+      else if(fTotalBackFitMode==5) fBackgroundFitPol_SubPiZero[i] = new TF1("BGfit","pol3",fFitRangeDummy[0],fFitRangeDummy[1]);
       FitPol2Only->GetParameters(&FitParamsPol[0]);
       const Double_t* FitParamErr = FitPol2Only->GetParErrors();
       fBackgroundFitPol_SubPiZero[i]->SetParameters(FitParamsPol);
@@ -3396,10 +3623,11 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
       fBackgroundFitPol_SubPiZero[i]->SetRange(fFitRangeDummy[0],fFitRangeDummy[1]);
 
       // for plotting
-      if(fTotalBackFitMode!=1 ){ // not needed if Gauss wasn't used
+      if((fTotalBackFitMode!=1 )&&(fTotalBackFitMode!=5 )){ // not needed if Gauss wasn't used
          fBackgroundFitGaussPol_SubPiZero[i] = NULL;
         if(fTotalBackFitMode==3) fBackgroundFitGaussPol_SubPiZero[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*x*x+[3]*TMath::Exp(-0.5*((x-[4])/[5])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
         else if(fTotalBackFitMode==2) fBackgroundFitGaussPol_SubPiZero[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*TMath::Exp(-0.5*((x-[3])/[4])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        else if(fTotalBackFitMode==6) fBackgroundFitGaussPol_SubPiZero[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*TMath::Exp(-0.5*((x-[5])/[6])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
         FitPol2Gauss->GetParameters(&FitParamsGaussPol[0]);
         fBackgroundFitGaussPol_SubPiZero[i]->SetParameters(FitParamsGaussPol);
         fBackgroundFitGaussPol_SubPiZero[i]->SetRange(fFitRangeDummy[0],fFitRangeDummy[1]);
@@ -3409,18 +3637,18 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
 
       //fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitPol2Only,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);
       for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
-          if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
+          //if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
 
               Double_t area = fBackgroundFitPol_SubPiZero[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                              (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
               Double_t area_err = 0.;
-              if(resultBckFitTotal!=-1) 
+              if ((resultBckFitTotal!=-1)&&(resultBckFitTotal!=-5))
               area_err= fBackgroundFitPol_SubPiZero[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                                      (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx),
                                                                       fBackgroundFitPol_SubPiZero[i]->GetParameters(), covGG->GetMatrixArray() );
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));   
               fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
-          }
+          //}
       }
       // Clone histo for error band
       fHistoBckFitConfidence_SubPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_SubPiZero_%i",i));
@@ -3432,18 +3660,21 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     }else if(InvMassType==2){
       
       // For background subtraction
+      if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<"; For background subtraction"<<endl;}
       fBackgroundFitPol_FixedPzPiZero[i] = NULL;
       if(fTotalBackFitMode==3 || fTotalBackFitMode==1) fBackgroundFitPol_FixedPzPiZero[i] = new TF1("BGfit","pol2",fFitRangeDummy[0],fFitRangeDummy[1]);
       else if(fTotalBackFitMode==2)  fBackgroundFitPol_FixedPzPiZero[i] = new TF1("BGfit","pol1",fFitRangeDummy[0],fFitRangeDummy[1]);
+      else if(fTotalBackFitMode==6 || fTotalBackFitMode==5) fBackgroundFitPol_FixedPzPiZero[i] = new TF1("BGfit","pol3",fFitRangeDummy[0],fFitRangeDummy[1]);
       FitPol2Only->GetParameters(&FitParamsPol[0]);
       fBackgroundFitPol_FixedPzPiZero[i]->SetParameters(FitParamsPol);
       fBackgroundFitPol_FixedPzPiZero[i]->SetRange(fFitRangeDummy[0],fFitRangeDummy[1]);
 
       // for plotting
-      if(fTotalBackFitMode!=1 ){ // not needed if Gauss wasn't used
+      if((fTotalBackFitMode!=1 )&&(fTotalBackFitMode!=5 )){ // not needed if Gauss wasn't used
          fBackgroundFitGaussPol_FixedPzPiZero[i] = NULL;
         if(fTotalBackFitMode==3) fBackgroundFitGaussPol_FixedPzPiZero[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*x*x+[3]*TMath::Exp(-0.5*((x-[4])/[5])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
         else if(fTotalBackFitMode==2) fBackgroundFitGaussPol_FixedPzPiZero[i]  = new TF1  ("BGGaussPol2","[0]+[1]*x+[2]*TMath::Exp(-0.5*((x-[3])/[4])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
+        else if(fTotalBackFitMode==6) fBackgroundFitGaussPol_FixedPzPiZero[i]  = new TF1  ("BGGaussPol3","[0]+[1]*x+[2]*x*x+[3]*x*x*x+[4]*TMath::Exp(-0.5*((x-[5])/[6])^2)",fFitRangeDummy[0],fFitRangeDummy[1]);
         FitPol2Gauss->GetParameters(&FitParamsGaussPol[0]);
         fBackgroundFitGaussPol_FixedPzPiZero[i]->SetParameters(FitParamsGaussPol);
         fBackgroundFitGaussPol_FixedPzPiZero[i]->SetRange(fFitRangeDummy[0],fFitRangeDummy[1]);
@@ -3456,7 +3687,7 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
           Double_t area = fBackgroundFitPol_FixedPzPiZero[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                              (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
           Double_t area_err = 0.;
-          if(resultBckFitTotal!=-1) area_err= fBackgroundFitPol_FixedPzPiZero[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
+          if((resultBckFitTotal!=-1)&&(resultBckFitTotal!=-5)) area_err= fBackgroundFitPol_FixedPzPiZero[i]->IntegralError(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
                                                                      (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx),
                                                                       fBackgroundFitPol[i]->GetParameters(), covGG->GetMatrixArray() );
           fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx))); 
@@ -3474,6 +3705,200 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     }
 
 }
+
+void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D *fGammaGamma, TH1D *fCombinatorics, TH1D *fContamination, Int_t i, Double_t * fPeakRangeDummy, Double_t *fFitRangeDummy, TString energy, TString suffix, TString cutSelection, TString meson,Int_t InvMassType){
+
+    Int_t doDebugOutputLevel    =   1;
+    Bool_t useTestingErrors     =   kTRUE;
+    if (doDebugOutputLevel>=1){
+        cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<endl;
+        cout<<"\t fPeakRangeDummy[0]"<<fPeakRangeDummy[0]<<"; fPeakRangeDummy[1]"<<fPeakRangeDummy[1]<<endl;
+        cout<<"\t fFitRangeDummy[0]"<<fFitRangeDummy[0]<<"; fFitRangeDummy[1]"<<fFitRangeDummy[1]<<endl;
+        cout<<"\t fTotalBackFitMode: "<<fTotalBackFitMode<<endl;
+    }
+    fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i] = (TH1D*)fGammaGamma->Clone(Form("GG_WithoutSigal_%i",i));
+    fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Sumw2();
+
+    TF1* FitCombinatoricalContamination = NULL;
+    Double_t IgnoreRangeMin0=0;
+    Double_t IgnoreRangeMax0=0;
+    Double_t IgnoreRangeMin1=0;
+    Double_t IgnoreRangeMax1=0;
+    Double_t IgnoreRangeMin2=0;
+    Double_t IgnoreRangeMax2=0;
+    if(InvMassType==0){
+        IgnoreRangeMin0=0.;
+        IgnoreRangeMax0=fBGFitRangeLeft_ContamintationFit[0];
+        IgnoreRangeMin1=fBGFitRangeLeft_ContamintationFit[1];
+        IgnoreRangeMax1=fBGFitRange_ContamintationFit[0];
+        IgnoreRangeMin2=fBGFitRange_ContamintationFit[1];
+        IgnoreRangeMax2=10000;
+    } else if(InvMassType==1){
+        IgnoreRangeMin0=0.;
+        IgnoreRangeMax0=fBGFitRangeLeft_ContamintationFit[0];
+        IgnoreRangeMin1=fBGFitRangeLeft_ContamintationFit[1];
+        IgnoreRangeMax1=fBGFitRange_ContamintationFit[0];
+        IgnoreRangeMin2=fBGFitRange_ContamintationFit[1];
+        IgnoreRangeMax2=10000;
+    } else if(InvMassType==2){
+        IgnoreRangeMin0=0.;
+        IgnoreRangeMax0=fBGFitRangeLeft_ContamintationFit[0];
+        IgnoreRangeMin1=fBGFitRangeLeft_ContamintationFit[1];
+        IgnoreRangeMax1=fBGFitRange_ContamintationFit[0];
+        IgnoreRangeMin2=fBGFitRange_ContamintationFit[1];
+        IgnoreRangeMax2=10000;
+    }
+    cout<< "\t IgnoreRangeMin0: " << IgnoreRangeMin0 << "; IgnoreRangeMax0: " << IgnoreRangeMax0 <<endl;
+    cout<< "\t IgnoreRangeMin1: " << IgnoreRangeMin1 << "; IgnoreRangeMax1: " << IgnoreRangeMax1 <<endl;
+    cout<< "\t IgnoreRangeMin2: " << IgnoreRangeMin2 << "; IgnoreRangeMax2: " << IgnoreRangeMax2 <<endl;
+
+    BackgroundClass tempBckClass(fCombinatorics, fContamination, IgnoreRangeMin0, IgnoreRangeMax0, IgnoreRangeMin1, IgnoreRangeMax1, IgnoreRangeMin2, IgnoreRangeMax2);
+    FitCombinatoricalContamination = new TF1  (Form("FitCombinatoricalContamination_%i", i), tempBckClass, fFitRangeDummy[0], fFitRangeDummy[1], 2);
+
+    FitCombinatoricalContamination->SetNpx(1000);
+    FitCombinatoricalContamination->SetParameter(0, 1000.);
+    FitCombinatoricalContamination->SetParameter(1, 1.);
+    //FitCombinatoricalContamination->SetParLimits(0, 0.01, 10000.);
+    //FitCombinatoricalContamination->SetParLimits(1, 0.01, 100.);
+
+    TFitResultPtr resultBckFitTotal;
+    fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitCombinatoricalContamination,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+    resultBckFitTotal =fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitCombinatoricalContamination,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
+
+    double* FitParams;
+    FitParams = new double [2];
+
+    if(InvMassType==0){
+      // For background subtraction
+      fBackgroundFitPol[i] = NULL;
+      fBackgroundFitPol[i] = new TF1  (Form("FitCombinatoricalContamination_%i", i),tempBckClass,fFitRangeDummy[0],fFitRangeDummy[1], 2);
+      FitCombinatoricalContamination->GetParameters(&FitParams[0]);
+      cout<<"FitParams: "<<" 0.) "<<FitParams[0]<<" 1.) "<<FitParams[1]<<endl;
+      fBackgroundFitPol[i]->SetParameters(FitParams);
+      fBackgroundFitPol[i]->SetRange(fFitRangeDummy[0],fFitRangeDummy[1]);
+
+      // for plotting
+
+      for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
+          if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
+              Double_t area = fBackgroundFitPol[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
+                                                             (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
+              Double_t area_err = 0.;
+
+              fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx,area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+              fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx,area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+          }
+      }
+      if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
+      // Clone histo for error band
+      fHistoBckFitConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_%i",i));
+      fHistoBckFitWithGaussConfidence[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_%i",i));
+      TCanvas* c1 = new TCanvas();
+
+      fHistoMappingGGInvMassBackFitPtBin[i] = (TH1D*) fGammaGamma->Clone(Form("fHistoMappingGGInvMassBackFit_in_Pt_Bin%i",i));
+      fHistoMappingGGInvMassBackFitPtBin[i]->Sumw2();
+
+      fHistoMappingGGInvMassBackFitPtBin[i]->DrawCopy("");
+      fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetLineColor(kRed+2);
+      fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->DrawCopy("same");
+
+      fHistoMappingGGInvMassBackFitPtBin[i]->Add(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i],-1);
+
+      fHistoMappingGGInvMassBackFitPtBin[i]->SetLineColor(kGreen+2);
+      fHistoMappingGGInvMassBackFitPtBin[i]->DrawCopy("same");
+
+    gSystem->mkdir("Debug");
+      c1->Print(Form("%s/%s_%s_PolSubtraction_%i.png","Debug",fPrefix.Data(),fPrefix2.Data(),i));
+
+    } else if (InvMassType==1){
+
+        // For background subtraction
+        fBackgroundFitPol_SubPiZero[i] = NULL;
+        fBackgroundFitPol_SubPiZero[i] = new TF1  (Form("FitCombinatoricalContamination_SubPiZero_%i", i), tempBckClass, fFitRangeDummy[0], fFitRangeDummy[1], 2);
+        FitCombinatoricalContamination->GetParameters(&FitParams[0]);
+        fBackgroundFitPol_SubPiZero[i]->SetParameters(FitParams);
+        fBackgroundFitPol_SubPiZero[i]->SetRange(fFitRangeDummy[0],fFitRangeDummy[1]);
+
+        // for plotting
+
+        for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
+            if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
+                Double_t area = fBackgroundFitPol_SubPiZero[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
+                                                               (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
+                Double_t area_err = 0.;
+
+                fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx, area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+                fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx, area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+            }
+        }
+        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
+        // Clone histo for error band
+        fHistoBckFitConfidence_SubPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_SubPiZero_%i",i));
+        fHistoBckFitWithGaussConfidence_SubPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_SubPiZero_%i",i));
+        TCanvas* c1 = new TCanvas();
+
+        fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i] = (TH1D*) fGammaGamma->Clone(Form("fHistoMappingGGInvMassBackFit_in_Pt_Bin%i",i));
+        fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i]->Sumw2();
+
+        fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i]->DrawCopy("");
+        fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetLineColor(kRed+2);
+        fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->DrawCopy("same");
+
+        fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i]->Add(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i],-1);
+
+        fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i]->SetLineColor(kGreen+2);
+        fHistoMappingGGInvMassBackFitPtBin_SubPiZero[i]->DrawCopy("same");
+
+      gSystem->mkdir("Debug");
+        c1->Print(Form("%s/%s_%s_PolSubtraction_%i.png","Debug",fPrefix.Data(),fPrefix2.Data(),i));
+    } else if (InvMassType==2){
+
+        // For background subtraction
+        fBackgroundFitPol_FixedPzPiZero[i] = NULL;
+        fBackgroundFitPol_FixedPzPiZero[i] = new TF1  (Form("FitCombinatoricalContamination_FixedPzPiZero_%i", i), tempBckClass, fFitRangeDummy[0], fFitRangeDummy[1], 2);
+        FitCombinatoricalContamination->GetParameters(&FitParams[0]);
+        fBackgroundFitPol_FixedPzPiZero[i]->SetParameters(FitParams);
+        fBackgroundFitPol_FixedPzPiZero[i]->SetRange(fFitRangeDummy[0],fFitRangeDummy[1]);
+
+        // for plotting
+
+        for (Int_t binx= 0; binx < fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetNbinsX()+1; binx++){
+            if(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) > fFitRangeDummy[0] && fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinCenter(binx) < fFitRangeDummy[1]){
+                Double_t area = fBackgroundFitPol_FixedPzPiZero[i]->Integral(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx),
+                                                               (fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinLowEdge(binx))+fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx));
+                Double_t area_err = 0.;
+
+                fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinContent(binx, area/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+                fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetBinError(binx, area_err/(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->GetBinWidth(binx)));
+            }
+        }
+        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<" "<<endl;}
+        // Clone histo for error band
+        fHistoBckFitConfidence_FixedPzPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitConfidence_FixedPzPiZero_%i",i));
+        fHistoBckFitWithGaussConfidence_FixedPzPiZero[i] =  (TH1D*)fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Clone(Form(" fHistoBckFitWithGaussConfidence_FixedPzPiZero_%i",i));
+        TCanvas* c1 = new TCanvas();
+
+        fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i] = (TH1D*) fGammaGamma->Clone(Form("fHistoMappingGGInvMassBackFit_in_Pt_Bin%i",i));
+        fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i]->Sumw2();
+
+        fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i]->DrawCopy("");
+        fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->SetLineColor(kRed+2);
+        fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->DrawCopy("same");
+
+        fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i]->Add(fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i],-1);
+
+        fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i]->SetLineColor(kGreen+2);
+        fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[i]->DrawCopy("same");
+
+      gSystem->mkdir("Debug");
+        c1->Print(Form("%s/%s_%s_PolSubtraction_%i.png","Debug",fPrefix.Data(),fPrefix2.Data(),i));
+    }
+
+    if (doDebugOutputLevel>=1){
+        cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction() ends; Line: "<<__LINE__<<endl;
+    }
+}
+
 
 void ProcessEM( TH1D* fGammaGamma,
                 TH1D* fBck,
@@ -4104,6 +4529,18 @@ void FillMassHistosArray(TH2D* fGammaGammaInvMassVSPtDummy,TH2D* fGammaGammaInvM
     }
 }
 
+void ProjectHistogramInPtBins(TH2D* HistogramToProject, TH1D **ProjectedHistograms){
+    TString HistogramName;
+    TString ProjectionName;
+    for(Int_t iPt=fStartPtBin;iPt<fNBinsPt;iPt++){
+        HistogramName               = HistogramToProject->GetTitle();
+        ProjectionName              = Form("%s_(%fto%f)GeV/c", HistogramName.Data(), fBinsPt[iPt], fBinsPt[iPt+1]);
+        Int_t startBin = HistogramToProject->GetYaxis()->FindBin(fBinsPt[iPt]+0.001);
+        Int_t endBin = HistogramToProject->GetYaxis()->FindBin(fBinsPt[iPt+1]-0.001);
+        ProjectedHistograms[iPt]    = HistogramToProject->ProjectionX(ProjectionName.Data(),startBin,endBin,"e");
+    }
+}
+
 void FillMassMCTrueMesonHistosArray(TH2D* fHistoTrueMesonInvMassVSPtFill)
 {
     fHistoTrueMesonInvMassVSPtFill->Sumw2();
@@ -4686,15 +5123,39 @@ void FitSubtractedInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, D
     }
 
     // Set Correct Meson Plot Range
-    if(InvMassType==0) {
-      fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
-    } else if(InvMassType==1){
-      fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange_SubPiZero[0],fMesonMassPlotRange_SubPiZero[1]);
-    } else if(InvMassType==2){
-      fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange_FixedPzPiZero[0],fMesonMassPlotRange_FixedPzPiZero[1]);
-    } else {
-      cout << " ERROR! Invalid InvMassType was given. FitSubtractedInvMassInPtBins won't be run!" << endl;
-      return;
+    if ( fFitRangeForMaximumMode == 1){ //0==fPeakRange
+        if(InvMassType==0) {
+            fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fPeakRange[0],fPeakRange[1]);
+        } else if(InvMassType==1){
+            fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fPeakRange_SubPiZero[0],fPeakRange_SubPiZero[1]);
+        } else if(InvMassType==2){
+            fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fPeakRange_FixedPzPiZero[0],fPeakRange_FixedPzPiZero[1]);
+        } else {
+            cout << " ERROR! Invalid InvMassType was given. FitSubtractedInvMassInPtBins won't be run!" << endl;
+            return;
+        }
+    } else if ( fFitRangeForMaximumMode == 2){ //2==fFitRange
+        if(InvMassType==0) {
+            fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fFitRange[0],fFitRange[1]);
+        } else if(InvMassType==1){
+            fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fFitRange_SubPiZero[0],fFitRange_SubPiZero[1]);
+        } else if(InvMassType==2){
+            fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fFitRange_FixedPzPiZero[0],fFitRange_FixedPzPiZero[1]);
+        } else {
+            cout << " ERROR! Invalid InvMassType was given. FitSubtractedInvMassInPtBins won't be run!" << endl;
+            return;
+        }
+    } else { //0==fMesonMassPlotRange
+        if(InvMassType==0) {
+            fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
+        } else if(InvMassType==1){
+            fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange_SubPiZero[0],fMesonMassPlotRange_SubPiZero[1]);
+        } else if(InvMassType==2){
+            fHistoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange_FixedPzPiZero[0],fMesonMassPlotRange_FixedPzPiZero[1]);
+        } else {
+            cout << " ERROR! Invalid InvMassType was given. FitSubtractedInvMassInPtBins won't be run!" << endl;
+            return;
+        }
     }
     // extract mesonAmplitude from histo maximum (will be used for par ranges)
     Double_t mesonAmplitude =fHistoMappingSignalInvMassPtBinSingle->GetMaximum();
@@ -4823,7 +5284,7 @@ void FitSubtractedInvMassInPtBins(TH1D* fHistoMappingSignalInvMassPtBinSingle, D
 //          fFitReco->SetParLimits(1,fMesonMassExpect*0.95,fMesonMassExpect*1.01);
 //        }
     } else{
-        fFitReco->SetParLimits(1,fMesonMassExpect*0.90,fMesonMassExpect*1.10);
+        fFitReco->SetParLimits(1,fMesonMassExpect*0.97,fMesonMassExpect*1.03);
     }
 
 
@@ -5528,6 +5989,8 @@ TH1D* CalculateMesonEfficiency( TH1D* fMC_fMesonYieldsPt,
 
 void SaveHistos(Int_t optionMC, TString fCutID, TString fPrefix3)
 {
+    Int_t doDebugOutputLevel    =   0;
+
     const char* nameOutput = Form("%s/%s/%s_%s_GammaConvV1WithoutCorrection%s_%s.root",fCutSelection.Data(),fEnergyFlag.Data(),fPrefix.Data(),fPrefix3.Data(),fPeriodFlag.Data(),fCutID.Data());
     fOutput1 = new TFile(nameOutput,"RECREATE");
 
@@ -5543,10 +6006,19 @@ void SaveHistos(Int_t optionMC, TString fCutID, TString fPrefix3)
        printf("WARNING: Cluster histograms will not be written to file! PLEASE CHECK fBinsClusterPt!\n");
     }
 
+    if (doDebugOutputLevel>=1){cout<<"DebugOutput, ExtractSignalPiPlPiMiNDM.C, SaveHistos(), Line: "<<__LINE__<<"; fNBinsClusterPt: "<<fNBinsClusterPt<<endl;}
     TH1D*   deltaPtCluster       = new TH1D("fDeltaPtCluster","",fNBinsClusterPt,fBinsClusterPt);
+    if (doDebugOutputLevel>=1){cout<<"DebugOutput, ExtractSignalPiPlPiMiNDM.C, SaveHistos(), Line: "<<__LINE__<<"; deltaPtCluster: "<<endl;}
     for(Int_t iPt=1;iPt<fNBinsClusterPt+1;iPt++){
         deltaPtCluster->SetBinContent(iPt,fBinsClusterPt[iPt]-fBinsClusterPt[iPt-1]);
         deltaPtCluster->SetBinError(iPt,0);
+        if (doDebugOutputLevel>=1){
+            if (iPt<fNBinsClusterPt){
+                cout<<"("<<iPt<<": "<<fBinsClusterPt[iPt]-fBinsClusterPt[iPt-1]<<"), ";
+            } else {
+                cout<<"("<<iPt<<": "<<fBinsClusterPt[iPt]-fBinsClusterPt[iPt-1]<<")"<<endl;
+            }
+        }
     }
     // Write cluster energy and pT
     if (fHistoClustersPt && processClusters){
@@ -6186,6 +6658,17 @@ void Initialize(TString setPi0, Int_t numberOfBins){
     fHistoMappingTruePiPlPiMiPiZeroCombinatoricalPtBin =	new TH1D*[fNBinsPt];
     fHistoMappingTruePiPlPiMiPiZeroContaminationPtBin =  	new TH1D*[fNBinsPt];
 
+    fHistoMapping_bck_Combinatorical =                      new TH1D*[fNBinsPt];
+    fHistoMapping_bck_Combinatorical_SubPiZero =            new TH1D*[fNBinsPt];
+    fHistoMapping_bck_Combinatorical_FixedPzPiZero =        new TH1D*[fNBinsPt];
+    fHistoMapping_bck_Contamination  =                      new TH1D*[fNBinsPt];
+    for (Int_t iNumberOfBins = 0; iNumberOfBins < fNBinsPt; iNumberOfBins++){
+        fHistoMapping_bck_Combinatorical[iNumberOfBins] =   NULL;
+        fHistoMapping_bck_Combinatorical_SubPiZero[iNumberOfBins] = NULL;
+        fHistoMapping_bck_Combinatorical_FixedPzPiZero[iNumberOfBins] = NULL;
+        fHistoMapping_bck_Contamination[iNumberOfBins] =    NULL;
+    }
+
     fHistoMappingGGInvMassBackFitPtBin =					new TH1D*[fNBinsPt];
     fHistoMappingGGInvMassBackFitPtBin_SubPiZero =   		new TH1D*[fNBinsPt];
     fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero =		new TH1D*[fNBinsPt];
@@ -6468,6 +6951,8 @@ Double_t CrystalBall(Double_t *x,Double_t *par) {
 
 
 void Delete(){
+    Int_t DebugOutputLevel=1;
+    if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete(); Line: " << __LINE__ << endl;}
     if (fBinsPt) delete fBinsPt;
     if (fPeakRange) delete fPeakRange;
     if (fPeakRange_SubPiZero) delete fPeakRange_SubPiZero;
@@ -6479,6 +6964,12 @@ void Delete(){
     if (fBGFitRangeLeft) delete fBGFitRangeLeft;
     if (fBGFitRangeLeft_SubPiZero)     delete fBGFitRangeLeft_SubPiZero;
     if (fBGFitRangeLeft_FixedPzPiZero) delete fBGFitRangeLeft_FixedPzPiZero;
+    if (fBGFitRange_ContamintationFit) delete fBGFitRange_ContamintationFit;
+    if (fBGFitRange_SubPiZero_ContamintationFit) delete fBGFitRange_SubPiZero_ContamintationFit;
+    if (fBGFitRange_FixedPzPiZero_ContamintationFit) delete fBGFitRange_FixedPzPiZero_ContamintationFit;
+    if (fBGFitRangeLeft_ContamintationFit) delete fBGFitRangeLeft_ContamintationFit;
+    if (fBGFitRangeLeft_SubPiZero_ContamintationFit) delete fBGFitRangeLeft_SubPiZero_ContamintationFit;
+    if (fBGFitRangeLeft_FixedPzPiZero_ContamintationFit) delete fBGFitRangeLeft_FixedPzPiZero_ContamintationFit;
     if (fMesonPlotRange) delete fMesonPlotRange;
     if (fMesonIntRange) delete fMesonIntRange;
     if (fMesonMassRange) delete fMesonMassRange;
@@ -6488,6 +6979,7 @@ void Delete(){
     if (fMesonWidthRange) delete fMesonWidthRange;
     if (fMesonLambdaTailRange) delete fMesonLambdaTailRange;
     if (fNRebin) delete fNRebin;
+    if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete(); Line: " << __LINE__ << endl;}
     for (Int_t k = 0; k< 6; k++){
         if (fGGYields[k])                     delete fGGYields[k];
         if (fGGYields_SubPiZero[k])           delete fGGYields_SubPiZero[k];
@@ -6521,6 +7013,7 @@ void Delete(){
         if (fMesonYieldsCorResidualBckFuncError_SubPiZero[k])     delete fMesonYieldsCorResidualBckFuncError_SubPiZero[k];
         if (fMesonYieldsCorResidualBckFuncError_FixedPzPiZero[k]) delete fMesonYieldsCorResidualBckFuncError_FixedPzPiZero[k];
     }
+    if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete(); Line: " << __LINE__ << endl;}
     for (Int_t k = 0; k< 7; k++){
       if (fYieldsMappingTruePiPlPiMiSameMother[k])                          delete fYieldsMappingTruePiPlPiMiSameMother[k];
       if (fYieldsMappingTruePiPlPiMiSameMotherError[k])                     delete fYieldsMappingTruePiPlPiMiSameMotherError[k];
@@ -6532,6 +7025,12 @@ void Delete(){
       }
 
     }
+
+
+    if (fMesonYieldsBackFitFromFit)                              delete fMesonYieldsBackFitFromFit;
+    if (fMesonYieldsBackFitFromFit_SubPiZero)                    delete fMesonYieldsBackFitFromFit_SubPiZero;
+    if (fMesonYieldsBackFitFromFit_FixedPzPiZero)                delete fMesonYieldsBackFitFromFit_FixedPzPiZero;
+    if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete(); Line: " << __LINE__ << endl;}
     for (Int_t k = 0; k< 3; k++){
         if (fMesonTrueYields[k])                          delete fMesonTrueYields[k];
         if (fMesonTrueYields_SubPiZero[k])                delete fMesonTrueYields_SubPiZero[k];
@@ -6547,10 +7046,6 @@ void Delete(){
         if (fMesonYieldsBackFit[k])                              delete fMesonYieldsBackFit[k];
         if (fMesonYieldsBackFit_SubPiZero[k])                    delete fMesonYieldsBackFit_SubPiZero[k];
         if (fMesonYieldsBackFit_FixedPzPiZero[k])                delete fMesonYieldsBackFit_FixedPzPiZero[k];
-
-        if (fMesonYieldsBackFitFromFit)                              delete fMesonYieldsBackFitFromFit;
-        if (fMesonYieldsBackFitFromFit_SubPiZero)                    delete fMesonYieldsBackFitFromFit_SubPiZero;
-        if (fMesonYieldsBackFitFromFit_FixedPzPiZero)                delete fMesonYieldsBackFitFromFit_FixedPzPiZero;
 
         if (fMesonYieldsBackFitError[k])                         delete fMesonYieldsBackFitError[k];
         if (fMesonYieldsBackFitError_SubPiZero[k])               delete fMesonYieldsBackFitError_SubPiZero[k];
@@ -6577,8 +7072,8 @@ void Delete(){
         if (fMesonTrueSignError[k])                    delete fMesonTrueSignError[k];
         if (fMesonTrueSignError_SubPiZero[k])          delete fMesonTrueSignError_SubPiZero[k];
         if (fMesonTrueSignError_FixedPzPiZero[k])      delete fMesonTrueSignError_FixedPzPiZero[k];
-
     }
+    if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete(); Line: " << __LINE__ << endl;}
 
     if (fMesonYieldsResidualBckFuncBackFit)               delete fMesonYieldsResidualBckFuncBackFit;
     if (fMesonYieldsResidualBckFuncBackFit_SubPiZero)     delete fMesonYieldsResidualBckFuncBackFit_SubPiZero;
@@ -6636,7 +7131,12 @@ void Delete(){
     if (fHistoMappingGGInvMassPtBin_SubPiZero)         delete fHistoMappingGGInvMassPtBin_SubPiZero;
     if (fHistoMappingGGInvMassPtBin_FixedPzPiZero)     delete fHistoMappingGGInvMassPtBin_FixedPzPiZero;
     if (fHistoMappingTruePiPlPiMiPiZeroCombinatoricalPtBin)     delete fHistoMappingTruePiPlPiMiPiZeroCombinatoricalPtBin;
-    if (fHistoMappingTruePiPlPiMiPiZeroContaminationPtBin)     delete fHistoMappingTruePiPlPiMiPiZeroContaminationPtBin;
+    if (fHistoMappingTruePiPlPiMiPiZeroContaminationPtBin)      delete fHistoMappingTruePiPlPiMiPiZeroContaminationPtBin;
+    if (fHistoMapping_bck_Combinatorical)                       delete fHistoMapping_bck_Combinatorical;
+    if (fHistoMapping_bck_Combinatorical_SubPiZero)             delete fHistoMapping_bck_Combinatorical_SubPiZero;
+    if (fHistoMapping_bck_Combinatorical_FixedPzPiZero)         delete fHistoMapping_bck_Combinatorical_FixedPzPiZero;
+    if (fHistoMapping_bck_Contamination)                        delete fHistoMapping_bck_Contamination;
+    if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete(); Line: " << __LINE__ << endl;}
     for (Int_t k = 0; k< 5; k++){
         if (fHistoMappingBackInvMassPtBin[k])               delete fHistoMappingBackInvMassPtBin[k];
         if (fHistoMappingBackInvMassPtBin_SubPiZero[k])     delete fHistoMappingBackInvMassPtBin_SubPiZero[k];
@@ -6651,6 +7151,7 @@ void Delete(){
         if (fHistoMappingRatioSBInvMassPtBin_SubPiZero[k]) delete fHistoMappingRatioSBInvMassPtBin_SubPiZero[k];
         if (fHistoMappingRatioSBInvMassPtBin_FixedPzPiZero[k]) delete fHistoMappingRatioSBInvMassPtBin_FixedPzPiZero[k];
     }
+    if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete(); Line: " << __LINE__ << endl;}
     if (fFitSignalInvMassPtBin)               delete fFitSignalInvMassPtBin;
     if (fFitSignalInvMassPtBin_SubPiZero)     delete fFitSignalInvMassPtBin_SubPiZero;
     if (fFitSignalInvMassPtBin_FixedPzPiZero) delete fFitSignalInvMassPtBin_FixedPzPiZero;
@@ -6678,6 +7179,7 @@ void Delete(){
     if (fFitWithPol2ForBG_FixedPzPiZero)    delete fFitWithPol2ForBG_FixedPzPiZero;
     if (fHistoWeightsBGZbinVsMbin)          delete fHistoWeightsBGZbinVsMbin;
     if (fHistoFillPerEventBGZbinVsMbin)     delete fHistoFillPerEventBGZbinVsMbin;
+    if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete() ended; Line: " << __LINE__ << endl;}
 }
 
 // only needed for backwards compability
