@@ -1625,7 +1625,7 @@
                 }
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ){
                 if ( mode == 0 ){ //PCM-PCM
-                    startPtBin     = 1;
+                    startPtBin     = 2;
                     if (specialTrigg == 1)  startPtBin = 7;
                 } else if ( mode == 1 ){
                     startPtBin     = 1;
@@ -2939,8 +2939,11 @@
                                 cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeVPCMTrigCombPt"<<endl;
                                 maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigCombPt, binning, 103 ); break;
                             case 0:
-                                if(energy.Contains("RBins")) maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
-                                else {
+                                if(energy.Contains("RBins")) {
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
+                                } else if (centrality.Contains("V0M")) {
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMMultBinsPt, binning, 54 );
+                                } else {
                                    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeV_PCM_CombinedBinning"<<endl;
 				   maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCM_CombinedBinning, binning, 66 );
                                 }
@@ -3842,6 +3845,8 @@
                             case 0:
                                 if(energy.Contains("RBins")){
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 18 );
+                                } else if (centrality.Contains("V0M")) {
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMMultBinsPt, binning, 16 );
                                 }else  {
 				    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCM_CombinedBinning"<<endl;
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCM_CombinedBinning, binning, 28 ) ;
@@ -5741,6 +5746,9 @@ TString rBin = photonCutSelection(2,1);
             //*********************************************************************************************
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ) {
                 if (directPhoton.CompareTo("directPhoton") == 0){
+                    if (modi == 0) {
+                      GetBinning( fBinsPt, maxPtBinAvail, "Gamma", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis);
+                    }
                     fStartPtBin                 = GetStartBin("Pi0", energy, modi, specialTrigg, centrality);
                     if (fNBinsPt > 75) {
                         cout << "You have chosen Direct Photon Plots and more than 75 bins, this is not possible, it will be reduced to 75 bins." << endl;
@@ -5951,7 +5959,83 @@ TString rBin = photonCutSelection(2,1);
                 //		    optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
                 //		    optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
                 TString rBin = photonCutSelection(2,1);
-		TString iDet = photonCutSelection(21,1);
+                TString heavyIonCut = eventCutSelection(0, 1);
+                TString multiplicityCut = eventCutSelection(1, 2);
+                TString sharedElecCut = photonCutSelection(21, 1);
+                Int_t iDet = sharedElecCut.Atoi();
+
+                // Pi0 DCAz
+                if (heavyIonCut.CompareTo("m") == 0) {
+                    fMaxYFracBGOverIntHist = 100;
+                    if (multiplicityCut.CompareTo("01") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,nosmoothing";
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 9;
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 8;
+                        }
+                    } else if (multiplicityCut.CompareTo("15") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 8;
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 8;
+                        }
+                    } else if (multiplicityCut.CompareTo("5a") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 8;
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 9;
+                        }
+                    }
+                } else if (heavyIonCut.CompareTo("n") == 0 || heavyIonCut.CompareTo("0") == 0) {
+                    fMaxYFracBGOverIntHist = 100;
+                    if (multiplicityCut.CompareTo("01") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 8;
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 8;
+                        }
+                    } else if (multiplicityCut.CompareTo("12") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 8;
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 8;
+                        }
+                    } else if (multiplicityCut.CompareTo("25") == 0 || multiplicityCut.CompareTo("00") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing3";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 7;
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 8;
+                        }
+                    } else if (multiplicityCut.CompareTo("5a") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,nosmoothing";
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 6;
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 6;
+                        }
+                    }
+                } else
+
 		if (rBin.CompareTo("2") ==0){
 		      if( iDet == 7 ){
 			nIterBGFit                  = 9;
@@ -7128,7 +7212,7 @@ TString rBin = photonCutSelection(2,1);
             //*********************************************************************************************
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  ) {
                 fStartPtBin                 = GetStartBin("Eta", energy, modi, specialTrigg);
-                Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Eta", energy, modi, specialTrigg, isDCA, DoJetAnalysis );
+                Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Eta", energy, modi, specialTrigg, isDCA, centrality,DoJetAnalysis );
                 if (fNBinsPt > maxPtBinTheo) {
                     cout << "**************************************************************************************************************************************" << endl;
                     cout << "********************** ATTENTION, ATTENTION, ATTENTION, ATTENTION, ATTENTION, ATTENTION, ATTENTION, **********************************" << endl;
@@ -7418,11 +7502,96 @@ TString rBin = photonCutSelection(2,1);
                 }
                 if ( setPi0.EqualTo("Pi0EtaBinning") ) nIterBGFit = 12;
 
-                nIterBGFit                  = 7;
-                fMaxYFracBGOverIntHist      = 60;
-                optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
-                optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
-                optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
+                TString heavyIonCut = eventCutSelection(0, 1);
+                TString sharedElecCut = photonCutSelection(21, 1);
+                TString multiplicityCut = eventCutSelection(1, 2);
+
+                // Eta DCAz
+                if (heavyIonCut.CompareTo("m") == 0) {
+                    fMaxYFracBGOverIntHist = 100;
+                    if (multiplicityCut.CompareTo("01") == 0) {
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 9;
+                            optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing7";
+                            optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing9";
+                            optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing5";
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 8;
+                            optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                            optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                            optionBGSmoothingVar2       = "BackDecreasingWindow,nosmoothing";
+                        }
+                    } else if (multiplicityCut.CompareTo("15") == 0) {
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 9;
+                            optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing7";
+                            optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing9";
+                            optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing5";
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 9;
+                            optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                            optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing3";
+                            optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                        }
+                    } else if (multiplicityCut.CompareTo("5a") == 0) {
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 7;
+                            optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                            optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing3";
+                            optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 8;
+                            optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                            optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
+                            optionBGSmoothingVar2       = "BackDecreasingWindow,nosmoothing";
+                        }
+                    }
+                } else if (heavyIonCut.CompareTo("n") == 0 || heavyIonCut.CompareTo("0") == 0) {
+                    fMaxYFracBGOverIntHist = 100;
+                    if (multiplicityCut.CompareTo("01") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing9";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing11";
+                        nIterBGFit                  = 9;
+                    } else if (multiplicityCut.CompareTo("12") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 6;
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 8;
+                        }
+                    } else if (multiplicityCut.CompareTo("25") == 0 || multiplicityCut.CompareTo("00") == 0) {
+                        optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing7";
+                        optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing9";
+                        optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing5";
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 7;
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 8;
+                        }
+                    } else if (multiplicityCut.CompareTo("5a") == 0) {
+                        if (sharedElecCut.CompareTo("0") == 0) {
+                            nIterBGFit                  = 5;
+                            optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing5";
+                            optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
+                            optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
+                        } else if (sharedElecCut.CompareTo("7") == 0) {
+                            nIterBGFit                  = 6;
+                            optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing7";
+                            optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing9";
+                            optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing5";
+                        }
+                    }
+                } else {
+                    nIterBGFit                  = 7;
+                    fMaxYFracBGOverIntHist      = 60;
+                    optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
+                    optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
+                    optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
+                }
+
 
             //*********************************************************************************************
             // ********************************* Eta for 13TeV low B field ********************************
