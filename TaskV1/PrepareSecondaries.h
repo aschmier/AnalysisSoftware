@@ -1,4 +1,6 @@
 // provided by Gamma Conversion Group, $ALICE_PHYSICS/PWGGA/GammaConv ;https://twiki.cern.ch/twiki/bin/view/ALICE/PWG4GammaConversion
+#include "../FlexibleCocktail/cocktail.h"
+#include "../FlexibleCocktail/cocktail.cpp"
 
 //************************** Some general definitions *************************************
 TString     fAnalyzedMeson                              = "";
@@ -52,6 +54,25 @@ Int_t    nParticles                                     = 1000;
 Int_t    selectedMothers                                = 62591;
 Bool_t   hasMother[nMotherParticles]                    = {0};
 Double_t mtScaleFactor[nMotherParticles]                = {1.};
+
+//********************** Objects for reading the cocktail files **************************
+
+TFile*      fileCocktail                                    = NULL;
+TDirectoryFile* topDirCocktail                              = NULL;
+TList*      histoListCocktail                               = NULL;
+TTree*      cocktailSettingsTree                            = NULL;
+TList*      cocktailSettingsList                            = NULL;
+
+//************************** Objects for Flexible Cocktail ********************************
+
+Bool_t      doFlexCocktail                              = kFALSE;
+std::map<Int_t, TF1> dndpt_hadron_func;
+std::map<Int_t, TH1D> dndpt_hadron_hist;
+std::map<Int_t, TH1D> dndpt_pi0_hist;
+const Int_t motherParticlesSecGammas[3]                 = {310, 130, 3122};
+std::map<Int_t, TH1D> dndpt_sec_gamma_hist;
+cocktail ct_pi0;
+cocktail ct_sec_gamma;
 
 //************************** Declaration of histograms ************************************
 TH1F*  fDeltaPt                                         = NULL;

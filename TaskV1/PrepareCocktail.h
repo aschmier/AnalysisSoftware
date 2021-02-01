@@ -1,4 +1,6 @@
 // provided by Gamma Conversion Group, $ALICE_PHYSICS/PWGGA/GammaConv ;https://twiki.cern.ch/twiki/bin/view/ALICE/PWG4GammaConversion
+#include "../FlexibleCocktail/cocktail.h"
+#include "../FlexibleCocktail/cocktail.cpp"
 
 //************************** Some general definitions *************************************
 //TString   fDate                                           = "";
@@ -60,6 +62,15 @@ Int_t       selectedMothers                                 = 62591;
 Bool_t      hasMother[nMotherParticles]                     = {0};
 Double_t    mtScaleFactor[nMotherParticles]                 = {1.};
 
+//************************** Objects for Flexible Cocktail *********************************
+
+Bool_t      doFlexCocktail                                  = kFALSE;
+std::map<Int_t, TF1> dndpt_hadron_func;
+std::map<Int_t, TH1D> dndpt_hadron_hist;
+std::map<Int_t, TH1D> dndpt_photon_hist;
+cocktail ct;
+TH1F* dndpt_photon_hist_sum = NULL;
+
 //************************** Declaration of histograms ************************************
 TH1F*       fDeltaPt                                        = NULL;
 TH1F*       histoNEvents                                    = NULL;
@@ -93,6 +104,7 @@ TH1F**      histoGammaMotherPhiOrBin                        = NULL;
 TH2F**      histoGammaMotherPtGammaPt                       = NULL;
 TH1F**      histoGammaMotherPtGammaOrBin                    = NULL;
 TH1F**      histoGammaMotherPtGamma                         = NULL;
+TH1F*       histoGeneratedPi0Pt                             = NULL;
 TH1F*       histoGeneratedEtaPt                             = NULL;
 
 TH1D*       histoPi0YieldData                               = NULL;
@@ -111,8 +123,17 @@ TH1F**      histoGammaMotherPtAtGammaPt[nGammaPtSlices]     = { NULL, NULL, NULL
 Int_t       minPtGammaSlice[nGammaPtSlices]                 = {300, 600, 1000, 1500, 2000, 3000, 5000, 8000, 10000, 15000 };
 Int_t        maxPtGammaSlice[nGammaPtSlices]                = {400, 700, 1100, 1600, 2200, 3500, 5500, 9000, 12000, 20000 };
 
+//********************** Objects for reading the cocktail files **************************
+
+TFile*      fileCocktail                                    = NULL;
+TDirectoryFile* topDirCocktail                              = NULL;
+TList*      histoListCocktail                               = NULL;
+TTree*      cocktailSettingsTree                            = NULL;
+TList*      cocktailSettingsList                            = NULL;
+
 //************************** Cocktail input ***********************************************
 TFile*      cocktailInputFile                               = NULL;
+TDirectoryFile* cocktailInputFileDirectory                  = NULL;
 TList*      cocktailInputList                               = NULL;
 TF1*        cocktailInputParametrizationProton              = NULL;
 TF1**       cocktailInputParametrizations                   = NULL;

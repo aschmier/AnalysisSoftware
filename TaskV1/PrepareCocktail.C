@@ -48,7 +48,6 @@
 #include "../CommonHeaders/ConversionFunctions.h"
 #include "../CommonHeaders/ExtractSignalBinning.h"
 
-
 void PrepareCocktail(   TString     nameFileCocktail            = "",
                         TString     nameFilePi0                 = "",
                         TString     suffix                      = "eps",
@@ -63,11 +62,18 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
                         Bool_t      producePlotsForThesis       = kFALSE,
                         Bool_t      produceOutputForPaper       = kFALSE,
                         TString     specialNameForOutput        = "",
-                        Bool_t      disableParamPlotting        = kTRUE
-
+                        Bool_t      disableParamPlotting        = kTRUE,
+                        Bool_t      enableFlexCocktail          = kFALSE,
+                        TString     nameFileCocktailInput       = "",
+                        TString     nameCocktailFolder          = "Comb",
+                        TString     nameFileDecayHistograms     = "",
+                        Int_t       userSelectedMothers         = 259519
                      ) {
 
     gROOT->Reset();
+
+    doFlexCocktail = enableFlexCocktail;
+    if (doFlexCocktail) printf("Calculating cocktail from decay histograms...\n");
 
     //************************** Set general style settings *********************************************************
     StyleSettingsThesis();
@@ -75,6 +81,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
 
     //************************** Set output directory ***************************************************************
     TString outputDir                                           = Form("%s/%s/%s/PrepareCocktail",cutSelection.Data(),option.Data(),suffix.Data());
+    // if (doFlexCocktail) outputDir = Form("%s/%s/%s/PrepareCocktailFlex",cutSelection.Data(),option.Data(),suffix.Data());
     gSystem->Exec("mkdir -p "+outputDir);
 
     //************************** Set global variables ***************************************************************
@@ -89,14 +96,19 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     frapidityAndeta                                             = rapidityAndeta;
     cout << "Pictures are saved as " << suffix.Data() << endl;
     TObjArray *tempArr  = rapidityAndeta.Tokenize("_");
-    if(tempArr->GetEntries()<1){
-        cout << "rapidity not set" << endl;
-        delete tempArr;
-    } else if(tempArr->GetEntries()==1){
-        fRapidity           = ((TString)((TObjString*)tempArr->At(0))->GetString()).Atof();
-    } else if(tempArr->GetEntries()==2){
-        fRapidity           = ((TString)((TObjString*)tempArr->At(0))->GetString()).Atof();
-        fPseudoRapidity     = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atof();
+    if (doFlexCocktail) {
+        fRapidity = 0.80;
+        frapidityAndeta = "0.80";
+    } else {
+        if(tempArr->GetEntries()<1){
+            cout << "rapidity not set" << endl;
+            delete tempArr;
+        } else if(tempArr->GetEntries()==1){
+            fRapidity           = ((TString)((TObjString*)tempArr->At(0))->GetString()).Atof();
+        } else if(tempArr->GetEntries()==2){
+            fRapidity           = ((TString)((TObjString*)tempArr->At(0))->GetString()).Atof();
+            fPseudoRapidity     = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atof();
+        }
     }
     Double_t rapidity = fRapidity;
     Double_t pseudorapidity = tempArr->GetEntries()==2 ? fPseudoRapidity : fRapidity; // pseudorapidity is set to rapidity if not set externally
@@ -133,34 +145,53 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     Initialize(fEnergyFlag, numberOfBins);
 
     //***************************** Cocktail file *******************************************************************
-    TFile fileCocktail(nameFileCocktail.Data());
-    TDirectoryFile* topDirCocktail                              = (TDirectoryFile*)fileCocktail.Get("GammaCocktailMC");
-    if (!topDirCocktail) {
-        cout << "ERROR: TopDirCocktail not found!" << endl;
-        return;
+    if (doFlexCocktail) {
+        fileCocktail                                            = new TFile(nameFileDecayHistograms);
+        if (!fileCocktail) {
+            printf("ERROR: Decay histogram file not found!\n");
+            return;
+        }
+        cocktailSettingsTree                                    = (TTree*) fileCocktail->Get("cocktailSettings");
+    } else {
+        fileCocktail = new TFile(nameFileCocktail.Data());
+        topDirCocktail                                              = (TDirectoryFile*)fileCocktail->Get("GammaCocktailMC");
+        if (!topDirCocktail) {
+            cout << "ERROR: TopDirCocktail not found!" << endl;
+            return;
+        }
+        histoListCocktail                                           = (TList*)topDirCocktail->Get(Form("GammaCocktailMC_%s", rapidityAndeta.Data()));
+        cout << "searching for " << Form("GammaCocktailMC_%s", rapidityAndeta.Data()) << endl;
+        if (!histoListCocktail) {
+            cout << "ERROR: Folder with rapidity " << rapidityAndeta.Data() << " not contained in cocktail file!" << endl;
+            return;
+        }
+        cocktailSettingsTree                                        = (TTree*)histoListCocktail->FindObject("cocktailSettings");
     }
-    TList* histoListCocktail                                    = (TList*)topDirCocktail->Get(Form("GammaCocktailMC_%s", rapidityAndeta.Data()));
-    cout << "searching for " << Form("GammaCocktailMC_%s", rapidityAndeta.Data()) << endl;
-    if (!histoListCocktail) {
-        cout << "ERROR: Folder with rapidity " << rapidityAndeta.Data() << " not contained in cocktail file!" << endl;
-        return;
-    }
-    TTree* cocktailSettingsTree                                 = (TTree*)histoListCocktail->FindObject("cocktailSettings");
-    TList* cocktailSettingsList                                 = NULL;
     if (cocktailSettingsTree) cocktailSettingsList              = (TList*)cocktailSettingsTree->GetUserInfo();
     if (!cocktailSettingsTree || !cocktailSettingsList) {
         cout << "ERROR: Cocktail settings not contained in cocktail file!" << endl;
         return;
     }
 
-    //***************************** read cocktail settings **********************************************************
-    histMtScalingFactors                                        = (TH1F*)cocktailSettingsList->FindObject("histoMtScaleFactor");
+    //***************************** read cocktail settings and input*****************************************************
+	TFile* cocktailInputFile = new TFile(nameFileCocktailInput);
+    TDirectoryFile* cocktailInputFileDirectory = (TDirectoryFile*) cocktailInputFile->Get(Form("%s_%s", fEnergyFlag.Data(), nameCocktailFolder.Data()));
+
+    if (doFlexCocktail) {
+        histMtScalingFactors                                        = (TH1F*) (TH1D*)cocktailInputFileDirectory->Get("histoMtScaleFactor");
+    } else {
+        histMtScalingFactors                                        = (TH1F*) cocktailSettingsList->FindObject("histoMtScaleFactor");
+    }
+
     TString tempBinLabel                                        = "";
     for (Int_t i=1; i<histMtScalingFactors->GetNbinsX()+1; i++) {
         tempBinLabel                                            = (TString)histMtScalingFactors->GetXaxis()->GetBinLabel(i);
         for (Int_t j=0; j<nMotherParticles; j++) {
-            if (tempBinLabel.CompareTo(motherParticlesPDG[j]) == 0)
+            if (tempBinLabel.CompareTo(motherParticlesPDG[j]) == 0) {
                 mtScaleFactor[j]                                = histMtScalingFactors->GetBinContent(i);
+                // default mT scaling factor to 1 if none is given
+                if (mtScaleFactor[j] < 0) mtScaleFactor[j] = 1;
+            }
         }
     }
 
@@ -171,17 +202,19 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
         tempObject                                              = (TObject*)cocktailSettingsList->At(i);
         tempObjectName                                          = (TString)tempObject->GetName();
 
-        if (tempObjectName.BeginsWith("selectMothers")) {
-            arr                                                 = tempObjectName.Tokenize("_");
-            selectedMothers                                     = (((TObjString*)arr->At(1))->GetString()).Atoi();
-            for (Int_t j=0; j<nMotherParticles; j++) {
-                if (selectedMothers&motherParticleDec[j]) {
-                    TH2F* tempHist                              = (TH2F*)histoListCocktail->FindObject(Form("Pt_Y_Gamma_From_%s", motherParticles[j].Data()));
-                    if (tempHist) {
-                        if (tempHist->GetEntries())
-                            hasMother[j]                        = kTRUE;
-                    } else {
-                        hasMother[j]                            = kFALSE;
+        if (!doFlexCocktail) {
+            if (tempObjectName.BeginsWith("selectMothers")) {
+                arr                                                 = tempObjectName.Tokenize("_");
+                selectedMothers                                     = (((TObjString*)arr->At(1))->GetString()).Atoi();
+                for (Int_t j=0; j<nMotherParticles; j++) {
+                    if (selectedMothers&motherParticleDec[j]) {
+                        TH2F* tempHist                              = (TH2F*)histoListCocktail->FindObject(Form("Pt_Y_Gamma_From_%s", motherParticles[j].Data()));
+                        if (tempHist) {
+                            if (tempHist->GetEntries())
+                                hasMother[j]                        = kTRUE;
+                        } else {
+                            hasMother[j]                            = kFALSE;
+                        }
                     }
                 }
             }
@@ -200,10 +233,78 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
         }
     }
 
+    if (doFlexCocktail) {
+        selectedMothers = userSelectedMothers;
+        printf("using mothers: ");
+        for (Int_t j=0; j<nMotherParticles; j++) {
+            if (selectedMothers&motherParticleDec[j]) {
+                printf("%s ", motherParticles[j].Data());
+                hasMother[j]                        = kTRUE;
+            } else {
+                hasMother[j]                        = kFALSE;
+            }
+        }
+        printf("\n");
+    }
+
     cocktailInputParametrizations                               = new TF1*[nMotherParticles];
     cocktailInputParametrizationsMtScaled                       = new TF1*[nMotherParticles];
     TF1* paramTemp                                              = NULL;
     TF1* paramMtTemp                                            = NULL;
+    TDatabasePDG* pdg                                           = new TDatabasePDG();
+    std::vector<Int_t> motherParticlesInt                       = {};
+
+    for (Int_t i = 0; i < nMotherParticles; i++) motherParticlesInt.push_back(motherParticlesPDG[i].Atoi());
+
+    if (doFlexCocktail) {
+        // read and if necessary mT scale input parametrizations
+        // insert pi0 and proton manually for mT scaling
+        
+        paramTemp = (TF1*) cocktailInputFileDirectory->Get("111_pt");
+        dndpt_hadron_func[111] = *paramTemp;
+        paramTemp = (TF1*) cocktailInputFileDirectory->Get("2212_pt");
+        dndpt_hadron_func[2212] = *paramTemp;
+
+        printf("read pi0 and proton parametrizations\n");
+
+        // read input spectra and apply mT scaling where necessary
+        for (Int_t i=0; i<nMotherParticles; i++) {
+            paramTemp = (TF1*) cocktailInputFileDirectory->Get(Form("%s_pt", motherParticlesPDG[i].Data()));
+            if (paramTemp) {
+                dndpt_hadron_func[motherParticlesInt[i]] = *paramTemp;
+                printf("%d, found parametrization\n", motherParticlesInt[i]);
+            } else {
+                TString particleClass = pdg->GetParticle(motherParticlesInt[i])->ParticleClass();
+                if (particleClass.CompareTo("Meson") == 0) {
+                    // scale mesons from pi0
+                    paramMtTemp = MtScaledParam(&dndpt_hadron_func.at(111), motherParticlesInt[i], 111, mtScaleFactor[i], kFALSE, kTRUE);
+                } else if (particleClass.CompareTo("Baryon") == 0) {
+                    // scale baryons from proton
+                    paramMtTemp = MtScaledParam(&dndpt_hadron_func.at(2212), motherParticlesInt[i], 2212, mtScaleFactor[i], kFALSE, kTRUE);
+                } else {
+                    runtime_error(Form("Particle %d is neither Meson nor Baryon, but %s\n", motherParticlesInt[i], particleClass.Data()));
+                }
+                paramMtTemp->SetName(Form("%s_pt_mtScaled", motherParticlesPDG[i].Data()));
+                dndpt_hadron_func[motherParticlesInt[i]] = *paramMtTemp;
+                printf("%d, mT scaled parametrization with factor %.3f\n", motherParticlesInt[i], mtScaleFactor[i]);
+            }
+        }
+    }
+
+    if (doFlexCocktail) {
+        // calculate decay photons from parametrizations
+        ct.read_decay_histograms(nameFileDecayHistograms.Data(), motherParticlesInt, 22);
+        ct.decay_photons_from_func_or_mt_scaling(motherParticlesInt, dndpt_hadron_func, dndpt_hadron_hist, dndpt_photon_hist);
+
+        dndpt_photon_hist_sum = (TH1F*) dndpt_photon_hist[111].Clone();
+        dndpt_photon_hist_sum->Reset();
+        for (Int_t i = 0; i < nMotherParticles; i++) {
+            if ((userSelectedMothers & motherParticleDec[i]) != 0) {
+                dndpt_photon_hist_sum->Add((TH1F*) &dndpt_photon_hist[motherParticlesInt[i]]);
+            }
+        }
+    }
+
     if (!disableParamPlotting){
         for (Int_t i=0; i<nMotherParticles; i++) {
             paramTemp                                               = (TF1*)cocktailSettingsList->FindObject(Form("%s_pt", motherParticlesPDG[i].Data()));
@@ -251,6 +352,13 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
           if (cocktailInputParametrizationsMtScaled[i])
               cocktailInputParametrizationsMtScaled[i]            = ScaleTF1(cocktailInputParametrizationsMtScaled[i], eventNormScalingFactor, cocktailInputParametrizationsMtScaled[i]->GetName());
       }
+    }
+    if (doFlexCocktail) {
+        for (Int_t i=0; i<nMotherParticles; i++) {
+            if ((userSelectedMothers & motherParticleDec[i]) != 0) {
+                ScaleTF1(&dndpt_hadron_func.at(motherParticlesInt[i]), eventNormScalingFactor, dndpt_hadron_func.at(motherParticlesInt[i]).GetName());
+            }
+        }
     }
     //***************************** ranges and scaling factors ******************************************************
     Double_t deltaPtGen                                         = ptGenMax-ptGenMin;
@@ -335,22 +443,29 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     }
 
     //***************************** Get number of events (cocktail) *************************************************
-    histoNEvents                                                = (TH1F*)histoListCocktail->FindObject("NEvents");
-    nEvents                                                     = histoNEvents->GetEntries();
+    if (!doFlexCocktail) {
+        histoNEvents                                                = (TH1F*)histoListCocktail->FindObject("NEvents");
+        nEvents                                                     = histoNEvents->GetEntries();
+    } else {
+        // flexible cocktail is normalized to one event by construction
+        nEvents                                                     = 1.;
+    }
     cout << nEvents << " events" << endl;
 
     //***************************** Read histograms from cocktail file **********************************************
-    histoGammaSumPtY                                            = (TH2F*)histoListCocktail->FindObject("Pt_Y_Gamma");
-    histoGammaSumPtPhi                                          = (TH2F*)histoListCocktail->FindObject("Pt_Phi_Gamma");
-    if (histoGammaSumPtY) {
-        histoGammaSumPtY->SetName("Gamma_Pt_Y_OrBin");
-        histoGammaSumPtY->Sumw2();
-        histoGammaSumPtY->Scale(eventNormScalingFactor);
-        histoGammaSumPtPhi->Sumw2();
-        histoGammaSumPtPhi->Scale(eventNormScalingFactor);
-    } else {
-        cout << "ERROR: Gamma histo not found!" << endl;
-        return;
+    if (!doFlexCocktail) {
+        histoGammaSumPtY                                            = (TH2F*)histoListCocktail->FindObject("Pt_Y_Gamma");
+        histoGammaSumPtPhi                                          = (TH2F*)histoListCocktail->FindObject("Pt_Phi_Gamma");
+        if (histoGammaSumPtY) {
+            histoGammaSumPtY->SetName("Gamma_Pt_Y_OrBin");
+            histoGammaSumPtY->Sumw2();
+            histoGammaSumPtY->Scale(eventNormScalingFactor);
+            histoGammaSumPtPhi->Sumw2();
+            histoGammaSumPtPhi->Scale(eventNormScalingFactor);
+        } else {
+            cout << "ERROR: Gamma histo not found!" << endl;
+            return;
+        }
     }
 
     histoDecayChannels                                          = new TH1F*[nMotherParticles];
@@ -359,34 +474,43 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     histoGammaMotherPtY                                         = new TH2F*[nMotherParticles];
     histoGammaMotherPtPhi                                       = new TH2F*[nMotherParticles];
     histoGammaMotherPtGammaPt                                   = new TH2F*[nMotherParticles];
+
     for (Int_t i=0; i<nMotherParticles; i++) {
+        histoDecayChannels[i] = NULL;
+        histoGammaPtY[i] = NULL;
+        histoGammaPtPhi[i] = NULL;
+        histoGammaMotherPtY[i] = NULL;
+        histoGammaMotherPtPhi[i] = NULL;
+        histoGammaMotherPtGammaPt[i] = NULL;
         if (hasMother[i]) {
-            histoDecayChannels[i]                               = (TH1F*)histoListCocktail->FindObject(Form("DecayChannels_%s", motherParticles[i].Data()));
+            if (!doFlexCocktail) {
+                histoDecayChannels[i]                               = (TH1F*)histoListCocktail->FindObject(Form("DecayChannels_%s", motherParticles[i].Data()));
 
-            histoGammaPtY[i]                                    = (TH2F*)histoListCocktail->FindObject(Form("Pt_Y_Gamma_From_%s", motherParticles[i].Data()));
-            histoGammaPtY[i]->SetName(Form("Gamma_From_%s_Pt_Y_OrBin", motherParticles[i].Data()));
-            histoGammaPtY[i]->Sumw2();
-            histoGammaPtY[i]->Scale(eventNormScalingFactor);
+                histoGammaPtY[i]                                    = (TH2F*)histoListCocktail->FindObject(Form("Pt_Y_Gamma_From_%s", motherParticles[i].Data()));
+                histoGammaPtY[i]->SetName(Form("Gamma_From_%s_Pt_Y_OrBin", motherParticles[i].Data()));
+                histoGammaPtY[i]->Sumw2();
+                histoGammaPtY[i]->Scale(eventNormScalingFactor);
 
-            histoGammaPtPhi[i]                                  = (TH2F*)histoListCocktail->FindObject(Form("Pt_Phi_Gamma_From_%s", motherParticles[i].Data()));
-            histoGammaPtPhi[i]->SetName(Form("Gamma_From_%s_Pt_Phi_OrBin", motherParticles[i].Data()));
-            histoGammaPtPhi[i]->Sumw2();
-            histoGammaPtPhi[i]->Scale(eventNormScalingFactor);
+                histoGammaPtPhi[i]                                  = (TH2F*)histoListCocktail->FindObject(Form("Pt_Phi_Gamma_From_%s", motherParticles[i].Data()));
+                histoGammaPtPhi[i]->SetName(Form("Gamma_From_%s_Pt_Phi_OrBin", motherParticles[i].Data()));
+                histoGammaPtPhi[i]->Sumw2();
+                histoGammaPtPhi[i]->Scale(eventNormScalingFactor);
 
-            histoGammaMotherPtY[i]                              = (TH2F*)histoListCocktail->FindObject(Form("Pt_Y_%s", motherParticles[i].Data()));
-            histoGammaMotherPtY[i]->SetName(Form("%s_Pt_Y_OrBin", motherParticles[i].Data()));
-            histoGammaMotherPtY[i]->Sumw2();
-            histoGammaMotherPtY[i]->Scale(eventNormScalingFactor);
+                histoGammaMotherPtY[i]                              = (TH2F*)histoListCocktail->FindObject(Form("Pt_Y_%s", motherParticles[i].Data()));
+                histoGammaMotherPtY[i]->SetName(Form("%s_Pt_Y_OrBin", motherParticles[i].Data()));
+                histoGammaMotherPtY[i]->Sumw2();
+                histoGammaMotherPtY[i]->Scale(eventNormScalingFactor);
 
-            histoGammaMotherPtPhi[i]                            = (TH2F*)histoListCocktail->FindObject(Form("Pt_Phi_%s", motherParticles[i].Data()));
-            histoGammaMotherPtPhi[i]->SetName(Form("%s_Pt_Phi_OrBin", motherParticles[i].Data()));
-            histoGammaMotherPtPhi[i]->Sumw2();
-            histoGammaMotherPtPhi[i]->Scale(eventNormScalingFactor);
+                histoGammaMotherPtPhi[i]                            = (TH2F*)histoListCocktail->FindObject(Form("Pt_Phi_%s", motherParticles[i].Data()));
+                histoGammaMotherPtPhi[i]->SetName(Form("%s_Pt_Phi_OrBin", motherParticles[i].Data()));
+                histoGammaMotherPtPhi[i]->Sumw2();
+                histoGammaMotherPtPhi[i]->Scale(eventNormScalingFactor);
 
-            histoGammaMotherPtGammaPt[i]                        = (TH2F*)histoListCocktail->FindObject(Form("PtGamma_PtMother_%s", motherParticles[i].Data()));
-            histoGammaMotherPtGammaPt[i]->SetName(Form("%s_PtGamma_PtMother_OrBin", motherParticles[i].Data()));
-            histoGammaMotherPtGammaPt[i]->Sumw2();
-            histoGammaMotherPtGammaPt[i]->Scale(eventNormScalingFactor);
+                histoGammaMotherPtGammaPt[i]                        = (TH2F*)histoListCocktail->FindObject(Form("PtGamma_PtMother_%s", motherParticles[i].Data()));
+                histoGammaMotherPtGammaPt[i]->SetName(Form("%s_PtGamma_PtMother_OrBin", motherParticles[i].Data()));
+                histoGammaMotherPtGammaPt[i]->Sumw2();
+                histoGammaMotherPtGammaPt[i]->Scale(eventNormScalingFactor);
+            }
         } else {
             histoDecayChannels[i]                               = NULL;
             histoGammaPtY[i]                                    = NULL;
@@ -419,208 +543,269 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     }
 
     //***************************** Project from 2D histograms ******************************************************
-    histoGammaSumPtOrBin                                        = (TH1F*)histoGammaSumPtY->ProjectionX("Gamma_Pt_OrBin", 1, histoGammaSumPtY->GetNbinsY(), "e");
-    histoGammaSumPtOrBin->Sumw2();
-    histoGammaSumPtOrBin->Scale(1/(histoGammaSumPtY->GetYaxis()->GetBinWidth(1)));
-    histoGammaSumPtOrBin->Scale(1/(histoGammaSumPtY->GetXaxis()->GetBinWidth(1)));
-    histoGammaSumPtOrBin->Scale(1/deltaPtGen);
-    histoGammaSumPtOrBin->Scale(1/deltaRapGen);
-    histoGammaSumPtOrBin->Scale(1/deltaEtaGen);
-//     histoGammaSumPtOrBin->GetXaxis()->SetRangeUser(ptMin, ptMax);
-    SetHistogramTitles(histoGammaSumPtOrBin,"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-
-    histoGammaSumYOrBin                                         = (TH1F*)histoGammaSumPtY->ProjectionY("Gamma_Y_OrBin", 1, histoGammaSumPtY->GetNbinsX(), "e");
-    histoGammaSumYOrBin->Sumw2();
-    histoGammaSumYOrBin->Scale(1/(histoGammaSumPtY->GetXaxis()->GetBinWidth(1)));
-    histoGammaSumYOrBin->Scale(1/(histoGammaSumPtY->GetYaxis()->GetBinWidth(1)));
-    histoGammaSumYOrBin->Scale(1/deltaPtGen);
-    histoGammaSumYOrBin->Scale(1/deltaRapGen);
-    SetHistogramTitles(histoGammaSumYOrBin,"","y","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-
-    histoGammaSumPhiOrBin                                       = (TH1F*)histoGammaSumPtPhi->ProjectionY("Gamma_Phi_OrBin", 1, histoGammaSumPtPhi->GetNbinsX(), "e");
-    histoGammaSumPhiOrBin->Sumw2();
-    histoGammaSumPhiOrBin->Scale(1/(histoGammaSumPtPhi->GetXaxis()->GetBinWidth(1)));
-    histoGammaSumPhiOrBin->Scale(1/(histoGammaSumPtPhi->GetYaxis()->GetBinWidth(1)));
-    histoGammaSumPhiOrBin->Scale(1/deltaPtGen);
-    histoGammaSumPhiOrBin->Scale(1/deltaRapGen);
-    SetHistogramTitles(histoGammaSumPhiOrBin,"","#phi","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-
-    if(doGammaPtOrBinFromPtPhi) {
-        histoGammaSumPtOrBin2                                   = (TH1F*)histoGammaSumPtPhi->ProjectionX("Gamma_Pt_OrBin_2", 1, histoGammaSumPtY->GetNbinsY(), "e");
-        histoGammaSumPtOrBin2->Sumw2();
-        histoGammaSumPtOrBin2->Scale(1/(histoGammaSumPtPhi->GetYaxis()->GetBinWidth(1)));
-        histoGammaSumPtOrBin2->Scale(1/(histoGammaSumPtPhi->GetXaxis()->GetBinWidth(1)));
-        histoGammaSumPtOrBin2->Scale(1/deltaPtGen);
-        histoGammaSumPtOrBin2->Scale(1/deltaRapGen);
-        histoGammaSumPtOrBin2->Scale(1/deltaEtaGen);
-//         histoGammaSumPtOrBin2->GetXaxis()->SetRangeUser(ptMin, ptMax);
-        SetHistogramTitles(histoGammaSumPtOrBin2,"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-    } else {
-        histoGammaSumPtOrBin2                                   = NULL;
-    }
-
     histoGammaPtOrBin                                           = new TH1F*[nMotherParticles];
+    histoGammaMotherPtOrBin                                     = new TH1F*[nMotherParticles];
+    histoGammaMotherPtGammaOrBin                                = new TH1F*[nMotherParticles];
     histoGammaPtOrBin2                                          = new TH1F*[nMotherParticles];
     histoGammaYOrBin                                            = new TH1F*[nMotherParticles];
     histoGammaPhiOrBin                                          = new TH1F*[nMotherParticles];
-    histoGammaMotherPtOrBin                                     = new TH1F*[nMotherParticles];
     histoGammaMotherYOrBin                                      = new TH1F*[nMotherParticles];
     histoGammaMotherPhiOrBin                                    = new TH1F*[nMotherParticles];
-    histoGammaMotherPtGammaOrBin                                = new TH1F*[nMotherParticles];
     for (Int_t k = 0; k < nGammaPtSlices; k++)
         histoGammaMotherPtAtGammaPt[k]                          = new TH1F*[nMotherParticles];
 
-    for (Int_t i=0; i<nMotherParticles; i++) {
-        // gamma
-        if (histoGammaPtY[i]) {
-            // pt
-            histoGammaPtOrBin[i]                                = (TH1F*)histoGammaPtY[i]->ProjectionX(Form("Gamma_From_%s_Pt_OrBin", motherParticles[i].Data()),1,histoGammaPtY[i]->GetNbinsY(),"e");
-            histoGammaPtOrBin[i]->Sumw2();
-            histoGammaPtOrBin[i]->Scale(1/(histoGammaPtY[i]->GetYaxis()->GetBinWidth(1)));
-            histoGammaPtOrBin[i]->Scale(1/(histoGammaPtY[i]->GetXaxis()->GetBinWidth(1)));
-            histoGammaPtOrBin[i]->Scale(1/deltaPtGen);
-            histoGammaPtOrBin[i]->Scale(1/deltaRapGen);
-            histoGammaPtOrBin[i]->Scale(1/deltaEtaGen);
-//             histoGammaPtOrBin[i]->GetXaxis()->SetRangeUser(ptMin, ptMax);
-            SetHistogramTitles(histoGammaPtOrBin[i],"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+    for (Int_t i = 0; i < nMotherParticles; i++) {
+        histoGammaPtOrBin[i] = NULL;
+        histoGammaMotherPtOrBin[i] = NULL;
+        histoGammaMotherPtGammaOrBin[i] = NULL;
+        histoGammaPtOrBin2[i] = NULL;
+        histoGammaYOrBin[i] = NULL;
+        histoGammaPhiOrBin[i] = NULL;
+        histoGammaMotherYOrBin[i] = NULL;
+        histoGammaMotherPhiOrBin[i] = NULL;
+        for (Int_t k = 0; k < nGammaPtSlices; k++)
+            histoGammaMotherPtAtGammaPt[k][i] = NULL;
+    }
 
-            // y
-            histoGammaYOrBin[i]                                 = (TH1F*)histoGammaPtY[i]->ProjectionY(Form("Gamma_From_%s_Y_OrBin", motherParticles[i].Data()),1,histoGammaPtY[i]->GetNbinsX(),"e");
-            histoGammaYOrBin[i]->Sumw2();
-            histoGammaYOrBin[i]->Scale(1/(histoGammaPtY[i]->GetXaxis()->GetBinWidth(1)));
-            histoGammaYOrBin[i]->Scale(1/(histoGammaPtY[i]->GetYaxis()->GetBinWidth(1)));
-            histoGammaYOrBin[i]->Scale(1/deltaPtGen);
-            histoGammaYOrBin[i]->Scale(1/deltaRapGen);
-            SetHistogramTitles(histoGammaYOrBin[i],"","y","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-        } else {
-            histoGammaPtOrBin[i]                                = NULL;
-            histoGammaYOrBin[i]                                 = NULL;
+
+    if (doFlexCocktail) {
+        histoGammaSumPtOrBin = (TH1F*) dndpt_photon_hist_sum->Clone("Gamma_Pt_OrBin");
+        histoGammaSumPtOrBin->Sumw2();
+
+        SetHistogramTitles(histoGammaSumPtOrBin,"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+
+        for (Int_t i=0; i<nMotherParticles; i++) {
+            if ((userSelectedMothers & motherParticleDec[i]) == 0) continue;
+            // gamma
+            if (dndpt_photon_hist.find(motherParticlesInt[i]) != dndpt_photon_hist.end()) {
+                // pt
+                histoGammaPtOrBin[i] = (TH1F*) &dndpt_photon_hist.at(motherParticlesInt[i]);
+                histoGammaPtOrBin[i]->SetName(Form("Gamma_From_%s_Pt_OrBin", motherParticles[i].Data()));
+                histoGammaPtOrBin[i]->Sumw2();
+                SetHistogramTitles(histoGammaPtOrBin[i],"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+            } 
+
+            //mother
+            if (dndpt_hadron_hist.find(motherParticlesInt[i]) != dndpt_hadron_hist.end()) {
+                // pt
+                histoGammaMotherPtOrBin[i] = (TH1F*) &dndpt_hadron_hist.at(motherParticlesInt[i]);
+                histoGammaMotherPtOrBin[i]->SetName(Form("%s_Pt_OrBin", motherParticles[i].Data()));
+                histoGammaMotherPtOrBin[i]->Sumw2();
+                printf("found mother particle %d, histogram %s\n", motherParticlesInt[i], histoGammaMotherPtOrBin[i]->GetName());
+                SetHistogramTitles(histoGammaMotherPtOrBin[i],"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+            } 
         }
 
-        if (histoGammaPtPhi[i]) {
-            // phi
-            histoGammaPhiOrBin[i]                               = (TH1F*)histoGammaPtPhi[i]->ProjectionY(Form("Gamma_From_%s_Phi_OrBin",motherParticles[i].Data()),1,histoGammaPtPhi[i]->GetNbinsX(),"e");
-            histoGammaPhiOrBin[i]->Sumw2();
-            histoGammaPhiOrBin[i]->Scale(1/(histoGammaPtPhi[i]->GetXaxis()->GetBinWidth(1)));
-            histoGammaPhiOrBin[i]->Scale(1/(histoGammaPtPhi[i]->GetYaxis()->GetBinWidth(1)));
-            histoGammaPhiOrBin[i]->Scale(1/deltaPtGen);
-            histoGammaPhiOrBin[i]->Scale(1/deltaRapGen);
-            SetHistogramTitles(histoGammaPhiOrBin[i],"","#phi","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+        if (dndpt_photon_hist.find(motherParticlesInt[0]) == dndpt_photon_hist.end()) {
+            cout << "ERROR: Didn't get pi0 pt spectrum, returning!" << __LINE__ << endl;
+            return;
+        }
+    } else {
+        histoGammaSumPtOrBin                                        = (TH1F*)histoGammaSumPtY->ProjectionX("Gamma_Pt_OrBin", 1, histoGammaSumPtY->GetNbinsY(), "e");
+        histoGammaSumPtOrBin->Sumw2();
+        histoGammaSumPtOrBin->Scale(1/(histoGammaSumPtY->GetYaxis()->GetBinWidth(1)));
+        histoGammaSumPtOrBin->Scale(1/(histoGammaSumPtY->GetXaxis()->GetBinWidth(1)));
+        histoGammaSumPtOrBin->Scale(1/deltaPtGen);
+        histoGammaSumPtOrBin->Scale(1/deltaRapGen);
+        histoGammaSumPtOrBin->Scale(1/deltaEtaGen);
+        // histoGammaSumPtOrBin->GetXaxis()->SetRangeUser(ptMin, ptMax);
+        SetHistogramTitles(histoGammaSumPtOrBin,"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
 
-            // pt
-            if (doGammaPtOrBinFromPtPhi) {
-                histoGammaPtOrBin2[i]                           = (TH1F*)histoGammaPtPhi[i]->ProjectionX(Form("Gamma_From_%s_Pt_OrBin_2",motherParticles[i].Data()),1,histoGammaPtY[i]->GetNbinsY(),"e");
-                histoGammaPtOrBin2[i]->Sumw2();
-                histoGammaPtOrBin2[i]->Scale(1/(histoGammaPtPhi[i]->GetYaxis()->GetBinWidth(1)));
-                histoGammaPtOrBin2[i]->Scale(1/(histoGammaPtPhi[i]->GetXaxis()->GetBinWidth(1)));
-                histoGammaPtOrBin2[i]->Scale(1/deltaPtGen);
-                histoGammaPtOrBin2[i]->Scale(1/deltaRapGen);
-                histoGammaPtOrBin2[i]->Scale(1/deltaEtaGen);
-//                 histoGammaPtOrBin2[i]->GetXaxis()->SetRangeUser(ptMin, ptMax);
-                SetHistogramTitles(histoGammaPtOrBin2[i],"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+        histoGammaSumYOrBin                                         = (TH1F*)histoGammaSumPtY->ProjectionY("Gamma_Y_OrBin", 1, histoGammaSumPtY->GetNbinsX(), "e");
+        histoGammaSumYOrBin->Sumw2();
+        histoGammaSumYOrBin->Scale(1/(histoGammaSumPtY->GetXaxis()->GetBinWidth(1)));
+        histoGammaSumYOrBin->Scale(1/(histoGammaSumPtY->GetYaxis()->GetBinWidth(1)));
+        histoGammaSumYOrBin->Scale(1/deltaPtGen);
+        histoGammaSumYOrBin->Scale(1/deltaRapGen);
+        SetHistogramTitles(histoGammaSumYOrBin,"","y","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+
+        histoGammaSumPhiOrBin                                       = (TH1F*)histoGammaSumPtPhi->ProjectionY("Gamma_Phi_OrBin", 1, histoGammaSumPtPhi->GetNbinsX(), "e");
+        histoGammaSumPhiOrBin->Sumw2();
+        histoGammaSumPhiOrBin->Scale(1/(histoGammaSumPtPhi->GetXaxis()->GetBinWidth(1)));
+        histoGammaSumPhiOrBin->Scale(1/(histoGammaSumPtPhi->GetYaxis()->GetBinWidth(1)));
+        histoGammaSumPhiOrBin->Scale(1/deltaPtGen);
+        histoGammaSumPhiOrBin->Scale(1/deltaRapGen);
+        SetHistogramTitles(histoGammaSumPhiOrBin,"","#phi","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+
+        if(doGammaPtOrBinFromPtPhi) {
+            histoGammaSumPtOrBin2                                   = (TH1F*)histoGammaSumPtPhi->ProjectionX("Gamma_Pt_OrBin_2", 1, histoGammaSumPtY->GetNbinsY(), "e");
+            histoGammaSumPtOrBin2->Sumw2();
+            histoGammaSumPtOrBin2->Scale(1/(histoGammaSumPtPhi->GetYaxis()->GetBinWidth(1)));
+            histoGammaSumPtOrBin2->Scale(1/(histoGammaSumPtPhi->GetXaxis()->GetBinWidth(1)));
+            histoGammaSumPtOrBin2->Scale(1/deltaPtGen);
+            histoGammaSumPtOrBin2->Scale(1/deltaRapGen);
+            histoGammaSumPtOrBin2->Scale(1/deltaEtaGen);
+            // histoGammaSumPtOrBin2->GetXaxis()->SetRangeUser(ptMin, ptMax);
+            SetHistogramTitles(histoGammaSumPtOrBin2,"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+        } else {
+            histoGammaSumPtOrBin2                                   = NULL;
+        }
+        for (Int_t i=0; i<nMotherParticles; i++) {
+            // gamma
+            if (histoGammaPtY[i]) {
+                // pt
+                histoGammaPtOrBin[i]                                = (TH1F*)histoGammaPtY[i]->ProjectionX(Form("Gamma_From_%s_Pt_OrBin", motherParticles[i].Data()),1,histoGammaPtY[i]->GetNbinsY(),"e");
+                histoGammaPtOrBin[i]->Sumw2();
+                histoGammaPtOrBin[i]->Scale(1/(histoGammaPtY[i]->GetYaxis()->GetBinWidth(1)));
+                histoGammaPtOrBin[i]->Scale(1/(histoGammaPtY[i]->GetXaxis()->GetBinWidth(1)));
+                histoGammaPtOrBin[i]->Scale(1/deltaPtGen);
+                histoGammaPtOrBin[i]->Scale(1/deltaRapGen);
+                histoGammaPtOrBin[i]->Scale(1/deltaEtaGen);
+                // histoGammaPtOrBin[i]->GetXaxis()->SetRangeUser(ptMin, ptMax);
+                SetHistogramTitles(histoGammaPtOrBin[i],"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+
+                // y
+                histoGammaYOrBin[i]                                 = (TH1F*)histoGammaPtY[i]->ProjectionY(Form("Gamma_From_%s_Y_OrBin", motherParticles[i].Data()),1,histoGammaPtY[i]->GetNbinsX(),"e");
+                histoGammaYOrBin[i]->Sumw2();
+                histoGammaYOrBin[i]->Scale(1/(histoGammaPtY[i]->GetXaxis()->GetBinWidth(1)));
+                histoGammaYOrBin[i]->Scale(1/(histoGammaPtY[i]->GetYaxis()->GetBinWidth(1)));
+                histoGammaYOrBin[i]->Scale(1/deltaPtGen);
+                histoGammaYOrBin[i]->Scale(1/deltaRapGen);
+                SetHistogramTitles(histoGammaYOrBin[i],"","y","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
             } else {
-                histoGammaPtOrBin2[i]                           = NULL;
+                histoGammaPtOrBin[i]                                = NULL;
+                histoGammaYOrBin[i]                                 = NULL;
             }
-        } else {
-            histoGammaPhiOrBin[i]                               = NULL;
-            histoGammaPtOrBin2[i]                               = NULL;
+
+            if (histoGammaPtPhi[i]) {
+                // phi
+                histoGammaPhiOrBin[i]                               = (TH1F*)histoGammaPtPhi[i]->ProjectionY(Form("Gamma_From_%s_Phi_OrBin",motherParticles[i].Data()),1,histoGammaPtPhi[i]->GetNbinsX(),"e");
+                histoGammaPhiOrBin[i]->Sumw2();
+                histoGammaPhiOrBin[i]->Scale(1/(histoGammaPtPhi[i]->GetXaxis()->GetBinWidth(1)));
+                histoGammaPhiOrBin[i]->Scale(1/(histoGammaPtPhi[i]->GetYaxis()->GetBinWidth(1)));
+                histoGammaPhiOrBin[i]->Scale(1/deltaPtGen);
+                histoGammaPhiOrBin[i]->Scale(1/deltaRapGen);
+                SetHistogramTitles(histoGammaPhiOrBin[i],"","#phi","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+
+                // pt
+                if (doGammaPtOrBinFromPtPhi) {
+                    histoGammaPtOrBin2[i]                           = (TH1F*)histoGammaPtPhi[i]->ProjectionX(Form("Gamma_From_%s_Pt_OrBin_2",motherParticles[i].Data()),1,histoGammaPtY[i]->GetNbinsY(),"e");
+                    histoGammaPtOrBin2[i]->Sumw2();
+                    histoGammaPtOrBin2[i]->Scale(1/(histoGammaPtPhi[i]->GetYaxis()->GetBinWidth(1)));
+                    histoGammaPtOrBin2[i]->Scale(1/(histoGammaPtPhi[i]->GetXaxis()->GetBinWidth(1)));
+                    histoGammaPtOrBin2[i]->Scale(1/deltaPtGen);
+                    histoGammaPtOrBin2[i]->Scale(1/deltaRapGen);
+                    histoGammaPtOrBin2[i]->Scale(1/deltaEtaGen);
+                    // histoGammaPtOrBin2[i]->GetXaxis()->SetRangeUser(ptMin, ptMax);
+                    SetHistogramTitles(histoGammaPtOrBin2[i],"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+                } else {
+                    histoGammaPtOrBin2[i]                           = NULL;
+                }
+            } else {
+                histoGammaPhiOrBin[i]                               = NULL;
+                histoGammaPtOrBin2[i]                               = NULL;
+            }
+
+            //mother
+            if (histoGammaMotherPtY[i]) {
+                // pt
+                histoGammaMotherPtOrBin[i]                          = (TH1F*)histoGammaMotherPtY[i]->ProjectionX(Form("%s_Pt_OrBin",motherParticles[i].Data()),1,histoGammaMotherPtY[i]->GetNbinsY(),"e");
+                histoGammaMotherPtOrBin[i]->Sumw2();
+                histoGammaMotherPtOrBin[i]->Scale(1/(histoGammaMotherPtY[i]->GetYaxis()->GetBinWidth(1)));
+                histoGammaMotherPtOrBin[i]->Scale(1/(histoGammaMotherPtY[i]->GetXaxis()->GetBinWidth(1)));
+                histoGammaMotherPtOrBin[i]->Scale(1/deltaPtGen);
+                histoGammaMotherPtOrBin[i]->Scale(1/deltaRapGen);
+                histoGammaMotherPtOrBin[i]->Scale(1/deltaRap);
+                // histoGammaMotherPtOrBin[i]->GetXaxis()->SetRangeUser(ptMin, ptMax);
+                SetHistogramTitles(histoGammaMotherPtOrBin[i],"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+
+                // y
+                histoGammaMotherYOrBin[i]                           = (TH1F*)histoGammaMotherPtY[i]->ProjectionY(Form("%s_Y_OrBin",motherParticles[i].Data()),1,histoGammaMotherPtY[i]->GetNbinsX(),"e");
+                histoGammaMotherYOrBin[i]->Sumw2();
+                histoGammaMotherYOrBin[i]->Scale(1/(histoGammaMotherPtY[i]->GetXaxis()->GetBinWidth(1)));
+                histoGammaMotherYOrBin[i]->Scale(1/(histoGammaMotherPtY[i]->GetYaxis()->GetBinWidth(1)));
+                histoGammaMotherYOrBin[i]->Scale(1/deltaPtGen);
+                histoGammaMotherYOrBin[i]->Scale(1/deltaRapGen);
+                SetHistogramTitles(histoGammaMotherYOrBin[i],"","y","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+            } else {
+                histoGammaMotherPtOrBin[i]                          = NULL;
+                histoGammaMotherYOrBin[i]                           = NULL;
+            }
+
+            if (histoGammaMotherPtPhi[i]) {
+                // phi
+                histoGammaMotherPhiOrBin[i]                         = (TH1F*)histoGammaMotherPtPhi[i]->ProjectionY(Form("%s_Phi_OrBin",motherParticles[i].Data()),1,histoGammaMotherPtPhi[i]->GetNbinsX(),"e");
+                histoGammaMotherPhiOrBin[i]->Sumw2();
+                histoGammaMotherPhiOrBin[i]->Scale(1/(histoGammaMotherPtPhi[i]->GetXaxis()->GetBinWidth(1)));
+                histoGammaMotherPhiOrBin[i]->Scale(1/(histoGammaMotherPtPhi[i]->GetYaxis()->GetBinWidth(1)));
+                histoGammaMotherPhiOrBin[i]->Scale(1/deltaPtGen);
+                histoGammaMotherPhiOrBin[i]->Scale(1/deltaRapGen);
+                SetHistogramTitles(histoGammaMotherPhiOrBin[i],"","#phi","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+            } else
+                histoGammaMotherPhiOrBin[i]                         = NULL;
+
+            // mothers vs. gamma pt
+            if (histoGammaMotherPtGammaPt[i]) {
+                histoGammaMotherPtGammaOrBin[i]                     = (TH1F*)histoGammaMotherPtGammaPt[i]->ProjectionX(Form("%s_PtGamma_OrBin",motherParticles[i].Data()),1,histoGammaMotherPtGammaPt[i]->GetNbinsY(),"e");
+                histoGammaMotherPtGammaOrBin[i]->Sumw2();
+                histoGammaMotherPtGammaOrBin[i]->Scale(0.5); // NOT FINAL! histogram filled once for each gamma from pi0 -> gamma gamma (must be treated differently depending on decay channels and BRs, e.g. for pi0 should be 0.5 * BR_2gamma)
+                histoGammaMotherPtGammaOrBin[i]->Scale(1/(histoGammaMotherPtGammaPt[i]->GetYaxis()->GetBinWidth(1)));
+                histoGammaMotherPtGammaOrBin[i]->Scale(1/(histoGammaMotherPtGammaPt[i]->GetXaxis()->GetBinWidth(1)));
+                histoGammaMotherPtGammaOrBin[i]->Scale(1/deltaPtGen);
+                histoGammaMotherPtGammaOrBin[i]->Scale(1/deltaRapGen);
+                histoGammaMotherPtGammaOrBin[i]->Scale(1/deltaRap);
+                // histoGammaMotherPtGammaOrBin[i]->GetXaxis()->SetRangeUser(ptMin, ptMax);
+                SetHistogramTitles(histoGammaMotherPtGammaOrBin[i],"","#it{p}_{T, #gamma} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+
+                for (Int_t k = 0; k < nGammaPtSlices; k++){
+                    // cout << minPtGammaSlice[k] << "\t" <<  maxPtGammaSlice[k] << endl;
+                    histoGammaMotherPtAtGammaPt[k][i]               = (TH1F*)histoGammaMotherPtGammaPt[i]->ProjectionY( Form("%s_PtMother_%d-%dMeV",motherParticles[i].Data(),
+                                                                                                                        minPtGammaSlice[k]*1000, maxPtGammaSlice[k]*1000 ),
+                                                                                                                        histoGammaMotherPtGammaPt[i]->GetYaxis()->FindBin((Double_t)minPtGammaSlice[k]/1000),
+                                                                                                                        histoGammaMotherPtGammaPt[i]->GetYaxis()->FindBin((Double_t)maxPtGammaSlice[k]/1000),
+                                                                                                                        "e");
+                    histoGammaMotherPtAtGammaPt[k][i]->Scale(1/(histoGammaMotherPtGammaPt[i]->GetYaxis()->GetBinWidth(1)));
+                    histoGammaMotherPtAtGammaPt[k][i]->Scale(1/(histoGammaMotherPtGammaPt[i]->GetXaxis()->GetBinWidth(1)));
+                    histoGammaMotherPtAtGammaPt[k][i]->Scale(1/deltaPtGen);
+                    histoGammaMotherPtAtGammaPt[k][i]->Scale(1/deltaRapGen);
+                    histoGammaMotherPtAtGammaPt[k][i]->Scale(1/deltaRap);
+                    SetHistogramTitles(histoGammaMotherPtAtGammaPt[k][i],"","#it{p}_{T, mother} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
+                }
+            } else {
+                histoGammaMotherPtGammaOrBin[i]                     = NULL;
+                for (Int_t k = 0; k < nGammaPtSlices; k++)
+                    histoGammaMotherPtAtGammaPt[k][i]               = NULL;
+            }
         }
 
-        //mother
-        if (histoGammaMotherPtY[i]) {
-            // pt
-            histoGammaMotherPtOrBin[i]                          = (TH1F*)histoGammaMotherPtY[i]->ProjectionX(Form("%s_Pt_OrBin",motherParticles[i].Data()),1,histoGammaMotherPtY[i]->GetNbinsY(),"e");
-            histoGammaMotherPtOrBin[i]->Sumw2();
-            histoGammaMotherPtOrBin[i]->Scale(1/(histoGammaMotherPtY[i]->GetYaxis()->GetBinWidth(1)));
-            histoGammaMotherPtOrBin[i]->Scale(1/(histoGammaMotherPtY[i]->GetXaxis()->GetBinWidth(1)));
-            histoGammaMotherPtOrBin[i]->Scale(1/deltaPtGen);
-            histoGammaMotherPtOrBin[i]->Scale(1/deltaRapGen);
-            histoGammaMotherPtOrBin[i]->Scale(1/deltaRap);
-//             histoGammaMotherPtOrBin[i]->GetXaxis()->SetRangeUser(ptMin, ptMax);
-            SetHistogramTitles(histoGammaMotherPtOrBin[i],"","#it{p}_{T} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-
-            // y
-            histoGammaMotherYOrBin[i]                           = (TH1F*)histoGammaMotherPtY[i]->ProjectionY(Form("%s_Y_OrBin",motherParticles[i].Data()),1,histoGammaMotherPtY[i]->GetNbinsX(),"e");
-            histoGammaMotherYOrBin[i]->Sumw2();
-            histoGammaMotherYOrBin[i]->Scale(1/(histoGammaMotherPtY[i]->GetXaxis()->GetBinWidth(1)));
-            histoGammaMotherYOrBin[i]->Scale(1/(histoGammaMotherPtY[i]->GetYaxis()->GetBinWidth(1)));
-            histoGammaMotherYOrBin[i]->Scale(1/deltaPtGen);
-            histoGammaMotherYOrBin[i]->Scale(1/deltaRapGen);
-            SetHistogramTitles(histoGammaMotherYOrBin[i],"","y","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-        } else {
-            histoGammaMotherPtOrBin[i]                          = NULL;
-            histoGammaMotherYOrBin[i]                           = NULL;
-        }
-
-        if (histoGammaMotherPtPhi[i]) {
-            // phi
-            histoGammaMotherPhiOrBin[i]                         = (TH1F*)histoGammaMotherPtPhi[i]->ProjectionY(Form("%s_Phi_OrBin",motherParticles[i].Data()),1,histoGammaMotherPtPhi[i]->GetNbinsX(),"e");
-            histoGammaMotherPhiOrBin[i]->Sumw2();
-            histoGammaMotherPhiOrBin[i]->Scale(1/(histoGammaMotherPtPhi[i]->GetXaxis()->GetBinWidth(1)));
-            histoGammaMotherPhiOrBin[i]->Scale(1/(histoGammaMotherPtPhi[i]->GetYaxis()->GetBinWidth(1)));
-            histoGammaMotherPhiOrBin[i]->Scale(1/deltaPtGen);
-            histoGammaMotherPhiOrBin[i]->Scale(1/deltaRapGen);
-            SetHistogramTitles(histoGammaMotherPhiOrBin[i],"","#phi","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-        } else
-            histoGammaMotherPhiOrBin[i]                         = NULL;
-
-        // mothers vs. gamma pt
-        if (histoGammaMotherPtGammaPt[i]) {
-            histoGammaMotherPtGammaOrBin[i]                     = (TH1F*)histoGammaMotherPtGammaPt[i]->ProjectionX(Form("%s_PtGamma_OrBin",motherParticles[i].Data()),1,histoGammaMotherPtGammaPt[i]->GetNbinsY(),"e");
-            histoGammaMotherPtGammaOrBin[i]->Sumw2();
-            histoGammaMotherPtGammaOrBin[i]->Scale(0.5); // NOT FINAL! histogram filled once for each gamma from pi0 -> gamma gamma (must be treated differently depending on decay channels and BRs, e.g. for pi0 should be 0.5 * BR_2gamma)
-            histoGammaMotherPtGammaOrBin[i]->Scale(1/(histoGammaMotherPtGammaPt[i]->GetYaxis()->GetBinWidth(1)));
-            histoGammaMotherPtGammaOrBin[i]->Scale(1/(histoGammaMotherPtGammaPt[i]->GetXaxis()->GetBinWidth(1)));
-            histoGammaMotherPtGammaOrBin[i]->Scale(1/deltaPtGen);
-            histoGammaMotherPtGammaOrBin[i]->Scale(1/deltaRapGen);
-            histoGammaMotherPtGammaOrBin[i]->Scale(1/deltaRap);
-//             histoGammaMotherPtGammaOrBin[i]->GetXaxis()->SetRangeUser(ptMin, ptMax);
-            SetHistogramTitles(histoGammaMotherPtGammaOrBin[i],"","#it{p}_{T, #gamma} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-
-            for (Int_t k = 0; k < nGammaPtSlices; k++){
-//                 cout << minPtGammaSlice[k] << "\t" <<  maxPtGammaSlice[k] << endl;
-                histoGammaMotherPtAtGammaPt[k][i]               = (TH1F*)histoGammaMotherPtGammaPt[i]->ProjectionY( Form("%s_PtMother_%d-%dMeV",motherParticles[i].Data(),
-                                                                                                                    minPtGammaSlice[k]*1000, maxPtGammaSlice[k]*1000 ),
-                                                                                                                    histoGammaMotherPtGammaPt[i]->GetYaxis()->FindBin((Double_t)minPtGammaSlice[k]/1000),
-                                                                                                                    histoGammaMotherPtGammaPt[i]->GetYaxis()->FindBin((Double_t)maxPtGammaSlice[k]/1000),
-                                                                                                                    "e");
-                histoGammaMotherPtAtGammaPt[k][i]->Scale(1/(histoGammaMotherPtGammaPt[i]->GetYaxis()->GetBinWidth(1)));
-                histoGammaMotherPtAtGammaPt[k][i]->Scale(1/(histoGammaMotherPtGammaPt[i]->GetXaxis()->GetBinWidth(1)));
-                histoGammaMotherPtAtGammaPt[k][i]->Scale(1/deltaPtGen);
-                histoGammaMotherPtAtGammaPt[k][i]->Scale(1/deltaRapGen);
-                histoGammaMotherPtAtGammaPt[k][i]->Scale(1/deltaRap);
-                SetHistogramTitles(histoGammaMotherPtAtGammaPt[k][i],"","#it{p}_{T, mother} (GeV/#it{c})","#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})");
-            }
-        } else {
-            histoGammaMotherPtGammaOrBin[i]                     = NULL;
-            for (Int_t k = 0; k < nGammaPtSlices; k++)
-                histoGammaMotherPtAtGammaPt[k][i]               = NULL;
+        if (!histoGammaMotherPtOrBin[0]) {
+            cout << "ERROR: Didn't get pi0 pt spectrum, returning!" << endl;
+            return;
         }
     }
 
-    if (!histoGammaMotherPtOrBin[0]) {
-        cout << "ERROR: Didn't get pi0 pt spectrum, returning!" << endl;
-        return;
-    }
+
 
     //***************************** Scale spectra *******************************************************************
-    histoGammaSumPtOrBin->Scale(                                1./nEvents);
-    if (histoGammaSumPtOrBin2) histoGammaSumPtOrBin2->Scale(    1./nEvents);
-    histoGammaSumYOrBin->Scale(                                 1./nEvents);
-    histoGammaSumPhiOrBin->Scale(                               1./nEvents);
-    for (Int_t i=0; i<nMotherParticles; i++) {
-        if (histoGammaPtOrBin[i])               histoGammaPtOrBin[i]->Scale(            1./nEvents);
-        if (histoGammaPtOrBin2[i])              histoGammaPtOrBin2[i]->Scale(           1./nEvents);
-        if (histoGammaYOrBin[i])                histoGammaYOrBin[i]->Scale(             1./nEvents);
-        if (histoGammaPhiOrBin[i])              histoGammaPhiOrBin[i]->Scale(           1./nEvents);
-        if (histoGammaMotherPtOrBin[i])         histoGammaMotherPtOrBin[i]->Scale(      1./nEvents);
-        if (histoGammaMotherYOrBin[i])          histoGammaMotherYOrBin[i]->Scale(       1./nEvents);
-        if (histoGammaMotherPhiOrBin[i])        histoGammaMotherPhiOrBin[i]->Scale(     1./nEvents);
-        if (histoGammaMotherPtGammaOrBin[i])    histoGammaMotherPtGammaOrBin[i]->Scale( 1./nEvents);
-        for (Int_t k = 0; k < nGammaPtSlices; k++){
-            if (histoGammaMotherPtAtGammaPt[k][i])     histoGammaMotherPtAtGammaPt[k][i]->Scale(  1./nEvents);
+    if (doFlexCocktail) {
+        // spectra from flexible cocktail are already normalized in respect to nEvents
+        histoGammaSumPtOrBin->Scale(eventNormScalingFactor);
+        for (Int_t i=0; i<nMotherParticles; i++) {
+            if (histoGammaPtOrBin[i])
+                histoGammaPtOrBin[i]->Scale(eventNormScalingFactor);
+            if (histoGammaMotherPtOrBin[i])
+                histoGammaMotherPtOrBin[i]->Scale(eventNormScalingFactor);
+        }
+    } else {
+        histoGammaSumPtOrBin->Scale(                                1./nEvents);
+        if (histoGammaSumPtOrBin2) histoGammaSumPtOrBin2->Scale(    1./nEvents);
+        histoGammaSumYOrBin->Scale(                                 1./nEvents);
+        histoGammaSumPhiOrBin->Scale(                               1./nEvents);
+        for (Int_t i=0; i<nMotherParticles; i++) {
+            if (histoGammaPtOrBin[i])               histoGammaPtOrBin[i]->Scale(            1./nEvents);
+            if (histoGammaPtOrBin2[i])              histoGammaPtOrBin2[i]->Scale(           1./nEvents);
+            if (histoGammaYOrBin[i])                histoGammaYOrBin[i]->Scale(             1./nEvents);
+            if (histoGammaPhiOrBin[i])              histoGammaPhiOrBin[i]->Scale(           1./nEvents);
+            if (histoGammaMotherPtOrBin[i])         histoGammaMotherPtOrBin[i]->Scale(      1./nEvents);
+            if (histoGammaMotherYOrBin[i])          histoGammaMotherYOrBin[i]->Scale(       1./nEvents);
+            if (histoGammaMotherPhiOrBin[i])        histoGammaMotherPhiOrBin[i]->Scale(     1./nEvents);
+            if (histoGammaMotherPtGammaOrBin[i])    histoGammaMotherPtGammaOrBin[i]->Scale( 1./nEvents);
+            for (Int_t k = 0; k < nGammaPtSlices; k++){
+                if (histoGammaMotherPtAtGammaPt[k][i])     histoGammaMotherPtAtGammaPt[k][i]->Scale(  1./nEvents);
+            }
         }
     }
+
 
     //***************************** Rebin pt spectra ****************************************************************
     histoGammaSumPt                                             = (TH1F*)histoGammaSumPtOrBin->Clone("Gamma_Pt");
@@ -664,12 +849,24 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
             histoGammaMotherPtGamma[i]                          = ConvertYieldHisto(histoGammaMotherPtGamma[i]);
     }
 
+    //***************************** generated pi0 yield *************************************************************
+    if (histoGammaMotherPtOrBin[0]) {
+        histoGeneratedPi0Pt                                     = (TH1F*)histoGammaMotherPtOrBin[0]->Clone();
+        histoGeneratedPi0Pt->Sumw2();
+        RebinSpectrum(histoGeneratedPi0Pt, (TH1F*)histoPi0InvYieldData, "");
+        histoGeneratedPi0Pt                                     = ConvertYieldHisto(histoGeneratedPi0Pt);
+        if (doFlexCocktail)
+            histoGeneratedPi0Pt->Scale(1. / eventNormScalingFactor);
+    }
+
     //***************************** generated eta yield in analyzed eta binning *************************************
     if (histoGammaMotherPtOrBin[1]) {
         histoGeneratedEtaPt                                     = (TH1F*)histoGammaMotherPtOrBin[1]->Clone(Form("%s_inEtaBinning",histoGammaMotherPtOrBin[1]->GetName()));
         histoGeneratedEtaPt->Sumw2();
         RebinSpectrum(histoGeneratedEtaPt, (TH1F*)histoEtaInvYieldData, "");
         histoGeneratedEtaPt                                     = ConvertYieldHisto(histoGeneratedEtaPt);
+        if (doFlexCocktail)
+            histoGeneratedEtaPt->Scale(1. / eventNormScalingFactor);
     }
 
     //***************************** Read histograms from cocktail input file ****************************************
@@ -759,7 +956,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     dummyHist->Draw();
 
     for (Int_t i=0; i<nMotherParticles; i++) {
-        if (histoGammaMotherPtOrBin[i]) {
+        if (histoGammaMotherPtOrBin[i] && hasMother[i]) {
             DrawGammaSetMarker(         histoGammaMotherPtOrBin[i], cocktailMarker[i], 1, cocktailColor[i],  cocktailColor[i]);
             legendMothers->AddEntry(    histoGammaMotherPtOrBin[i], Form("%s", motherParticlesLatex[i].Data()), "l");
             histoGammaMotherPtOrBin[i]->SetLineWidth(2);
@@ -802,30 +999,32 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     canvasMothers->SaveAs(Form("%s/CocktailMothers_woPtCut_%s_%s.%s",outputDir.Data(),rapidityForOut.Data(),cutSelection.Data(),suffix.Data()));
 
     for (Int_t k = 0; k < nGammaPtSlices; k++){
-        dummyHist                                                   = new TH1D("dummyHist", "", 1000, ptPlotMin, 50);
-        SetHistogramm(dummyHist, "#it{p}_{T} (GeV/#it{c})", "#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})", 2e-12, histoGammaMotherPtAtGammaPt[k][0]->GetMaximum()*200,
-                      1.0, 1.65);
-        dummyHist->SetLabelOffset(-0.015, "X");
-        dummyHist->SetTitleOffset(0.8, "X");
-        dummyHist->Draw();
+        if (histoGammaMotherPtAtGammaPt[k][0]){
+            dummyHist                                                   = new TH1D("dummyHist", "", 1000, ptPlotMin, 50);
+            SetHistogramm(dummyHist, "#it{p}_{T} (GeV/#it{c})", "#frac{1}{N_{ev}} #frac{d#it{N}^{2}}{d#it{p}_{T}dy} ((GeV/#it{c})^{-1})", 2e-12, histoGammaMotherPtAtGammaPt[k][0]->GetMaximum()*200,
+                        1.0, 1.65);
+            dummyHist->SetLabelOffset(-0.015, "X");
+            dummyHist->SetTitleOffset(0.8, "X");
+            dummyHist->Draw();
 
-        for (Int_t i=0; i<nMotherParticles; i++) {
-            if (histoGammaMotherPtAtGammaPt[k][i]) {
-                DrawGammaSetMarker(         histoGammaMotherPtAtGammaPt[k][i], cocktailMarker[i], 1, cocktailColor[i],  cocktailColor[i]);
-                histoGammaMotherPtAtGammaPt[k][i]->SetLineWidth(2);
-                histoGammaMotherPtAtGammaPt[k][i]->Draw("csamehist");
+            for (Int_t i=0; i<nMotherParticles; i++) {
+                if (histoGammaMotherPtAtGammaPt[k][i]) {
+                    DrawGammaSetMarker(         histoGammaMotherPtAtGammaPt[k][i], cocktailMarker[i], 1, cocktailColor[i],  cocktailColor[i]);
+                    histoGammaMotherPtAtGammaPt[k][i]->SetLineWidth(2);
+                    histoGammaMotherPtAtGammaPt[k][i]->Draw("csamehist");
+                }
             }
+            legendMothers->Draw("same");
+
+            PutProcessLabelAndEnergyOnPlot(                 0.95, 0.90, 40, cent, textMeasurement, Form("%2.1f < #it{p}_{#gamma,T} < %2.1f", (Double_t)minPtGammaSlice[k]/1000, (Double_t)maxPtGammaSlice[k]/1000),
+                                                            43, 0.03,  "", 1, 1.25, 31);
+            if (producePlotsForThesis) PutThisThesisLabel(  0.95, 0.86, 40, 0.03, 1.25, 43, 1, kFALSE);
+            else PutALICESimulationLabel(                   0.95, 0.86, 40, 0.03, 1.25, 43,  1, kFALSE);
+
+            dummyHist->Draw("same,axis");
+            canvasMothers->SaveAs(Form("%s/CocktailMothers_Contrib%d_%dMeV_%s_%s.%s",outputDir.Data(), minPtGammaSlice[k], maxPtGammaSlice[k], rapidityForOut.Data(), cutSelection.Data(),
+                                    suffix.Data()));
         }
-        legendMothers->Draw("same");
-
-        PutProcessLabelAndEnergyOnPlot(                 0.95, 0.90, 40, cent, textMeasurement, Form("%2.1f < #it{p}_{#gamma,T} < %2.1f", (Double_t)minPtGammaSlice[k]/1000, (Double_t)maxPtGammaSlice[k]/1000),
-                                                        43, 0.03,  "", 1, 1.25, 31);
-        if (producePlotsForThesis) PutThisThesisLabel(  0.95, 0.86, 40, 0.03, 1.25, 43, 1, kFALSE);
-        else PutALICESimulationLabel(                   0.95, 0.86, 40, 0.03, 1.25, 43,  1, kFALSE);
-
-        dummyHist->Draw("same,axis");
-        canvasMothers->SaveAs(Form("%s/CocktailMothers_Contrib%d_%dMeV_%s_%s.%s",outputDir.Data(), minPtGammaSlice[k], maxPtGammaSlice[k], rapidityForOut.Data(), cutSelection.Data(),
-                                   suffix.Data()));
     }
     delete legendMothers;
     delete canvasMothers;
@@ -1101,7 +1300,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     histoGammaSumPtOrBin->SetLineWidth(2);
     histoGammaSumPtOrBin->Draw("chistsame");
     for (Int_t i=0; i<nMotherParticles; i++) {
-        if (histoGammaPtOrBin[i]) {
+        if (histoGammaPtOrBin[i] && hasMother[i]) {
             DrawGammaSetMarker(         histoGammaPtOrBin[i], cocktailMarker[i], 1, cocktailColor[i],  cocktailColor[i]);
             legendGammas->AddEntry(     histoGammaPtOrBin[i], motherParticlesLatex[i].Data(), "l");
             histoGammaPtOrBin[i]->SetLineWidth(2);
@@ -1144,7 +1343,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
     tempRatioGammas->SetLineWidth(2);
     tempRatioGammas->Draw("chistsame");
     for (Int_t i=0; i<nMotherParticles; i++) {
-        if (histoGammaPtOrBin[i]) {
+        if (histoGammaPtOrBin[i] && hasMother[i]) {
             tempRatioGammas                                     = (TH1F*)histoGammaPtOrBin[i]->Clone("tempRatioGammas");
             tempRatioGammas->Sumw2();
             tempRatioGammas->Divide(histoGammaMotherPtOrBin[0]);
@@ -1186,7 +1385,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
 
     TH1F* tempRatioGammas2                                      = NULL;
     for (Int_t i=0; i<nMotherParticles; i++) {
-        if (histoGammaPtOrBin[i]) {
+        if (histoGammaPtOrBin[i] && hasMother[i]) {
             tempRatioGammas2                                    = (TH1F*)histoGammaPtOrBin[i]->Clone("tempRatioGammas2");
             tempRatioGammas2->Sumw2();
             tempRatioGammas2->Divide(histoGammaSumPtOrBin);
@@ -1373,7 +1572,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
 
     //***************************** Plot pi0 vs. gamma pt + vs. pi0 pt **********************************************
     cout << "*****  Plot pi0 vs. gamma pt + vs. pi0 pt *****" << endl;
-    if (histoGammaMotherPtGamma) {
+    if (histoGammaMotherPtGamma[0]) {
         TCanvas *canvasPi02                                         = new TCanvas("canvasPi02","",1100,1200);
         TPad *padSpectrum2                                          = new TPad("padSpectrum2", "", 0., 0.25, 1., 1.,-1, -1, -2);
         TPad *padRatio2                                             = new TPad("padRatio2","", 0., 0., 1., 0.25,-1, -1, -2);
@@ -1484,10 +1683,10 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
         dummyHist->Draw();
 
         DrawGammaSetMarker(histoPi0InvYieldData,    24, 1, kBlack,  kBlack);
-        DrawGammaSetMarker(histoGammaMotherPt[0],   20, 1, kBlue,   kBlue);
+        DrawGammaSetMarker(histoGeneratedPi0Pt,   20, 1, kBlue,   kBlue);
 
         legendPi0->AddEntry(histoPi0InvYieldData,   Form("%s data",     motherParticlesLatex[0].Data()), "p");
-        legendPi0->AddEntry(histoGammaMotherPt[0],  Form("%s cocktail", motherParticlesLatex[0].Data()), "p");
+        legendPi0->AddEntry(histoGeneratedPi0Pt,  Form("%s cocktail", motherParticlesLatex[0].Data()), "p");
 
         histoPi0InvYieldData->Draw("same");
         histoGammaMotherPt[0]->Draw("same");
@@ -1509,7 +1708,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
         DrawGammaLines(ptPlotMin,ptPlotMax,1.1,1.1,1, kGray+1, 7);
 
         ratioPi0DataCocktail = (TH1D*)histoPi0InvYieldData->Clone("ratioPi0DataCocktail");
-        ratioPi0DataCocktail->Divide(histoPi0InvYieldData,histoGammaMotherPt[0],1.,1.,"");
+        ratioPi0DataCocktail->Divide(histoPi0InvYieldData,histoGeneratedPi0Pt,1.,1.,"");
         DrawGammaSetMarker(ratioPi0DataCocktail,    24, 1, kBlack, kBlack);
         ratioPi0DataCocktail->Draw("same");
 
@@ -2104,6 +2303,7 @@ void SaveHistos() {
     TFile *outputFile                   = new TFile(nameOutput,"UPDATE");
 
     // write number of events
+    if (!doFlexCocktail)
     histoNEvents->Write("NEvents", TObject::kOverwrite);
 
     // write binning histogram
@@ -2112,7 +2312,7 @@ void SaveHistos() {
     // write projections
     histoGammaSumPtOrBin->Write(                            histoGammaSumPtOrBin->GetName(),    TObject::kOverwrite);
     if (histoGammaSumPtOrBin2) histoGammaSumPtOrBin2->Write(histoGammaSumPtOrBin2->GetName(),   TObject::kOverwrite);
-    histoGammaSumYOrBin->Write(                             histoGammaSumYOrBin->GetName(),     TObject::kOverwrite);
+    if (!doFlexCocktail) histoGammaSumYOrBin->Write(                             histoGammaSumYOrBin->GetName(),     TObject::kOverwrite);
     for (Int_t i=0; i<nMotherParticles; i++) {
         if (histoGammaPtOrBin[i])               histoGammaPtOrBin[i]->Write(            histoGammaPtOrBin[i]->GetName(),            TObject::kOverwrite);
         if (histoGammaPtOrBin2[i])              histoGammaPtOrBin2[i]->Write(           histoGammaPtOrBin2[i]->GetName(),           TObject::kOverwrite);
@@ -2466,21 +2666,8 @@ void MakeSpectrumAndParamPlot(  TList* list,TList* cocktailParamList,
         addParamsAvail                            = kFALSE;
     }
     TString                             listNameAddParam            = "";
-    if (collSys.Contains("pp")) {
-      listNameAddParam            = Form("pp_%s", fEnergyFlag.Data());
-      if( fEnergyFlag.CompareTo("13TeVRBins") == 0 ) {
-	listNameAddParam            = "pp_13TeV";
-      }
-      if( fEnergyFlag.CompareTo("13TeVRBinsLowB") == 0 ) {
-	listNameAddParam            = "pp_13TeV";
-      }
-
-    }else if (collSys.Contains("pPb")) {
-      listNameAddParam            = Form("pPb_%s",  fEnergyFlag.Data());
-    }
-
-
-
+    if (collSys.Contains("pp"))        listNameAddParam            = Form("pp_%s", fEnergyFlag.Data());
+    else if (collSys.Contains("pPb"))  listNameAddParam            = Form("pPb_%s",  fEnergyFlag.Data());
     TList* listAddParam                                                 = (TList*)fileAddParams.Get(listNameAddParam.Data());
     if (!listAddParam) {
       cout << "list " << listNameAddParam.Data() << " not contained in file " << fileNameAddParams.Data() << "!" << endl;

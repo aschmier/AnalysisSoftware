@@ -985,7 +985,7 @@ do
     fi
     echo -e "--> The collision system has been selected to be $ENERGY.\n"
 
-    echo "Is a cocktail file available? Yes/No?"
+    echo "Is a cocktail file available? Yes/No/Flexible?"
     read answer
     if [ $answer = "Yes" ] || [ $answer = "Y" ] || [ $answer = "y" ] || [ $answer = "yes" ]; then
         echo "Please enter the filepath of the cocktail file."
@@ -1003,6 +1003,28 @@ do
     elif [ $answer = "No" ] || [ $answer = "N" ] || [ $answer = "no" ] || [ $answer = "n" ]; then
         echo -e "--> Will not use cocktail input for secondary correction or double ratio.\n"
         USECOCK=0
+    elif [ $answer = "Flexible" ] || [ $answer = "F" ] || [ $answer = "f" ] || [ $answer = "no" ] || [ $answer = "n" ]; then
+        echo "Please enter the filepath of the file containing the decay histograms."
+            read DECAYHISTFILE
+            if [ -f $DECAYHISTFILE ]; then
+                echo -e "--> The decay histogram file specified is $DECAYHISTFILE\n"
+                USEFASTCOCK=1
+                USECOCK=0
+                COCKRAP="0.80"
+                echo "Please enter the filepath of the file containing the cocktail input parametrizations."
+                read COCKINPUTFILE
+                if [ -f $COCKINPUTFILE ]; then
+                    echo -e "--> The cocktail input file specified is $COCKINPUTFILE\n"
+                else
+                    echo -e "--> No cocktail input file specified, it will not be used.\n"
+                fi
+                echo "Please enter the name of the folder in $COCKINPUTFILE containing the parametrizations that you want to use, e.g. Comb."
+                read COCKINPUTFOLDER
+                echo -e "--> Using parametrizations in $COCKINPUTFILE/$COCKINPUTFOLDER\n"
+            else
+                echo -e "--> No cocktail file specified, it will not be used.\n"
+                USECOCK=0
+            fi
     fi
 
     #######################################################################################################
@@ -1287,6 +1309,8 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
             fi
             if [ $USECOCK -eq 1 ] && [ $ONLYCORRECTION -eq 0 ]; then
                 root -b -x -l -q TaskV1/PrepareSecondaries.C\+\(\"Pi0\"\,\"$COCKROOTFILE\"\,\"$SUFFIX\"\,\"$CUTSELECTION\"\,\"$ENERGY\"\,\"$DIRECTPHOTON\"\,\"$COCKRAP\"\,\"\"\,$BINSPTPI0\,$MODE,kFALSE\)
+            elif [ $USEFASTCOCK -eq 1 ] && [ -f $Pi0dataCorrFILE ]; then
+                root -b -x -l -q TaskV1/PrepareSecondaries.C\+\(\"Pi0\"\,\"$COCKROOTFILE\"\,\"$SUFFIX\"\,\"$CUTSELECTION\"\,\"$ENERGY\"\,\"$DIRECTPHOTON\"\,\"$COCKRAP\"\,\"\"\,$BINSPTPI0\,$MODE,kFALSE,kFALSE,kFALSE,21,kTRUE,$USEFASTCOCK\,\"$COCKINPUTFILE\"\,\"$COCKINPUTFOLDER\"\,\"$DECAYHISTFILE\"\)
             fi
 
             if [ $UNFOLDING -eq 1 ];then
@@ -1689,8 +1713,9 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                 Pi0MCCorrFILE=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1Correction_*.root`
                 GammaPi0MCCorrFILE=`ls $CUTSELECTION/$ENERGY/Gamma_Pi0_MC_GammaConvV1Correction_*.root`
                 if [ $USECOCK -eq 1 ] && [ -f $Pi0dataCorrFILE ]; then
-                root -b -x -l -q TaskV1/PrepareCocktail.C\+\(\"$COCKROOTFILE\"\,\"$Pi0dataCorrFILE\"\,\"$SUFFIX\"\,\"$CUTSELECTION\"\,\"$ENERGY\"\,\"$DIRECTPHOTON\"\,\"$COCKRAP\"\,\"\"\,$BINSPTPI0\,$MODE\)
-
+                    root -b -x -l -q TaskV1/PrepareCocktail.C\+\(\"$COCKROOTFILE\"\,\"$Pi0dataCorrFILE\"\,\"$SUFFIX\"\,\"$CUTSELECTION\"\,\"$ENERGY\"\,\"$DIRECTPHOTON\"\,\"$COCKRAP\"\,\"\"\,$BINSPTPI0\,$MODE\)
+                elif [ $USEFASTCOCK -eq 1 ] && [ -f $Pi0dataCorrFILE ]; then
+                    root -b -x -l -q TaskV1/PrepareCocktail.C\+\(\"\"\,\"$Pi0dataCorrFILE\"\,\"$SUFFIX\"\,\"$CUTSELECTION\"\,\"$ENERGY\"\,\"$DIRECTPHOTON\"\,\"$COCKRAP\"\,\"\"\,$BINSPTPI0\,$MODE\,0\,0\,0\,\"\"\,1\,$USEFASTCOCK\,\"$COCKINPUTFILE\"\,\"$COCKINPUTFOLDER\"\,\"$DECAYHISTFILE\"\)
                 fi
                 GammaCocktailFile=`ls $CUTSELECTION/$ENERGY/GammaCocktail_$COCKRAP*.root`
                 if [ $USECOCK  ]; then
@@ -1829,6 +1854,8 @@ echo ""
             fi
             if [ $USECOCK -eq 1 ] && [ $ONLYCORRECTION -eq 0 ]; then
                 root -b -x -l -q TaskV1/PrepareSecondaries.C\+\(\"Pi0\"\,\"$COCKROOTFILE\"\,\"$SUFFIX\"\,\"$CUTSELECTION\"\,\"$ENERGY\"\,\"$DIRECTPHOTON\"\,\"$COCKRAP\"\,\"\"\,$BINSPTPI0\,$MODE,kFALSE\)
+            elif [ $USEFASTCOCK -eq 1 ] && [ -f $Pi0dataCorrFILE ]; then
+                root -b -x -l -q TaskV1/PrepareSecondaries.C\+\(\"Pi0\"\,\"$COCKROOTFILE\"\,\"$SUFFIX\"\,\"$CUTSELECTION\"\,\"$ENERGY\"\,\"$DIRECTPHOTON\"\,\"$COCKRAP\"\,\"\"\,$BINSPTPI0\,$MODE,kFALSE,kFALSE,kFALSE,21,kTRUE,$USEFASTCOCK\,\"$COCKINPUTFILE\"\,\"$COCKINPUTFOLDER\"\,\"$DECAYHISTFILE\"\)
             fi
 
             if [ $ONLYCORRECTION -eq 0 ]; then
