@@ -3069,11 +3069,16 @@
         TString ppCutNumber                 = cutNumber(GetEventSystemCutPosition(),1);
         if (ppCutNumber.CompareTo("0") ==0){
             return "";
-        } else if ( ppCutNumber.CompareTo("1") ==0 || ppCutNumber.CompareTo("3") ==0 || ppCutNumber.CompareTo("4") ==0 || ppCutNumber.CompareTo("5") ==0 || ppCutNumber.CompareTo("6") ==0 || ppCutNumber.CompareTo("7") ==0){
+        } else if ( ppCutNumber.CompareTo("1") ==0 || ppCutNumber.CompareTo("3") ==0 || ppCutNumber.CompareTo("4") ==0 ||
+                    ppCutNumber.CompareTo("5") ==0 || ppCutNumber.CompareTo("6") ==0 || ppCutNumber.CompareTo("7") ==0 ||
+                    ppCutNumber.CompareTo("m") ==0 || ppCutNumber.CompareTo("n") ==0 || ppCutNumber.CompareTo("q") ==0 ||
+                    ppCutNumber.CompareTo("r") ==0){
             return "_V0M";
         } else if ( ppCutNumber.CompareTo("8") ==0 || ppCutNumber.CompareTo("a") ==0 || ppCutNumber.CompareTo("c") ==0){
             return "_V0A";
-        } else if ( ppCutNumber.CompareTo("2") ==0 || ppCutNumber.CompareTo("9") ==0 || ppCutNumber.CompareTo("b") ==0 || ppCutNumber.CompareTo("d") ==0 || ppCutNumber.CompareTo("g") ==0){
+        } else if ( ppCutNumber.CompareTo("2") ==0 || ppCutNumber.CompareTo("9") ==0 || ppCutNumber.CompareTo("b") ==0 ||
+                    ppCutNumber.CompareTo("d") ==0 || ppCutNumber.CompareTo("g") ==0 || ppCutNumber.CompareTo("o") ==0 ||
+                    ppCutNumber.CompareTo("p") ==0 || ppCutNumber.CompareTo("s") ==0){
             return "_CL1";
         } else if ( ppCutNumber.CompareTo("e") ==0 || ppCutNumber.CompareTo("f") ==0){
             return "_ZNA";
@@ -3149,6 +3154,14 @@
                     return Form("ZNA %i-%i%s", CutNumberToInteger(centralityCutNumberStart)*10,CutNumberToInteger(centralityCutNumberEnd)*10,"%");
                 }
             }
+        } else if ( ppCutNumber.CompareTo("m") ==0) {
+            Int_t centStart = CutNumberToInteger(centralityCutNumberStart);
+            Int_t centEnd = (centralityCutNumberEnd.CompareTo("a") == 0) ? 10 : CutNumberToInteger(centralityCutNumberEnd);
+            return Form("V0M %i-%i%s", centStart, centEnd, "%");
+        } else if ( ppCutNumber.CompareTo("n") ==0) {
+            Int_t centStart = 10 * CutNumberToInteger(centralityCutNumberStart);
+            Int_t centEnd = (centralityCutNumberEnd.CompareTo("a") == 0) ? 100 : 10 * CutNumberToInteger(centralityCutNumberEnd);
+            return Form("V0M %i-%i%s", centStart, centEnd, "%");
         } else return "";
     }
 
@@ -3197,6 +3210,14 @@
             } else {
                 return Form("ZNA %i-%i", CutNumberToInteger(centralityCutNumberStart),CutNumberToInteger(centralityCutNumberEnd));
             }
+        } else if ( ppCutNumber.CompareTo("m") ==0) {
+            Int_t centStart = CutNumberToInteger(centralityCutNumberStart);
+            Int_t centEnd = (centralityCutNumberEnd.CompareTo("a") == 0) ? 10 : CutNumberToInteger(centralityCutNumberEnd);
+            return Form("V0M %i-%i", centStart, centEnd);
+        } else if ( ppCutNumber.CompareTo("n") ==0) {
+            Int_t centStart = 10 * CutNumberToInteger(centralityCutNumberStart);
+            Int_t centEnd = (centralityCutNumberEnd.CompareTo("a") == 0) ? 100 : 10 * CutNumberToInteger(centralityCutNumberEnd);
+            return Form("V0M %i-%i", centStart, centEnd);
         } else return "";
     }
 
@@ -3270,6 +3291,14 @@
                     return Form("ZNA_%i%i", CutNumberToInteger(centralityCutNumberStart)*10,CutNumberToInteger(centralityCutNumberEnd)*10);
                 }
             }
+        } else if ( ppCutNumber.CompareTo("m") ==0) {
+            Int_t centStart = CutNumberToInteger(centralityCutNumberStart);
+            Int_t centEnd = (centralityCutNumberEnd.CompareTo("a") == 0) ? 10 : CutNumberToInteger(centralityCutNumberEnd);
+            return Form("V0M_%02i%02i", centStart, centEnd);
+        } else if ( ppCutNumber.CompareTo("n") ==0) {
+            Int_t centStart = 10 * CutNumberToInteger(centralityCutNumberStart);
+            Int_t centEnd = (centralityCutNumberEnd.CompareTo("a") == 0) ? 100 : 10 * CutNumberToInteger(centralityCutNumberEnd);
+            return Form("V0M_%02i%02i", centStart, centEnd);
         } else return "";
     }
     //************************************************************************************
@@ -4444,14 +4473,24 @@
         return "1-5% V0M";
       } else if(string.CompareTo("m05") == 0){
         return "0-5% V0M";
+      } else if(string.CompareTo("m5a") == 0){
+        return "5-10% V0M";
       } else if(string.CompareTo("m5k") == 0){
         return "5-20% V0M";
+      } else if(string.CompareTo("n01") == 0){
+        return "0-10% V0M";
+      } else if(string.CompareTo("n12") == 0){
+        return "10-20% V0M";
       } else if(string.CompareTo("n24") == 0){
         return "20-40% V0M";
+      } else if(string.CompareTo("n25") == 0){
+        return "20-50% V0M";
       } else if(string.CompareTo("n26") == 0){
         return "20-60% V0M";
       } else if(string.CompareTo("n47") == 0){
         return "40-70% V0M";
+      } else if(string.CompareTo("n5a") == 0){
+        return "50-100% V0M";
       } else if(string.CompareTo("n6a") == 0){
         return "60-100% V0M";
       } else if(string.CompareTo("n7a") == 0){
