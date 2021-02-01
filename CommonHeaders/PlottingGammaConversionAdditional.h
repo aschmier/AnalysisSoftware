@@ -4641,6 +4641,12 @@
             return kSpring-6;
         if ( variationName.CompareTo("Cocktail") == 0 )
             return kRed-6;
+        if ( variationName.CompareTo("RejectClose") == 0 )
+            return kRed+2;
+        if ( variationName.CompareTo("TRD") == 0 )
+            return kGreen+2;
+        if ( variationName.CompareTo("OldCut") == 0 )
+            return kBlue+2;
 
         cout << "GetColorSystematics(): no valid input parameters given for '" << variationName.Data() <<  "'..." << endl;
         return kBlack;
@@ -4743,6 +4749,12 @@
             return 33;
         if ( variationName.CompareTo("Cocktail") == 0 )
             return 24;
+        if ( variationName.CompareTo("RejectClose") == 0 )
+            return 21;
+        if ( variationName.CompareTo("TRD") == 0 )
+            return 23;
+        if ( variationName.CompareTo("OldCut") == 0 )
+            return 25;
 
         cout << "GetMarkerStyleSystematics(): no valid input parameters given for '" << variationName.Data() <<  "'..." << endl;
         return 20;
@@ -4865,6 +4877,12 @@
             return "cell E_{agg}";
         if ( variationName.CompareTo("Cocktail") == 0 )
             return "cocktail";
+        if ( variationName.CompareTo("RejectClose") == 0 )
+            return "reject too close V0s";
+        if ( variationName.CompareTo("TRD") == 0 )
+            return "TRD condition";
+        if ( variationName.CompareTo("OldCut") == 0 )
+            return "Run1 cut";
 
         cout << "GetSystematicsName(): no valid input parameters given..." << endl;
         return "";
