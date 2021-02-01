@@ -11,6 +11,7 @@
     #include <memory>
     #include <vector>
     #include "TF1.h"
+    #include "TH2.h"
     #include "TH1D.h"
     #include "TString.h"
     #include "TObjectTable.h"
@@ -18,6 +19,8 @@
     #include "../CommonHeaders/PlottingGammaConversionAdditional.h"
     #include "../CommonHeaders/FittingGammaConversion.h"
     #include "../CommonHeaders/ConversionFunctions.h"
+
+    using std::cout;
 
     //****************************************************************************
     //******************** Global variable for setup of macro ********************

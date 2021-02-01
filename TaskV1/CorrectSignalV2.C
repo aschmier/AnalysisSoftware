@@ -38,6 +38,7 @@
 #include "TGraphAsymmErrors.h"
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
+#include "TRegexp.h"
 #include "../CommonHeaders/PlottingGammaConversionHistos.h"
 #include "../CommonHeaders/PlottingGammaConversionAdditional.h"
 #include "../CommonHeaders/FittingGammaConversion.h"
@@ -309,6 +310,8 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
         ReturnSeparatedCutNumberAdvanced(fCutSelection,fEventCutSelection, fGammaCutSelection, fClusterCutSelection, fElectronCutSelection, fMesonCutSelection, mode);
     }
 
+    TString fSharedElecCut                  = fGammaCutSelection(21, 1);
+
     // scaling factors
     Double_t energy                 = ReturnCollisionEnergy( optionEnergy);
     Double_t doubleAddFactorK0s     = ReturnCorrectK0ScalingFactor( optionEnergy,  fEventCutSelection);
@@ -344,9 +347,8 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
     TString centralityString2   = GetCentralityString(fEventCutSelection);
     if (centralityString.CompareTo("pp")==0){
         centralityString    = "";
-    } else {
-        if ( !centralityString.Contains("0-100%") )
-            collisionSystem = Form("%s %s", centralityString.Data(), collisionSystem.Data());
+    } else if ( !centralityString.Contains("0-100%") || centralityString.Contains(TRegexp("[0-9]0-100%"))) {
+        collisionSystem = Form("%s %s", centralityString.Data(), collisionSystem.Data());
     }
     if (optionPeriod.CompareTo("") != 0 ){
         collisionSystem     = Form("%s, %s",collisionSystem.Data(),optionPeriod.Data());
@@ -1566,7 +1568,12 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
         for (Int_t k = 0; k<5; k++){
             DrawGammaSetMarker(histoCorrectionFactorsHistvsPtCat[k], styleMethod[k+2], sizeMethod[k+2], colorMethod[k+2], colorMethod[k+2]);
             histoCorrectionFactorsHistvsPtCat[k]->DrawCopy("same,p,e1");
-            fitCorrectionFactorsHistvsPtCat[k]                  = new TF1(Form("fitCorrectionFactorsHistvsPtCat%i",k),"[0]/TMath::Power(x,[1])+[2]");
+            if (fSharedElecCut.CompareTo("7") == 0) {
+                fitCorrectionFactorsHistvsPtCat[k]                  = new TF1(Form("fitCorrectionFactorsHistvsPtCat%i",k),"(x<=[2])*[0]*(x-[3])*TMath::Exp(-[1]*(x-[3]))+(x>[2])*[0]*([2]-[3])*TMath::Exp(-[1]*([2]-[3]))");
+                fitCorrectionFactorsHistvsPtCat[k]->SetParLimits(2, 2, 4);
+            } else {
+                fitCorrectionFactorsHistvsPtCat[k]                  = new TF1(Form("fitCorrectionFactorsHistvsPtCat%i",k),"[0]/TMath::Power(x,[1])+[2]");
+            }
             fitCorrectionFactorsHistvsPtCat[k]->SetRange(0.4, maxPtMeson);
             resultCorrectionFactorsHistvsPtCat[k]               = histoCorrectionFactorsHistvsPtCat[k]->Fit(fitCorrectionFactorsHistvsPtCat[k],"SNRME+","",0.4, maxPtMeson);
             fitCorrectionFactorsHistvsPtCat[k]->SetLineColor(colorMethod[k+2]);
@@ -4397,18 +4404,19 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
         Double_t relBGEstimateError[400];
         for (Int_t i = 1; i < nBinsPt +1; i++){
             relBGEstimateError[i] = 0.;
-            if ( TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateCat[1]->GetBinContent(i)) >
-                TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateCat[2]->GetBinContent(i)) &&
-                TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateCat[1]->GetBinContent(i)) >
-                TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateA->GetBinContent(i))){
-                relBGEstimate[i] = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)- histoBGEstimateCat[1]->GetBinContent(i)) *100;
-            } else if ( TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateCat[2]->GetBinContent(i)) >
-                TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateCat[1]->GetBinContent(i)) &&
-                TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateCat[2]->GetBinContent(i)) >
-                TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateA->GetBinContent(i))) {
-                relBGEstimate[i] = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)- histoBGEstimateCat[2]->GetBinContent(i)) *100;
+            Double_t relAbsError01 = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i) - histoBGEstimateCat[1]->GetBinContent(i));
+            Double_t relAbsError02 = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i) - histoBGEstimateCat[2]->GetBinContent(i));
+            Double_t relAbsError0A = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i) - histoBGEstimateA->GetBinContent(i));
+            if ( relAbsError01 > relAbsError02 && relAbsError01 > relAbsError0A ) {
+                relBGEstimate[i] = relAbsError01 * 100;
+            } else if ( relAbsError02 > relAbsError01 && relAbsError02 > relAbsError0A ) {
+                relBGEstimate[i] = relAbsError02 * 100;
             } else {
-                relBGEstimate[i] = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)- histoBGEstimateA->GetBinContent(i)) *100;
+                if (fSharedElecCut.CompareTo("7") == 0 && histoBGEstimateCat[0]->GetBinCenter(i) < 1.25) {
+                    relBGEstimate[i] = std::max(relAbsError01, relAbsError02) * 100;
+                } else {
+                    relBGEstimate[i] = relAbsError0A *100;
+                }
             }
         }
         SystErrGraphBGEstimateOptions = new TGraphAsymmErrors(nBinsPt+1, binsXCenter, relBGEstimate, binsXWidth, binsXWidth, relBGEstimateError, relBGEstimateError);
@@ -4418,10 +4426,12 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
         Double_t relBGEstimateError2[400];
         for (Int_t i = 1; i < nBinsPt +1; i++){
             relBGEstimateError2[i] = 0.;
-            if ( TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateCat[3]->GetBinContent(i)) > TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)-histoBGEstimateCat[4]->GetBinContent(i)) ){
-                relBGEstimate2[i] = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)- histoBGEstimateCat[3]->GetBinContent(i)) *100;
+            Double_t relAbsError03 = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i) - histoBGEstimateCat[3]->GetBinContent(i));
+            Double_t relAbsError04 = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i) - histoBGEstimateCat[4]->GetBinContent(i));
+            if ( relAbsError03 > relAbsError04 ) {
+                relBGEstimate2[i] = relAbsError03 * 100;
             } else {
-                relBGEstimate2[i] = TMath::Abs(histoBGEstimateCat[0]->GetBinContent(i)- histoBGEstimateCat[4]->GetBinContent(i)) *100;
+                relBGEstimate2[i] = relAbsError04 * 100;
             }
         }
         SystErrGraphBGEstimateIterations = new TGraphAsymmErrors(nBinsPt+1, binsXCenter, relBGEstimate2, binsXWidth, binsXWidth, relBGEstimateError2, relBGEstimateError2);
