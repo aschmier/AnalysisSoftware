@@ -109,10 +109,15 @@ void AnalyseDCADist(    TString meson           ="",
         fMCFlag                             = "Data";
     }
 
+    // get shared electron cut
+    TString fSharedElecCut                  = fGammaCutSelection(21, 1);
+
     Bool_t doFitEstimate                    = kTRUE;
     if (fEnergyFlag.CompareTo("PbPb_2.76TeV") == 0 || fEnergyFlag.CompareTo("pPb_5.023TeV") == 0 || fEnergyFlag.CompareTo("PbPb_5.02TeV") == 0)
         doFitEstimate                       = kFALSE;
     else if ( optionPeriod.CompareTo("") != 0 || meson.Contains("Eta"))
+        doFitEstimate                       = kFALSE;
+    if (fSharedElecCut.CompareTo("7") == 0 || fSharedElecCut.CompareTo("5") == 0)
         doFitEstimate                       = kFALSE;
 
     // Set DCAz cut string
@@ -127,9 +132,6 @@ void AnalyseDCADist(    TString meson           ="",
 
     // Set date
     fdate                                   = ReturnDateString();
-
-    // get shared electron cut
-     TString fSharedElecCut                  = fGammaCutSelection(21, 1);
 
 
     // Set Output directory
@@ -669,7 +671,11 @@ void AnalyseDCADist(    TString meson           ="",
                     fFitDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]->SetParameter(2,fitWithHole->GetParameter(2));
                     fFitDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]->SetParError(2,fitWithHole->GetParError(2));
                 }
-                fHistDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]     = (TH1F*)fHistDCAZUnderMeson_MesonPt_AllCat[j]->ShowBackground(nIterBGFit,optionBGSmoothingStandard.Data());
+                if (fSharedElecCut.CompareTo("6") == 0 || fSharedElecCut.CompareTo("7") == 0) {
+                    fHistDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]     = (TH1F*)fHistDCAZUnderMeson_MesonPt_AllCat[j]->ShowBackground(nIterBGFit+2,optionBGSmoothingStandard.Data());
+                } else {
+                    fHistDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]     = (TH1F*)fHistDCAZUnderMeson_MesonPt_AllCat[j]->ShowBackground(nIterBGFit,optionBGSmoothingStandard.Data());
+                }
                 fHistDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]->SetName(Form("fHistDCAZUnderMesonBGEstimateAllCat_MesonPt_%3.2f-%3.2f", fBinsPt[j], fBinsPt[j+1]));
                 intBGHist_AllCat[j]                                 = fHistDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]->IntegralAndError(fHistDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]->FindBin(
                                                                     -fMaxDcaZPhoton), fHistDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]->FindBin(fMaxDcaZPhoton), intErrBGHist_AllCat[j], "width");
@@ -1030,6 +1036,8 @@ void AnalyseDCADist(    TString meson           ="",
  	//   nCatFit=2;
  	// }
 
+    if ( fSharedElecCut.CompareTo("7") == 0) nCatFit = 6;
+
         for (Int_t k = 0; k< 5; k++){
             for (Int_t i = 0; i< nCatFit; i++){
 	         if (i == 0){
@@ -1105,7 +1113,12 @@ void AnalyseDCADist(    TString meson           ="",
 
     TH1D* fHistCorrectionFactorsHist[5];
     TH1D* fHistCorrectionFactorsHistFitted      = new TH1D(Form("fHistCorrectionFactorsHistvsPtFitted"),"",fNBinsPt,fBinsPt);
-    for (Int_t i = 0; i< 3; i++){
+    Int_t iCatMax = 3;
+    if (fSharedElecCut.CompareTo("6") == 0 || fSharedElecCut.CompareTo("5") == 0) {
+        iCatMax = 6;
+    }
+
+    for (Int_t i = 0; i< iCatMax; i++){
         fHistCorrectionFactorsHistFitted->Add(fHistCorrectionFactorsHistCatFitted[i]);
         for (Int_t k = 0; k < 5; k++){
             if (i== 0){
@@ -1168,7 +1181,7 @@ void AnalyseDCADist(    TString meson           ="",
         TLegend* legendCorrFractionCatHist = GetAndSetLegend2(0.75,0.94-4*1.1*0.04, 0.93,0.94, 0.04, 1, "", 42, 0.25);
         legendCorrFractionCatHist->AddEntry(fHistCorrectionFactorsHist[0],"Total","p");
 
-        for (Int_t i = 0; i< 3; i++){
+        for (Int_t i = 0; i < iCatMax; i++){
             DrawGammaSetMarker(fHistCorrectionFactorsHistCat[0][i], styleCat[i], 0.8, colorCat[i], colorCat[i]);
             fHistCorrectionFactorsHistCat[0][i]->DrawCopy("same,e1,p");
             legendCorrFractionCatHist->AddEntry(fHistCorrectionFactorsHistCat[0][i],Form("Category %i",i+1),"p");
