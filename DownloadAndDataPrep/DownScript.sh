@@ -21,8 +21,17 @@ then
 		do
 			((NChilds++))
 			InitilaizeChild $child
+			if [[ $OptSpecificChild = 1 ]]; then
+			# cat $Childsfile
+				if [[ `grep  "Child $childID" $Childsfile | wc -l` < 1 ]]; then
+					printf "\e[33m|-> skipping child $childID" | tee -a $LogFile
+					continue
+				fi
+			fi
 			Parsehtml
 			if [[ $DoDown = 0 ]]; then continue;fi
+			# echo "___________HERE________________" | tee -a $LogFile
+
 
 
 			arrypos=0
@@ -47,11 +56,12 @@ then
 					echo;
 					if [[ $OptZip = 1 ]]; then
 						filename="root_archive.zip"
-						printf "\e[33m|-> Found files:\e[0m $RunlistName $ChildName $filename" | tee -a $LogFile
+						printf "\e[33m|-> Found zip file:\e[0m $RunlistName $ChildName $filename" | tee -a $LogFile
 						outFile="$Dirout/$filename"
 						inFile="$Dirin/$filename"
 						downlogFile="$Dirout/${filename%%.root}.downlog"
 						GetFileZip $inFile $outFile $downlogFile $Dirout
+						echo;
 					fi
 				else
 					forcemerge=1
@@ -87,12 +97,18 @@ then
 							fi
 						else
 							if [[ $UseOnlyrunwise = 0 ]]; then
+								if [[ $OptNorunwise = 0 ]]; then
+
 								# if [[ ! -f $completlymerged ]] || [[ $newfiles = 1 ]]; then
 									MergeRuns=1
 									echo  -e "\e[33mWARNING: File $filename not found\e[0m, trying to merge from runwise output: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
 								# else
 									# echo  -e "\e[33mWARNING:\e[0m File was merged from runwise output previously: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
 								# fi
+								else
+									echo  -e "\e[33mWARNING: File $filename not found\e[0m, trying to merge from runwise disabled" | tee -a $WARNINGLog | tee -a $LogFile
+									MergeRuns=0
+								fi
 							fi
 						fi
 
@@ -122,6 +138,12 @@ then
 							printf "\e[36m--  FindPathsAndAddToList --  create new \e[0m \n" | tee -a $LogFile
 						elif [[  `grep "$filename" $AllPathList | wc -l` < 1 ]]; then
 							printf "\e[36m--  FindPathsAndAddToList --  add $filename \e[0m \n" | tee -a $LogFile
+							# new_rm $AllPathList.tmp
+							# for dirtomodi in `cat $AllPathList`; do
+							# 	echo "${dirtomodi%/*}/$filename" >> $AllPathList.tmp
+							# done
+							# AddToList $AllPathList.tmp $AllPathList
+							# new_rm $AllPathList.tmp
 						else
 							printf "\e[36m--  FindPathsAndAddToList --  exists \e[0m \n" | tee -a $LogFile
 						fi
@@ -136,9 +158,9 @@ then
 						else
 							if [[ ! -f $AllPathList ]]  || [[  `grep "$filename" $AllPathList 2> /dev/null | wc -l` < 2 ]]; then
 								if [[ $Type = "sim" ]]; then
-									FindPathsAndAddToList "/alice/$Type/$Year/$ChildName/" $AllPathList $filename $Runlist ""
+									FindPathsAndAddToList "/alice/$Type/$Year/$ChildNameonline/" $AllPathList $filename $Runlist ""
 								else
-									FindPathsAndAddToList "/alice/$Type/$Year/$ChildName/" $AllPathList $filename $Runlist "000"
+									FindPathsAndAddToList "/alice/$Type/$Year/$ChildNameonline/" $AllPathList $filename $Runlist "000"
 								fi
 							fi
 						fi
@@ -159,17 +181,27 @@ then
 							echo -e "\t\e[31mError\e[0m Meging failed, no paths found!" | tee -a $ErrorLog  >> $rundownlogFile.tmp
 							continue
 						fi
+						tmpruncount=0
+						tmpruncount2=0
 						for (( pthardbin = $minpthardbins; pthardbin <= $maxpthardbins; pthardbin++ )); do
+							if [[ $OptIsJJ = 1 ]]; then
+								printf "\e[33m|->\e[0m Child: $childID/$NChildsAll, pThard: $pthardbin/$maxpthardbins \n"  #| tee -a $LogFile
+							fi
 							tmpruncount=0
+							tmpruncount2=0
 							NorunwiseinTrainfirstrundone=0
 							for runName in `cat $Runlist`; do
-								if [[ $tmpruncount = 50 ]] || [[ $tmpruncount = 100 ]] || [[ $tmpruncount = 150 ]] || [[ $tmpruncount = 200 ]]; then
+								if [[ $tmpruncount2 = $ParalellDownloads ]]; then
+									tmptmpnrunsbegin=$(expr $tmpruncount - $tmpruncount2)
+									printf "\t\e[33m|->\e[0m waiting for runs $tmptmpnrunsbegin - $tmpruncount of $NumberOfRuns runs\n" #| tee -a $WARNINGLog | tee -a $LogFile
 									wait
+									tmpruncount2=0
 								fi
 								if [[ $NorunwiseinTrain = 1 ]] && [[ $NorunwiseinTrainfirstrundone = 1 ]]; then
 									continue
 								fi
 								((tmpruncount++))
+								((tmpruncount2++))
 								merginghigher=0
 								if [[ $NorunwiseinTrain = 1 ]]; then
 									runDir=$OUTPUTDIR/.$child
@@ -225,12 +257,12 @@ then
 									else
 										if [[ $Type = "sim" ]]; then
 											if [[ $OptIsJJ = 1 ]]; then
-												GrapPathsAndAddToList "/alice/$Type/$Year/$ChildName/$pthardbin/$runName/" $RunPathList $AllPathList
+												GrapPathsAndAddToList "/alice/$Type/$Year/$ChildNameonline/$pthardbin/$runName/" $RunPathList $AllPathList
 											else
-												GrapPathsAndAddToList "/alice/$Type/$Year/$ChildName/$runName/" $RunPathList $AllPathList
+												GrapPathsAndAddToList "/alice/$Type/$Year/$ChildNameonline/$runName/" $RunPathList $AllPathList
 											fi
 										else
-											GrapPathsAndAddToList "/alice/$Type/$Year/$ChildName/000$runName/" $RunPathList $AllPathList
+											GrapPathsAndAddToList "/alice/$Type/$Year/$ChildNameonline/000$runName/" $RunPathList $AllPathList
 										fi
 									fi
 									# grep _$childID/AnalysisResults.root  > $RunPathList.tmp
@@ -259,7 +291,7 @@ then
 								new_rm $rundownlogFile.tmp
 								searchChildtmp="_$childID/$Search"
 								if [[ $OptIsJJ = 1 ]]; then
-									printf "\t $pthardbin/$maxpthardbins " >> $rundownlogFile.tmp  #| tee -a $LogFile
+									printf "\t Child: $childID/$NChildsAll, pThard: $pthardbin/$maxpthardbins " >> $rundownlogFile.tmp  #| tee -a $LogFile
 								fi
 								if [[ `echo $childID | wc -c` -gt 4 ]]; then
 									searchChildtmp="$childID/$Search"
@@ -274,37 +306,23 @@ then
 								# printf "\n ************************\n"
 								if [[ `grep "$searchChildtmp" $RunPathList | wc -c` -gt 0 ]] && [[ $NorunwiseinTrain = 0 ]]; then
 									for runinFile in `grep "$searchChildtmp" $RunPathList`; do
-										if [[ $OptZipRun = 1 ]]; then
+										if [[ $OptZipRun = 1 ]] && [[ ! -f $runoutFile ]]; then
 											filenameZip="root_archive.zip"
 											# outdirZiptmp=${outFile/%%$Search}
 											# outdirZip=${outdirZiptmp/%%$filenameZip}
 											outFileZip="$runDir/$filenameZip"
 											inFileZip="${runinFile%%$filename}/$filenameZip"
-											downlogFileZip="$runDir/${filenameZip}.downlog"
-											if [[ ! -f $outFileZip ]]; then
-												printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$Search " >> $downlogFileZip.tmp #  | tee -a $LogFile
-												printf "\e[33m|-> download $filenameZip:\e[0m  " >> $downlogFileZip.tmp #  | tee -a $LogFile
-												GetFileZip $inFileZip $outFileZip $downlogFileZip  ${runDir} >> $downlogFileZip.tmp &
-												# printf "\t\t\t\t\t\t  " | tee -a $LogFile
-											fi
+											# printf "\tProcessing Run\t$tmpruncount/$NumberOfRuns\t$runName\t$Search " >> $rundownlogFile.tmp #  | tee -a $LogFile
+											printf "\e[33m|-> download $filenameZip:\e[0m  " >> $rundownlogFile.tmp #  | tee -a $LogFile
+											GetFileZip $inFileZip $outFileZip $rundownlogFile  ${runDir} >> $rundownlogFile.tmp && printf "\e[33m|->\e[0m $filename:" >> $rundownlogFile.tmp && GetFile $runinFile $runoutFile $rundownlogFile &>> $rundownlogFile.tmp &
+										else
+											GetFile $runinFile $runoutFile $rundownlogFile &>> $rundownlogFile.tmp &
 										fi
-										# printf "\t$runoutFile" | tee -a $LogFile
-										GetFile $runinFile $runoutFile $rundownlogFile &>> $rundownlogFile.tmp &
-										# if [[ $MergeRuns = 1 ]]
-										# then
-										# 	PrepMerge $Search $runDir ${runinFile/%%$Search} $Dirout
-										# else
-										# 	printf "\n" | tee -a $LogFile
-										# fi
 									done
 								else
 									if [[ $OptZipRun = 1 ]]; then
-										printf "\t\e[33m|->\e[0m finish download zip files \n " #| tee -a $WARNINGLog | tee -a $LogFile
+										# printf "\t\e[33m|->\e[0m finish download zip files \n " #| tee -a $WARNINGLog | tee -a $LogFile
 										wait
-										# if [[ -f $downlogFileZip.tmp ]]; then
-										# 	cat $downlogFileZip.tmp | tee -a $LogFile
-										# 	new_rm $downlogFileZip.tmp
-										# fi
 									fi
 									if [[ -f $rundownlogFile.tmp ]]; then
 										cat $rundownlogFile.tmp | tee -a $LogFile
@@ -373,16 +391,23 @@ then
 												downlogFileZip="$subrunDir/${filenameZip}.downlog"
 												inFileZip="${subruninFile%%$Search}/$filenameZip"
 												outFileZip="$subrunDir/$filenameZip"
-												GetFileZip $inFileZip $outFileZip $downlogFileZip ${subrunDir} >> $downlogFileZip.tmp &
+												outFileOriginal="$subrunDir/$Search"
+												if [[ ! -f $outFileOriginal ]]; then
+													GetFileZip $inFileZip $outFileZip $downlogFileZip ${subrunDir} >> $downlogFileZip.tmp &
+												fi
 											done
-											printf "\t\e[33m|->\e[0m download zip files \n " #| tee -a $WARNINGLog | tee -a $LogFile
+											# printf "\t\e[33m|->\e[0m download zip files \n " #| tee -a $WARNINGLog | tee -a $LogFile
 											wait
 										fi
 
+										tmpsubruncount2=0
 										for subruninFile in `grep "$Search" $RunPathList`
 										do
-											if [[ $tmpsubruncount = 50 ]] || [[ $tmpsubruncount = 100 ]] || [[ $tmpsubruncount = 150 ]] || [[ $tmpsubruncount = 200 ]]; then
+											if [[ $tmpsubruncount2 = $ParalellDownloads ]]; then
+												tmptmpnrunsbegin=$(expr $tmpsubruncount - $ParalellDownloads)
+												printf "\t\t\e[33m|->\e[0m waiting for subruns $tmptmpnrunsbegin - $tmpsubruncount of $maxcount runs\n" #| tee -a $WARNINGLog | tee -a $LogFile
 												wait
+												tmpsubruncount2=0
 											fi
 											subrunname=${subruninFile%%$Search}
 											if [[ $NorunwiseinTrain = 1 ]]; then
@@ -407,42 +432,32 @@ then
 											new_rm $subrundownlogFile
 											new_rm $subrundownlogFile.tmp
 											((tmpsubruncount++))
-											if [[ $OptZipSubRun = 1 ]]; then
+											((tmpsubruncount2++))
+											if [[ $OptZipSubRun = 1 ]] && [[ ! -f $subrunoutFile ]]; then
 												filenameZip="root_archive.zip"
-												downlogFileZip="$subrunDir/${filenameZip}.downlog"
-												if [[ $NorunwiseinTrain = 0 ]]; then
-													printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$runName|$subrunname\t$Search " | tee -a $LogFile >> $subrundownlogFile.tmp
-												else
-													printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$subrunname\t$Search " | tee -a $LogFile >> $subrundownlogFile.tmp
-												fi
-												# outdirZiptmp=${outFile/%%$Search}
-												# outdirZip=${outdirZiptmp/%%$filenameZip}
 												outFileZip="$subrunDir/$filenameZip"
 												inFileZip="${subruninFile%%$Search}/$filenameZip"
-												# if [[ ! -f $outFileZip ]]; then
-												# 	printf "\e[33m|-> download $filenameZip:\e[0m  " | tee -a $LogFile
-												# 	cat $downlogFileZip.tmp
-												# 	new_rm $downlogFileZip.tmp
-												# 	# GetFileZip $inFileZip $outFileZip $downlogFileZip ${subrunDir}
-												# 	# printf "\t\t\t  " | tee -a $LogFile
-												# else
-												# 	# printf "\n  " | tee -a $LogFile
-												# 	printf "\e[33m|-> $filenameZip exists\e[0m  \n" | tee -a $LogFile
-												#
-												# fi
+												if [[ $NorunwiseinTrain = 0 ]]; then
+													printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$runName|$subrunname\t$filenameZip " | tee -a $LogFile >> $subrundownlogFile.tmp
+												else
+													printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$subrunname\t$filenameZip " | tee -a $LogFile >> $subrundownlogFile.tmp
+												fi
+												# printf "\e[33m|-> download $filenameZip:\e[0m  " | tee -a $LogFile
+												GetFileZip $inFileZip $outFileZip $subrundownlogFile ${subrunDir} &>> $subrundownlogFile.tmp &
 											else
 												if [[ $NorunwiseinTrain = 0 ]]; then
 													printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$runName|$subrunname\t$Search " >> $subrundownlogFile.tmp
 												else
 													printf "\t\tProcessing SubRun\t$tmpsubruncount/$maxcount\t$subrunname\t$Search " >> $subrundownlogFile.tmp
 												fi
+												GetFile $subruninFile $subrunoutFile $subrundownlogFile &>> $subrundownlogFile.tmp &
 											fi
-											GetFile $subruninFile $subrunoutFile $subrundownlogFile &>> $subrundownlogFile.tmp &
 											# if [[ $? -eq 1 ]]; then
 											# 	continue
 											# fi
 										done
-										printf "\t\e[33m|->\e[0m download subruns ($maxcount Subruns)\n" #| tee -a $WARNINGLog | tee -a $LogFile
+
+										# printf "\t\e[33m|->\e[0m download subruns ($maxcount Subruns)\n" #| tee -a $WARNINGLog | tee -a $LogFile
 										wait
 										for subruninFile in `grep "$Search" $RunPathList`
 										do
@@ -508,13 +523,18 @@ then
 							# wait
 							# printf "\t done \n\t\t" #| tee -a $WARNINGLog | tee -a $LogFile
 
-						done
-						if [[ $NorunwiseinTrain = 0 ]]; then
-							printf "\t\e[33m|->\e[0m waiting for downloads ($NumberOfRuns runs)\n" #| tee -a $WARNINGLog | tee -a $LogFile
-						fi
-						wait
-
-						for (( pthardbin = $minpthardbins; pthardbin <= $maxpthardbins; pthardbin++ )); do
+							if [[ $tmpruncount > 0 ]]; then
+								tmptmpnrunsbegin=$(expr $tmpruncount - $tmpruncount2)
+								printf "\t\e[33m|->\e[0m waiting for runs $tmptmpnrunsbegin - $tmpruncount of $NumberOfRuns runs\n" #| tee -a $WARNINGLog | tee -a $LogFile
+								wait
+							fi
+						# done
+						# if [[ $NorunwiseinTrain = 0 ]]; then
+						# 	printf "\t\e[33m|->\e[0m waiting for downloads ($NumberOfRuns runs)\n" #| tee -a $WARNINGLog | tee -a $LogFile
+						# fi
+						# wait
+						#
+						# for (( pthardbin = $minpthardbins; pthardbin <= $maxpthardbins; pthardbin++ )); do
 							NorunwiseinTrainfirstrundone=0
 							for runName in `cat $Runlist`; do
 								if [[ $NorunwiseinTrain = 1 ]] && [[ $NorunwiseinTrainfirstrundone = 1 ]]; then
@@ -589,7 +609,7 @@ then
 						doMergeFiles $filename $Dirout $Dirin $DirMerged
 					fi
 					if [[ $UseMerge = 0 ]] && [[ $NChilds = 1 ]] ; then
-						printf "\e[33m|-> Link file:\e[0m $RunlistName $ChildName $filename " | tee -a $LogFile
+						printf "\e[33m|-> Link file:\e[0m $RunlistName $ChildName $filename \n" | tee -a $LogFile
 						cmd="ln -sf $BASEDIR/$OutName/$RunlistName/$ChildName/$filename $BASEDIR/$OutName/$RunlistName/$filename"
 						eval $cmd
 					fi
