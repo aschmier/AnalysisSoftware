@@ -132,13 +132,14 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
 
     //***************************** Calculate scaling factor ********************************************************
     eventNormScalingFactor                                      = ReturnCocktailNormalization(fEnergyFlag, fEventCutSelection, mode);
+    // if (doFlexCocktail) eventNormScalingFactor = 1.;
 
     //**************************** Determine Centrality *************************************************************
     TString centrality                                          = GetCentralityString(fEventCutSelection);
     TString collisionSystem                                     = ReturnFullCollisionsSystem(option);
     TString cent                                                = "";
     TString textMeasurement                                     = ""; //"#gamma";
-    if(option.Contains("PbPb") || option.Contains("pPb") || option.Contains("p-Pb")  ) cent                            = Form("%s %s", centrality.Data(), collisionSystem.Data());
+    if(option.Contains("PbPb") || option.Contains("pPb") || option.Contains("p-Pb") || (collisionSystem.Contains("pp") && !(centrality.EqualTo("")))) cent                            = Form("%s %s", centrality.Data(), collisionSystem.Data());
     else                        cent                            = collisionSystem;
 
     //***************************** Load binning for spectrum *******************************************************
@@ -290,8 +291,13 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
             }
         }
     }
-
     if (doFlexCocktail) {
+        // apply correct normalization to parametrizations
+        for (Int_t i=0; i<nMotherParticles; i++) {
+            if ((userSelectedMothers & motherParticleDec[i]) != 0) {
+                dndpt_hadron_func[motherParticlesInt[i]] = *ScaleTF1(&dndpt_hadron_func.at(motherParticlesInt[i]), eventNormScalingFactor, dndpt_hadron_func.at(motherParticlesInt[i]).GetName());
+            }
+        }
         // calculate decay photons from parametrizations
         ct.read_decay_histograms(nameFileDecayHistograms.Data(), motherParticlesInt, 22);
         ct.decay_photons_from_func_or_mt_scaling(motherParticlesInt, dndpt_hadron_func, dndpt_hadron_hist, dndpt_photon_hist);
@@ -353,13 +359,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
               cocktailInputParametrizationsMtScaled[i]            = ScaleTF1(cocktailInputParametrizationsMtScaled[i], eventNormScalingFactor, cocktailInputParametrizationsMtScaled[i]->GetName());
       }
     }
-    if (doFlexCocktail) {
-        for (Int_t i=0; i<nMotherParticles; i++) {
-            if ((userSelectedMothers & motherParticleDec[i]) != 0) {
-                ScaleTF1(&dndpt_hadron_func.at(motherParticlesInt[i]), eventNormScalingFactor, dndpt_hadron_func.at(motherParticlesInt[i]).GetName());
-            }
-        }
-    }
+
     //***************************** ranges and scaling factors ******************************************************
     Double_t deltaPtGen                                         = ptGenMax-ptGenMin;
     Double_t deltaRap                                           = 2*rapidity;
@@ -777,32 +777,21 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
 
 
     //***************************** Scale spectra *******************************************************************
-    if (doFlexCocktail) {
-        // spectra from flexible cocktail are already normalized in respect to nEvents
-        histoGammaSumPtOrBin->Scale(eventNormScalingFactor);
-        for (Int_t i=0; i<nMotherParticles; i++) {
-            if (histoGammaPtOrBin[i])
-                histoGammaPtOrBin[i]->Scale(eventNormScalingFactor);
-            if (histoGammaMotherPtOrBin[i])
-                histoGammaMotherPtOrBin[i]->Scale(eventNormScalingFactor);
-        }
-    } else {
-        histoGammaSumPtOrBin->Scale(                                1./nEvents);
-        if (histoGammaSumPtOrBin2) histoGammaSumPtOrBin2->Scale(    1./nEvents);
-        histoGammaSumYOrBin->Scale(                                 1./nEvents);
-        histoGammaSumPhiOrBin->Scale(                               1./nEvents);
-        for (Int_t i=0; i<nMotherParticles; i++) {
-            if (histoGammaPtOrBin[i])               histoGammaPtOrBin[i]->Scale(            1./nEvents);
-            if (histoGammaPtOrBin2[i])              histoGammaPtOrBin2[i]->Scale(           1./nEvents);
-            if (histoGammaYOrBin[i])                histoGammaYOrBin[i]->Scale(             1./nEvents);
-            if (histoGammaPhiOrBin[i])              histoGammaPhiOrBin[i]->Scale(           1./nEvents);
-            if (histoGammaMotherPtOrBin[i])         histoGammaMotherPtOrBin[i]->Scale(      1./nEvents);
-            if (histoGammaMotherYOrBin[i])          histoGammaMotherYOrBin[i]->Scale(       1./nEvents);
-            if (histoGammaMotherPhiOrBin[i])        histoGammaMotherPhiOrBin[i]->Scale(     1./nEvents);
-            if (histoGammaMotherPtGammaOrBin[i])    histoGammaMotherPtGammaOrBin[i]->Scale( 1./nEvents);
-            for (Int_t k = 0; k < nGammaPtSlices; k++){
-                if (histoGammaMotherPtAtGammaPt[k][i])     histoGammaMotherPtAtGammaPt[k][i]->Scale(  1./nEvents);
-            }
+    histoGammaSumPtOrBin->Scale(                                1./nEvents);
+    if (histoGammaSumPtOrBin2) histoGammaSumPtOrBin2->Scale(    1./nEvents);
+    histoGammaSumYOrBin->Scale(                                 1./nEvents);
+    histoGammaSumPhiOrBin->Scale(                               1./nEvents);
+    for (Int_t i=0; i<nMotherParticles; i++) {
+        if (histoGammaPtOrBin[i])               histoGammaPtOrBin[i]->Scale(            1./nEvents);
+        if (histoGammaPtOrBin2[i])              histoGammaPtOrBin2[i]->Scale(           1./nEvents);
+        if (histoGammaYOrBin[i])                histoGammaYOrBin[i]->Scale(             1./nEvents);
+        if (histoGammaPhiOrBin[i])              histoGammaPhiOrBin[i]->Scale(           1./nEvents);
+        if (histoGammaMotherPtOrBin[i])         histoGammaMotherPtOrBin[i]->Scale(      1./nEvents);
+        if (histoGammaMotherYOrBin[i])          histoGammaMotherYOrBin[i]->Scale(       1./nEvents);
+        if (histoGammaMotherPhiOrBin[i])        histoGammaMotherPhiOrBin[i]->Scale(     1./nEvents);
+        if (histoGammaMotherPtGammaOrBin[i])    histoGammaMotherPtGammaOrBin[i]->Scale( 1./nEvents);
+        for (Int_t k = 0; k < nGammaPtSlices; k++){
+            if (histoGammaMotherPtAtGammaPt[k][i])     histoGammaMotherPtAtGammaPt[k][i]->Scale(  1./nEvents);
         }
     }
 
@@ -855,8 +844,6 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
         histoGeneratedPi0Pt->Sumw2();
         RebinSpectrum(histoGeneratedPi0Pt, (TH1F*)histoPi0InvYieldData, "");
         histoGeneratedPi0Pt                                     = ConvertYieldHisto(histoGeneratedPi0Pt);
-        if (doFlexCocktail)
-            histoGeneratedPi0Pt->Scale(1. / eventNormScalingFactor);
     }
 
     //***************************** generated eta yield in analyzed eta binning *************************************
@@ -865,8 +852,6 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
         histoGeneratedEtaPt->Sumw2();
         RebinSpectrum(histoGeneratedEtaPt, (TH1F*)histoEtaInvYieldData, "");
         histoGeneratedEtaPt                                     = ConvertYieldHisto(histoGeneratedEtaPt);
-        if (doFlexCocktail)
-            histoGeneratedEtaPt->Scale(1. / eventNormScalingFactor);
     }
 
     //***************************** Read histograms from cocktail input file ****************************************
@@ -1689,7 +1674,7 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
         legendPi0->AddEntry(histoGeneratedPi0Pt,  Form("%s cocktail", motherParticlesLatex[0].Data()), "p");
 
         histoPi0InvYieldData->Draw("same");
-        histoGammaMotherPt[0]->Draw("same");
+        histoGeneratedPi0Pt->Draw("same");
         legendPi0->Draw("same");
 
         PutProcessLabelAndEnergyOnPlot(                 0.21, 0.12, 40, cent, textMeasurement, "", 43, 0.03);

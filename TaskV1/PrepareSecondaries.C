@@ -338,7 +338,7 @@ void PrepareSecondaries(    TString     meson                       = "",
                 printf("%d, mT scaled parametrization with factor %.3f\n", motherParticlesInt[i], mtScaleFactor[i]);
             }
             if ((selectedMothers & motherParticleDec[i]) != 0) {
-            ScaleTF1(&dndpt_hadron_func.at(motherParticlesInt[i]), eventNormScalingFactor, dndpt_hadron_func.at(motherParticlesInt[i]).GetName());
+                dndpt_hadron_func[motherParticlesInt[i]] = *ScaleTF1(&dndpt_hadron_func.at(motherParticlesInt[i]), eventNormScalingFactor, dndpt_hadron_func.at(motherParticlesInt[i]).GetName());
             }
         }
 
@@ -881,11 +881,6 @@ void PrepareSecondaries(    TString     meson                       = "",
         if (histoGammaFromXFromMotherYOrBin[i])     histoGammaFromXFromMotherYOrBin[i]->Scale(  factorNEvents*scalingEta*scalingPhi*factorDecay);
         if (histoGammaFromXFromMotherPhiOrBin[i])   histoGammaFromXFromMotherPhiOrBin[i]->Scale(factorNEvents*scalingEta*scalingPhi*factorDecay);
 
-        if (doFlexCocktail) {
-            if (histoMesonDaughterPtOrBin[i]) histoMesonDaughterPtOrBin[i]->Scale(eventNormScalingFactor);
-            if (histoMesonMotherPtOrBin[i]) histoMesonMotherPtOrBin[i]->Scale(eventNormScalingFactor);
-            if (histoGammaFromXFromMotherPtOrBin[i]) histoGammaFromXFromMotherPtOrBin[i]->Scale(eventNormScalingFactor);
-        }
 
         // parametrizations
         if (cocktailInputParametrizations[i])
