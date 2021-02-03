@@ -1625,7 +1625,7 @@
                 }
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ){
                 if ( mode == 0 ){ //PCM-PCM
-                    startPtBin     = 2;
+                    startPtBin = 1;
                     if (specialTrigg == 1)  startPtBin = 7;
                 } else if ( mode == 1 ){
                     startPtBin     = 1;
