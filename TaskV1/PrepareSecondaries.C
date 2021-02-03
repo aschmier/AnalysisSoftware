@@ -277,8 +277,8 @@ void PrepareSecondaries(    TString     meson                       = "",
         }
     }
 
-    selectedMothers = userSelectedMothers;
     if (doFlexCocktail) {
+        selectedMothers = userSelectedMothers;
         printf("using mothers: ");
         for (Int_t j=0; j<nMotherParticles; j++) {
             if (selectedMothers&motherParticleDec[j]) {
