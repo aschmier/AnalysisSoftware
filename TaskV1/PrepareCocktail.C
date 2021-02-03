@@ -777,21 +777,23 @@ void PrepareCocktail(   TString     nameFileCocktail            = "",
 
 
     //***************************** Scale spectra *******************************************************************
-    histoGammaSumPtOrBin->Scale(                                1./nEvents);
-    if (histoGammaSumPtOrBin2) histoGammaSumPtOrBin2->Scale(    1./nEvents);
-    histoGammaSumYOrBin->Scale(                                 1./nEvents);
-    histoGammaSumPhiOrBin->Scale(                               1./nEvents);
-    for (Int_t i=0; i<nMotherParticles; i++) {
-        if (histoGammaPtOrBin[i])               histoGammaPtOrBin[i]->Scale(            1./nEvents);
-        if (histoGammaPtOrBin2[i])              histoGammaPtOrBin2[i]->Scale(           1./nEvents);
-        if (histoGammaYOrBin[i])                histoGammaYOrBin[i]->Scale(             1./nEvents);
-        if (histoGammaPhiOrBin[i])              histoGammaPhiOrBin[i]->Scale(           1./nEvents);
-        if (histoGammaMotherPtOrBin[i])         histoGammaMotherPtOrBin[i]->Scale(      1./nEvents);
-        if (histoGammaMotherYOrBin[i])          histoGammaMotherYOrBin[i]->Scale(       1./nEvents);
-        if (histoGammaMotherPhiOrBin[i])        histoGammaMotherPhiOrBin[i]->Scale(     1./nEvents);
-        if (histoGammaMotherPtGammaOrBin[i])    histoGammaMotherPtGammaOrBin[i]->Scale( 1./nEvents);
-        for (Int_t k = 0; k < nGammaPtSlices; k++){
-            if (histoGammaMotherPtAtGammaPt[k][i])     histoGammaMotherPtAtGammaPt[k][i]->Scale(  1./nEvents);
+    if (!doFlexCocktail) {
+        histoGammaSumPtOrBin->Scale(                                1./nEvents);
+        if (histoGammaSumPtOrBin2) histoGammaSumPtOrBin2->Scale(    1./nEvents);
+        histoGammaSumYOrBin->Scale(                                 1./nEvents);
+        histoGammaSumPhiOrBin->Scale(                               1./nEvents);
+        for (Int_t i=0; i<nMotherParticles; i++) {
+            if (histoGammaPtOrBin[i])               histoGammaPtOrBin[i]->Scale(            1./nEvents);
+            if (histoGammaPtOrBin2[i])              histoGammaPtOrBin2[i]->Scale(           1./nEvents);
+            if (histoGammaYOrBin[i])                histoGammaYOrBin[i]->Scale(             1./nEvents);
+            if (histoGammaPhiOrBin[i])              histoGammaPhiOrBin[i]->Scale(           1./nEvents);
+            if (histoGammaMotherPtOrBin[i])         histoGammaMotherPtOrBin[i]->Scale(      1./nEvents);
+            if (histoGammaMotherYOrBin[i])          histoGammaMotherYOrBin[i]->Scale(       1./nEvents);
+            if (histoGammaMotherPhiOrBin[i])        histoGammaMotherPhiOrBin[i]->Scale(     1./nEvents);
+            if (histoGammaMotherPtGammaOrBin[i])    histoGammaMotherPtGammaOrBin[i]->Scale( 1./nEvents);
+            for (Int_t k = 0; k < nGammaPtSlices; k++){
+                if (histoGammaMotherPtAtGammaPt[k][i])     histoGammaMotherPtAtGammaPt[k][i]->Scale(  1./nEvents);
+            }
         }
     }
 
