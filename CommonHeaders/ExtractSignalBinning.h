@@ -2557,6 +2557,11 @@
                 if (mode == 0){
                     startPtBin      = 1;
                 }
+            } else if (energy.CompareTo("13TeV") == 0 ){
+                if (mode == 0){
+                    printf("13tev directphoton\n");
+                    startPtBin      = 2;
+                }
             } else if (energy.BeginsWith("5TeV") == 0 ){
                 if ( mode == 0){
                     startPtBin = 1;
@@ -2945,7 +2950,8 @@
                                     maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMMultBinsPt, binning, 54 );
                                 } else {
                                    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeV_PCM_CombinedBinning"<<endl;
-				   maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCM_CombinedBinning, binning, 66 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMMultBinsPt, binning, 54 );
+				//    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCM_CombinedBinning, binning, 66 );
                                 }
                                 break;
                             case 1: cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7Pt"<<endl; maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigEMC7Pt, binning, 64 ); break;
@@ -3849,7 +3855,8 @@
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMMultBinsPt, binning, 16 );
                                 }else  {
 				    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCM_CombinedBinning"<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCM_CombinedBinning, binning, 28 ) ;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMMultBinsPt, binning, 16 );
+                                    // maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCM_CombinedBinning, binning, 28 ) ;
                                 }
                                 cout << "maxNBins"<< maxNBins<< endl;
                                 break;
@@ -5783,7 +5790,7 @@ TString rBin = photonCutSelection(2,1);
                     }
                 }  else {//13TeV, not directPhoton
                     fStartPtBin                 = GetStartBin("Pi0", energy, modi, specialTrigg, centrality);
-                    GetBinning( fBinsPt, maxPtBinAvail, "Pi0", energy, modi, specialTrigg, isDCA, DoJetAnalysis);
+                    GetBinning( fBinsPt, maxPtBinAvail, "Pi0", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis);
                     cout<<energy<<" "<<setPi0<<" Start Bin:  "<<fStartPtBin<<endl;
 
                     CheckBinSize(fNBinsPt,maxPtBinAvail,kTRUE);

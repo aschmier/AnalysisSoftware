@@ -253,7 +253,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
                         Int_t mode                      = 9,
                         Int_t triggerSet                = -1,
                         Bool_t useExtAccept             = kFALSE,
-                        Bool_t doRebin                  = kFALSE
+                        Bool_t doRebin                  = kTRUE
                      ){
 
     // ******************************************************************************************
