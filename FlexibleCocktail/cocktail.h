@@ -1,6 +1,7 @@
 //
 // Flexible decay photon calculation based on pre-calculated
-// 2d decay histograms
+// 2d decay histograms such as
+// alien:///alice/cern.ch/user/i/ifokin/decay_histograms/hadron_decays.root
 //
 // Klaus Reygers (reygers@physi.uni-heidelberg.de), April 2020
 // Ilya Fokin (ilya.fokin@cern.ch)
