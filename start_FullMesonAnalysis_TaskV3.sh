@@ -1003,7 +1003,7 @@ do
     elif [ $answer = "No" ] || [ $answer = "N" ] || [ $answer = "no" ] || [ $answer = "n" ]; then
         echo -e "--> Will not use cocktail input for secondary correction or double ratio.\n"
         USECOCK=0
-    elif [ $answer = "Flexible" ] || [ $answer = "F" ] || [ $answer = "f" ] || [ $answer = "no" ] || [ $answer = "n" ]; then
+    elif [ $answer = "Flexible" ] || [ $answer = "F" ] || [ $answer = "f" ]; then
         echo "Please enter the filepath of the file containing the decay histograms."
             read DECAYHISTFILE
             if [ -f $DECAYHISTFILE ]; then
