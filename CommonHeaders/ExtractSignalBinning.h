@@ -3437,8 +3437,8 @@
                 }
             } else if (energy.CompareTo("PbPb_5.02TeV") == 0 ){
                 if (mode == 0 ){ // PCM
-                    maxNBins = 34;
-                    binningMax  = 34;
+                    maxNBins = 33;
+                    binningMax  = 33;
                     if (DCAcase)
                         maxNBins = 15;
                     for(Int_t i = 0; i < maxNBins+1; i++){
@@ -6025,7 +6025,7 @@ TString rBin = photonCutSelection(2,1);
 		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
 		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
 		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-		      
+
 		}else if( rBin.CompareTo("m") ==0){
 		      if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
 			if( iDet == 7 ){       //with TRD
@@ -6056,14 +6056,14 @@ TString rBin = photonCutSelection(2,1);
 			if( iDet == 7 ){       //with TRD
 			  nIterBGFit                  = 8;
 			}else {
-			  nIterBGFit                  = 7;    // 
+			  nIterBGFit                  = 7;    //
 			}
 		      }
 		      fMaxYFracBGOverIntHist      = 100;
 		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
 		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
 		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-		      
+
 		    }else if( rBin.CompareTo("a") ==0){
 		      nIterBGFit                  = 6;
 		      fMaxYFracBGOverIntHist      = 100;
@@ -6188,7 +6188,7 @@ TString rBin = photonCutSelection(2,1);
 		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
 		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
 		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-		      
+
 		}else if( rBin.CompareTo("g") ==0){
 		  if ( energy.CompareTo("13TeVRBinsLowB") == 0  ) {
 			if( iDet == 7 ){       //with TRD
@@ -6211,8 +6211,8 @@ TString rBin = photonCutSelection(2,1);
 		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
 		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
 		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-		      
-		      
+
+
 		    }else{
 		      nIterBGFit                  = 6;
 		      fMaxYFracBGOverIntHist      = 100;
@@ -6220,8 +6220,8 @@ TString rBin = photonCutSelection(2,1);
 		      optionBGSmoothingStandard   = "BackDecreasingWindow,BackSmoothing3";
 		      optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing5";
 		      optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing7";
-		      
-		    } 
+
+		    }
 
                 }
             //*********************************************************************************************
