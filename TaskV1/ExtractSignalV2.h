@@ -119,11 +119,6 @@
     Double_t*   fMesonYieldsResidualBckFuncStd[6]                           = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};  // array of size 6 (integration and normalization window variations)
     Double_t*   fMesonYieldsResidualBckFuncErrorStd[6]                      = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
-    Int_t       fDoClustersE_BothBM                                         = 0;
-    Int_t       fDoClustersE_BothBM_highestE                                = 0;
-    Int_t       fDoClustersE_AnaBM_highestE                                 = 0;
-    Int_t       fDoClustersE_onlyTriggered                                  = 0;
-
     //****************************************************************************
     //******************************** Output files ******************************
     //****************************************************************************
@@ -197,11 +192,6 @@
     TString     fNameHistoMotherZM                                          = "";
     TString     fNameHistoBckZM                                             = "";
     TString     fNameFitSignalPos                                           = "";
-
-    TString     fStrClustersE_BothBM                                        = "";
-    TString     fStrClustersE_BothBM_highestE                               = "";
-    TString     fStrClustersE_AnaBM_highestE                                = "";
-    TString     fStrClustersE_onlyTriggered                                 = "";
 
     //****************************************************************************
     //************************ global variable ranges ****************************
@@ -384,11 +374,6 @@
     TH2D*       fHistFragmZInvMass                                          = nullptr;
     TH2D*       fHistoTruePi0FramZInvMass                                   = nullptr;
     TH2D*       fHistoTrueEtaFramZInvMass                                   = nullptr;
-
-    TH1D*       fHistoClustersE_BothBM                                      = nullptr;
-    TH1D*       fHistoClustersE_BothBM_highestE                             = nullptr;
-    TH1D*       fHistoClustersE_AnaBM_highestE                              = nullptr;
-    TH1D*       fHistoClustersE_onlyTriggered                               = nullptr;
 
 
     //****************************************************************************

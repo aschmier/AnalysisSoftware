@@ -487,23 +487,18 @@ void ExtractSignalV2(
     fStrClustersE_AnaBM_highestE            = "HistoClusGammaE_AnaBM_highestE";
     fStrClustersE_onlyTriggered             = "ClusGamma_E_onlyTriggered";
 
+    fDoClustersE_BothBM                     = 0;
+    fDoClustersE_BothBM_highestE            = 0;
+    fDoClustersE_AnaBM_highestE             = 0;
+    fDoClustersE_onlyTriggered              = 0;
+
     if (fEnergyFlag.Contains("13TeV")){
         if (fMode == 5){
             fDoClustersE_BothBM             = 1;
             fDoClustersE_BothBM_highestE    = 1;
             fDoClustersE_AnaBM_highestE     = 1;
             fDoClustersE_onlyTriggered      = 1;
-        } else {
-            fDoClustersE_BothBM             = 0;
-            fDoClustersE_BothBM_highestE    = 0;
-            fDoClustersE_AnaBM_highestE     = 0;
-            fDoClustersE_onlyTriggered      = 0;
         }
-    } else {
-        fDoClustersE_BothBM             = 0;
-        fDoClustersE_BothBM_highestE    = 0;
-        fDoClustersE_AnaBM_highestE     = 0;
-        fDoClustersE_onlyTriggered      = 0;
     }
 
     if (fMode == 2 || fMode == 13 || fMode == 3 ){
@@ -523,25 +518,6 @@ void ExtractSignalV2(
             }
         }
     }
-    fStrClustersE_BothBM                    = "HistoClusGammaE_BothBM";
-    fStrClustersE_BothBM_highestE           = "HistoClusGammaE_BothBM_highestE";
-    fStrClustersE_AnaBM_highestE            = "HistoClusGammaE_AnaBM_highestE";
-    fStrClustersE_onlyTriggered             = "ClusGamma_E_onlyTriggered";
-
-    fDoClustersE_BothBM                     = 0;
-    fDoClustersE_BothBM_highestE            = 0;
-    fDoClustersE_AnaBM_highestE             = 0;
-    fDoClustersE_onlyTriggered              = 0;
-
-    if (fEnergyFlag.Contains("13TeV")){
-        if (fMode == 5){
-            fDoClustersE_BothBM             = 1;
-            fDoClustersE_BothBM_highestE    = 1;
-            fDoClustersE_AnaBM_highestE     = 1;
-            fDoClustersE_onlyTriggered      = 1;
-        }
-    }
-
 
     if ( fMode == 4 || fMode == 12  || fMode == 5 || fMode==14){
         fHistoClustersPt                = (TH1D*)ESDContainer->FindObject("ClusGamma_Pt");
