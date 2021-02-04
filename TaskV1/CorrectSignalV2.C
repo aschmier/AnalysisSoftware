@@ -3112,7 +3112,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
             for (Int_t k = 0; k < 3; k++){
                 DrawGammaSetMarker(histoTrueEffiPtUnmod[k], markerStyleIntRanges[k], markerSizeIntRanges[k], colorIntRanges[k], colorIntRanges[k]);
                 histoTrueEffiPtUnmod[k]->DrawCopy("same,e1,p");
-                legendTrueEff->AddEntry(histoTrueEffiPt[k],nameIntRangePlot[k].Data());
+                legendTrueEff->AddEntry(histoTrueEffiPtUnmod[k],nameIntRangePlot[k].Data());
             }
 
             PutProcessLabelAndEnergyOnPlot(0.12, 0.95, 0.035, collisionSystem.Data(), fTextMeasurement.Data(), fDetectionProcess.Data(), 42, 0.035, "", 1, 1.25, 11);
