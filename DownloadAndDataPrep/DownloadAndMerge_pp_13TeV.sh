@@ -12,91 +12,88 @@ then
     fi
     gridpath="/media/adrian/Data/grid_data"
 
-# # 1692 	vAN-20210118_ROOT6-1 	LHC18c_13TeV_LowB_pass1_AOD236 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
-# # 1691 	vAN-20210118_ROOT6-1 	LHC17g_13TeV_LowB_pass1_AOD236 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
-# # 1690 	vAN-20210118_ROOT6-1 	LHC16f_13TeV_LowB_pass1_AOD236 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
-# bash DownScript.sh  1690 -Name_Data_lowB_AOD236_16 GA_pp_AOD ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  1690 -Name_Data_lowB_AOD236_16 GA_pp_AOD ?_GammaCalo_800 -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  1691 -Name_Data_lowB_AOD236_17 GA_pp_AOD ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  1691 -Name_Data_lowB_AOD236_17 GA_pp_AOD ?_GammaCalo_800 -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  1692 -Name_Data_lowB_AOD236_18 GA_pp_AOD ?_GammaConvCalo Child_1 Child_2 -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  1692 -Name_Data_lowB_AOD236_18 GA_pp_AOD ?_GammaCalo_800 Child_1 Child_2 -RL_listDPGTrackIncAccTPCandEMC  $1
+# 1697 	vAN-20210127_ROOT6-1 	LHC18c_13TeV_LowB_pass1_AOD236 	2021 Jan 29, Train run finished 	request Adrian 	
+# 1696 	vAN-20210127_ROOT6-1 	LHC17g_13TeV_LowB_pass1_AOD236 	2021 Jan 29, Train run finished 	request Adrian 	
+# 1695 	vAN-20210127_ROOT6-1 	LHC16f_13TeV_LowB_pass1_AOD236 	2021 Jan 29, Train run finished 	request Adrian 
+# bash DownScript.sh  1695 -Name_Data_lowB_v19_16 GA_pp_AOD ?_GammaConvCalo ?_.zip -RL_listDPGTrackIncAccTPCandEMC  $1
+# bash DownScript.sh  1696 -Name_Data_lowB_v19_17 GA_pp_AOD ?_GammaConvCalo ?_.zip -RL_listDPGTrackIncAccTPCandEMC  $1
+# bash DownScript.sh  1697 -Name_Data_lowB_v19_18 GA_pp_AOD ?_GammaConvCalo ?_.zip Child_1 Child_2 -RL_listDPGTrackIncAccTPCandEMC  $1
+# bash DownScript.sh  1697 1696 1695 -Name_Data_lowB_v19 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
+# bash DownScript.sh  1697 1612 1611 -Name_Data_lowB_v19_MBW GA_pp_AOD ?_GammaConvCalo_5 -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
+
+
+    ####### AOD Validation
+
+# # # # 1692 	vAN-20210118_ROOT6-1 	LHC18c_13TeV_LowB_pass1_AOD236 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
+# # # # 1691 	vAN-20210118_ROOT6-1 	LHC17g_13TeV_LowB_pass1_AOD236 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
+# # # # 1690 	vAN-20210118_ROOT6-1 	LHC16f_13TeV_LowB_pass1_AOD236 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
+# # bash DownScript.sh  1690 -Name_Data_lowB_AOD236_16 GA_pp_AOD ?_GammaCalo_800 ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
+# # bash DownScript.sh  1691 -Name_Data_lowB_AOD236_17 GA_pp_AOD ?_GammaCalo_800 ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
+# # bash DownScript.sh  1692 -Name_Data_lowB_AOD236_18 GA_pp_AOD ?_GammaCalo_800 ?_GammaConvCalo Child_1 Child_2 -RL_listDPGTrackIncAccTPCandEMC  $1
 # bash DownScript.sh  1692 1691 1690 -Name_Data_lowB_AOD236 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
 
-# # 1689 	vAN-20210118_ROOT6-1 	LHC18c_13TeV_LowB_pass1_AOD212 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
-# # 1688 	vAN-20210118_ROOT6-1 	LHC17g_13TeV_LowB_pass1_AOD212 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
-# # 1687 	vAN-20210118_ROOT6-1 	LHC16f_13TeV_LowB_pass1_AOD212 	2021 Jan 20, Train run finished 	13TeV AOD validation 
-# bash DownScript.sh  1687 -Name_Data_lowB_AOD237_16 GA_pp_AOD ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  1687 -Name_Data_lowB_AOD237_16 GA_pp_AOD ?_GammaCalo_800 -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  1688 -Name_Data_lowB_AOD237_17 GA_pp_AOD ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  1688 -Name_Data_lowB_AOD237_17 GA_pp_AOD ?_GammaCalo_800 -RL_listDPGTrackIncAccTPCandEMC  $1
-bash DownScript.sh  1689 -Name_Data_lowB_AOD237_18 GA_pp_AOD ?_GammaConvCalo Child_1 Child_2 -RL_listDPGTrackIncAccTPCandEMC  $1
-bash DownScript.sh  1689 -Name_Data_lowB_AOD237_18 GA_pp_AOD ?_GammaCalo_800 Child_1 Child_2 -mergechilds -RL_listDPGTrackIncAccTPCandEMC  $1
-bash DownScript.sh  1689 1688 1687 -Name_Data_lowB_AOD237 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
-bash DownScript.sh  1689 1688 1687 -Name_Data_lowB_AOD237 GA_pp_AOD ?_GammaCalo_800 -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
+# # # # 1689 	vAN-20210118_ROOT6-1 	LHC18c_13TeV_LowB_pass1_AOD212 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
+# # # # 1688 	vAN-20210118_ROOT6-1 	LHC17g_13TeV_LowB_pass1_AOD212 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
+# # # # 1687 	vAN-20210118_ROOT6-1 	LHC16f_13TeV_LowB_pass1_AOD212 	2021 Jan 20, Train run finished 	13TeV AOD validation 
+# # bash DownScript.sh  1687 -Name_Data_lowB_AOD237_16 GA_pp_AOD ?_GammaCalo_800 ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
+# # bash DownScript.sh  1688 -Name_Data_lowB_AOD237_17 GA_pp_AOD ?_GammaCalo_800 ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
+# # bash DownScript.sh  1689 -Name_Data_lowB_AOD237_18 GA_pp_AOD ?_GammaCalo_800 ?_GammaConvCalo Child_1 Child_2 -RL_listDPGTrackIncAccTPCandEMC  $1
+# bash DownScript.sh  1689 1688 1687 -Name_Data_lowB_AOD237 GA_pp_AOD ?_GammaCalo_800 ?_GammaConvCalo -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
 
-# # # 3426 	vAN-20210118_ROOT6-1 	LHC18h1_PYT8_13TeV_ancLHC18c_LowB_AOD237 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3425 	vAN-20210118_ROOT6-1 	LHC17h3_PYT8_13TeV_anchLHC17g_LowB_AOD237 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3424 	vAN-20210118_ROOT6-1 	LHC17d1_PYT8_13TeV_ancLHC16f_LowB_AOD237 	2021 Jan 21, Train run finished 	13TeV AOD validation
-# # bash DownScript.sh  3424 -Name_MC_lowB_AOD237_16 GA_pp_MC_AOD ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  3424 -Name_MC_lowB_AOD237_16 GA_pp_MC_AOD ?_GammaCalo_800 -RL_listDPGTrackIncAccTPCandEMC  $1
-# # bash DownScript.sh  3425 -Name_MC_lowB_AOD237_17 GA_pp_MC_AOD ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  3425 -Name_MC_lowB_AOD237_17 GA_pp_MC_AOD ?_GammaCalo_800 -RL_listDPGTrackIncAccTPCandEMC  $1
-# # bash DownScript.sh  3426 -Name_MC_lowB_AOD237_18 GA_pp_MC_AOD ?_GammaConvCalo Child_1 Child_2 -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  3426 -Name_MC_lowB_AOD237_18 GA_pp_MC_AOD ?_GammaCalo_800 Child_1 Child_2 -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  3426 3425 3424 -Name_MC_lowB_AOD237 GA_pp_MC_AOD ?_GammaConvCalo -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
-# bash DownScript.sh  3426 3425 3424 -Name_MC_lowB_AOD237 GA_pp_MC_AOD ?_GammaCalo_800 -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
+# # # # 3426 	vAN-20210118_ROOT6-1 	LHC18h1_PYT8_13TeV_ancLHC18c_LowB_AOD237 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3425 	vAN-20210118_ROOT6-1 	LHC17h3_PYT8_13TeV_anchLHC17g_LowB_AOD237 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3424 	vAN-20210118_ROOT6-1 	LHC17d1_PYT8_13TeV_ancLHC16f_LowB_AOD237 	2021 Jan 21, Train run finished 	13TeV AOD validation
+# # bash DownScript.sh  3424 -Name_MC_lowB_AOD237_16 GA_pp_MC_AOD ?_GammaCalo_800 ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
+# # bash DownScript.sh  3425 -Name_MC_lowB_AOD237_17 GA_pp_MC_AOD ?_GammaCalo_800 ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
+# # bash DownScript.sh  3426 -Name_MC_lowB_AOD237_18 GA_pp_MC_AOD ?_GammaCalo_800 ?_GammaConvCalo Child_1 Child_2 -RL_listDPGTrackIncAccTPCandEMC  $1
+# bash DownScript.sh  3426 3425 3424 -Name_MC_lowB_AOD237 GA_pp_MC_AOD ?_GammaCalo_800 ?_GammaConvCalo -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
 
-# # # 3423 	vAN-20210118_ROOT6-1 	LHC18h1_PYT8_13TeV_ancLHC18c_LowB_AOD213 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3422 	vAN-20210118_ROOT6-1 	LHC17h3_PYT8_13TeV_anchLHC17g_LowB_AOD213 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3421 	vAN-20210118_ROOT6-1 	LHC17d1_PYT8_13TeV_ancLHC16f_LowB_AOD213 	2021 Jan 21, Train run finished 	13TeV AOD validation 
-# # bash DownScript.sh  3421 -Name_MC_lowB_AOD213_16 GA_pp_MC_AOD ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  3421 -Name_MC_lowB_AOD213_16 GA_pp_MC_AOD ?_GammaCalo_800 -RL_listDPGTrackIncAccTPCandEMC  $1
-# # bash DownScript.sh  3422 -Name_MC_lowB_AOD213_17 GA_pp_MC_AOD ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  3422 -Name_MC_lowB_AOD213_17 GA_pp_MC_AOD ?_GammaCalo_800 -RL_listDPGTrackIncAccTPCandEMC  $1
-# # bash DownScript.sh  3423 -Name_MC_lowB_AOD213_18 GA_pp_MC_AOD ?_GammaConvCalo Child_1 Child_2 Child_4 Child_5 -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  3423 -Name_MC_lowB_AOD213_18 GA_pp_MC_AOD ?_GammaCalo_800 Child_1 Child_2 Child_4 Child_5 -RL_listDPGTrackIncAccTPCandEMC  $1
-# bash DownScript.sh  3423 3422 3421 -Name_MC_lowB_AOD213 GA_pp_MC_AOD ?_GammaConvCalo -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
-# bash DownScript.sh  3423 3422 3421 -Name_MC_lowB_AOD213 GA_pp_MC_AOD ?_GammaCalo_800 -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
+# # # # 3423 	vAN-20210118_ROOT6-1 	LHC18h1_PYT8_13TeV_ancLHC18c_LowB_AOD213 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3422 	vAN-20210118_ROOT6-1 	LHC17h3_PYT8_13TeV_anchLHC17g_LowB_AOD213 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3421 	vAN-20210118_ROOT6-1 	LHC17d1_PYT8_13TeV_ancLHC16f_LowB_AOD213 	2021 Jan 21, Train run finished 	13TeV AOD validation 
+# # bash DownScript.sh  3421 -Name_MC_lowB_AOD213_16 GA_pp_MC_AOD ?_GammaCalo_800  ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
+# # bash DownScript.sh  3422 -Name_MC_lowB_AOD213_17 GA_pp_MC_AOD ?_GammaCalo_800  ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC  $1
+# # bash DownScript.sh  3423 -Name_MC_lowB_AOD213_18 GA_pp_MC_AOD ?_GammaCalo_800  ?_GammaConvCalo Child_1 Child_2 Child_4 Child_5 -RL_listDPGTrackIncAccTPCandEMC  $1
+# bash DownScript.sh  3423 3422 3421 -Name_MC_lowB_AOD213 GA_pp_MC_AOD ?_GammaCalo_800 ?_GammaConvCalo -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
 
-# # # 1686 	vAN-20210118_ROOT6-1 	LHC18_13TeV_pass1_AOD234 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
-# # # 1685 	vAN-20210118_ROOT6-1 	LHC17_13TeV_pass1_AOD234 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
-# # # 1684 	vAN-20210118_ROOT6-1 	LHC16_13TeV_pass1_2_AOD234 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
+# # # # 1686 	vAN-20210118_ROOT6-1 	LHC18_13TeV_pass1_AOD234 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
+# # # # 1685 	vAN-20210118_ROOT6-1 	LHC17_13TeV_pass1_AOD234 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
+# # # # 1684 	vAN-20210118_ROOT6-1 	LHC16_13TeV_pass1_2_AOD234 	2021 Jan 20, Train run finished 	13TeV AOD validation 	
 # # bash DownScript.sh 1684 -Name_Data_AOD234_16 GA_pp_AOD ?_GammaConvCalo -RL_listPCMEDC  -RL_listPHOS  $1
 # # bash DownScript.sh 1685 -Name_Data_AOD234_17 GA_pp_AOD ?_GammaConvCalo -RL_listPCMEDC  -RL_listPHOS  $1
 # # bash DownScript.sh 1686 -Name_Data_AOD234_18 GA_pp_AOD ?_GammaConvCalo -RL_listPCMEDC  -RL_listPHOS  $1
 # bash DownScript.sh 1686 1685 1684 -Name_Data_AOD234 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listPCMEDC  -RL_listPHOS -noDown $1
 
-# # # 1683 	vAN-20210118_ROOT6-1 	LHC18_13TeV_pass1_AOD208 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
-# # # 1682 	vAN-20210118_ROOT6-1 	LHC17_13TeV_pass1_AOD208 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
-# # # 1681 	vAN-20210118_ROOT6-1 	LHC16_13TeV_pass1_2_AOD208 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
+# # # # 1683 	vAN-20210118_ROOT6-1 	LHC18_13TeV_pass1_AOD208 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
+# # # # 1682 	vAN-20210118_ROOT6-1 	LHC17_13TeV_pass1_AOD208 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
+# # # # 1681 	vAN-20210118_ROOT6-1 	LHC16_13TeV_pass1_2_AOD208 	2021 Jan 20, Train run: All jobs submitted 	13TeV AOD validation 	
 # # bash DownScript.sh 1681 -Name_Data_AOD208_16 GA_pp_AOD ?_GammaConvCalo -RL_listPCMEDC  -RL_listPHOS  $1
 # # bash DownScript.sh 1682 -Name_Data_AOD208_17 GA_pp_AOD ?_GammaConvCalo -RL_listPCMEDC  -RL_listPHOS  $1
 # # bash DownScript.sh 1683 -Name_Data_AOD208_18 GA_pp_AOD ?_GammaConvCalo -RL_listPCMEDC  -RL_listPHOS  $1
 # bash DownScript.sh 1683 1682 1681 -Name_Data_AOD208 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listPCMEDC  -RL_listPHOS -noDown $1
 
-# # # 3416 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3420 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD235 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3419 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD235 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3418 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3417 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # bash DownScript.sh  3418 3417 -Name_MC_AOD235_16 GA_pp_MC_AOD ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC  $1
+# # # # 3416 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3420 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD235 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3419 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD235 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3418 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3417 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # bash DownScript.sh  3418 3417 -Name_MC_AOD235_16 GA_pp_MC_AOD ?_GammaConvCalo -mergetrains -RL_listPHOS -RL_listPCMEDC  $1
 # # bash DownScript.sh  3419 -Name_MC_AOD235_17 GA_pp_MC_AOD ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC  $1
 # # bash DownScript.sh  3420 -Name_MC_AOD235_18 GA_pp_MC_AOD ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC  $1
-# # bash DownScript.sh  3416 3420 -Name_MC_AOD235_18_extra GA_pp_MC_AOD ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC  $1
+# # bash DownScript.sh  3416 3420 -Name_MC_AOD235_18_extra GA_pp_MC_AOD -mergetrains ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC  $1
 # bash DownScript.sh  3416 3420 3419 3418 3417 -Name_MC_AOD235 GA_pp_MC_AOD ?_GammaConvCalo -mergetrains -RL_listPHOS -RL_listPCMEDC -noDown $1
 
-# # # 3416 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3415 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD209 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3414 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD209_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3413 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD209 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3412 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD209_extra2 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3411 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD209_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
-# # # 3410 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD209 	2021 Jan 21, Train run finished 	13TeV AOD validation 
-# # bash DownScript.sh  3412 3411 3410 -Name_MC_AOD209_16 GA_pp_MC_AOD ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC $1
-# # bash DownScript.sh  3414 3413 -Name_MC_AOD209_17 GA_pp_MC_AOD ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC $1
+# # # # 3416 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3415 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD209 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3414 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD209_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3413 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD209 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3412 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD209_extra2 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3411 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD209_extra 	2021 Jan 21, Train run finished 	13TeV AOD validation 	
+# # # # 3410 	vAN-20210118_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD209 	2021 Jan 21, Train run finished 	13TeV AOD validation 
+bash DownScript.sh  3412 3411 3410 -Name_MC_AOD209_16 GA_pp_MC_AOD -mergeperiods -mergetrains ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC $1
+bash DownScript.sh  3414 3413 -Name_MC_AOD209_17 GA_pp_MC_AOD -mergeperiods -mergetrains ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC $1
 # # bash DownScript.sh  3415 -Name_MC_AOD209_18 GA_pp_MC_AOD ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC  $1
-# # bash DownScript.sh  3416 3415 -Name_MC_AOD209_18_extra GA_pp_MC_AOD ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC  $1
+bash DownScript.sh  3416 3415 -Name_MC_AOD209_18_extra GA_pp_MC_AOD -mergeperiods -mergetrains ?_GammaConvCalo -RL_listPHOS -RL_listPCMEDC  $1
 # bash DownScript.sh  3416 3415 3414 3413 3412 3411 3410 -Name_MC_AOD209 GA_pp_MC_AOD ?_GammaConvCalo -mergetrains -RL_listPHOS -RL_listPCMEDC -noDown $1
 
 ###### redownload lowB
@@ -133,7 +130,7 @@ bash DownScript.sh  1689 1688 1687 -Name_Data_lowB_AOD237 GA_pp_AOD ?_GammaCalo_
 #     bash DownScript.sh 3217 GA_pp_MC_AOD  ?_zip ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC $1
 #     ### LHC18 MC
 #     # rm -r /media/adrian/Data/grid_data/.GA_pp_MC_AOD-3218
-#     bash DownScript.sh 3218 GA_pp_MC_AOD  ?_zip ?_GammaConvCalo  Child_1 Child_2 Child_4 Child_5  -RL_listDPGTrackIncAccTPCandEMC $1
+    # bash DownScript.sh 3218 GA_pp_MC_AOD  ?_zip ?_GammaConvCalo  Child_1 Child_2 Child_4 Child_5  -RL_listDPGTrackIncAccTPCandEMC $1
 
 #      ##################   Data   #############################
 #     ### LHC16 Data
@@ -422,23 +419,23 @@ bash DownScript.sh  1689 1688 1687 -Name_Data_lowB_AOD237 GA_pp_AOD ?_GammaCalo_
    #  # 3221 	vAN-20201119_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD209_extra2 	2020 Nov 20, Test finished (8m 30s total time) 	request Adrian
    #  # 3220 	vAN-20201119_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD209_extra 	2020 Nov 20, Test finished (20m 36s total time) 	request Adrian
    #  # 3219 	vAN-20201119_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD209 	2020 Nov 20, Test finished (7m 27s total time) 	request Adrian, Marvin
-   # ### LHC16 MC
-   #  bash DownScript.sh 3221 3220 3219 -Name_LHC16MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaConvCalo -mergetrains  -RL_listPCMEDC $1
-   #  bash DownScript.sh 3221 3220 3219 -Name_LHC16MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaCalo -mergetrains  -RL_listPHOS $1
-   #  ### LHC17 MC
-   #  bash DownScript.sh 3223 3222 -Name_LHC17MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaConvCalo -mergetrains  -RL_listPCMEDC $1
-   #  bash DownScript.sh 3223 3222 -Name_LHC17MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaCalo -mergetrains  -RL_listPHOS $1
-   #  ### LHC18 MC
-   #  bash DownScript.sh 3225 3224 -Name_LHC18MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaConvCalo -mergetrains  -RL_listPCMEDC $1
-   #  bash DownScript.sh 3225 3224 -Name_LHC18MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaCalo -mergetrains  -RL_listPHOS $1
-   #
-   #  # #################   merging   #############################
-#    #  ### Data 16 + 17 + 18
-#     bash DownScript.sh 1616 1615 1614 -Name_Data_pp13TeV_v16 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listPCMEDC -RL_listDPGEDCtrigger -noDown $1
-#     bash DownScript.sh 1616 1615 1614 -Name_Data_pp13TeV_v16 GA_pp_AOD ?_GammaCalo -mergetrains -RL_listPHOS -noDown $1
+#     ### LHC16 MC
+#     bash DownScript.sh 3221 3220 3219 -Name_LHC16MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaConvCalo -mergetrains  -RL_listPCMEDC $1
+#     # bash DownScript.sh 3221 3220 3219 -Name_LHC16MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaCalo -mergetrains  -RL_listPHOS $1
+#     ### LHC17 MC
+#     bash DownScript.sh 3223 3222 -Name_LHC17MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaConvCalo -mergetrains  -RL_listPCMEDC $1
+#     # bash DownScript.sh 3223 3222 -Name_LHC17MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaCalo -mergetrains  -RL_listPHOS $1
+#     ### LHC18 MC
+#     bash DownScript.sh 3225 3224 -Name_LHC18MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaConvCalo -mergetrains  -RL_listPCMEDC $1
+#     # bash DownScript.sh 3225 3224 -Name_LHC18MC_v16 GA_pp_MC_AOD  ?_zip ?_GammaCalo -mergetrains  -RL_listPHOS $1
+   
+#    #  # #################   merging   #############################
+# #    #  ### Data 16 + 17 + 18
+# #     bash DownScript.sh 1616 1615 1614 -Name_Data_pp13TeV_v16 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listPCMEDC -RL_listDPGEDCtrigger -noDown $1
+# #     bash DownScript.sh 1616 1615 1614 -Name_Data_pp13TeV_v16 GA_pp_AOD ?_GammaCalo -mergetrains -RL_listPHOS -noDown $1
 #    #  ### MC 16 + 17 + 18
-#     bash DownScript.sh  3225 3224 3223 3222 3221 3220 3219 -Name_MC_pp13TeV_v16 GA_pp_MC_AOD ?_GammaConvCalo -mergetrains  -RL_listPCMEDC -RL_listDPGEDCtrigger -noDown $1
-#     bash DownScript.sh  3225 3224 3223 3222 3221 3220 3219 -Name_MC_pp13TeV_v16 GA_pp_MC_AOD ?_GammaCalo -mergetrains  -RL_listPHOS -noDown $1
+#     bash DownScript.sh  3225 3224 3223 3222 3221 3220 3219 -Name_MC_pp13TeV_v16 GA_pp_MC_AOD ?_GammaConvCalo -mergetrains  -RL_listPCMEDC -noDown $1
+#     # bash DownScript.sh  3225 3224 3223 3222 3221 3220 3219 -Name_MC_pp13TeV_v16 GA_pp_MC_AOD ?_GammaCalo -mergetrains  -RL_listPHOS -noDown $1
 #    #
    #  # 3228 	vAN-20201119_ROOT6-1 	PYT8JJ_13TeV_anchLHC18_AOD 	2020 Nov 26, Train run: All jobs submitted 	request Adrian
    #  # 3227 	vAN-20201119_ROOT6-1 	PYT8JJ_13TeV_anchLHC17_AOD 	2020 Nov 26, Train run: All jobs submitted 	request Adrian

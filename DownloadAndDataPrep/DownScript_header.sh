@@ -1398,7 +1398,7 @@ function ParseSettings(){
 						mv "$TMPfile.tmp" "$TMPfile"
 					fi
 				done
-				rm $TMPfile
+				# rm $TMPfile
 			done
 		done
 	fi
