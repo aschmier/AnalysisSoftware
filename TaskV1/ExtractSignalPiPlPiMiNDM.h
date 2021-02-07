@@ -443,6 +443,9 @@ TString     nameIntBckResult[3]                                         = {"pol2
 
 
 // Added because of change of how integration ranges are stored
+Bool_t      useFitIntDeltaRange =                           kFALSE;
+Int_t       useFitIntDeltaRange_FunctionNumber =            0;
+Int_t       useFitIntDeltaRange_ParameterNumber =           0;
 Double_t    *fMesonIntDeltaRange =                          NULL;
 Double_t    *fMesonIntDeltaRangeWide =                      NULL;
 Double_t    *fMesonIntDeltaRangeNarrow =                    NULL;
@@ -1019,6 +1022,7 @@ Double_t Pol2BGExclusion(Double_t *,Double_t *);                                
 Double_t CrystalBallBck(Double_t *,Double_t *);
 Double_t CrystalBall(Double_t *,Double_t *);
 void SetCorrectMCHistogrammNames();
+Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber=0, Int_t ParameterNumber=0, Int_t iDebugLevel=0);
 void Delete();
 
 TString centralityString = 										"";
@@ -1267,28 +1271,28 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         }
 
         // Initialize default Plot default integration ranges
-        if(mode == 40 || mode == 60){
+        if(mode == 40 || mode == 60){ //PCM
             fMesonIntDeltaRange[0]      = -0.013*2; // determined using 2 * sigma in MC
             fMesonIntDeltaRange[1]      =  0.013*2;
             fMesonIntDeltaRangeWide[0]  = fMesonIntDeltaRange[0] * 1.5;
             fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1] * 1.5;
             fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.7;
             fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1] * 0.7;
-        } else if(mode == 41 || mode == 61){
+        } else if(mode == 41 || mode == 61){ //PCM-EMCAL
             fMesonIntDeltaRange[0]      = -0.013*2;
             fMesonIntDeltaRange[1]      =  0.013*2;
             fMesonIntDeltaRangeWide[0]  = fMesonIntDeltaRange[0] * 1.5;
             fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1] * 1.5;
             fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.7;
             fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1] * 0.7;
-        } else if(mode == 42 || mode == 62){
+        } else if(mode == 42 || mode == 62){ //PCM-PHOS
             fMesonIntDeltaRange[0]      = -0.03;
             fMesonIntDeltaRange[1]      =  0.03;
             fMesonIntDeltaRangeWide[0]  = -0.05;
             fMesonIntDeltaRangeWide[1]  = 0.05;
             fMesonIntDeltaRangeNarrow[0]= -0.02;
             fMesonIntDeltaRangeNarrow[1]= 0.02;
-        } else if(mode == 44 || mode == 64){
+        } else if(mode == 44 || mode == 64){ //EMCAL
             // fMesonIntDeltaRange[0]      = -0.019*2;
             // fMesonIntDeltaRange[1]      =  0.019*2;
             // FWHM should 0.027
@@ -1303,7 +1307,11 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             // fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.6;
             fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.7;
             fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1] * 0.7;
-        } else if( mode == 45 || mode == 65){
+
+            useFitIntDeltaRange = kTRUE;
+            useFitIntDeltaRange_FunctionNumber = 0;
+            useFitIntDeltaRange_ParameterNumber = 0;
+        } else if( mode == 45 || mode == 65){ //PHOS
             fMesonIntDeltaRange[0]      = -0.04;
             fMesonIntDeltaRange[1]      =  0.04;
             fMesonIntDeltaRangeWide[0]  = -0.06;

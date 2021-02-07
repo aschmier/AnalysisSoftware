@@ -1009,6 +1009,10 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         fFileDataLog << "---------------------------------------------------------------------------------" << endl;
 
         if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Analysis Pt Bin Loop; Pt: "<<fBinsPt[iPt]<<"; ProcessBckFitSubtraction: fHistoMappingGGInvMassPtBin";}
+
+        if (useFitIntDeltaRange){
+            SetMesonIntDeltaRange(iPt, useFitIntDeltaRange_FunctionNumber, useFitIntDeltaRange_ParameterNumber, doDebugOutputLevel);
+        }
         if (doDebugOutputLevel>=2){
             cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; fPeakRange: "<<*fPeakRange<<"; fPeakRange[0]: "<<fPeakRange[0]<<"; fPeakRange: "<<fPeakRange[1]<<"; fFitRange:"<< *fFitRange<<"; fFitRange[0]:"<< fFitRange[0]<<"; fFitRange[1]:"<< fFitRange[1]<<endl;
             fHistoMappingGGInvMassPtBin[iPt]->Dump();
@@ -9169,5 +9173,79 @@ void SetCorrectMCHistogrammNames(){
 }
 
 
+Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t ParameterNumber, Int_t iDebugLevel){
+    Int_t doDebugOutputLevel = iDebugLevel;
 
+    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; SetMesonIntDeltaRange(); Line: "<<__LINE__<<"; Fuction start"<<endl;}
+
+    if (!useFitIntDeltaRange) {
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; SetMesonIntDeltaRange(); Line: "<<__LINE__<<"; ERROR!! useFitIntDeltaRange is kFALSE! return"<<endl;}
+        return 0;
+    }
+
+    TF1*            TF1DeltaRangeFitFunction            = NULL;
+    TString         TStrDeltaRangeFitFunction           = "";
+    Int_t           iNumberOfParameters                 = 0;
+    Double_t        ptLowerEdge                         = fBinsPt[ptBinNumber];
+    Double_t        ptUpperEdge                         = fBinsPt[ptBinNumber+1];
+    Double_t        ptValue                             = (ptLowerEdge+ptUpperEdge)/2;
+    Double_t        FitValue                            = 0;
+    Double_t        IntegrationValueByFit_Normal        = 0;
+    Double_t        IntegrationValueByFit_Narrow        = 0;
+    Double_t        IntegrationValueByFit_Wide          = 0;
+    Double_t        IntegrationFactor_Normal            = 2.;
+    Double_t        IntegrationFactor_Narrow            = 1.5;
+    Double_t        IntegrationFactor_Wide              = 3.;
+
+    if (FitFunctionNumber == 0){
+        TStrDeltaRangeFitFunction                       = "pol2";
+        iNumberOfParameters                             = 3;
+    } else {//FitFunctionNumber
+        return 0;
+    }
+    TF1DeltaRangeFitFunction                            =
+            new TF1(Form("%s", TStrDeltaRangeFitFunction.Data()),
+                    Form("%s", TStrDeltaRangeFitFunction.Data()),
+                    ptLowerEdge, ptUpperEdge
+                    );
+    if (FitFunctionNumber == 0){ //pol2
+        if (ParameterNumber == 0){
+            TF1DeltaRangeFitFunction->SetParameter( 0,  0.0185701);
+            TF1DeltaRangeFitFunction->SetParError(  0,  8.46012e-05);
+
+            TF1DeltaRangeFitFunction->SetParameter( 1,  -0.000322825);
+            TF1DeltaRangeFitFunction->SetParError(  1,  1.40167e-05);
+
+            TF1DeltaRangeFitFunction->SetParameter( 2,  1.47242e-05);
+            TF1DeltaRangeFitFunction->SetParError(  2,  3.42979e-07);
+        } else { //ParameterNumber
+            return 0;
+        }
+    } else { //FitFunctionNumber
+        return 0;
+    }
+
+    FitValue                                            =
+            TF1DeltaRangeFitFunction->Eval(ptValue);
+    IntegrationValueByFit_Normal                        =
+            FitValue*IntegrationFactor_Normal;
+    IntegrationValueByFit_Narrow                        =
+            FitValue*IntegrationFactor_Narrow;
+    IntegrationValueByFit_Wide                          =
+            FitValue*IntegrationFactor_Wide;
+
+    fMesonIntDeltaRange[0]                              = -IntegrationValueByFit_Normal;
+    fMesonIntDeltaRange[1]                              = IntegrationValueByFit_Normal;
+    fMesonIntDeltaRangeWide[0]                          = -IntegrationValueByFit_Wide;
+    fMesonIntDeltaRangeWide[1]                          = IntegrationValueByFit_Wide;
+    fMesonIntDeltaRangeNarrow[0]                        = -IntegrationValueByFit_Narrow;
+    fMesonIntDeltaRangeNarrow[1]                        = IntegrationValueByFit_Narrow;
+
+
+    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; SetMesonIntDeltaRange(); Line: "<<__LINE__<<"; FitValue: "<<FitValue<<"; IntegrationValueByFit_Normal: "<<IntegrationValueByFit_Normal<<"; IntegrationValueByFit_Narrow: "<<IntegrationValueByFit_Narrow<<"; IntegrationValueByFit_Wide: "<<IntegrationValueByFit_Wide<<endl;}
+
+    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; SetMesonIntDeltaRange(); Line: "<<__LINE__<<"; DeltaRanges set"<<endl;}
+
+    return 1;
+}
 
