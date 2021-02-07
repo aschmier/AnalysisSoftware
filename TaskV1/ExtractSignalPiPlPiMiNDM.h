@@ -39,7 +39,7 @@ Double_t *fMesonIntRange                                    = NULL;
 //Monitoring
 Bool_t  DoMonitoring                                        = kTRUE;
 Bool_t  DoMonitoringBackMixing                              = kTRUE;
-Bool_t  DoMonitoringBackFit                                 = kFALSE;
+Bool_t  DoMonitoringBackFit                                 = kTRUE;
 Bool_t  DoMonitoring_Lambda                                 = kTRUE;
 Bool_t  DoMonitoring_Mass                                   = kTRUE;
 Bool_t  DoMonitoring_WidthFWHM                              = kTRUE;

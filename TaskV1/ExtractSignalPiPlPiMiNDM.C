@@ -148,8 +148,24 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
     TString outputDir       = Form("%s/%s/%s/ExtractSignal",cutSelection.Data(),optionEnergy.Data(),Suffix.Data());
     TString outputDirMon= Form("%s/%s/%s/ExtractSignal/Monitoring/",cutSelection.Data(),optionEnergy.Data(),Suffix.Data());
+    TString outputDirMon_BackMixing= Form("%sBackMixing/",outputDirMon.Data());
+    TString outputDirMon_BackMixing_Std= Form("%sStd/",outputDirMon_BackMixing.Data());
+    TString outputDirMon_BackMixing_FixedPzPiZero= Form("%sFixedPz/",outputDirMon_BackMixing.Data());
+    TString outputDirMon_BackMixing_SubPiZero= Form("%sSubPiZero/",outputDirMon_BackMixing.Data());
+    TString outputDirMon_BackFit= Form("%sBackFit/",outputDirMon.Data());
+    TString outputDirMon_BackFit_Std= Form("%sStd/",outputDirMon_BackFit.Data());
+    TString outputDirMon_BackFit_FixedPzPiZero= Form("%sFixedPz/",outputDirMon_BackFit.Data());
+    TString outputDirMon_BackFit_SubPiZero= Form("%sSubPiZero/",outputDirMon_BackFit.Data());
     gSystem->Exec("mkdir -p "+outputDir);
     gSystem->Exec("mkdir -p "+outputDirMon);
+    gSystem->Exec("mkdir -p "+outputDirMon_BackMixing);
+    gSystem->Exec("mkdir -p "+outputDirMon_BackMixing_Std);
+    gSystem->Exec("mkdir -p "+outputDirMon_BackMixing_FixedPzPiZero);
+    gSystem->Exec("mkdir -p "+outputDirMon_BackMixing_SubPiZero);
+    gSystem->Exec("mkdir -p "+outputDirMon_BackFit);
+    gSystem->Exec("mkdir -p "+outputDirMon_BackFit_Std);
+    gSystem->Exec("mkdir -p "+outputDirMon_BackFit_FixedPzPiZero);
+    gSystem->Exec("mkdir -p "+outputDirMon_BackFit_SubPiZero);
     //gSystem->Exec("mkdir -p "+outputDir+"/Plots_Data_QA");
     //gSystem->Exec("mkdir -p "+outputDir+"/Plots_MC_QA");
 
@@ -3439,8 +3455,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMMeson->AddEntry(fHistoTrueFWHMMeson,"True MC","p");
                 legendFWHMMeson->Draw();
 
-                if (fIsMC) canvasFWHMMeson->SaveAs(Form("%s/%s_MC_FWHMMeson_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMMeson->SaveAs(Form("%s/%s_data_FWHMMeson_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMMeson->SaveAs(Form("%s/%s_MC_FWHMMeson_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMMeson->SaveAs(Form("%s/%s_data_FWHMMeson_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Fixed Pz
@@ -3465,8 +3481,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMMeson_FixedPzPiZero->AddEntry(fHistoTrueFWHMMeson_FixedPzPiZero,"True MC","p");
                 legendFWHMMeson_FixedPzPiZero->Draw();
 
-                if (fIsMC) canvasFWHMMeson_FixedPzPiZero->SaveAs(Form("%s/%s_MC_FWHMMeson_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMMeson_FixedPzPiZero->SaveAs(Form("%s/%s_data_FWHMMeson_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMMeson_FixedPzPiZero->SaveAs(Form("%s/%s_MC_FWHMMeson_FixedPzPiZero_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMMeson_FixedPzPiZero->SaveAs(Form("%s/%s_data_FWHMMeson_FixedPzPiZero_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Sub Pi0
@@ -3491,8 +3507,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMMeson_SubPiZero->AddEntry(fHistoTrueFWHMMeson_SubPiZero,"True MC","p");
                 legendFWHMMeson_SubPiZero->Draw();
 
-                if (fIsMC) canvasFWHMMeson_SubPiZero->SaveAs(Form("%s/%s_MC_FWHMMeson_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMMeson_SubPiZero->SaveAs(Form("%s/%s_data_FWHMMeson_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMMeson_SubPiZero->SaveAs(Form("%s/%s_MC_FWHMMeson_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMMeson_SubPiZero->SaveAs(Form("%s/%s_data_FWHMMeson_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
             ///*********************** Width FWHM To Sigma
             if (DoMonitoring_WidthFWHMToSigma) {
@@ -3519,8 +3535,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMToSigmaMeson->AddEntry(fHistoTrueFWHMToSigmaMeson,"True MC","p");
                 legendFWHMToSigmaMeson->Draw();
 
-                if (fIsMC) canvasFWHMToSigmaMeson->SaveAs(Form("%s/%s_MC_FWHMToSigmaMeson_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMToSigmaMeson->SaveAs(Form("%s/%s_data_FWHMToSigmaMeson_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMToSigmaMeson->SaveAs(Form("%s/%s_MC_FWHMToSigmaMeson_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMToSigmaMeson->SaveAs(Form("%s/%s_data_FWHMToSigmaMeson_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Fixed Pz
@@ -3545,8 +3561,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMToSigmaMeson_FixedPzPiZero->AddEntry(fHistoTrueFWHMToSigmaMeson_FixedPzPiZero,"True MC","p");
                 legendFWHMToSigmaMeson_FixedPzPiZero->Draw();
 
-                if (fIsMC) canvasFWHMToSigmaMeson_FixedPzPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMeson_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMToSigmaMeson_FixedPzPiZero->SaveAs(Form("%s/%s_data_FWHMToSigmaMeson_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMToSigmaMeson_FixedPzPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMeson_FixedPzPiZero_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMToSigmaMeson_FixedPzPiZero->SaveAs(Form("%s/%s_data_FWHMToSigmaMeson_FixedPzPiZero_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Sub Pi0
@@ -3571,10 +3587,9 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMToSigmaMeson_SubPiZero->AddEntry(fHistoTrueFWHMToSigmaMeson_SubPiZero,"True MC","p");
                 legendFWHMToSigmaMeson_SubPiZero->Draw();
 
-                if (fIsMC) canvasFWHMToSigmaMeson_SubPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMeson_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMToSigmaMeson_SubPiZero->SaveAs(Form("%s/%s_data_FWHMToSigmaMeson_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMToSigmaMeson_SubPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMeson_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMToSigmaMeson_SubPiZero->SaveAs(Form("%s/%s_data_FWHMToSigmaMeson_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
-
             ///*********************** Width Sigma
             if (DoMonitoring_WidthSigma) {
                 if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background mixing histograms: "<<" Plotting width sigma"<<endl;}
@@ -3600,8 +3615,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendWidthMeson->AddEntry(fHistoTrueWidthMeson,"True MC","p");
                 legendWidthMeson->Draw();
 
-                if (fIsMC) canvasWidthMeson->SaveAs(Form("%s/%s_MC_WidthMeson_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasWidthMeson->SaveAs(Form("%s/%s_data_WidthMeson_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasWidthMeson->SaveAs(Form("%s/%s_MC_WidthMeson_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasWidthMeson->SaveAs(Form("%s/%s_data_WidthMeson_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Fixed Pz
@@ -3626,8 +3641,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendWidthMeson_FixedPzPiZero->AddEntry(fHistoTrueWidthMeson_FixedPzPiZero,"True MC","p");
                 legendWidthMeson_FixedPzPiZero->Draw();
 
-                if (fIsMC) canvasWidthMeson_FixedPzPiZero->SaveAs(Form("%s/%s_MC_SigmaMeson_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasWidthMeson_FixedPzPiZero->SaveAs(Form("%s/%s_data_SigmaMeson_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasWidthMeson_FixedPzPiZero->SaveAs(Form("%s/%s_MC_SigmaMeson_FixedPzPiZero_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasWidthMeson_FixedPzPiZero->SaveAs(Form("%s/%s_data_SigmaMeson_FixedPzPiZero_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Sub Pi0
@@ -3652,19 +3667,19 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendWidthMeson_SubPiZero->AddEntry(fHistoTrueWidthMeson_SubPiZero,"True MC","p");
                 legendWidthMeson_SubPiZero->Draw();
 
-                if (fIsMC) canvasWidthMeson_SubPiZero->SaveAs(Form("%s/%s_MC_WidthMeson_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasWidthMeson_SubPiZero->SaveAs(Form("%s/%s_data_WidthMeson_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasWidthMeson_SubPiZero->SaveAs(Form("%s/%s_MC_WidthMeson_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasWidthMeson_SubPiZero->SaveAs(Form("%s/%s_data_WidthMeson_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
-            /*
             ///*********************** Mass
             if (DoMonitoring_Mass) {
                 if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background mixing histograms: "<<" Plotting width mass"<<endl;}
+                //Normal InvMass
                 TCanvas* canvasMesonMass = new TCanvas("canvasMesonMass","",1550,1200);  // gives the page size
                 canvasMesonMass->SetTickx();
                 canvasMesonMass->SetTicky();
 
-                Double_t maxMesonMassRange = 0.140;
-                Double_t minMesonMassRange = 0.132;
+                Double_t maxMesonMassRange = fMesonMassExpect*1.1;
+                Double_t minMesonMassRange = fMesonMassExpect*0.9;
                 if (fPrefix.Contains("Pi0")){
                     if (fEnergyFlag.Contains("PbPb")){
                         maxMesonMassRange = 0.160;
@@ -3682,6 +3697,10 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 } else if (fPrefix.CompareTo("EtaPrime") ==0) {
                     maxMesonMassRange = 0.8;
                     minMesonMassRange = 1.1;
+                } else if (fPrefix.CompareTo("Omega") ==0) {
+                    //Mass == (782.65±0.12) MeV
+                    maxMesonMassRange = 0.770;
+                    minMesonMassRange = 0.790;
                 }
 
 
@@ -3708,78 +3727,274 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassExpect, fMesonMassExpect, 1, kGray+2, 2);
                 DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[1], fMesonMassRange[1], 1, kRed+1, 2);
 
-                if (fIsMC) canvasMesonMass->SaveAs(Form("%s/%s_MC_MesonMass_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasMesonMass->SaveAs(Form("%s/%s_data_MesonMass_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasMesonMass->SaveAs(Form("%s/%s_MC_MesonMass_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasMesonMass->SaveAs(Form("%s/%s_data_MesonMass_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //Fixed Pz
+                TCanvas* canvasMesonMass_FixedPzPiZero = new TCanvas("canvasMesonMass_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasMesonMass_FixedPzPiZero->SetTickx();
+                canvasMesonMass_FixedPzPiZero->SetTicky();
+
+                DrawGammaSetMarker(fHistoMassMeson_FixedPzPiZero, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos(   fHistoMassMeson_FixedPzPiZero,
+                                            "", "p_{T} (GeV/c)", Form("Mass (GeV/c^{2})"),
+                                            kFALSE, 3.,0., kFALSE,
+                                            kTRUE, minMesonMassRange, maxMesonMassRange,
+                                            kFALSE, 0., 10.);
+
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueMassMeson_FixedPzPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueMassMeson_FixedPzPiZero->Draw("same,pe");
+                }
+                canvasMesonMass_FixedPzPiZero->Update();
+
+                TLegend* legendMesonMass_FixedPzPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendMesonMass_FixedPzPiZero->AddEntry(fHistoMassMeson_FixedPzPiZero,Form("%s mass",fPrefix.Data()),"p");
+                if(fIsMC) legendMesonMass_FixedPzPiZero->AddEntry(fHistoTrueMassMeson_FixedPzPiZero,"True MC","p");
+                legendMesonMass_FixedPzPiZero->Draw();
+
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[0], fMesonMassRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassExpect, fMesonMassExpect, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[1], fMesonMassRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasMesonMass_FixedPzPiZero->SaveAs(Form("%s/%s_MC_MesonMass_FixedPzPiZero_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasMesonMass_FixedPzPiZero->SaveAs(Form("%s/%s_data_MesonMass_FixedPzPiZero_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //Sub Pi0
+                TCanvas* canvasMesonMass_SubPiZero = new TCanvas("canvasMesonMass_SubPiZero","",1550,1200);  // gives the page size
+                canvasMesonMass_SubPiZero->SetTickx();
+                canvasMesonMass_SubPiZero->SetTicky();
+
+
+                DrawGammaSetMarker(fHistoMassMeson_SubPiZero, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos(   fHistoMassMeson_SubPiZero,
+                                            "", "p_{T} (GeV/c)", Form("Mass (GeV/c^{2})"),
+                                            kFALSE, 3.,0., kFALSE,
+                                            kTRUE, minMesonMassRange, maxMesonMassRange,
+                                            kFALSE, 0., 10.);
+
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueMassMeson_SubPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueMassMeson_SubPiZero->Draw("same,pe");
+                }
+                canvasMesonMass_SubPiZero->Update();
+
+                TLegend* legendMesonMass_SubPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendMesonMass_SubPiZero->AddEntry(fHistoMassMeson_SubPiZero,Form("%s mass",fPrefix.Data()),"p");
+                if(fIsMC) legendMesonMass_SubPiZero->AddEntry(fHistoTrueMassMeson_SubPiZero,"True MC","p");
+                legendMesonMass_SubPiZero->Draw();
+
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[0], fMesonMassRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassExpect, fMesonMassExpect, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[1], fMesonMassRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasMesonMass_SubPiZero->SaveAs(Form("%s/%s_MC_MesonMass_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasMesonMass_SubPiZero->SaveAs(Form("%s/%s_data_MesonMass_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+
             }
             ///*********************** Lambda tail
             if (DoMonitoring_Lambda) {
                 if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background mixing histograms: "<<" Plotting width lambda"<<endl;}
+                //Normal InvMass
                 TCanvas* canvasLambdaTail = new TCanvas("canvasLambdaTail","",1550,1200);  // gives the page size
                 canvasLambdaTail->SetTickx();
                 canvasLambdaTail->SetTicky();
 
-                DrawGammaSetMarker(fHistoLambdaTail, 20, 1., kBlack, kBlack);
-                Float_t maxPlotLambda               = fMesonLambdaTailRangeNominal[1]*1.2;
-                if (fMesonLambdaTailRangeNominal[1] == fMesonLambdaTailRangeNominal[0])
-                    maxPlotLambda                   = fMesonLambdaTailRangeNominal[1]*2;
+                DrawGammaSetMarker(fHistoLambdaMeson, 20, 1., kBlack, kBlack);
+                Float_t maxPlotLambda               = fMesonLambdaTailRange[1]*1.2;
+                if (fMesonLambdaTailRange[1] == fMesonLambdaTailRange[0])
+                    maxPlotLambda                   = fMesonLambdaTailRange[1]*2;
                 if (fPrefix.Contains("Pi0")){
-                    DrawAutoGammaMesonHistos( fHistoLambdaTail,
+                    DrawAutoGammaMesonHistos( fHistoLambdaMeson,
                                               "", "p_{T} (GeV/c)", "#lambda",
                                               kFALSE, 3.,0.,  kFALSE,
                                               kTRUE, 0.,maxPlotLambda,
                                               kFALSE, 0., 10.);
                 } else {
-                    DrawAutoGammaMesonHistos( fHistoLambdaTail,
+                    DrawAutoGammaMesonHistos( fHistoLambdaMeson,
                                               "", "p_{T} (GeV/c)", "#lambda",
                                               kFALSE, 3.,0.,  kFALSE,
                                               kTRUE, 5e-3,maxPlotLambda,
                                               kFALSE, 0., 10.);
                 }
                 if (fIsMC){
-                    DrawGammaSetMarker(fHistoTrueLambdaTail, 24, 1., kRed+2, kRed+2);
-                    fHistoTrueLambdaTail->Draw("same,pe");
+                    DrawGammaSetMarker(fHistoTrueLambdaMeson, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueLambdaMeson->Draw("same,pe");
                 }
                 canvasLambdaTail->Update();
 
 
                 TLegend* legendLambdaTail = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
-                legendLambdaTail->AddEntry(fHistoLambdaTail,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
-                if (fIsMC) legendLambdaTail->AddEntry(fHistoTrueLambdaTail,"True MC","p");
+                legendLambdaTail->AddEntry(fHistoLambdaMeson,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
+                if (fIsMC) legendLambdaTail->AddEntry(fHistoTrueLambdaMeson,"True MC","p");
                 legendLambdaTail->Draw();
 
-                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[0], fMesonLambdaTailRangeNominal[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[0], fMesonLambdaTailRange[0], 1, kRed+1, 2);
                 DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
-                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRangeNominal[1], fMesonLambdaTailRangeNominal[1], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[1], fMesonLambdaTailRange[1], 1, kRed+1, 2);
 
-                if (fIsMC) canvasLambdaTail->SaveAs(Form("%s/%s_MC_LambdaTail_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasLambdaTail->SaveAs(Form("%s/%s_data_LambdaTail_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasLambdaTail->SaveAs(Form("%s/%s_MC_LambdaTail_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasLambdaTail->SaveAs(Form("%s/%s_data_LambdaTail_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+
+                //FixedPzPiZero
+                TCanvas* canvasLambdaTail_FixedPzPiZero = new TCanvas("canvasLambdaTail_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasLambdaTail_FixedPzPiZero->SetTickx();
+                canvasLambdaTail_FixedPzPiZero->SetTicky();
+
+                DrawGammaSetMarker(fHistoLambdaMeson_FixedPzPiZero, 20, 1., kBlack, kBlack);
+                if (fMesonLambdaTailRange[1] == fMesonLambdaTailRange[0])
+                    maxPlotLambda                   = fMesonLambdaTailRange[1]*2;
+                if (fPrefix.Contains("Pi0")){
+                    DrawAutoGammaMesonHistos( fHistoLambdaMeson_FixedPzPiZero,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 0.,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                } else {
+                    DrawAutoGammaMesonHistos( fHistoLambdaMeson_FixedPzPiZero,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 5e-3,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                }
+                if (fIsMC){
+                    DrawGammaSetMarker(fHistoTrueLambdaMeson_FixedPzPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueLambdaMeson->Draw("same,pe");
+                }
+                canvasLambdaTail_FixedPzPiZero->Update();
+
+
+                TLegend* legendLambdaTail_FixedPzPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendLambdaTail_FixedPzPiZero->AddEntry(fHistoLambdaMeson_FixedPzPiZero,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
+                if (fIsMC) legendLambdaTail_FixedPzPiZero->AddEntry(fHistoTrueLambdaMeson_FixedPzPiZero,"True MC","p");
+                legendLambdaTail_FixedPzPiZero->Draw();
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[0], fMesonLambdaTailRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[1], fMesonLambdaTailRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasLambdaTail_FixedPzPiZero->SaveAs(Form("%s/%s_MC_LambdaTail_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasLambdaTail_FixedPzPiZero->SaveAs(Form("%s/%s_data_LambdaTail_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //SubPiZero
+                TCanvas* canvasLambdaTail_SubPiZero = new TCanvas("canvasLambdaTail_SubPiZero","",1550,1200);  // gives the page size
+                canvasLambdaTail_SubPiZero->SetTickx();
+                canvasLambdaTail_SubPiZero->SetTicky();
+
+                DrawGammaSetMarker(fHistoLambdaMeson_SubPiZero, 20, 1., kBlack, kBlack);
+                if (fMesonLambdaTailRange[1] == fMesonLambdaTailRange[0])
+                    maxPlotLambda                   = fMesonLambdaTailRange[1]*2;
+                if (fPrefix.Contains("Pi0")){
+                    DrawAutoGammaMesonHistos( fHistoLambdaMeson_SubPiZero,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 0.,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                } else {
+                    DrawAutoGammaMesonHistos( fHistoLambdaMeson_SubPiZero,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 5e-3,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                }
+                if (fIsMC){
+                    DrawGammaSetMarker(fHistoTrueLambdaMeson_SubPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueLambdaMeson_SubPiZero->Draw("same,pe");
+                }
+                canvasLambdaTail_SubPiZero->Update();
+
+
+                TLegend* legendLambdaTail_SubPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendLambdaTail_SubPiZero->AddEntry(fHistoLambdaMeson_SubPiZero,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
+                if (fIsMC) legendLambdaTail_SubPiZero->AddEntry(fHistoTrueLambdaMeson_SubPiZero,"True MC","p");
+                legendLambdaTail_SubPiZero->Draw();
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[0], fMesonLambdaTailRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[1], fMesonLambdaTailRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasLambdaTail_SubPiZero->SaveAs(Form("%s/%s_MC_LambdaTail_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasLambdaTail_SubPiZero->SaveAs(Form("%s/%s_data_LambdaTail_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
             ///*********************** Amplitude fit parameter monitoring
             if (DoMonitoring_Amplitude) {
                 if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background mixing histograms: "<<" Plotting width amplitude"<<endl;}
+                //Normal InvMass
                 TCanvas* canvasAmplitude = new TCanvas("canvasAmplitude","",1550,1200);  // gives the page size
                 canvasAmplitude->SetTickx();
                 canvasAmplitude->SetTicky();
                 canvasAmplitude->SetLogy();
-                DrawGammaSetMarker(fHistoAmplitude, 20, 1., kBlack, kBlack);
-                DrawAutoGammaMesonHistos( fHistoAmplitude,
+                DrawGammaSetMarker(fHistoAmplitudeMeson, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoAmplitudeMeson,
                                           "", "p_{T} (GeV/c)", "A",
                                           kFALSE, 3.,0.,  kTRUE,
                                           kFALSE, 0., 0.,
                                           kFALSE, 0., 10.);
                 if (fIsMC > 0){
-                    DrawGammaSetMarker(fHistoTrueAmplitude, 24, 1., kRed+2, kRed+2);
-                    fHistoTrueAmplitude->Draw("same,pe");
+                    DrawGammaSetMarker(fHistoTrueAmplitudeMeson, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueAmplitudeMeson->Draw("same,pe");
                 }
                 canvasAmplitude->Update();
                 TLegend* legendAmplitude = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
-                legendAmplitude->AddEntry(fHistoAmplitude,Form("Amplitude parameter for %s",fPrefix.Data()),"p");
-                if(fIsMC) legendAmplitude->AddEntry(fHistoTrueAmplitude,"True MC","p");
+                legendAmplitude->AddEntry(fHistoAmplitudeMeson,Form("Amplitude parameter for %s",fPrefix.Data()),"p");
+                if(fIsMC) legendAmplitude->AddEntry(fHistoTrueAmplitudeMeson,"True MC","p");
                 legendAmplitude->Draw();
 
-                if (fIsMC) canvasAmplitude->SaveAs(Form("%s/%s_MC_Amplitude_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasAmplitude->SaveAs(Form("%s/%s_data_Amplitude_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-            }*/
+                if (fIsMC) canvasAmplitude->SaveAs(Form("%s/%s_MC_Amplitude_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasAmplitude->SaveAs(Form("%s/%s_data_Amplitude_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //FixedPzPiZero
+                TCanvas* canvasAmplitude_FixedPzPiZero = new TCanvas("canvasAmplitude_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasAmplitude_FixedPzPiZero->SetTickx();
+                canvasAmplitude_FixedPzPiZero->SetTicky();
+                canvasAmplitude_FixedPzPiZero->SetLogy();
+                DrawGammaSetMarker(fHistoAmplitudeMeson_FixedPzPiZero, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoAmplitudeMeson_FixedPzPiZero,
+                                          "", "p_{T} (GeV/c)", "A",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueAmplitudeMeson_FixedPzPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueAmplitudeMeson_FixedPzPiZero->Draw("same,pe");
+                }
+                canvasAmplitude_FixedPzPiZero->Update();
+                TLegend* legendAmplitude_FixedPzPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendAmplitude_FixedPzPiZero->AddEntry(fHistoAmplitudeMeson_FixedPzPiZero,Form("Amplitude parameter for %s",fPrefix.Data()),"p");
+                if(fIsMC) legendAmplitude_FixedPzPiZero->AddEntry(fHistoTrueAmplitudeMeson_FixedPzPiZero,"True MC","p");
+                legendAmplitude_FixedPzPiZero->Draw();
+
+                if (fIsMC) canvasAmplitude_FixedPzPiZero->SaveAs(Form("%s/%s_MC_Amplitude_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasAmplitude_FixedPzPiZero->SaveAs(Form("%s/%s_data_Amplitude_%s.%s",outputDirMon_BackMixing_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //SubPiZero
+                TCanvas* canvasAmplitude_SubPiZero = new TCanvas("canvasAmplitude_SubPiZero","",1550,1200);  // gives the page size
+                canvasAmplitude_SubPiZero->SetTickx();
+                canvasAmplitude_SubPiZero->SetTicky();
+                canvasAmplitude_SubPiZero->SetLogy();
+                DrawGammaSetMarker(fHistoAmplitudeMeson_SubPiZero, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoAmplitudeMeson_SubPiZero,
+                                          "", "p_{T} (GeV/c)", "A",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueAmplitudeMeson_SubPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueAmplitudeMeson_SubPiZero->Draw("same,pe");
+                }
+                canvasAmplitude_SubPiZero->Update();
+                TLegend* legendAmplitude_SubPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendAmplitude_SubPiZero->AddEntry(fHistoAmplitudeMeson_SubPiZero,Form("Amplitude parameter for %s",fPrefix.Data()),"p");
+                if(fIsMC) legendAmplitude_SubPiZero->AddEntry(fHistoTrueAmplitudeMeson_SubPiZero,"True MC","p");
+                legendAmplitude_SubPiZero->Draw();
+
+                if (fIsMC) canvasAmplitude_SubPiZero->SaveAs(Form("%s/%s_MC_Amplitude_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasAmplitude_SubPiZero->SaveAs(Form("%s/%s_data_Amplitude_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+            }
         }
 
         if (DoMonitoringBackFit){
@@ -3809,8 +4024,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMMesonBackFit->AddEntry(fHistoTrueFWHMMeson,"True MC","p");
                 legendFWHMMesonBackFit->Draw();
 
-                if (fIsMC) canvasFWHMMesonBackFit->SaveAs(Form("%s/%s_MC_FWHMMesonBackFit_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMMesonBackFit->SaveAs(Form("%s/%s_data_FWHMMesonBackFit_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMMesonBackFit->SaveAs(Form("%s/%s_MC_FWHMMesonBackFit_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMMesonBackFit->SaveAs(Form("%s/%s_data_FWHMMesonBackFit_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Fixed Pz
@@ -3835,8 +4050,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMMesonBackFit_FixedPzPiZero->AddEntry(fHistoTrueFWHMMeson_FixedPzPiZero,"True MC","p");
                 legendFWHMMesonBackFit_FixedPzPiZero->Draw();
 
-                if (fIsMC) canvasFWHMMesonBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_FWHMMesonBackFit_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMMesonBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_data_FWHMMesonBackFit_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMMesonBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_FWHMMesonBackFit_FixedPzPiZero_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMMesonBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_data_FWHMMesonBackFit_FixedPzPiZero_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Sub Pi0
@@ -3861,8 +4076,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMMesonBackFit_SubPiZero->AddEntry(fHistoTrueFWHMMeson_SubPiZero,"True MC","p");
                 legendFWHMMesonBackFit_SubPiZero->Draw();
 
-                if (fIsMC) canvasFWHMMesonBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_FWHMMesonBackFit_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMMesonBackFit_SubPiZero->SaveAs(Form("%s/%s_data_FWHMMesonBackFit_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMMesonBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_FWHMMesonBackFit_SubPiZero_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMMesonBackFit_SubPiZero->SaveAs(Form("%s/%s_data_FWHMMesonBackFit_SubPiZero_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
             ///*********************** Width Sigma
             if (DoMonitoring_WidthFWHMToSigma) {
@@ -3889,8 +4104,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMToSigmaMesonBackFit->AddEntry(fHistoTrueFWHMToSigmaMeson,"True MC","p");
                 legendFWHMToSigmaMesonBackFit->Draw();
 
-                if (fIsMC) canvasFWHMToSigmaMesonBackFit->SaveAs(Form("%s/%s_MC_FWHMToSigmaMesonBackFit_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMToSigmaMesonBackFit->SaveAs(Form("%s/%s_data_FWHMToSigmaMesonBackFit_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMToSigmaMesonBackFit->SaveAs(Form("%s/%s_MC_FWHMToSigmaMesonBackFit_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMToSigmaMesonBackFit->SaveAs(Form("%s/%s_data_FWHMToSigmaMesonBackFit_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Fixed Pz
@@ -3915,8 +4130,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMToSigmaMesonBackFit_FixedPzPiZero->AddEntry(fHistoTrueFWHMToSigmaMeson_FixedPzPiZero,"True MC","p");
                 legendFWHMToSigmaMesonBackFit_FixedPzPiZero->Draw();
 
-                if (fIsMC) canvasFWHMToSigmaMesonBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMesonBackFit_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMToSigmaMesonBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_data_FWHMToSigmaMesonBackFit_FixedPzPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMToSigmaMesonBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMesonBackFit_FixedPzPiZero_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMToSigmaMesonBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_data_FWHMToSigmaMesonBackFit_FixedPzPiZero_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
 
                 //Sub Pi0
@@ -3941,20 +4156,334 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if(fIsMC) legendFWHMToSigmaMesonBackFit_SubPiZero->AddEntry(fHistoTrueFWHMToSigmaMeson_SubPiZero,"True MC","p");
                 legendFWHMToSigmaMesonBackFit_SubPiZero->Draw();
 
-                if (fIsMC) canvasFWHMToSigmaMesonBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMesonBackFit_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
-                else canvasFWHMToSigmaMesonBackFit_SubPiZero->SaveAs(Form("%s/%s_data_FWHMToSigmaMesonBackFit_SubPiZero_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                if (fIsMC) canvasFWHMToSigmaMesonBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMesonBackFit_SubPiZero_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasFWHMToSigmaMesonBackFit_SubPiZero->SaveAs(Form("%s/%s_data_FWHMToSigmaMesonBackFit_SubPiZero_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
             ///*********************** Mass
             if (DoMonitoring_Mass) {
                 if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background fitting without mixing: "<<" Plotting width mass"<<endl;}
+
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background mixing histograms: "<<" Plotting width mass"<<endl;}
+                //Normal InvMass
+                TCanvas* canvasMesonMassBackFit = new TCanvas("canvasMesonMass","",1550,1200);  // gives the page size
+                canvasMesonMassBackFit->SetTickx();
+                canvasMesonMassBackFit->SetTicky();
+
+                Double_t maxMesonMassRange = fMesonMassExpect*1.1;
+                Double_t minMesonMassRange = fMesonMassExpect*0.9;
+                if (fPrefix.Contains("Pi0")){
+                    if (fEnergyFlag.Contains("PbPb")){
+                        maxMesonMassRange = 0.160;
+                        minMesonMassRange = 0.130;
+                    } else if (fEnergyFlag.CompareTo("13TeVLowB") == 0 && fMode == 0 ) {
+                        maxMesonMassRange = 0.150;
+                        minMesonMassRange = 0.132;
+                    } else {
+                        maxMesonMassRange = 0.140;
+                        minMesonMassRange = 0.132;
+                    }
+                } else if (fPrefix.CompareTo("Eta") ==0) {
+                    maxMesonMassRange = 0.64;
+                    minMesonMassRange = 0.46;
+                } else if (fPrefix.CompareTo("EtaPrime") ==0) {
+                    maxMesonMassRange = 0.8;
+                    minMesonMassRange = 1.1;
+                } else if (fPrefix.CompareTo("Omega") ==0) {
+                    //Mass == (782.65±0.12) MeV
+                    maxMesonMassRange = 0.770;
+                    minMesonMassRange = 0.790;
+                }
+
+
+                DrawGammaSetMarker(fHistoMassMesonBackFit, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos(   fHistoMassMesonBackFit,
+                                            "", "p_{T} (GeV/c)", Form("Mass (GeV/c^{2})"),
+                                            kFALSE, 3.,0., kFALSE,
+                                            kTRUE, minMesonMassRange, maxMesonMassRange,
+                                            kFALSE, 0., 10.);
+
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueMassMeson, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueMassMeson->Draw("same,pe");
+                }
+                canvasMesonMassBackFit->Update();
+
+                TLegend* legendMesonMassBackFit = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendMesonMassBackFit->AddEntry(fHistoMassMesonBackFit,Form("%s mass",fPrefix.Data()),"p");
+                if(fIsMC) legendMesonMassBackFit->AddEntry(fHistoTrueMassMeson,"True MC","p");
+                legendMesonMassBackFit->Draw();
+
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[0], fMesonMassRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassExpect, fMesonMassExpect, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[1], fMesonMassRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasMesonMassBackFit->SaveAs(Form("%s/%s_MC_MesonMass_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasMesonMassBackFit->SaveAs(Form("%s/%s_data_MesonMass_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //Fixed Pz
+                TCanvas* canvasMesonMassBackFit_FixedPzPiZero = new TCanvas("canvasMesonMassBackFit_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasMesonMassBackFit_FixedPzPiZero->SetTickx();
+                canvasMesonMassBackFit_FixedPzPiZero->SetTicky();
+
+                DrawGammaSetMarker(fHistoMassMesonBackFit_FixedPzPiZero, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos(   fHistoMassMesonBackFit_FixedPzPiZero,
+                                            "", "p_{T} (GeV/c)", Form("Mass (GeV/c^{2})"),
+                                            kFALSE, 3.,0., kFALSE,
+                                            kTRUE, minMesonMassRange, maxMesonMassRange,
+                                            kFALSE, 0., 10.);
+
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueMassMeson_FixedPzPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueMassMeson_FixedPzPiZero->Draw("same,pe");
+                }
+                canvasMesonMassBackFit_FixedPzPiZero->Update();
+
+                TLegend* legendMesonMassBackFit_FixedPzPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendMesonMassBackFit_FixedPzPiZero->AddEntry(fHistoMassMesonBackFit_FixedPzPiZero,Form("%s mass",fPrefix.Data()),"p");
+                if(fIsMC) legendMesonMassBackFit_FixedPzPiZero->AddEntry(fHistoTrueMassMeson_FixedPzPiZero,"True MC","p");
+                legendMesonMassBackFit_FixedPzPiZero->Draw();
+
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[0], fMesonMassRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassExpect, fMesonMassExpect, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[1], fMesonMassRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasMesonMassBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_MesonMassBackFit_FixedPzPiZero_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasMesonMassBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_data_MesonMassBackFit_FixedPzPiZero_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //Sub Pi0
+                TCanvas* canvasMesonMassBackFit_SubPiZero = new TCanvas("canvasMesonMassBackFit_SubPiZero","",1550,1200);  // gives the page size
+                canvasMesonMassBackFit_SubPiZero->SetTickx();
+                canvasMesonMassBackFit_SubPiZero->SetTicky();
+
+
+                DrawGammaSetMarker(fHistoMassMesonBackFit_SubPiZero, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos(   fHistoMassMesonBackFit_SubPiZero,
+                                            "", "p_{T} (GeV/c)", Form("Mass (GeV/c^{2})"),
+                                            kFALSE, 3.,0., kFALSE,
+                                            kTRUE, minMesonMassRange, maxMesonMassRange,
+                                            kFALSE, 0., 10.);
+
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueMassMeson_SubPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueMassMeson_SubPiZero->Draw("same,pe");
+                }
+                canvasMesonMassBackFit_SubPiZero->Update();
+
+                TLegend* legendMesonMassBackFit_SubPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendMesonMassBackFit_SubPiZero->AddEntry(fHistoMassMesonBackFit_SubPiZero,Form("%s mass",fPrefix.Data()),"p");
+                if(fIsMC) legendMesonMassBackFit_SubPiZero->AddEntry(fHistoTrueMassMeson_SubPiZero,"True MC","p");
+                legendMesonMassBackFit_SubPiZero->Draw();
+
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[0], fMesonMassRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassExpect, fMesonMassExpect, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[1], fMesonMassRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasMesonMassBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_MesonMassBackFit_SubPiZero_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasMesonMassBackFit_SubPiZero->SaveAs(Form("%s/%s_data_MesonMassBackFit_SubPiZero_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
             ///*********************** Lambda tail
             if (DoMonitoring_Lambda) {
                 if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background fitting without mixing: "<<" Plotting width lambda"<<endl;}
+
+                TCanvas* canvasLambdaTailBackFit = new TCanvas("canvasLambdaTail","",1550,1200);  // gives the page size
+                canvasLambdaTailBackFit->SetTickx();
+                canvasLambdaTailBackFit->SetTicky();
+
+                DrawGammaSetMarker(fHistoLambdaMesonBackFit, 20, 1., kBlack, kBlack);
+                Float_t maxPlotLambda               = fMesonLambdaTailRange[1]*1.2;
+                if (fMesonLambdaTailRange[1] == fMesonLambdaTailRange[0])
+                    maxPlotLambda                   = fMesonLambdaTailRange[1]*2;
+                if (fPrefix.Contains("Pi0")){
+                    DrawAutoGammaMesonHistos( fHistoLambdaMesonBackFit,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 0.,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                } else {
+                    DrawAutoGammaMesonHistos( fHistoLambdaMesonBackFit,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 5e-3,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                }
+                if (fIsMC){
+                    DrawGammaSetMarker(fHistoTrueLambdaMeson, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueLambdaMeson->Draw("same,pe");
+                }
+                canvasLambdaTailBackFit->Update();
+
+
+                TLegend* legendLambdaTailBackFit = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendLambdaTailBackFit->AddEntry(fHistoLambdaMesonBackFit,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
+                if (fIsMC) legendLambdaTailBackFit->AddEntry(fHistoTrueLambdaMeson,"True MC","p");
+                legendLambdaTailBackFit->Draw();
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[0], fMesonLambdaTailRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[1], fMesonLambdaTailRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasLambdaTailBackFit->SaveAs(Form("%s/%s_MC_LambdaTail_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasLambdaTailBackFit->SaveAs(Form("%s/%s_data_LambdaTail_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+
+                //FixedPzPiZero
+                TCanvas* canvasLambdaTailBackFit_FixedPzPiZero = new TCanvas("canvasLambdaTailBackFit_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasLambdaTailBackFit_FixedPzPiZero->SetTickx();
+                canvasLambdaTailBackFit_FixedPzPiZero->SetTicky();
+
+                DrawGammaSetMarker(fHistoLambdaMesonBackFit_FixedPzPiZero, 20, 1., kBlack, kBlack);
+                if (fMesonLambdaTailRange[1] == fMesonLambdaTailRange[0])
+                    maxPlotLambda                   = fMesonLambdaTailRange[1]*2;
+                if (fPrefix.Contains("Pi0")){
+                    DrawAutoGammaMesonHistos( fHistoLambdaMesonBackFit_FixedPzPiZero,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 0.,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                } else {
+                    DrawAutoGammaMesonHistos( fHistoLambdaMesonBackFit_FixedPzPiZero,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 5e-3,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                }
+                if (fIsMC){
+                    DrawGammaSetMarker(fHistoTrueLambdaMeson_FixedPzPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueLambdaMeson_FixedPzPiZero->Draw("same,pe");
+                }
+                canvasLambdaTailBackFit_FixedPzPiZero->Update();
+
+
+                TLegend* legendLambdaTailBackFit_FixedPzPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendLambdaTailBackFit_FixedPzPiZero->AddEntry(fHistoLambdaMesonBackFit_FixedPzPiZero,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
+                if (fIsMC) legendLambdaTailBackFit_FixedPzPiZero->AddEntry(fHistoTrueLambdaMeson_FixedPzPiZero,"True MC","p");
+                legendLambdaTailBackFit_FixedPzPiZero->Draw();
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[0], fMesonLambdaTailRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[1], fMesonLambdaTailRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasLambdaTailBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_LambdaTail_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasLambdaTailBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_data_LambdaTail_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //SubPiZero
+                TCanvas* canvasLambdaTailBackFit_SubPiZero = new TCanvas("canvasLambdaTailBackFit_SubPiZero","",1550,1200);  // gives the page size
+                canvasLambdaTailBackFit_SubPiZero->SetTickx();
+                canvasLambdaTailBackFit_SubPiZero->SetTicky();
+
+                DrawGammaSetMarker(fHistoLambdaMesonBackFit_SubPiZero, 20, 1., kBlack, kBlack);
+                if (fMesonLambdaTailRange[1] == fMesonLambdaTailRange[0])
+                    maxPlotLambda                   = fMesonLambdaTailRange[1]*2;
+                if (fPrefix.Contains("Pi0")){
+                    DrawAutoGammaMesonHistos( fHistoLambdaMesonBackFit_SubPiZero,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 0.,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                } else {
+                    DrawAutoGammaMesonHistos( fHistoLambdaMesonBackFit_SubPiZero,
+                                              "", "p_{T} (GeV/c)", "#lambda",
+                                              kFALSE, 3.,0.,  kFALSE,
+                                              kTRUE, 5e-3,maxPlotLambda,
+                                              kFALSE, 0., 10.);
+                }
+                if (fIsMC){
+                    DrawGammaSetMarker(fHistoTrueLambdaMeson_SubPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueLambdaMeson_SubPiZero->Draw("same,pe");
+                }
+                canvasLambdaTailBackFit_SubPiZero->Update();
+
+
+                TLegend* legendLambdaTailBackFit_SubPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                legendLambdaTailBackFit_SubPiZero->AddEntry(fHistoLambdaMesonBackFit_SubPiZero,Form("Lambda tail parameter for %s",fPrefix.Data()),"p");
+                if (fIsMC) legendLambdaTailBackFit_SubPiZero->AddEntry(fHistoTrueLambdaMeson_SubPiZero,"True MC","p");
+                legendLambdaTailBackFit_SubPiZero->Draw();
+
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[0], fMesonLambdaTailRange[0], 1, kRed+1, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTail, fMesonLambdaTail, 1, kGray+2, 2);
+                DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonLambdaTailRange[1], fMesonLambdaTailRange[1], 1, kRed+1, 2);
+
+                if (fIsMC) canvasLambdaTailBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_LambdaTail_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasLambdaTailBackFit_SubPiZero->SaveAs(Form("%s/%s_data_LambdaTail_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
             ///*********************** Amplitude fit parameter monitoring
             if (DoMonitoring_Amplitude) {
                 if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background fitting without mixing: "<<" Plotting width amplitude"<<endl;}
+
+                //Normal InvMass
+                TCanvas* canvasAmplitudeBackFit = new TCanvas("canvasAmplitude","",1550,1200);  // gives the page size
+                canvasAmplitudeBackFit->SetTickx();
+                canvasAmplitudeBackFit->SetTicky();
+                canvasAmplitudeBackFit->SetLogy();
+                DrawGammaSetMarker(fHistoAmplitudeMesonBackFit, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoAmplitudeMesonBackFit,
+                                          "", "p_{T} (GeV/c)", "A",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueAmplitudeMeson, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueAmplitudeMeson->Draw("same,pe");
+                }
+                canvasAmplitudeBackFit->Update();
+                TLegend* legendAmplitudeBackFit = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendAmplitudeBackFit->AddEntry(fHistoAmplitudeMesonBackFit,Form("Amplitude parameter for %s",fPrefix.Data()),"p");
+                if(fIsMC) legendAmplitudeBackFit->AddEntry(fHistoTrueAmplitudeMeson,"True MC","p");
+                legendAmplitudeBackFit->Draw();
+
+                if (fIsMC) canvasAmplitudeBackFit->SaveAs(Form("%s/%s_MC_Amplitude_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasAmplitudeBackFit->SaveAs(Form("%s/%s_data_Amplitude_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //FixedPzPiZero
+                TCanvas* canvasAmplitudeBackFit_FixedPzPiZero = new TCanvas("canvasAmplitudeBackFit_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasAmplitudeBackFit_FixedPzPiZero->SetTickx();
+                canvasAmplitudeBackFit_FixedPzPiZero->SetTicky();
+                canvasAmplitudeBackFit_FixedPzPiZero->SetLogy();
+                DrawGammaSetMarker(fHistoAmplitudeMesonBackFit_FixedPzPiZero, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoAmplitudeMesonBackFit_FixedPzPiZero,
+                                          "", "p_{T} (GeV/c)", "A",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueAmplitudeMeson_FixedPzPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueAmplitudeMeson_FixedPzPiZero->Draw("same,pe");
+                }
+                canvasAmplitudeBackFit_FixedPzPiZero->Update();
+                TLegend* legendAmplitudeBackFit_FixedPzPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendAmplitudeBackFit_FixedPzPiZero->AddEntry(fHistoAmplitudeMesonBackFit_FixedPzPiZero,Form("Amplitude parameter for %s",fPrefix.Data()),"p");
+                if(fIsMC) legendAmplitudeBackFit_FixedPzPiZero->AddEntry(fHistoTrueAmplitudeMeson_FixedPzPiZero,"True MC","p");
+                legendAmplitudeBackFit_FixedPzPiZero->Draw();
+
+                if (fIsMC) canvasAmplitudeBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_Amplitude_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasAmplitudeBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_data_Amplitude_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //SubPiZero
+                TCanvas* canvasAmplitudeBackFit_SubPiZero = new TCanvas("canvasAmplitudeBackFit_SubPiZero","",1550,1200);  // gives the page size
+                canvasAmplitudeBackFit_SubPiZero->SetTickx();
+                canvasAmplitudeBackFit_SubPiZero->SetTicky();
+                canvasAmplitudeBackFit_SubPiZero->SetLogy();
+                DrawGammaSetMarker(fHistoAmplitudeMeson_SubPiZero, 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoAmplitudeMeson_SubPiZero,
+                                          "", "p_{T} (GeV/c)", "A",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                if (fIsMC > 0){
+                    DrawGammaSetMarker(fHistoTrueAmplitudeMeson_SubPiZero, 24, 1., kRed+2, kRed+2);
+                    fHistoTrueAmplitudeMeson_SubPiZero->Draw("same,pe");
+                }
+                canvasAmplitudeBackFit_SubPiZero->Update();
+                TLegend* legendAmplitudeBackFit_SubPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendAmplitudeBackFit_SubPiZero->AddEntry(fHistoAmplitudeMesonBackFit_SubPiZero,Form("Amplitude parameter for %s",fPrefix.Data()),"p");
+                if(fIsMC) legendAmplitudeBackFit_SubPiZero->AddEntry(fHistoTrueAmplitudeMeson_SubPiZero,"True MC","p");
+                legendAmplitudeBackFit_SubPiZero->Draw();
+
+                if (fIsMC) canvasAmplitudeBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_Amplitude_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasAmplitudeBackFit_SubPiZero->SaveAs(Form("%s/%s_data_Amplitude_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
 
         }
