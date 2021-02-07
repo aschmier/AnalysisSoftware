@@ -108,7 +108,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     //Int_t fMode = -1;
     // Extract Mode from CutString
     Bool_t isNewTask = kTRUE;
-    Int_t doDebugOutputLevel    =   2;
+    Int_t doDebugOutputLevel    =   0;
     if((UsrMode>=40) && (UsrMode <= 50)) isNewTask = kFALSE;
 
     fMode                       = ReturnSeparatedCutNumberPiPlPiMiPiZero( cutSelection, fTypeCutSelection, fEventCutSelection, fGammaCutSelection, fClusterCutSelection,
