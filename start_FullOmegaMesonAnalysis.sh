@@ -739,14 +739,13 @@ if [ $ONLYRESULTS = 0 ] ; then
 
             if [ $ONLYCORRECTION -eq 0 ]; then
                 echo "CutSelection is $cutSelection";
-                if [ $ContaminationBackHistMode -gt 0 ]; then
+                ContaminationBackFile="none"
+                if [ $ContaminationBackHistMode -gt 0 ]&&[$MCFILE -eq 1]; then
                     echo "Contamination Mode activated, ContaminationBackHistMode: $ContaminationBackHistMode "
+                    ContaminationBackFile=$MCRootFile
                 fi
-                if [ $MCFILE -eq 1 ]; then
-                    optionsOmegaData=\"Omega\"\,\"$DataRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kFALSE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode,\"$MCRootFile\"\,$ContaminationBackHistMode
-                else
-                    optionsOmegaData=\"Omega\"\,\"$DataRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kFALSE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode
-                fi
+                optionsOmegaData=\"Omega\"\,\"$DataRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kFALSE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode,\"$ContaminationBackFile\"\,$ContaminationBackHistMode
+
                 optionsEtaData=\"Eta\"\,\"$DataRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kFALSE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtEta\,kFALSE\,$mode
                 if [ \( $ONLYOMEGA -eq 1 \) -a \( -f $DataRootFile \) ]; then
                         ExtractSignal $optionsOmegaData
@@ -767,7 +766,7 @@ if [ $ONLYRESULTS = 0 ] ; then
                 fi
 
                 if [ $MCFILE -eq 1 ]; then
-                    optionsOmegaMC=\"Omega\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kTRUE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode,\"$MCRootFile\"\,$ContaminationBackHistMode
+                    optionsOmegaMC=\"Omega\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kTRUE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode,\"$ContaminationBackFile\"\,$ContaminationBackHistMode
                     optionsEtaMC=\"Eta\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kTRUE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtEta\,kFALSE\,$mode
 
                     if [ $ONLYOMEGA -eq 1 ]; then
