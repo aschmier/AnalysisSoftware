@@ -1088,77 +1088,223 @@ void PrimaryTrackQA(
             }
         }
         //-------------------------------------------------------------------------------------------------------------------------------
-        //ESD_DalitzPlotPos_Sub
-        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotPos_Sub";}
+        //ESD_DalitzPlotPos_Sub_LowPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotPos_Sub_LowPt";}
         if (iParticleType==1){StrNameOfHistogram="";}
-        TH2D* fHistESD_DalitzPlotPos_Sub = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
-        if(fHistESD_DalitzPlotPos_Sub){
-            //GetMinMaxBin(fHistESD_DalitzPlotPos_Sub,minB,maxB);
-            //SetXRange(fHistESD_DalitzPlotPos_Sub,minB-1,maxB+1);
-            //GetMinMaxBinY(fHistESD_DalitzPlotPos_Sub,minYB,maxYB);
-            //SetYRange(fHistESD_DalitzPlotPos_Sub,minYB-1,maxYB+1);
-            //SetZMinMaxTH2(fHistESD_DalitzPlotPos_Sub,1,maxB+1,minB-1,maxB+1);
-            fHistESD_DalitzPlotPos_Sub->GetXaxis()->SetRangeUser(0.5, 1.);
+        TH2D* fHistESD_DalitzPlotPos_Sub_LowPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotPos_Sub_LowPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotPos_Sub_LowPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotPos_Sub_LowPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotPos_Sub_LowPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotPos_Sub_LowPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotPos_Sub_LowPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotPos_Sub_LowPt->GetXaxis()->SetRangeUser(0.5, 1.);
             DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                 fHistESD_DalitzPlotPos_Sub,"",
+                                 fHistESD_DalitzPlotPos_Sub_LowPt,"",
                                  "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
                                  processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
-            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_Sub, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
-        } else cout << Form("INFO: Object |ESD_DalitzPlotPos_Sub | could not be found! Skipping Draw...") << endl;
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_Sub_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotPos_Sub_LowPt | could not be found! Skipping Draw...") << endl;
         //-------------------------------------------------------------------------------------------------------------------------------
-        //ESD_DalitzPlotNeg_Sub
-        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotNeg_Sub";}
+        //ESD_DalitzPlotNeg_Sub_LowPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotNeg_Sub_LowPt";}
         if (iParticleType==1){StrNameOfHistogram="";}
-        TH2D* fHistESD_DalitzPlotNeg_Sub = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
-        if(fHistESD_DalitzPlotNeg_Sub){
-            //GetMinMaxBin(fHistESD_DalitzPlotNeg_Sub,minB,maxB);
-            //SetXRange(fHistESD_DalitzPlotNeg_Sub,minB-1,maxB+1);
-            //GetMinMaxBinY(fHistESD_DalitzPlotNeg_Sub,minYB,maxYB);
-            //SetYRange(fHistESD_DalitzPlotNeg_Sub,minYB-1,maxYB+1);
-            //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_Sub,1,maxB+1,minB-1,maxB+1);
-            fHistESD_DalitzPlotNeg_Sub->GetXaxis()->SetRangeUser(0.5, 1.);
+        TH2D* fHistESD_DalitzPlotNeg_Sub_LowPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotNeg_Sub_LowPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotNeg_Sub_LowPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotNeg_Sub_LowPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotNeg_Sub_LowPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotNeg_Sub_LowPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_Sub_LowPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotNeg_Sub_LowPt->GetXaxis()->SetRangeUser(0.5, 1.);
             DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                 fHistESD_DalitzPlotNeg_Sub,"",
+                                 fHistESD_DalitzPlotNeg_Sub_LowPt,"",
                                  "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
                                  processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
-            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_Sub, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
-        } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_Sub | could not be found! Skipping Draw...") << endl;
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_Sub_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_Sub_LowPt | could not be found! Skipping Draw...") << endl;
         //-------------------------------------------------------------------------------------------------------------------------------
-        //ESD_DalitzPlotPos_FixedPz
-        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotPos_FixedPz";}
+        //ESD_DalitzPlotPos_FixedPz_LowPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotPos_FixedPz_LowPt";}
         if (iParticleType==1){StrNameOfHistogram="";}
-        TH2D* fHistESD_DalitzPlotPos_FixedPz = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
-        if(fHistESD_DalitzPlotPos_FixedPz){
-            //GetMinMaxBin(fHistESD_DalitzPlotPos_FixedPz,minB,maxB);
-            //SetXRange(fHistESD_DalitzPlotPos_FixedPz,minB-1,maxB+1);
-            //GetMinMaxBinY(fHistESD_DalitzPlotPos_FixedPz,minYB,maxYB);
-            //SetYRange(fHistESD_DalitzPlotPos_FixedPz,minYB-1,maxYB+1);
-            //SetZMinMaxTH2(fHistESD_DalitzPlotPos_FixedPz,1,maxB+1,minB-1,maxB+1);
-            fHistESD_DalitzPlotPos_FixedPz->GetXaxis()->SetRangeUser(0.5, 1.);
+        TH2D* fHistESD_DalitzPlotPos_FixedPz_LowPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotPos_FixedPz_LowPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotPos_FixedPz_LowPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotPos_FixedPz_LowPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotPos_FixedPz_LowPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotPos_FixedPz_LowPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotPos_FixedPz_LowPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotPos_FixedPz_LowPt->GetXaxis()->SetRangeUser(0.5, 1.);
             DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                 fHistESD_DalitzPlotPos_FixedPz,"",
+                                 fHistESD_DalitzPlotPos_FixedPz_LowPt,"",
                                  "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
                                  processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
-            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_FixedPz, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
-        } else cout << Form("INFO: Object |ESD_DalitzPlotPos_FixedPz | could not be found! Skipping Draw...") << endl;
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_FixedPz_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotPos_FixedPz_LowPt | could not be found! Skipping Draw...") << endl;
         //-------------------------------------------------------------------------------------------------------------------------------
-        //ESD_DalitzPlotNeg_FixedPz
-        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotNeg_FixedPz";}
+        //ESD_DalitzPlotNeg_FixedPz_LowPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotNeg_FixedPz_LowPt";}
         if (iParticleType==1){StrNameOfHistogram="";}
-        TH2D* fHistESD_DalitzPlotNeg_FixedPz = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
-        if(fHistESD_DalitzPlotNeg_FixedPz){
-            //GetMinMaxBin(fHistESD_DalitzPlotNeg_FixedPz,minB,maxB);
-            //SetXRange(fHistESD_DalitzPlotNeg_FixedPz,minB-1,maxB+1);
-            //GetMinMaxBinY(fHistESD_DalitzPlotNeg_FixedPz,minYB,maxYB);
-            //SetYRange(fHistESD_DalitzPlotNeg_FixedPz,minYB-1,maxYB+1);
-            //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_FixedPz,1,maxB+1,minB-1,maxB+1);
-            fHistESD_DalitzPlotNeg_FixedPz->GetXaxis()->SetRangeUser(0.5, 1.);
+        TH2D* fHistESD_DalitzPlotNeg_FixedPz_LowPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotNeg_FixedPz_LowPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotNeg_FixedPz_LowPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotNeg_FixedPz_LowPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotNeg_FixedPz_LowPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotNeg_FixedPz_LowPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_FixedPz_LowPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotNeg_FixedPz_LowPt->GetXaxis()->SetRangeUser(0.5, 1.);
             DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                 fHistESD_DalitzPlotNeg_FixedPz,"",
+                                 fHistESD_DalitzPlotNeg_FixedPz_LowPt,"",
                                  "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
                                  processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
-            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_FixedPz, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
-        } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_FixedPz | could not be found! Skipping Draw...") << endl;
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_FixedPz_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_FixedPz_LowPt | could not be found! Skipping Draw...") << endl;
+
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //ESD_DalitzPlotPos_Sub_MidPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotPos_Sub_MidPt";}
+        if (iParticleType==1){StrNameOfHistogram="";}
+        TH2D* fHistESD_DalitzPlotPos_Sub_MidPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotPos_Sub_MidPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotPos_Sub_MidPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotPos_Sub_MidPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotPos_Sub_MidPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotPos_Sub_MidPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotPos_Sub_MidPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotPos_Sub_MidPt->GetXaxis()->SetRangeUser(0.5, 1.);
+            DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                 fHistESD_DalitzPlotPos_Sub_MidPt,"",
+                                 "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                 processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_Sub_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotPos_Sub_MidPt | could not be found! Skipping Draw...") << endl;
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //ESD_DalitzPlotNeg_Sub_MidPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotNeg_Sub_MidPt";}
+        if (iParticleType==1){StrNameOfHistogram="";}
+        TH2D* fHistESD_DalitzPlotNeg_Sub_MidPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotNeg_Sub_MidPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotNeg_Sub_MidPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotNeg_Sub_MidPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotNeg_Sub_MidPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotNeg_Sub_MidPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_Sub_MidPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotNeg_Sub_MidPt->GetXaxis()->SetRangeUser(0.5, 1.);
+            DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                 fHistESD_DalitzPlotNeg_Sub_MidPt,"",
+                                 "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                 processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_Sub_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_Sub_MidPt | could not be found! Skipping Draw...") << endl;
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //ESD_DalitzPlotPos_FixedPz_MidPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotPos_FixedPz_MidPt";}
+        if (iParticleType==1){StrNameOfHistogram="";}
+        TH2D* fHistESD_DalitzPlotPos_FixedPz_MidPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotPos_FixedPz_MidPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotPos_FixedPz_MidPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotPos_FixedPz_MidPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotPos_FixedPz_MidPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotPos_FixedPz_MidPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotPos_FixedPz_MidPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotPos_FixedPz_MidPt->GetXaxis()->SetRangeUser(0.5, 1.);
+            DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                 fHistESD_DalitzPlotPos_FixedPz_MidPt,"",
+                                 "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                 processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_FixedPz_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotPos_FixedPz_MidPt | could not be found! Skipping Draw...") << endl;
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //ESD_DalitzPlotNeg_FixedPz_MidPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotNeg_FixedPz_MidPt";}
+        if (iParticleType==1){StrNameOfHistogram="";}
+        TH2D* fHistESD_DalitzPlotNeg_FixedPz_MidPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotNeg_FixedPz_MidPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotNeg_FixedPz_MidPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotNeg_FixedPz_MidPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotNeg_FixedPz_MidPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotNeg_FixedPz_MidPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_FixedPz_MidPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotNeg_FixedPz_MidPt->GetXaxis()->SetRangeUser(0.5, 1.);
+            DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                 fHistESD_DalitzPlotNeg_FixedPz_MidPt,"",
+                                 "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                 processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_FixedPz_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_FixedPz_MidPt | could not be found! Skipping Draw...") << endl;
+
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //ESD_DalitzPlotPos_Sub_HighPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotPos_Sub_HighPt";}
+        if (iParticleType==1){StrNameOfHistogram="";}
+        TH2D* fHistESD_DalitzPlotPos_Sub_HighPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotPos_Sub_HighPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotPos_Sub_HighPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotPos_Sub_HighPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotPos_Sub_HighPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotPos_Sub_HighPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotPos_Sub_HighPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotPos_Sub_HighPt->GetXaxis()->SetRangeUser(0.5, 1.);
+            DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                 fHistESD_DalitzPlotPos_Sub_HighPt,"",
+                                 "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                 processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_Sub_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotPos_Sub_HighPt | could not be found! Skipping Draw...") << endl;
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //ESD_DalitzPlotNeg_Sub_HighPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotNeg_Sub_HighPt";}
+        if (iParticleType==1){StrNameOfHistogram="";}
+        TH2D* fHistESD_DalitzPlotNeg_Sub_HighPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotNeg_Sub_HighPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotNeg_Sub_HighPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotNeg_Sub_HighPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotNeg_Sub_HighPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotNeg_Sub_HighPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_Sub_HighPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotNeg_Sub_HighPt->GetXaxis()->SetRangeUser(0.5, 1.);
+            DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                 fHistESD_DalitzPlotNeg_Sub_HighPt,"",
+                                 "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                 processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_Sub_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_Sub_HighPt | could not be found! Skipping Draw...") << endl;
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //ESD_DalitzPlotPos_FixedPz_HighPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotPos_FixedPz_HighPt";}
+        if (iParticleType==1){StrNameOfHistogram="";}
+        TH2D* fHistESD_DalitzPlotPos_FixedPz_HighPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotPos_FixedPz_HighPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotPos_FixedPz_HighPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotPos_FixedPz_HighPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotPos_FixedPz_HighPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotPos_FixedPz_HighPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotPos_FixedPz_HighPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotPos_FixedPz_HighPt->GetXaxis()->SetRangeUser(0.5, 1.);
+            DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                 fHistESD_DalitzPlotPos_FixedPz_HighPt,"",
+                                 "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                 processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_FixedPz_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotPos_FixedPz_HighPt | could not be found! Skipping Draw...") << endl;
+        //-------------------------------------------------------------------------------------------------------------------------------
+        //ESD_DalitzPlotNeg_FixedPz_HighPt
+        if (iParticleType==0){StrNameOfHistogram="ESD_DalitzPlotNeg_FixedPz_HighPt";}
+        if (iParticleType==1){StrNameOfHistogram="";}
+        TH2D* fHistESD_DalitzPlotNeg_FixedPz_HighPt = (TH2D*)ESDContainer->FindObject(Form("%s",StrNameOfHistogram.Data()));
+        if(fHistESD_DalitzPlotNeg_FixedPz_HighPt){
+            //GetMinMaxBin(fHistESD_DalitzPlotNeg_FixedPz_HighPt,minB,maxB);
+            //SetXRange(fHistESD_DalitzPlotNeg_FixedPz_HighPt,minB-1,maxB+1);
+            //GetMinMaxBinY(fHistESD_DalitzPlotNeg_FixedPz_HighPt,minYB,maxYB);
+            //SetYRange(fHistESD_DalitzPlotNeg_FixedPz_HighPt,minYB-1,maxYB+1);
+            //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_FixedPz_HighPt,1,maxB+1,minB-1,maxB+1);
+            fHistESD_DalitzPlotNeg_FixedPz_HighPt->GetXaxis()->SetRangeUser(0.5, 1.);
+            DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
+                                 fHistESD_DalitzPlotNeg_FixedPz_HighPt,"",
+                                 "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                 processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
+            SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_FixedPz_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
+        } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_FixedPz_HighPt | could not be found! Skipping Draw...") << endl;
         //-------------------------------------------------------------------------------------------------------------------------------
         //-------------------------------------------|Get Histograms: MC-Histograms|-----------------------------------------------------
         //-------------------------------------------------------------------------------------------------------------------------------
@@ -1297,6 +1443,9 @@ void PrimaryTrackQA(
                 vecESD_TrueNegPionFromNeutralMeson_Pt.push_back(new TH1D(*fHistESD_TrueNegPionFromNeutralMeson_Pt));
             } else cout << "INFO: Object |: ESD_TrueNegPionFromNeutralMeson_Pt| could not be found! Skipping Draw..." << endl;
             //-------------------------------------------------------------------------------------------------------------------------------
+
+
+
         }
         //-------------------------------------------------------------------------------------------------------------------------------
         //-------------------------|Get Histograms: AfterQA (Pion Cut folder in Cut number directory)|--------------------------------------
