@@ -125,6 +125,10 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     // Extract Mode from CutString
     Bool_t isNewTask = kTRUE;
     Int_t doDebugOutputLevel    =   0;
+
+    if (fileMC.EndsWith("none")){
+        useMCBck                =   0;
+    }
     if((UsrMode>=40) && (UsrMode <= 50)) isNewTask = kFALSE;
 
     fMode                       = ReturnSeparatedCutNumberPiPlPiMiPiZero( cutSelection, fTypeCutSelection, fEventCutSelection, fGammaCutSelection, fClusterCutSelection,
@@ -274,13 +278,17 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fMC = new TFile(fileMC.Data());
         }
         if ((!fMC)||(fMC->IsZombie())){
+            cout<<"(!fMC)||(fMC->IsZombie())"<<" -> ContaminationBackHistMode Turned off: useMCBck = 0"<<endl;
             useMCBck =0;
         }
     }
 
     TString nameMainDir = "";
-
     nameMainDir     = AutoDetectMainTList(mode , f); // TODO: Change 40 to mode if modes are changed in ConversionFunctions correctly
+
+    TString nameMainDirMC = "";
+    nameMainDirMC     = AutoDetectMainTList(mode , fMC);
+
     if(nameMainDir.CompareTo("")!=0){
         cout << "Succesfully detected " << nameMainDir <<" as MainDir!" << endl;
     } else{
@@ -296,9 +304,9 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
     TList *TopDirMC = NULL;
     if (useMCBck>0){
-        TopDirMC =(TList*)fMC->Get(nameMainDir.Data());
+        TopDirMC =(TList*)fMC->Get(nameMainDirMC.Data());
         if(TopDirMC == NULL){
-            cout<<"ERROR: TopDirMC not Found"<<endl;
+            cout<<"(TopDirMC == NULL)"<<" -> ContaminationBackHistMode Turned off: useMCBck = 0"<<endl;
             useMCBck=0;
         }
     }
@@ -306,9 +314,113 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     TList *HistosGammaConversion = (TList*)TopDir->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
 
     TList *HistosGammaConversionMC = NULL;
+    TString CutSelection_MCBck;
+    TString fTypeCutSelection_MCBck=fTypeCutSelection.Data();
+    TString fEventCutSelection_MCBck=fEventCutSelection.Data();
+    TString fGammaCutSelection_MCBck=fGammaCutSelection.Data();
+    TString fClusterCutSelection_MCBck=fClusterCutSelection.Data();
+    TString fPionCutSelection_MCBck=fPionCutSelection.Data();
+    TString fNeutralPionCutSelection_MCBck=fNeutralPionCutSelection.Data();
+    TString fMesonCutSelection_MCBck=fMesonCutSelection.Data();
+    CutSelection_MCBck =            fTypeCutSelection_MCBck;
+    CutSelection_MCBck +=           "_";
+    CutSelection_MCBck +=           fEventCutSelection_MCBck;
+    if ((fGammaCutSelection_MCBck.CompareTo(""))){
+        CutSelection_MCBck +=       "_";
+        CutSelection_MCBck +=       fGammaCutSelection_MCBck;
+    }
+    CutSelection_MCBck +=           "_";
+    CutSelection_MCBck +=           fClusterCutSelection_MCBck;
+    CutSelection_MCBck +=           "_";
+    CutSelection_MCBck +=           fNeutralPionCutSelection_MCBck;
+    CutSelection_MCBck +=           "_";
+    CutSelection_MCBck +=           fPionCutSelection_MCBck;
+    CutSelection_MCBck +=           "_";
+    CutSelection_MCBck +=           fMesonCutSelection_MCBck;
     if (useMCBck>0){
         HistosGammaConversionMC = (TList*)TopDirMC->FindObject(Form("Cut Number %s",fCutSelectionRead.Data()));
         if (HistosGammaConversionMC==NULL){
+            fMesonCutSelection_MCBck.Replace(1, 1, "1");
+            CutSelection_MCBck =            fTypeCutSelection_MCBck;
+            CutSelection_MCBck +=           "_";
+            CutSelection_MCBck +=           fEventCutSelection_MCBck;
+            if ((fGammaCutSelection_MCBck.CompareTo(""))){
+                CutSelection_MCBck +=       "_";
+                CutSelection_MCBck +=       fGammaCutSelection_MCBck;
+            }
+            CutSelection_MCBck +=           "_";
+            CutSelection_MCBck +=           fClusterCutSelection_MCBck;
+            CutSelection_MCBck +=           "_";
+            CutSelection_MCBck +=           fNeutralPionCutSelection_MCBck;
+            CutSelection_MCBck +=           "_";
+            CutSelection_MCBck +=           fPionCutSelection_MCBck;
+            CutSelection_MCBck +=           "_";
+            CutSelection_MCBck +=           fMesonCutSelection_MCBck;
+            cout<<"(HistosGammaConversionMC == NULL)"<<" -> Trying different cut"<<endl<<"          "<<CutSelection_MCBck.Data()<<endl;
+            HistosGammaConversionMC = (TList*)TopDirMC->FindObject(Form("Cut Number %s",CutSelection_MCBck.Data()));
+            if (HistosGammaConversionMC==NULL){
+                fMesonCutSelection_MCBck.Replace(1, 1, "4");
+                CutSelection_MCBck =            fTypeCutSelection_MCBck;
+                CutSelection_MCBck +=           "_";
+                CutSelection_MCBck +=           fEventCutSelection_MCBck;
+                if ((fGammaCutSelection_MCBck.CompareTo(""))){
+                    CutSelection_MCBck +=       "_";
+                    CutSelection_MCBck +=       fGammaCutSelection_MCBck;
+                }
+                CutSelection_MCBck +=           "_";
+                CutSelection_MCBck +=           fClusterCutSelection_MCBck;
+                CutSelection_MCBck +=           "_";
+                CutSelection_MCBck +=           fNeutralPionCutSelection_MCBck;
+                CutSelection_MCBck +=           "_";
+                CutSelection_MCBck +=           fPionCutSelection_MCBck;
+                CutSelection_MCBck +=           "_";
+                CutSelection_MCBck +=           fMesonCutSelection_MCBck;
+                cout<<"(HistosGammaConversionMC == NULL)"<<" -> Trying different cut"<<endl<<"          "<<CutSelection_MCBck.Data()<<endl;
+                HistosGammaConversionMC = (TList*)TopDirMC->FindObject(Form("Cut Number %s",CutSelection_MCBck.Data()));
+                if (HistosGammaConversionMC==NULL){
+                    fMesonCutSelection_MCBck.Replace(1, 1, "a");
+                    CutSelection_MCBck =            fTypeCutSelection_MCBck;
+                    CutSelection_MCBck +=           "_";
+                    CutSelection_MCBck +=           fEventCutSelection_MCBck;
+                    if ((fGammaCutSelection_MCBck.CompareTo(""))){
+                        CutSelection_MCBck +=       "_";
+                        CutSelection_MCBck +=       fGammaCutSelection_MCBck;
+                    }
+                    CutSelection_MCBck +=           "_";
+                    CutSelection_MCBck +=           fClusterCutSelection_MCBck;
+                    CutSelection_MCBck +=           "_";
+                    CutSelection_MCBck +=           fNeutralPionCutSelection_MCBck;
+                    CutSelection_MCBck +=           "_";
+                    CutSelection_MCBck +=           fPionCutSelection_MCBck;
+                    CutSelection_MCBck +=           "_";
+                    CutSelection_MCBck +=           fMesonCutSelection_MCBck;
+                    cout<<"(HistosGammaConversionMC == NULL)"<<" -> Trying different cut"<<endl<<"          "<<CutSelection_MCBck.Data()<<endl;
+                    HistosGammaConversionMC = (TList*)TopDirMC->FindObject(Form("Cut Number %s",CutSelection_MCBck.Data()));
+                    if (HistosGammaConversionMC==NULL){
+                        fMesonCutSelection_MCBck.Replace(1, 1, "d");
+                        CutSelection_MCBck =            fTypeCutSelection_MCBck;
+                        CutSelection_MCBck +=           "_";
+                        CutSelection_MCBck +=           fEventCutSelection_MCBck;
+                        if ((fGammaCutSelection_MCBck.CompareTo(""))){
+                            CutSelection_MCBck +=       "_";
+                            CutSelection_MCBck +=       fGammaCutSelection_MCBck;
+                        }
+                        CutSelection_MCBck +=           "_";
+                        CutSelection_MCBck +=           fClusterCutSelection_MCBck;
+                        CutSelection_MCBck +=           "_";
+                        CutSelection_MCBck +=           fNeutralPionCutSelection_MCBck;
+                        CutSelection_MCBck +=           "_";
+                        CutSelection_MCBck +=           fPionCutSelection_MCBck;
+                        CutSelection_MCBck +=           "_";
+                        CutSelection_MCBck +=           fMesonCutSelection_MCBck;
+                        cout<<"(HistosGammaConversionMC == NULL)"<<" -> Trying different cut"<<endl<<"          "<<CutSelection_MCBck.Data()<<endl;
+                        HistosGammaConversionMC = (TList*)TopDirMC->FindObject(Form("Cut Number %s",CutSelection_MCBck.Data()));
+                    }
+                }
+            }
+        }
+        if (HistosGammaConversionMC==NULL){
+            cout<<"(HistosGammaConversionMC == NULL)"<<" -> ContaminationBackHistMode Turned off: useMCBck = 0"<<endl;
             useMCBck=0;
         }
     }
@@ -333,9 +445,10 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     TList *ESDContainerMC           = NULL;
     TList *TrueConversionContainerMC = NULL;
     if (useMCBck>0){
-        ESDContainerMC       = (TList*) HistosGammaConversionMC->FindObject(Form("%s ESD histograms",fCutSelectionRead.Data()));
-        TrueConversionContainerMC      = (TList*)HistosGammaConversionMC->FindObject(Form("%s True histograms",fCutSelectionRead.Data()));
+        ESDContainerMC       = (TList*) HistosGammaConversionMC->FindObject(Form("%s ESD histograms",CutSelection_MCBck.Data()));
+        TrueConversionContainerMC      = (TList*)HistosGammaConversionMC->FindObject(Form("%s True histograms",CutSelection_MCBck.Data()));
         if ((ESDContainerMC==NULL)||(TrueConversionContainerMC==NULL)){
+            cout<<"(ESDContainerMC==NULL)||(TrueConversionContainerMC==NULL))"<<" -> ContaminationBackHistMode Turned off: useMCBck = 0"<<endl;
             useMCBck=0;
         }
     }
@@ -454,7 +567,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         ObjectNameCombinatoricalFixedPzPiZero_FromMC        = Form("%s", ObjectNameBckFixedPzPiZero[0].Data());
     }
 
-    TString ObjectNameCombinatoricalTrue_FromMC             = Form("ESD_TruePiPlPiMiNDMPureCombinatorical_InvMassPt");
+    TString ObjectNameCombinatoricalTrue_FromMC             = Form("ESD_TruePiPlPiMiNDMCombinatorical_InvMassPt");
     TString ObjectNameContaminationTrue_FromMC              = Form("ESD_TruePiPlPiMiNDMContamination_InvMassPt");
 
 
@@ -483,6 +596,29 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             if(hist_bck_FixedPzPiZero[0]) fBckInvMassVSPt_FixedPzPiZero[0]        = (TH2D*) hist_bck_FixedPzPiZero[0]->Clone("hist_bck0_FixedPzPiZero");
         }
     } else {
+        Bool_t          useSamePlotsForContamination                    = kFALSE;
+        const Int_t     iNumberOfSamePlots                              = 16;
+        TString         TStrSameMother[iNumberOfSamePlots]              ={
+            "ESD_TruePiPlPiMiSameMotherFromEta_InvMassPt",              //1
+            "ESD_TruePiPlPiMiSameMotherFromOmega_InvMassPt",            //2
+            "ESD_TruePiPlPiMiSameMotherFromEtaPrime_InvMassPt",         //3
+            "ESD_TruePiPlPiMiSameMotherFromK0s_InvMassPt",              //4
+            "ESD_TruePiPlPiMiSameMotherFromK0l_InvMassPt",              //5
+            "ESD_TruePiPlPiMiSameMotherFromOther_InvMassPt",            //6
+
+            "ESD_TruePiPlPiZeroSameMotherFromEta_InvMassPt",            //7
+            "ESD_TruePiPlPiZeroSameMotherFromOmega_InvMassPt",          //8
+            "ESD_TruePiPlPiZeroSameMotherFromRho_InvMassPt",            //9
+            "ESD_TruePiPlPiZeroSameMotherFromK0l_InvMassPt",            //10
+            "ESD_TruePiPlPiZeroSameMotherFromOther_InvMassPt",          //11
+
+            "ESD_TruePiMiPiZeroSameMotherFromEta_InvMassPt",            //12
+            "ESD_TruePiMiPiZeroSameMotherFromOmega_InvMassPt",          //13
+            "ESD_TruePiMiPiZeroSameMotherFromRho_InvMassPt",            //14
+            "ESD_TruePiMiPiZeroSameMotherFromK0l_InvMassPt",            //15
+            "ESD_TruePiMiPiZeroSameMotherFromOther_InvMassPt"           //16
+        };
+
         hist_bck_Signal                                                 = (TH2D*)ESDContainerMC->FindObject(ObjectNameBck_FromMC.Data());
         hist_bck_SubPiZero_Signal                                       = (TH2D*)ESDContainerMC->FindObject(ObjectNameBckSubPiZero_FromMC.Data());
         hist_bck_FixedPzPiZero_Signal                                   = (TH2D*)ESDContainerMC->FindObject(ObjectNameBckFixedPzPiZero_FromMC.Data());
@@ -504,14 +640,27 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
 
         if (useMCBck>=2){
             hist_bck_Contamination                                      = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameContaminationTrue_FromMC.Data());
+            hist_bck_TrueContamination                                  = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameContaminationTrue_FromMC.Data());
+            hist_bck_TrueCombinatorical                                 = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
             if (hist_bck_Contamination == NULL){
+                cout<<"(hist_bck_Contamination == NULL)"<<" -> ContaminationBackHistMode level turned down: useMCBck = 1"<<endl;
                 useMCBck                    = 1;
+            } else {
+                if (useSamePlotsForContamination){
+                    hist_bck_Combinatorical_SameMother                          = (TH2D*)TrueConversionContainerMC->FindObject(TStrSameMother[0].Data());
+                    for (Int_t iNofSameMotherPlots=1; iNofSameMotherPlots<iNumberOfSamePlots; iNofSameMotherPlots++){
+                        hist_bck_Combinatorical_SameMother->Add(                (TH2D*)TrueConversionContainerMC->FindObject(TStrSameMother[iNofSameMotherPlots].Data()), 1);
+                    }
+                    hist_bck_Contamination->Add(                                hist_bck_Combinatorical_SameMother, 1);
+                }
             }
+
             if (useMCBck==4) {
                 hist_bck_Combinatorical                                 = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
                 hist_bck_Combinatorical_SubPiZero                       = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
                 hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
                 if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
+                     cout<<"((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL))"<<" -> ContaminationBackHistMode level turned down: useMCBck = 3"<<endl;
                     useMCBck=3;
                 }
             }
@@ -520,6 +669,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 hist_bck_Combinatorical_SubPiZero                       = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatoricalSubPiZero_FromMC.Data());
                 hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatoricalFixedPzPiZero_FromMC.Data());
                 if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
+                    cout<<"((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL))"<<" -> ContaminationBackHistMode level turned down: useMCBck = 2"<<endl;
                     useMCBck=2;
                 }
             }
@@ -528,6 +678,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 hist_bck_Combinatorical_SubPiZero                       = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatoricalSubPiZero_FromData.Data());
                 hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatoricalFixedPzPiZero_FromData.Data());
                 if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
+                    cout<<"((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL))"<<" -> ContaminationBackHistMode level turned down: useMCBck = 1"<<endl;
                     useMCBck=1;
                 }
             }
@@ -536,6 +687,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if (hist_bck_Combinatorical){ProjectHistogramInPtBins(hist_bck_Combinatorical, fHistoMapping_bck_Combinatorical);}
                 if (hist_bck_Combinatorical_SubPiZero){ProjectHistogramInPtBins(hist_bck_Combinatorical_SubPiZero, fHistoMapping_bck_Combinatorical_SubPiZero);}
                 if (hist_bck_Combinatorical_FixedPzPiZero){ProjectHistogramInPtBins(hist_bck_Combinatorical_FixedPzPiZero, fHistoMapping_bck_Combinatorical_FixedPzPiZero);}
+                if (hist_bck_TrueContamination){ProjectHistogramInPtBins(hist_bck_TrueContamination, fHistoMapping_bck_TrueContamination);}
+                if (hist_bck_TrueCombinatorical){ProjectHistogramInPtBins(hist_bck_TrueCombinatorical, fHistoMapping_bck_TrueCombinatorical);}
             }
         }
     }
@@ -756,14 +909,14 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         }
 
         // Get True combinatorical histo and True Contamination Histo
-        TString ObjectNameTruePiPlPiMiPiZeroPureCombinatorical = "ESD_TruePiPlPiMiNDMPureCombinatorical_InvMassPt";
+        TString ObjectNameTruePiPlPiMiPiZeroCombinatorical = "ESD_TruePiPlPiMiNDMCombinatorical_InvMassPt";
         TString ObjectNameTruePiPlPiMiPiZeroContamination = "ESD_TruePiPlPiMiNDMContamination_InvMassPt";
         if(!isNewTask){
-            ObjectNameTruePiPlPiMiPiZeroPureCombinatorical = "ESD_TruePiPlPiMiPiZeroPureCombinatorical_InvMassPt";
+            ObjectNameTruePiPlPiMiPiZeroCombinatorical = "ESD_TruePiPlPiMiPiZeroCombinatorical_InvMassPt";
             ObjectNameTruePiPlPiMiPiZeroContamination = "ESD_TruePiPlPiMiPiZeroContamination_InvMassPt";
         }
 
-        fTruePiPlPiMiPiZeroPureCombinatorical_InvMassPt =  (TH2D*)TrueConversionContainer->FindObject(ObjectNameTruePiPlPiMiPiZeroPureCombinatorical.Data());
+        fTruePiPlPiMiPiZeroCombinatorical_InvMassPt =  (TH2D*)TrueConversionContainer->FindObject(ObjectNameTruePiPlPiMiPiZeroCombinatorical.Data());
         fTruePiPlPiMiPiZeroContamination_InvMassPt =  (TH2D*)TrueConversionContainer->FindObject(ObjectNameTruePiPlPiMiPiZeroContamination.Data());
 
         // Get Projections in pT Bins
@@ -783,8 +936,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
               }
           }
         }
-        if(fTruePiPlPiMiPiZeroPureCombinatorical_InvMassPt){
-            ProduceBckWithoutWeightingMinimal(fTruePiPlPiMiPiZeroPureCombinatorical_InvMassPt,fHistoMappingTruePiPlPiMiPiZeroCombinatoricalPtBin);
+        if(fTruePiPlPiMiPiZeroCombinatorical_InvMassPt){
+            ProduceBckWithoutWeightingMinimal(fTruePiPlPiMiPiZeroCombinatorical_InvMassPt,fHistoMappingTruePiPlPiMiPiZeroCombinatoricalPtBin);
         } else{
             fHistoMappingTruePiPlPiMiPiZeroCombinatoricalPtBin = NULL;
         }
@@ -1028,13 +1181,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<endl;}
         } else {
             if(fHistoMappingGGInvMassPtBin[iPt]){
-                ProcessBckFitSubtraction_CombinatoricsAndContamination(fHistoMappingGGInvMassPtBin[iPt], fHistoMapping_bck_Combinatorical[iPt], fHistoMapping_bck_Contamination[iPt], iPt, fPeakRange, fFitRange, optionEnergy, Suffix, cutSelection, meson, 0);
+                ProcessBckFitSubtraction_CombinatoricsAndContamination(fHistoMappingGGInvMassPtBin[iPt], fHistoMapping_bck_Combinatorical[iPt], fHistoMapping_bck_Contamination[iPt], iPt, fPeakRange, fFitRange, optionEnergy, Suffix, cutSelection, meson, 0, fHistoMapping_bck_TrueCombinatorical[iPt], fHistoMapping_bck_TrueContamination[iPt]);
             }
             if(fHistoMappingGGInvMassPtBin_SubPiZero[iPt]){
-                ProcessBckFitSubtraction_CombinatoricsAndContamination(fHistoMappingGGInvMassPtBin_SubPiZero[iPt], fHistoMapping_bck_Combinatorical[iPt], fHistoMapping_bck_Contamination[iPt], iPt, fPeakRange_SubPiZero, fFitRange_SubPiZero, optionEnergy, Suffix, cutSelection, meson, 1);
+                ProcessBckFitSubtraction_CombinatoricsAndContamination(fHistoMappingGGInvMassPtBin_SubPiZero[iPt], fHistoMapping_bck_Combinatorical[iPt], fHistoMapping_bck_Contamination[iPt], iPt, fPeakRange_SubPiZero, fFitRange_SubPiZero, optionEnergy, Suffix, cutSelection, meson, 1, fHistoMapping_bck_TrueCombinatorical[iPt], fHistoMapping_bck_TrueContamination[iPt]);
             }
             if(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt]){
-                ProcessBckFitSubtraction_CombinatoricsAndContamination(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt], fHistoMapping_bck_Combinatorical[iPt], fHistoMapping_bck_Contamination[iPt], iPt, fPeakRange_FixedPzPiZero, fFitRange_FixedPzPiZero, optionEnergy, Suffix, cutSelection, meson, 2);
+                ProcessBckFitSubtraction_CombinatoricsAndContamination(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt], fHistoMapping_bck_Combinatorical[iPt], fHistoMapping_bck_Contamination[iPt], iPt, fPeakRange_FixedPzPiZero, fFitRange_FixedPzPiZero, optionEnergy, Suffix, cutSelection, meson, 2, fHistoMapping_bck_TrueCombinatorical[iPt], fHistoMapping_bck_TrueContamination[iPt]);
             }
         }
 
@@ -1762,27 +1915,30 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     fMesonYieldsBackFitError_SubPiZero[k][iPt] = 0.;
                 }
                 // cout << fMesonYieldsBackFit_SubPiZero[k][iPt] << " +/- " << fMesonYieldsBackFitError_SubPiZero[k][iPt] << endl;
-                TCanvas* test = new TCanvas(Form("C%d",iPt));
-                fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->Draw("");
-                
+                Bool_t DoTestInvMassBackFitPtBin = kFALSE;
+                if (DoTestInvMassBackFitPtBin){
+                    TCanvas* TestInvMassBackFitPtBin = new TCanvas(Form("C%d",iPt));
+                    fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->Draw("");
 
-                Int_t binLowMassMeson = fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetXaxis()->FindBin(fMesonCurIntRangeBackFit_SubPiZero[k][0]);
-                Int_t binHighMassMeson = fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetXaxis()->FindBin(fMesonCurIntRangeBackFit_SubPiZero[k][1]);
 
-                TBox *bLowNorm = new TBox(fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinLowEdge(binLowMassMeson),
-                fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetMinimum(),
-                fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinWidth(binLowMassMeson)+fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinLowEdge(binLowMassMeson),
-                fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinContent(binLowMassMeson));
-                bLowNorm->SetFillColor(kRed);
-                bLowNorm->Draw("same");
+                    Int_t binLowMassMeson = fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetXaxis()->FindBin(fMesonCurIntRangeBackFit_SubPiZero[k][0]);
+                    Int_t binHighMassMeson = fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetXaxis()->FindBin(fMesonCurIntRangeBackFit_SubPiZero[k][1]);
 
-                TBox *bHighNorm = new TBox(fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinLowEdge(binHighMassMeson),
-                fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetMinimum(),
-                fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinWidth(binHighMassMeson)+fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinLowEdge(binHighMassMeson),
-                fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinContent(binHighMassMeson));
-                bHighNorm->SetFillColor(kRed);
-                bHighNorm->Draw("same");
-                if(!fIsMC) test->Print(Form("test%d_%s.pdf",iPt,nameIntRange[k].Data()));
+                    TBox *bLowNorm = new TBox(fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinLowEdge(binLowMassMeson),
+                                              fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetMinimum(),
+                                              fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinWidth(binLowMassMeson)+fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinLowEdge(binLowMassMeson),
+                                              fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinContent(binLowMassMeson));
+                    bLowNorm->SetFillColor(kRed);
+                    bLowNorm->Draw("same");
+
+                    TBox *bHighNorm = new TBox(fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinLowEdge(binHighMassMeson),
+                                               fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetMinimum(),
+                                               fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinWidth(binHighMassMeson)+fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinLowEdge(binHighMassMeson),
+                                               fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinContent(binHighMassMeson));
+                    bHighNorm->SetFillColor(kRed);
+                    bHighNorm->Draw("same");
+                    if(!fIsMC) Test_InvMassBackFitPtBin->Print(Form("test%d_%s.pdf",iPt,nameIntRange[k].Data()));
+                }
                 
                 // Integrate the Backfit histo with Pz of pi0 fixed
                 if(fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[iPt]){
@@ -5332,7 +5488,7 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
 
 }
 
-void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D *fGammaGamma, TH1D *fCombinatorics, TH1D *fContamination, Int_t i, Double_t * fPeakRangeDummy, Double_t *fFitRangeDummy, TString energy, TString suffix, TString cutSelection, TString meson,Int_t InvMassType){
+void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D *fGammaGamma, TH1D *fCombinatorics, TH1D *fContamination, Int_t i, Double_t * fPeakRangeDummy, Double_t *fFitRangeDummy, TString energy, TString suffix, TString cutSelection, TString meson,Int_t InvMassType, TH1D* fTrueCombinatorics, TH1D* fTrueContamination){
 
     Int_t doDebugOutputLevel    =   1;
     Bool_t useTestingErrors     =   kTRUE;
@@ -5346,34 +5502,13 @@ void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D *fGammaGamma, T
     fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Sumw2();
 
     TF1* FitCombinatoricalContamination = NULL;
-    Double_t IgnoreRangeMin0=0;
-    Double_t IgnoreRangeMax0=0;
-    Double_t IgnoreRangeMin1=0;
-    Double_t IgnoreRangeMax1=0;
-    Double_t IgnoreRangeMin2=0;
-    Double_t IgnoreRangeMax2=0;
-    if(InvMassType==0){
-        IgnoreRangeMin0=0.;
-        IgnoreRangeMax0=fBGFitRangeLeft_ContamintationFit[0];
-        IgnoreRangeMin1=fBGFitRangeLeft_ContamintationFit[1];
-        IgnoreRangeMax1=fBGFitRange_ContamintationFit[0];
-        IgnoreRangeMin2=fBGFitRange_ContamintationFit[1];
-        IgnoreRangeMax2=10000;
-    } else if(InvMassType==1){
-        IgnoreRangeMin0=0.;
-        IgnoreRangeMax0=fBGFitRangeLeft_ContamintationFit[0];
-        IgnoreRangeMin1=fBGFitRangeLeft_ContamintationFit[1];
-        IgnoreRangeMax1=fBGFitRange_ContamintationFit[0];
-        IgnoreRangeMin2=fBGFitRange_ContamintationFit[1];
-        IgnoreRangeMax2=10000;
-    } else if(InvMassType==2){
-        IgnoreRangeMin0=0.;
-        IgnoreRangeMax0=fBGFitRangeLeft_ContamintationFit[0];
-        IgnoreRangeMin1=fBGFitRangeLeft_ContamintationFit[1];
-        IgnoreRangeMax1=fBGFitRange_ContamintationFit[0];
-        IgnoreRangeMin2=fBGFitRange_ContamintationFit[1];
-        IgnoreRangeMax2=10000;
-    }
+    Double_t IgnoreRangeMin0=0.;
+    Double_t IgnoreRangeMax0=fBGFitRangeLeft_ContamintationFit[0];
+    Double_t IgnoreRangeMin1=fBGFitRangeLeft_ContamintationFit[1];
+    Double_t IgnoreRangeMax1=fBGFitRange_ContamintationFit[0];
+    Double_t IgnoreRangeMin2=fBGFitRange_ContamintationFit[1];
+    Double_t IgnoreRangeMax2=10000.;
+
     cout<< "\t IgnoreRangeMin0: " << IgnoreRangeMin0 << "; IgnoreRangeMax0: " << IgnoreRangeMax0 <<endl;
     cout<< "\t IgnoreRangeMin1: " << IgnoreRangeMin1 << "; IgnoreRangeMax1: " << IgnoreRangeMax1 <<endl;
     cout<< "\t IgnoreRangeMin2: " << IgnoreRangeMin2 << "; IgnoreRangeMax2: " << IgnoreRangeMax2 <<endl;
@@ -5381,11 +5516,255 @@ void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D *fGammaGamma, T
     BackgroundClass tempBckClass(fCombinatorics, fContamination, IgnoreRangeMin0, IgnoreRangeMax0, IgnoreRangeMin1, IgnoreRangeMax1, IgnoreRangeMin2, IgnoreRangeMax2);
     FitCombinatoricalContamination = new TF1  (Form("FitCombinatoricalContamination_%i", i), tempBckClass, fFitRangeDummy[0], fFitRangeDummy[1], 2);
 
+    Double_t    IntegrationValue_fGammaGamma            = 0.;
+    Double_t    IntegrationValue_fCombinatorics         = 0.;
+    Double_t    IntegrationValue_fContamination         = 0.;
+    Double_t    IntegrationValue_fTrueCombinatorics     = 0.;
+    Double_t    IntegrationValue_fTrueContamination     = 0.;
+    Double_t    CurrentRangeMin                         = 0.;
+    Double_t    CurrentRangeMax                         = 0.;
+
+    Double_t    Ratio_CombDivCont;
+    Double_t    Ratio_TrueCombDivTrueCont;
+    Double_t    ScaleFactorCont;
+
+    Double_t    Sum_CombPlFacCont;
+    Double_t    ScaleFactorTotal;
+
+    //Integrations for StartParameters ans Limits
+    if ((fFitRangeDummy[0]<IgnoreRangeMin0)){
+        CurrentRangeMin                             =       fFitRangeDummy[0];
+        if ((fFitRangeDummy[1]<IgnoreRangeMin0)){
+            CurrentRangeMax                         =       fFitRangeDummy[1];
+            //Integration
+            IntegrationValue_fGammaGamma            +=      fGammaGamma->Integral(
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMin),
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fCombinatorics         +=      fCombinatorics->Integral(
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fContamination         +=      fContamination->Integral(
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueCombinatorics     +=      fTrueCombinatorics->Integral(
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueContamination     +=      fTrueContamination->Integral(
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+        } else {
+            CurrentRangeMax                         =       IgnoreRangeMin0;
+            //Integration
+            IntegrationValue_fGammaGamma            +=      fGammaGamma->Integral(
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMin),
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fCombinatorics         +=      fCombinatorics->Integral(
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fContamination         +=      fContamination->Integral(
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueCombinatorics     +=      fTrueCombinatorics->Integral(
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueContamination     +=      fTrueContamination->Integral(
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+        }
+    }
+
+    if ((fFitRangeDummy[0]<IgnoreRangeMin1)){
+        if ((fFitRangeDummy[0]>IgnoreRangeMax0)){
+            CurrentRangeMin                         =       fFitRangeDummy[0];
+        } else {
+            CurrentRangeMin                         =       IgnoreRangeMax0;
+        }
+
+
+        if ((fFitRangeDummy[1]<IgnoreRangeMin1)){
+            CurrentRangeMax                         =       fFitRangeDummy[1];
+            //Integration
+            IntegrationValue_fGammaGamma            +=      fGammaGamma->Integral(
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMin),
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fCombinatorics         +=      fCombinatorics->Integral(
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fContamination         +=      fContamination->Integral(
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueCombinatorics     +=      fTrueCombinatorics->Integral(
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueContamination     +=      fTrueContamination->Integral(
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+        } else {
+            CurrentRangeMax                         =       IgnoreRangeMin1;
+            //Integration
+            IntegrationValue_fGammaGamma            +=      fGammaGamma->Integral(
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMin),
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fCombinatorics         +=      fCombinatorics->Integral(
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fContamination         +=      fContamination->Integral(
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueCombinatorics     +=      fTrueCombinatorics->Integral(
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueContamination     +=      fTrueContamination->Integral(
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+        }
+    }
+
+    if ((fFitRangeDummy[0]<IgnoreRangeMin2)){
+        if ((fFitRangeDummy[0]>IgnoreRangeMax1)){
+            CurrentRangeMin                         =       fFitRangeDummy[0];
+        } else {
+            CurrentRangeMin                         =       IgnoreRangeMax1;
+        }
+
+
+        if ((fFitRangeDummy[1]<IgnoreRangeMin2)){
+            CurrentRangeMax                         =       fFitRangeDummy[1];
+            //Integration
+            IntegrationValue_fGammaGamma            +=      fGammaGamma->Integral(
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMin),
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fCombinatorics         +=      fCombinatorics->Integral(
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fContamination         +=      fContamination->Integral(
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueCombinatorics     +=      fTrueCombinatorics->Integral(
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueContamination     +=      fTrueContamination->Integral(
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+        } else {
+            CurrentRangeMax                         =       IgnoreRangeMin2;
+            //Integration
+            IntegrationValue_fGammaGamma            +=      fGammaGamma->Integral(
+                        fGammaGamma->GetXaxis()->FindBin(CurrentRangeMin),
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fCombinatorics         +=      fCombinatorics->Integral(
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fContamination         +=      fContamination->Integral(
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueCombinatorics     +=      fTrueCombinatorics->Integral(
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+            IntegrationValue_fTrueContamination     +=      fTrueContamination->Integral(
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                        fTrueContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                        );
+        }
+    }
+
+    if ((fFitRangeDummy[0]>IgnoreRangeMax2)){
+        CurrentRangeMin                             =       fFitRangeDummy[0];
+        CurrentRangeMax                             =       fFitRangeDummy[1];
+        //Integration
+        IntegrationValue_fGammaGamma                +=      fGammaGamma->Integral(
+                    fGammaGamma->GetXaxis()->FindBin(CurrentRangeMin),
+                    fGammaGamma->GetXaxis()->FindBin(CurrentRangeMax)
+                    );
+        IntegrationValue_fCombinatorics             +=      fCombinatorics->Integral(
+                    fCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                    fCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                    );
+        IntegrationValue_fContamination             +=      fContamination->Integral(
+                    fContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                    fContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                    );
+        IntegrationValue_fTrueCombinatorics         +=      fTrueCombinatorics->Integral(
+                    fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                    fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                    );
+        IntegrationValue_fTrueContamination         +=      fTrueContamination->Integral(
+                    fTrueContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                    fTrueContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                    );
+    } else {
+        CurrentRangeMin                             =       IgnoreRangeMax2;
+        if ((fFitRangeDummy[1]>IgnoreRangeMax2)){
+           CurrentRangeMax                          =       fFitRangeDummy[1];
+           //Integration
+           IntegrationValue_fGammaGamma             +=      fGammaGamma->Integral(
+                       fGammaGamma->GetXaxis()->FindBin(CurrentRangeMin),
+                       fGammaGamma->GetXaxis()->FindBin(CurrentRangeMax)
+                       );
+           IntegrationValue_fCombinatorics          +=      fCombinatorics->Integral(
+                       fCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                       fCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                       );
+           IntegrationValue_fContamination          +=      fContamination->Integral(
+                       fContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                       fContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                       );
+           IntegrationValue_fTrueCombinatorics      +=      fTrueCombinatorics->Integral(
+                       fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMin),
+                       fTrueCombinatorics->GetXaxis()->FindBin(CurrentRangeMax)
+                       );
+           IntegrationValue_fTrueContamination      +=      fTrueContamination->Integral(
+                       fTrueContamination->GetXaxis()->FindBin(CurrentRangeMin),
+                       fTrueContamination->GetXaxis()->FindBin(CurrentRangeMax)
+                       );
+        }
+    }
+
+    Ratio_CombDivCont                               =       IntegrationValue_fCombinatorics / IntegrationValue_fContamination;
+    Ratio_TrueCombDivTrueCont                       =       IntegrationValue_fTrueCombinatorics / IntegrationValue_fTrueContamination;
+    ScaleFactorCont                                 =       Ratio_CombDivCont / Ratio_TrueCombDivTrueCont;
+
+    Sum_CombPlFacCont                               =       IntegrationValue_fCombinatorics + (ScaleFactorCont*IntegrationValue_fContamination);
+    ScaleFactorTotal                                =       IntegrationValue_fGammaGamma / Sum_CombPlFacCont;
+
+
+
     FitCombinatoricalContamination->SetNpx(1000);
-    FitCombinatoricalContamination->SetParameter(0, 1000.);
-    FitCombinatoricalContamination->SetParameter(1, 1.);
-    //FitCombinatoricalContamination->SetParLimits(0, 0.01, 10000.);
-    //FitCombinatoricalContamination->SetParLimits(1, 0.01, 100.);
+    FitCombinatoricalContamination->SetParameter(0, ScaleFactorTotal);
+    FitCombinatoricalContamination->SetParameter(1, ScaleFactorCont);
+
+
+    //FitCombinatoricalContamination->SetParLimits(0, ScaleFactorTotal*0.8, ScaleFactorTotal*1.2);
+    //FitCombinatoricalContamination->SetParLimits(1, ScaleFactorCont*0.8, ScaleFactorCont*1.2);
 
     TFitResultPtr resultBckFitTotal;
     fHistoMappingGGInvMassBackFitWithoutSignalPtBin[i]->Fit(FitCombinatoricalContamination,"QMRES0","",fFitRangeDummy[0],fFitRangeDummy[1]);//QMRES0
@@ -8054,6 +8433,15 @@ void SaveHistos(Int_t optionMC, TString fCutID, TString fPrefix3)
         if( fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii])  fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii]->Write(nameHistoSignal.Data());
         nameHistoSignal = Form("fHistoMappingSignalBackFitInvMass_FixedPzPiZero_in_Pt_Bin%02d", ii);
         if(  fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii])  fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii]->Write(nameHistoSignal.Data());
+        fitnameSignal = Form("Signal_InvMassBackFit_in_Pt_Bin%02d", ii);
+        if(fFitSignalInvMassBackFitPtBin[ii]!=0x00) fFitSignalInvMassBackFitPtBin[ii]->Write(fitnameSignal.Data());
+
+        fitnameSignal = Form("Signal_InvMassBackFit_SubPiZero_in_Pt_Bin%02d", ii);
+        if(fFitSignalInvMassBackFitPtBin_SubPiZero[ii]!=0x00) fFitSignalInvMassBackFitPtBin_SubPiZero[ii]->Write(fitnameSignal.Data());
+
+        fitnameSignal = Form("Signal_InvMassBackFit_FixedPzPiZero_in_Pt_Bin%02d", ii);
+        if(fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]!=0x00) fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]->Write(fitnameSignal.Data());
+
     }
 
     if(optionMC){
@@ -8638,11 +9026,15 @@ void Initialize(TString setPi0, Int_t numberOfBins){
     fHistoMapping_bck_Combinatorical_SubPiZero =            new TH1D*[fNBinsPt];
     fHistoMapping_bck_Combinatorical_FixedPzPiZero =        new TH1D*[fNBinsPt];
     fHistoMapping_bck_Contamination  =                      new TH1D*[fNBinsPt];
+    fHistoMapping_bck_TrueCombinatorical =                  new TH1D*[fNBinsPt];
+    fHistoMapping_bck_TrueContamination =                   new TH1D*[fNBinsPt];
     for (Int_t iNumberOfBins = 0; iNumberOfBins < fNBinsPt; iNumberOfBins++){
         fHistoMapping_bck_Combinatorical[iNumberOfBins] =   NULL;
         fHistoMapping_bck_Combinatorical_SubPiZero[iNumberOfBins] = NULL;
         fHistoMapping_bck_Combinatorical_FixedPzPiZero[iNumberOfBins] = NULL;
         fHistoMapping_bck_Contamination[iNumberOfBins] =    NULL;
+        fHistoMapping_bck_TrueCombinatorical[iNumberOfBins] = NULL;
+        fHistoMapping_bck_TrueContamination[iNumberOfBins] = NULL;
     }
 
     fHistoMappingGGInvMassBackFitPtBin =					new TH1D*[fNBinsPt];
@@ -9112,6 +9504,8 @@ void Delete(){
     if (fHistoMapping_bck_Combinatorical_SubPiZero)             delete fHistoMapping_bck_Combinatorical_SubPiZero;
     if (fHistoMapping_bck_Combinatorical_FixedPzPiZero)         delete fHistoMapping_bck_Combinatorical_FixedPzPiZero;
     if (fHistoMapping_bck_Contamination)                        delete fHistoMapping_bck_Contamination;
+    if (fHistoMapping_bck_TrueCombinatorical)                   delete fHistoMapping_bck_TrueCombinatorical;
+    if (fHistoMapping_bck_TrueContamination)                    delete fHistoMapping_bck_TrueContamination;
     if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete(); Line: " << __LINE__ << endl;}
     for (Int_t k = 0; k< 5; k++){
         if (fHistoMappingBackInvMassPtBin[k])               delete fHistoMappingBackInvMassPtBin[k];

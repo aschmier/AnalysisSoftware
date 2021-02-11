@@ -345,6 +345,9 @@ TH1D**  fHistoMapping_bck_Combinatorical_SubPiZero=         NULL;
 TH1D**  fHistoMapping_bck_Combinatorical_FixedPzPiZero=     NULL;
 TH1D**  fHistoMapping_bck_Contamination=                    NULL;
 
+TH1D**  fHistoMapping_bck_TrueContamination=                NULL;
+TH1D**  fHistoMapping_bck_TrueCombinatorical=               NULL;
+
 TH1D** 	fHistoMappingBackInvMassPtBin[5]=				      {NULL,NULL,NULL,NULL,NULL};
 TH1D** 	fHistoMappingBackInvMassPtBin_SubPiZero[5]=		      {NULL,NULL,NULL,NULL,NULL};
 TH1D** 	fHistoMappingBackInvMassPtBin_FixedPzPiZero[5]=	      {NULL,NULL,NULL,NULL,NULL};
@@ -950,6 +953,9 @@ TH2D*   hist_bck_Combinatorical=                            NULL;
 TH2D*   hist_bck_Combinatorical_SubPiZero=                  NULL;
 TH2D*   hist_bck_Combinatorical_FixedPzPiZero=              NULL;
 TH2D*   hist_bck_Contamination=                             NULL;
+TH2D*   hist_bck_TrueContamination=                         NULL;
+TH2D*   hist_bck_TrueCombinatorical=                        NULL;
+TH2D*   hist_bck_Combinatorical_SameMother=                 NULL;
 TH2D*	fBckInvMassVSPt[5]=									{NULL,NULL,NULL,NULL,NULL}; // 0: Background summed 1: Background Group 1 2: Background Group 2 ...
 TH2D*	fBckInvMassVSPt_SubPiZero[5]=			            {NULL,NULL,NULL,NULL,NULL}; // 0: Background summed 1: Background Group 1 2: Background Group 2 ...
 TH2D*	fBckInvMassVSPt_FixedPzPiZero[5]=                 	{NULL,NULL,NULL,NULL,NULL}; // 0: Background summed 1: Background Group 1 2: Background Group 2 ...
@@ -965,7 +971,7 @@ TH2D*	fTruePiMiPiZeroSameMotherInvMassVSPt[5]=              {NULL,NULL,NULL,NULL
                                                                                                   // 1: eta 2: omega: 3: rho 4:K0l
 TH2D*	fTruePiPlPiZeroSameMotherInvMassVSPt[5]=              {NULL,NULL,NULL,NULL,NULL};           // 0: True PiPlPiZero have same mother
                                                                                                   // 1: eta 2: omega: 3: rho 4:K0l
-TH2D*   fTruePiPlPiMiPiZeroPureCombinatorical_InvMassPt=    NULL;
+TH2D*   fTruePiPlPiMiPiZeroCombinatorical_InvMassPt=    NULL;
 TH2D*   fTruePiPlPiMiPiZeroContamination_InvMassPt=    NULL;
 TH2F**	fHistoWeightsBGZbinVsMbin = 						0x0;
 TH2F**	fHistoFillPerEventBGZbinVsMbin = 					0x0;
@@ -992,7 +998,7 @@ void ProcessEM(TH1D*,TH1D*,Double_t *);
 void ProcessEMLeftRight(    TH1D* , TH1D*, Double_t*, Double_t* );
 //void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeDummy, Double_t *fFitRangeDummy, TString energy, TString suffix, TString cutSelection, TString meson, Int_t InvMassType);
 void ProcessBckFitSubtraction(TH1D*, Int_t, Double_t* ,Double_t*, TString, TString, TString, TString, Int_t);
-void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D*, TH1D*, TH1D*, Int_t, Double_t* ,Double_t*, TString, TString, TString, TString, Int_t);
+void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D*, TH1D*, TH1D*, Int_t, Double_t* ,Double_t*, TString, TString, TString, TString, Int_t, TH1D*, TH1D*);
 void ProcessRatioSignalBackground(TH1D* , TH1D* );
 void FillMassHistosArray(TH2D* fGammaGammaInvMassVSPtDummy, TH2D *fGammaGammaInvMassVSPtDummy_SubPiZero, TH2D *fGammaGammaInvMassVSPtDummy_FixedPzPiZero);
 void ProjectHistogramInPtBins(TH2D* HistogramToProject, TH1D **ProjectedHistograms);
@@ -1923,10 +1929,10 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 class BackgroundClass
 {
 public:
-  BackgroundClass(TH1 *s, TH1 *b, Double_t ignoreMin0, Double_t ignoreMax0, Double_t ignoreMin1, Double_t ignoreMax1, Double_t ignoreMin2, Double_t ignoreMax2)
+  BackgroundClass(TH1 *Comb, TH1 *Cont, Double_t ignoreMin0, Double_t ignoreMax0, Double_t ignoreMin1, Double_t ignoreMax1, Double_t ignoreMin2, Double_t ignoreMax2)
   {
-    fCombinatorical     = s;
-    fContamination      = b;
+    fCombinatorical     = Comb;
+    fContamination      = Cont;
 
     ignoreMinX0         = ignoreMin0;
     ignoreMinX0         = ignoreMax0;
@@ -1944,13 +1950,13 @@ public:
 
     Int_t binCombinatorial  = fCombinatorical->FindBin(x);
     Int_t binContamination  = fContamination->FindBin(x);
-    Double_t sval           = fCombinatorical->GetBinContent(binCombinatorial);
-    Double_t bval           = fContamination->GetBinContent(binContamination);
+    Double_t CombVal           = fCombinatorical->GetBinContent(binCombinatorial);
+    Double_t ContVal           = fContamination->GetBinContent(binContamination);
 
     if ((x > ignoreMinX0 && x < ignoreMaxX0)||(x > ignoreMinX1 && x < ignoreMaxX1)||(x > ignoreMinX2 && x < ignoreMaxX2)){
         TF1::RejectPoint();
     }
-    return totScale *( sval + (contScale * bval));
+    return totScale *( CombVal + (contScale * ContVal));
   }
   TH1 *fCombinatorical;
   TH1 *fContamination;
