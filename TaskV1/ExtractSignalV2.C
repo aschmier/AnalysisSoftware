@@ -73,6 +73,7 @@ void ExtractSignalV2(
     Bool_t useExtAccept             = kFALSE
 ) {
     gROOT->Reset();
+    gPrintViaErrorHandler = kTRUE;
 
     Int_t debugOutputLevel=0;
     fMode      = mode;
@@ -480,6 +481,26 @@ void ExtractSignalV2(
     TList *ESDContainer                 = (TList*) HistosGammaConversion->FindObject(Form("%s ESD histograms",fCutSelectionRead.Data()));
     TList *BackgroundContainer          = (TList*) HistosGammaConversion->FindObject(Form("%s Back histograms",fCutSelectionRead.Data()));
     TList *MotherContainer              = (TList*) HistosGammaConversion->FindObject(Form("%s Mother histograms",fCutSelectionRead.Data()));
+
+    fStrClustersE_BothBM                    = "HistoClusGammaE_BothBM";
+    fStrClustersE_BothBM_highestE           = "HistoClusGammaE_BothBM_highestE";
+    fStrClustersE_AnaBM_highestE            = "HistoClusGammaE_AnaBM_highestE";
+    fStrClustersE_onlyTriggered             = "ClusGamma_E_onlyTriggered";
+
+    fDoClustersE_BothBM                     = 0;
+    fDoClustersE_BothBM_highestE            = 0;
+    fDoClustersE_AnaBM_highestE             = 0;
+    fDoClustersE_onlyTriggered              = 0;
+
+    if (fEnergyFlag.Contains("13TeV")){
+        if (fMode == 5){
+            fDoClustersE_BothBM             = 1;
+            fDoClustersE_BothBM_highestE    = 1;
+            fDoClustersE_AnaBM_highestE     = 1;
+            fDoClustersE_onlyTriggered      = 1;
+        }
+    }
+
     if (fMode == 2 || fMode == 13 || fMode == 3 ){
         TList *ClusterContainer             = (TList*) HistosGammaConversion->FindObject(Form("%s Cluster Output",fCutSelectionRead.Data()));
         if (ClusterContainer){
@@ -497,6 +518,7 @@ void ExtractSignalV2(
             }
         }
     }
+
     if ( fMode == 4 || fMode == 12  || fMode == 5 || fMode==14){
         fHistoClustersPt                = (TH1D*)ESDContainer->FindObject("ClusGamma_Pt");
         fHistoClustersE                 = (TH1D*)ESDContainer->FindObject("ClusGamma_E");
@@ -509,6 +531,23 @@ void ExtractSignalV2(
             cout << "INFO: found cluster output in PCM stream, adding it to the raw data file." << endl;
         }
 
+    }
+
+    if (fDoClustersE_BothBM == 1){
+        fHistoClustersE_BothBM          = (TH1D*)ESDContainer->FindObject(Form("%s", fStrClustersE_BothBM.Data()));
+        if (!fHistoClustersE_BothBM){fDoClustersE_BothBM=0;}
+    }
+    if (fDoClustersE_BothBM_highestE == 1){
+        fHistoClustersE_BothBM_highestE = (TH1D*)ESDContainer->FindObject(Form("%s", fStrClustersE_BothBM_highestE.Data()));
+        if (!fHistoClustersE_BothBM_highestE){fDoClustersE_BothBM_highestE=0;}
+    }
+    if (fDoClustersE_AnaBM_highestE == 1){
+        fHistoClustersE_AnaBM_highestE  = (TH1D*)ESDContainer->FindObject(Form("%s", fStrClustersE_AnaBM_highestE.Data()));
+        if (!fHistoClustersE_AnaBM_highestE){fDoClustersE_AnaBM_highestE=0;}
+    }
+    if (fDoClustersE_onlyTriggered == 1){
+        fHistoClustersE_onlyTriggered   = (TH1D*)ESDContainer->FindObject(Form("%s", fStrClustersE_onlyTriggered.Data()));
+        if (!fHistoClustersE_onlyTriggered){fDoClustersE_onlyTriggered=0;}
     }
 
     TList* EventCuts                    = (TList*)HistosGammaConversion->FindObject(Form("ConvEventCuts_%s",fEventCutSelectionRead.Data()));
@@ -5468,7 +5507,6 @@ void CreatePtHistos(){
 //*************** Fill momentum dependent histograms from arrays *************
 //****************************************************************************
 void FillPtHistos(){
-
     for(Int_t iPt=fStartPtBin+1;iPt<fNBinsPt+1;iPt++){
 
         cout << fBinsPt[iPt-1]<< " - " << fBinsPt[iPt] << endl;
@@ -8291,6 +8329,50 @@ void SaveHistos(Int_t optionMC, TString cutID, TString prefix3, Bool_t UseTHnSpa
         fHistoClustersEPerEvent->Scale(1./fNEvents);
         fHistoClustersEPerEvent->Write("ClusterEPerEvent");
     }
+    if (fDoClustersE_BothBM==1){
+        if (fHistoClustersE_BothBM){
+            cout << "writing ClusterE" << endl;
+            fHistoClustersE_BothBM->Write("ClusterE");
+
+            TH1D*   fHistoClustersE_BothBM_PerEvent   = (TH1D*)fHistoClustersE_BothBM->Rebin(fNBinsClusterPt,"fHistoClustersE_BothBM_PerEvent",fBinsClusterPt);
+            fHistoClustersE_BothBM_PerEvent->Divide(deltaPtCluster);
+            fHistoClustersE_BothBM_PerEvent->Scale(1./fNEvents);
+            fHistoClustersE_BothBM_PerEvent->Write(Form("ClustersE_BothBM_PerEvent"));
+        }
+    }
+    if (fDoClustersE_BothBM_highestE==1){
+        if (fHistoClustersE_BothBM_highestE){
+            cout << "writing ClusterE" << endl;
+            fHistoClustersE_BothBM_highestE->Write("ClusterE");
+
+            TH1D*   fHistoClustersE_BothBM_highestE_PerEvent   = (TH1D*)fHistoClustersE_BothBM_highestE->Rebin(fNBinsClusterPt,"fHistoClustersE_BothBM_highestE_PerEvent",fBinsClusterPt);
+            fHistoClustersE_BothBM_highestE_PerEvent->Divide(deltaPtCluster);
+            fHistoClustersE_BothBM_highestE_PerEvent->Scale(1./fNEvents);
+            fHistoClustersE_BothBM_highestE_PerEvent->Write("ClustersE_BothBM_highestE_PerEvent");
+        }
+    }
+    if (fDoClustersE_AnaBM_highestE==1){
+        if (fHistoClustersE_AnaBM_highestE){
+            cout << "writing ClusterE" << endl;
+            fHistoClustersE_AnaBM_highestE->Write("ClusterE");
+
+            TH1D*   fHistoClustersE_AnaBM_highestE_PerEvent   = (TH1D*)fHistoClustersE_AnaBM_highestE->Rebin(fNBinsClusterPt,"fHistoClustersE_AnaBM_highestE_PerEvent",fBinsClusterPt);
+            fHistoClustersE_AnaBM_highestE_PerEvent->Divide(deltaPtCluster);
+            fHistoClustersE_AnaBM_highestE_PerEvent->Scale(1./fNEvents);
+            fHistoClustersE_AnaBM_highestE_PerEvent->Write("ClustersE_AnaBM_highestE_PerEvent");
+        }
+    }
+    if (fDoClustersE_onlyTriggered==1){
+        if (fHistoClustersE_onlyTriggered){
+            cout << "writing ClusterE" << endl;
+            fHistoClustersE_onlyTriggered->Write("ClusterE");
+
+            TH1D*   fHistoClustersE_onlyTriggered_PerEvent   = (TH1D*)fHistoClustersE_onlyTriggered->Rebin(fNBinsClusterPt,"fHistoClustersE_onlyTriggered_PerEvent",fBinsClusterPt);
+            fHistoClustersE_onlyTriggered_PerEvent->Divide(deltaPtCluster);
+            fHistoClustersE_onlyTriggered_PerEvent->Scale(1./fNEvents);
+            fHistoClustersE_onlyTriggered_PerEvent->Write("ClustersE_onlyTriggered_PerEvent");
+        }
+    }
     if (fEnableDCCluster){
         cout << "writing ClusterPtReb" << endl;
         TH1D*   fHistoTrueGammaClusPtRebinned   = NULL;
@@ -8888,11 +8970,6 @@ void CalculateFWHM(TF1 * fFunc){
             if(Error1<Error2) fFWHMFuncError = Error2;
         }
 
-
-        if (fMode == 3){
-            fFWHMFunc = fFunc->GetParameter(2)*2.35;
-            fFWHMFuncError = fFunc->GetParError(2)*2.35;
-        }
     } else {
         fFWHMFunc = fFunc->GetParameter(2)*2.35;
         fFWHMFuncError = fFunc->GetParError(2)*2.35;

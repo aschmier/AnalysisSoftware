@@ -21,6 +21,7 @@ PARTLY=0
 DATAFILE=1
 MCFILE=1
 addedSig=0
+ContaminationBackHistMode=0
 
 NAMECUTSTUDIES="none"
 PERIOD=""
@@ -657,6 +658,7 @@ if [ $ONLYRESULTS = 0 ] ; then
         while [ $correct -eq 0 ]
         do
             echo "Which fit do you want to do? CrystalBall or gaussian convoluted with an exponential function? CrystalBall/Gaussian?";
+            ContaminationBackHistMode=0
             read answer
             if [ $answer = "CrystalBall" ] || [ $answer = "C" ] || [ $answer = "c" ]; then
                 echo "CrystalBall chosen ...";
@@ -664,6 +666,36 @@ if [ $ONLYRESULTS = 0 ] ; then
                 crystal=CrystalBall
             elif [ $answer = "Gaussian" ] || [ $answer = "G" ] || [ $answer = "g" ]; then
                 echo "Gaussian chosen ...";
+                correct=1
+                crystal=Gaussian
+            elif [ $answer = "GaussianContamination0" ] || [ $answer = "GContamination0" ] || [ $answer = "gContamination0" ]||[ $answer = "GaussianCont" ] || [ $answer = "GCont0" ] || [ $answer = "gCont0" ]||[ $answer = "GaussianCon0" ] || [ $answer = "GCon0" ] || [ $answer = "gCon0" ]||[ $answer = "GaussianC0" ] || [ $answer = "GC0" ] || [ $answer = "gC0" ] || [ $answer = "gc0" ]; then
+                echo "Gaussian chosen ...";
+                correct=1
+                crystal=Gaussian
+                ContaminationBackHistMode=0
+            elif [ $answer = "GaussianContamination1" ] || [ $answer = "GContamination1" ] || [ $answer = "gContamination1" ]||[ $answer = "GaussianCont" ] || [ $answer = "GCont1" ] || [ $answer = "gCont1" ]||[ $answer = "GaussianCon1" ] || [ $answer = "GCon1" ] || [ $answer = "gCon1" ]||[ $answer = "GaussianC1" ] || [ $answer = "GC1" ] || [ $answer = "gC1" ] || [ $answer = "gc1" ]; then
+                ContaminationBackHistMode=1
+                echo "Gaussian chosen with Contamination == $ContaminationBackHistMode...";
+                correct=1
+                crystal=Gaussian
+            elif [ $answer = "GaussianContamination2" ] || [ $answer = "GContamination2" ] || [ $answer = "gContamination2" ]||[ $answer = "GaussianCont" ] || [ $answer = "GCont2" ] || [ $answer = "gCont2" ]||[ $answer = "GaussianCon2" ] || [ $answer = "GCon2" ] || [ $answer = "gCon2" ]||[ $answer = "GaussianC2" ] || [ $answer = "GC2" ] || [ $answer = "gC2" ] || [ $answer = "gc2" ]; then
+                echo "Gaussian chosen ...";
+                correct=1
+                crystal=Gaussian
+                ContaminationBackHistMode=2
+            elif [ $answer = "GaussianContamination3" ] || [ $answer = "GContamination3" ] || [ $answer = "gContamination3" ]||[ $answer = "GaussianCont" ] || [ $answer = "GCont3" ] || [ $answer = "gCont3" ]||[ $answer = "GaussianCon3" ] || [ $answer = "GCon3" ] || [ $answer = "gCon3" ]||[ $answer = "GaussianC3" ] || [ $answer = "GC3" ] || [ $answer = "gC3" ] || [ $answer = "gc3" ]; then
+                ContaminationBackHistMode=3
+                echo "Gaussian chosen with Contamination == $ContaminationBackHistMode...";
+                correct=1
+                crystal=Gaussian
+            elif [ $answer = "GaussianContamination4" ] || [ $answer = "GContamination4" ] || [ $answer = "gContamination4" ]||[ $answer = "GaussianCont" ] || [ $answer = "GCont4" ] || [ $answer = "gCont4" ]||[ $answer = "GaussianCon4" ] || [ $answer = "GCon4" ] || [ $answer = "gCon4" ]||[ $answer = "GaussianC4" ] || [ $answer = "GC4" ] || [ $answer = "gC4" ] || [ $answer = "gc4" ]; then
+                ContaminationBackHistMode=4
+                echo "Gaussian chosen with Contamination == $ContaminationBackHistMode...";
+                correct=1
+                crystal=Gaussian
+            elif [ $answer = "GaussianContamination" ] || [ $answer = "GContamination" ] || [ $answer = "gContamination" ]||[ $answer = "GaussianCont" ] || [ $answer = "GCont" ] || [ $answer = "gCont" ]||[ $answer = "GaussianCon" ] || [ $answer = "GCon" ] || [ $answer = "gCon" ]||[ $answer = "GaussianC" ] || [ $answer = "GC" ] || [ $answer = "gC" ] || [ $answer = "gc" ]; then
+                ContaminationBackHistMode=2
+                echo "Gaussian chosen with Contamination == $ContaminationBackHistMode...";
                 correct=1
                 crystal=Gaussian
             else
@@ -707,10 +739,16 @@ if [ $ONLYRESULTS = 0 ] ; then
 
             if [ $ONLYCORRECTION -eq 0 ]; then
                 echo "CutSelection is $cutSelection";
-                optionsOmegaData=\"Omega\"\,\"$DataRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kFALSE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode               
+                if [ $ContaminationBackHistMode -gt 0 ]; then
+                    echo "Contamination Mode activated, ContaminationBackHistMode: $ContaminationBackHistMode "
+                fi
+                if [ $MCFILE -eq 1 ]; then
+                    optionsOmegaData=\"Omega\"\,\"$DataRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kFALSE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode,\"$MCRootFile\"\,$ContaminationBackHistMode
+                else
+                    optionsOmegaData=\"Omega\"\,\"$DataRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kFALSE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode
+                fi
                 optionsEtaData=\"Eta\"\,\"$DataRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kFALSE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtEta\,kFALSE\,$mode
                 if [ \( $ONLYOMEGA -eq 1 \) -a \( -f $DataRootFile \) ]; then
-                        echo "test"
                         ExtractSignal $optionsOmegaData
 
                         OmegadataRAWFILE=`ls $cutSelection/$energy/Omega_data_GammaConvV1WithoutCorrection_*.root`
@@ -729,7 +767,7 @@ if [ $ONLYRESULTS = 0 ] ; then
                 fi
 
                 if [ $MCFILE -eq 1 ]; then
-                    optionsOmegaMC=\"Omega\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kTRUE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode
+                    optionsOmegaMC=\"Omega\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kTRUE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtOmega\,kFALSE\,$mode,\"$MCRootFile\"\,$ContaminationBackHistMode
                     optionsEtaMC=\"Eta\"\,\"$MCRootFile\"\,\"$cutSelection\"\,\"$Suffix\"\,\"kTRUE\"\,\"$energy\"\,\"$crystal\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$AdvMesonQA\"\,$BinsPtEta\,kFALSE\,$mode
 
                     if [ $ONLYOMEGA -eq 1 ]; then

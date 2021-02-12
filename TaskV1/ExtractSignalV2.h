@@ -58,6 +58,13 @@
     TString     fElectronCutSelection                                       = "";
     TString     fMesonCutSelection                                          = "";
 
+    TString     fStrClustersE_BothBM                                        = "";
+    TString     fStrClustersE_BothBM_highestE                               = "";
+    TString     fStrClustersE_AnaBM_highestE                                = "";
+    TString     fStrClustersE_onlyTriggered                                 = "";
+
+
+
     Int_t       fCrysFitting                                                = 0;
     Int_t       fIsMC                                                       = 0;
     Int_t       fMesonId                                                    = 0;
@@ -775,6 +782,12 @@
     //*****************************************************************************
     TH1D*       fHistoClustersPt                                            = nullptr;
     TH1D*       fHistoClustersE                                             = nullptr;
+
+    TH1D*       fHistoClustersE_BothBM                                      = nullptr;
+    TH1D*       fHistoClustersE_BothBM_highestE                             = nullptr;
+    TH1D*       fHistoClustersE_AnaBM_highestE                              = nullptr;
+    TH1D*       fHistoClustersE_onlyTriggered                               = nullptr;
+
     TH1D*       fHistoClustersOverlapHeadersPt                              = nullptr;
 
     //*****************************************************************************
@@ -804,6 +817,10 @@
     TH1D*       fHistoYieldExternResonanceFeedDownInputReb[15]              = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,
                                                                                 nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 
+    Bool_t      fDoClustersE_BothBM                                         = 0;
+    Bool_t      fDoClustersE_BothBM_highestE                                = 0;
+    Bool_t      fDoClustersE_AnaBM_highestE                                 = 0;
+    Bool_t      fDoClustersE_onlyTriggered                                  = 0;
     //*****************************************************************************
     //******** monitoring of SPD pileup histograms ********************************
     //*****************************************************************************

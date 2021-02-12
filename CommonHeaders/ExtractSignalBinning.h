@@ -1358,7 +1358,7 @@
                         case 6: case 62:
                             return 20; //25
                         default:
-                            return 11; //19
+                            return 6; //19
                     }
             //-------------------------------------------------------------------------------------------------------------
             //----------------------------------------------PHOS-PHOS------------------------------------------------------
@@ -1369,7 +1369,7 @@
                         case 62:
                             return 44;
                         default:
-                            return 17;
+                            return 6;
                     }
             //-------------------------------------------------------------------------------------------------------------
             //-----------------------------------------------PCM-EMC-------------------------------------------------------
@@ -1388,12 +1388,12 @@
                 } else if(mode == 44 ||mode == 64){//EMC-EMC
                     scaleFac        = 1.;
                     cout<<"Getting EMC-EMC("<<mode<<") Example Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<trigger<<", while triggerSet is: "<<triggerSet<<endl;
-                    switch (trigger){
-                        case 8: case 81: case 82: case 85: //Due to Current Implementation Trigger EG1 and EG2 are both Case 8
+                    switch (triggerSet){
+                        case 2: case 3:
                             //return 25;
-                            return 44;
+                            return 12;
                         default:
-                            return 17;
+                            return 6;
                     }
             //-------------------------------------------------------------------------------------------------------------
                 } else {
@@ -2475,13 +2475,13 @@
             //------------------------------------------------//PCM-EMCal--------------------------------------------------
                 } else if (mode == 41 || mode == 61){ //PCM-EMCal
                     if (specialTrigg == 2 ){ //7EG1, 7DG1 (8d, 9GeV)
-                        startPtBin = 20;
+                        startPtBin = 12;
                     //------------------------------------
                     } else if (specialTrigg == 3 ){ //7EG2, 7DG2 (8e, 4GeV)
-                        startPtBin = 19;
+                        startPtBin = 9;
                     //------------------------------------
                     } else {  //-1 MB and also 9b
-                        startPtBin = 7;
+                        startPtBin = 3;
                     //------------------------------------
                     }
             //-------------------------------------------------------------------------------------------------------------
@@ -2489,10 +2489,10 @@
                 } else if (mode == 42 || mode == 62){ //PCM-PHOS
                     cout<<"Getting PCM-PHOS("<<mode<<") Start Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<specialTrigg<<endl;
                     if (specialTrigg == 6 ){ //PHI7 (62, 4GeV)
-                        startPtBin = 19;
+                        startPtBin = 9;
                     //------------------------------------
                     } else { //MB
-                        startPtBin = 6;
+                        startPtBin = 3;
                     //------------------------------------
                     }
                     cout<<"=> startBin:"<<startPtBin<<endl;
@@ -2500,13 +2500,13 @@
             //----------------------------------------------EMCal-EMCal----------------------------------------------------
                 } else if (mode == 44 || mode == 64){ //EMCal-EMCal
                     if (specialTrigg == 2 ){ //7EG1, 7DG1 (8d, 9GeV)
-                        startPtBin = 12;
+                        startPtBin = 8;
                     //------------------------------------
                     } else if (specialTrigg == 3 ){ //7EG2, 7DG2 (8e, 4GeV)
-                        startPtBin = 12;
+                        startPtBin = 5;
                     //------------------------------------
                     } else { //MB and also 9b
-                        startPtBin = 3;
+                        startPtBin = 0;
                     //------------------------------------
                     }
             //-------------------------------------------------------------------------------------------------------------
@@ -2514,10 +2514,10 @@
                 } else if (mode == 45 || mode == 65){ //PHOS-PHOS
                     cout<<"Getting PHOS-PHOS("<<mode<<") Start Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<specialTrigg<<endl;
                     if (specialTrigg == 6 ){ //PHI7 (62, 4GeV)
-                        startPtBin = 19;
+                        startPtBin = 5;
                     //------------------------------------
                     } else { //MB
-                        startPtBin = 9;
+                        startPtBin = 5;
                     //------------------------------------
                     }
                     cout<<"=> startBin:"<<startPtBin<<endl;
@@ -4521,117 +4521,99 @@
             //==============================================13TeV==========================================================
             } else if (energy.CompareTo("13TeV") == 0){
                 cout<<energy<<" "<<meson<<" Binning used for mode "<<mode;
-            //-------------------------------------------------------------------------------------------------------------
-            //---------------------------------------------------PCM-------------------------------------------------------
+                //-------------------------------------------------------------------------------------------------------------
+                //---------------------------------------------------PCM-------------------------------------------------------
                 if(mode == 40 || mode == 60){ //PCM-PCM
-                    //cout<<"; PCM-PCM; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCM"<<endl;
-                    //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCM, binning, 52 );
-                    //-----
-                    cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                    maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                    //-----
-                    cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
-            //-------------------------------------------------------------------------------------------------------------
-            //-----------------------------------------------PCM-EMCal-----------------------------------------------------
+                    if ((SpecialTrigger == 0)||(SpecialTrigger == 1)){
+                        cout<<"; PCM-PCM; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMINT7"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMINT7, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPCMINT7_maxBins );
+                        cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
+                        //------------------------------------
+                    } else { //Combined Binning, SpecificMeasurement == -1
+                        cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCM"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCM, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPCM_maxBins );
+                        cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
+                    }
+                    //-------------------------------------------------------------------------------------------------------------
+                    //-----------------------------------------------PCM-EMCal-----------------------------------------------------
                 } else if(mode == 41 || mode == 61){ //PCM-EMCal //For the moment take PCMEMC Int7 for all triggers....
                     if (SpecialTrigger == 2) { //PCM-EMCal EG1 8GeV
                         cout<<"; PCM-EMCal; Special Trigger: "<<SpecialTrigger<<" => EG1 8GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEG1"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEG1, binning, 47 );
-                        //cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
-                        //-----
-                        cout<<"; PCM-EMCal; Special Trigger: "<<SpecialTrigger<<" => EG1 8GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEG1, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEG1_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
-                    //------------------------------------
+                        //------------------------------------
                     } else if (SpecialTrigger == 3) { //PCM-EMCal EG2 4GeV
-                        //cout<<"; PCM-EMCal; Special Trigger: "<<SpecialTrigger<<" => EG2 4GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEG2"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEG2, binning, 43 );
-                        //-----
-                        cout<<"; PCM-EMCal; Special Trigger: "<<SpecialTrigger<<" => EG2 4GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        cout<<"; PCM-EMCal; Special Trigger: "<<SpecialTrigger<<" => EG2 4GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEG2"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEG2, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEG2_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
-                    //------------------------------------
-                    } else { //PCM-EMCal Int 7
-                        //cout<<"; PCM-EMCal; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMC"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMC, binning, 47 );
-                        //-----
-                        cout<<"; PCM-EMCal; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        //------------------------------------
+                    } else if ((SpecialTrigger == 0)||(SpecialTrigger == 1)) { //PCM-EMCal Int 7
+                        cout<<"; PCM-EMCal; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEMC7"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEMC7, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMCEMC7_maxBins );
+                        cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
+                        //------------------------------------
+                    } else { //Combined Binning, SpecificMeasurement == -1
+                        cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMC, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPCMEMC_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
                     }
-            //-------------------------------------------------------------------------------------------------------------
-            //-----------------------------------------------PCM-PHOS------------------------------------------------------
+                    //-------------------------------------------------------------------------------------------------------------
+                    //-----------------------------------------------PCM-PHOS------------------------------------------------------
                 } else if(mode == 42 || mode == 62){ //PCM-PHOS
                     if (SpecialTrigger == 6) { //PCM-PHOS PHI7
-                        //cout<<"; PCM-PHOS; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOS"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOS, binning, 47 );
-                        //-----
-                        cout<<"; PCM-PHOS; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        cout<<"; PCM-PHOS; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOSPHI7"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOSPHI7, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOSPHI7_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
-                    //------------------------------------
-                    } else { //PCM-PHOS MB && -1
-                        //cout<<"; PCM-PHOS; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOS"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOS, binning, 47 );
-                        //-----
-                        cout<<"; PCM-PHOS; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        //------------------------------------
+                    } else if ((SpecialTrigger == 0)||(SpecialTrigger == 1)) { //PCM-PHOS MB && -1
+                        cout<<"; PCM-PHOS; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOSINT7"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOSINT7, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOSINT7_maxBins );
+                        cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
+                        //------------------------------------
+                    } else { //Combined Binning, SpecificMeasurement == -1
+                        cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOS"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOS, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPCMPHOS_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
                     }
-            //-------------------------------------------------------------------------------------------------------------
-            //----------------------------------------------EMCal-EMCal----------------------------------------------------
+                    //-------------------------------------------------------------------------------------------------------------
+                    //----------------------------------------------EMCal-EMCal----------------------------------------------------
                 } else if(mode == 44 || mode == 64){ //EMCal-EMCal
                     if (SpecialTrigger == 2) { //EMCal-EMCal EG1 8GeV
-                        //cout<<"; PCM-PHOS; Special Trigger: "<<SpecialTrigger<<" => EG1 8GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG1"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG1, binning, 52 );
-                        //-----
-                        cout<<"; PCM-PHOS; Special Trigger: "<<SpecialTrigger<<" => EG1 8GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => EG1 8GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG1"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG1, binning, fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG1_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
-                    //------------------------------------
+                        //------------------------------------
                     } else if (SpecialTrigger == 3) { //EMCal-EMCal EG2 4GeV
-                        //cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => EG2 4GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG2"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG2, binning, 52 );
-                        //-----
-                        cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => EG2 4GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => EG2 4GeV; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG2"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG2, binning, fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG2_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
-                    //------------------------------------
-                    } else { //EMCal-EMCal Int 7
-                        //cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtEMC"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtEMC, binning, 52 );
-                        //-----
-                        cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        //------------------------------------
+                    } else if ((SpecialTrigger == 0)||(SpecialTrigger == 1)){ //EMCal-EMCal EMC7
+                        cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => EMC7; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtEMCEMC7"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtEMCEMC7, binning, fBinsOmegaPiPlPiMiPiZero13TevPtEMCEMC7_maxBins );
+                        cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
+                        //------------------------------------
+                    } else { //Combined Binning, SpecificMeasurement == -1
+                        cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtEMC"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtEMC, binning, fBinsOmegaPiPlPiMiPiZero13TevPtEMC_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
                     }
-            //-------------------------------------------------------------------------------------------------------------
-            //----------------------------------------------PHOS-PHOS------------------------------------------------------
+                    //-------------------------------------------------------------------------------------------------------------
+                    //----------------------------------------------PHOS-PHOS------------------------------------------------------
                 } else if(mode == 45 || mode == 65){ //PHOS-PHOS
                     if (SpecialTrigger == 6) { //PCM-PHOS PHI7
-                        //cout<<"; PHOS-PHOS; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPHOS"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPHOS, binning, 52 );
-                        //-----
-                        cout<<"; PHOS-PHOS; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        cout<<"; PHOS-PHOS; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPHOS"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPHOSPHI7, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPHOSPHI7_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
-                    //------------------------------------
-                    } else { //PHOS-PHOS MB && -1
-                        //cout<<"; PHOS-PHOS; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPHOS"<<endl;
-                        //maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPHOS, binning, 52 );
-                        //-----
-                        cout<<"; PHOS-PHOS; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
-                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtCombined, binning, fBinsOmegaPiPlPiMiPiZero13TevPtCombined_maxBins );
-                        //-----
+                        //------------------------------------
+                    } else if ((SpecialTrigger == 0)||(SpecialTrigger == 1)) { //PHOS-PHOS MB && -1
+                        cout<<"; PHOS-PHOS; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtPHOS"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPHOSINT7, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPHOSINT7_maxBins );
+                        cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
+                        //------------------------------------
+                    } else { //Combined Binning, SpecificMeasurement == -1
+                        cout<<"; EMCal-EMCal; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsOmegaPiPlPiMiPiZero13TevPtCombined"<<endl;
+                        maxNBins= CopyVectorToArray( binningMax, fBinsOmegaPiPlPiMiPiZero13TevPtPHOS, binning, fBinsOmegaPiPlPiMiPiZero13TevPtPHOS_maxBins );
                         cout<<"maxNBins=="<<maxNBins<<"; binningMax=="<<binningMax<<endl;
                     }
                 }
@@ -4926,15 +4908,9 @@
             if( modi!=0 && modeHeavy<100 ) {
 
                 if ( (modi == 60 ) || (modi == 62 ) || (modi == 65) || (modi == 61) || (modi == 64)){
-                    fNBinsClusterPt            = fNBinsClusterOmega13TeVPt;
-                    for(Int_t i=0; i<=fNBinsCluster13TeVPt; i++ ){
-                        if (i < 1) fBinsCluster13TeVPt[i]          = 0.3*i;
-                        else if(i<197) fBinsCluster13TeVPt[i]      = 0.3+0.1*(i-1);
-                        else if(i<237) fBinsCluster13TeVPt[i]      = 20.+0.25*(i-197);
-                        else if(i<277) fBinsCluster13TeVPt[i]      = 30.+0.5*(i-237);
-                        else if(i<297) fBinsCluster13TeVPt[i]      = 50.+1.0*(i-277);
-                        else if(i<307) fBinsCluster13TeVPt[i]      = 70.+2.5*(i-297);
-                        else fBinsCluster13TeVPt[i]                = 100;
+                    fNBinsClusterPt            = fNBinsCluster13TeVmEMCPt;
+                    for(Int_t iPt=0;iPt<=fNBinsClusterPt;iPt++){
+                        fBinsCluster13TeVPt[iPt] = fBinsCluster13TeVmEMCPt[iPt];
                     }
 
                 }else if(modi == 10){
@@ -8355,97 +8331,81 @@ TString rBin = photonCutSelection(2,1);
             //-------------------------------------------------------------------------------------------------------------
             //---------------------------------------------------PCM-------------------------------------------------------
                     if(modi == 40 || modi == 60)      { //PCM-PCM
-                        //if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PCM; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCM"<<endl;}
-                        //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCM[i];
-                        //----
-                        if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PCM; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMCombined"<<endl;}
-                        fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMCombined[i];
+                        if ((specialTrigg == 0)||(specialTrigg == 1)){ //MB && -1
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PCM; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCM"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMINT7[i];
+                        } else {
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PCM; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCM"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCM[i];
+                        }
             //-------------------------------------------------------------------------------------------------------------
             //------------------------------------------------PCM-EMCal----------------------------------------------------
                     }else if(modi == 41 || modi == 61) { //PCM-EMCal
                         if (specialTrigg == 2) { //PCM-EMCal EG1 8GeV
                             if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-EMCal; specialTrigg: "<<specialTrigg<<";  EG1 8GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEG1"<<endl;}
                             fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEG1[i];
-                            //-----
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-EMCal; specialTrigg: "<<specialTrigg<<";  EG1 8GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEG1Combined"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEG1Combined[i];
                         //------------------------------------
                         } else if (specialTrigg == 3) {//PCM-EMCal EG2 4GeV //for now take EG2 Rebin, INt7 Binning is used here
                             if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-EMCal; specialTrigg: "<<specialTrigg<<";  EG2 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEG2"<<endl;}
                             fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEG2[i];
-                            //-----
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-EMCal; specialTrigg: "<<specialTrigg<<";  EG2 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEG2Combined"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEG2Combined[i];
                         //------------------------------------
+                        } else if ((specialTrigg == 0)||(specialTrigg == 1)){ //MB && -1
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-EMCal; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEMC7"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCEMC7[i];
                         } else { //MB && -1
                             if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-EMCal; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMC"<<endl;}
                             fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMC[i];
-                            //-----
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-EMCal; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCCombined"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMEMCCombined[i];
                         }
             //-------------------------------------------------------------------------------------------------------------
             //----------------------------------------------PCM-PHOS-------------------------------------------------------
                     }else if(modi == 42 || modi == 62) { //PCM-PHOS
                         if (specialTrigg == 6 ){ //PCM-PHOS PHI7 4GeV
-                            if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PHOS; specialTrigg: "<<specialTrigg<<"; PHI7 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOSPHI7"<<endl;}
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PHOS; specialTrigg: "<<specialTrigg<<"; PHI7 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSPHI7"<<endl;}
                             fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOSPHI7[i];
-                            //-----
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PHOS; specialTrigg: "<<specialTrigg<<"; PHI7 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOSPHI7Combined"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOSPHI7Combined[i];
                         //------------------------------------
+                        } else if ((specialTrigg == 0)||(specialTrigg == 1)) { //PCM-PHOS PCM-PHOS MB && -1
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PHOS; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOSINT7"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOSINT7[i];
                         } else { //PCM-PHOS PCM-PHOS MB && -1
-                            if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PHOS; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOS"<<endl;}
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PHOS; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOS"<<endl;}
                             fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOS[i];
-                            //-----
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; PCM-PHOS; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOSCombined"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMPHOSCombined[i];
                         }
             //-------------------------------------------------------------------------------------------------------------
             //-------------------------------------------EMCal-EMCal-------------------------------------------------------
                     }else if(modi == 44 || modi == 64) { //EMCal-EMCal
                         if (specialTrigg == 2) { //EMCal-EMCal EG1 8GeV
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; EG1 8GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG1"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG1[i];
-                            //-----
-                            if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; EG1 8GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG1Combined"<<endl;}
-                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG1Combined[i];
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; EG1 8GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG1"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG1[i];
                         //------------------------------------
                         } else if (specialTrigg == 3) { //EMCal-EMCal EG2 4Gev
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; EG2 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG2"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG2[i];
-                            //-----
-                            if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; EG2 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG2Combined"<<endl;}
-                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG2Combined[i];
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; EG2 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG2"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG2[i];
                         //------------------------------------
+                        } else if ((specialTrigg == 0)||(specialTrigg == 1)) { //EMCal-EMCal MB && -1
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEMC7"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEMC7[i];
                         } else { //EMCal-EMCal MB && -1
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMC"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMC[i];
-                            //-----
-                            if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCCombined"<<endl;}
-                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCCombined[i];
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; EMCal-EMCal; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMC"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMC[i];
                         }
             //-------------------------------------------------------------------------------------------------------------
             //---------------------------------------------PHOS-PHOS-------------------------------------------------------
                     }else if(modi == 45 || modi == 65) { //PHOS-PHOS
                         if (specialTrigg == 6 ){ //PHOS-PHOS PHI7 4GeV
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; PHOS-PHOS; specialTrigg: "<<specialTrigg<<"; PHI7 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSPHI7"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSPHI7[i];
-                            //-----
-                            if (i==0){cout<<"Rebin mode "<<modi<<"; PHOS-PHOS; specialTrigg: "<<specialTrigg<<"; PHI7 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSPHI7Combined"<<endl;}
-                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSPHI7Combined[i];
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; PHOS-PHOS; specialTrigg: "<<specialTrigg<<"; PHI7 4GeV; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSPHI7"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSPHI7[i];
                         //------------------------------------
+                        } else if ((specialTrigg == 0)||(specialTrigg == 1)) { //PHOS-PHOS MB && -1
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; PHOS-PHOS; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSINT7"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSINT7[i];
                         } else { //PHOS-PHOS MB && -1
-                            //if (i==0){cout<<"Rebin mode "<<modi<<"; PHOS-PHOS; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOS"<<endl;}
-                            //fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOS[i];
-                            //-----
-                            if (i==0){cout<<"Rebin mode "<<modi<<"; PHOS-PHOS; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSCombined"<<endl;}
-                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOSCombined[i];
+                            if (i==0){cout<<"Rebin mode "<<modi<<"; PHOS-PHOS; specialTrigg: "<<specialTrigg<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOS"<<endl;}
+                            fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPHOS[i];
                         }
             //-------------------------------------------------------------------------------------------------------------
                     }else                {
-                        if (i==0){cout<<"Rebin mode "<<modi<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCM"<<endl;}
-                        fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinPCMCombined[i];
+                        if (i==0){cout<<"Rebin mode "<<modi<<"; fBinsOmegaPiPlPiMiPiZero13TevPtRebinCombined"<<endl;}
+                        fNRebin[i] = fBinsOmegaPiPlPiMiPiZero13TevPtRebinCombined[i];
                     }
                 }
             //=============================================================================================================

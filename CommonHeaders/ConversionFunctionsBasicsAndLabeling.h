@@ -764,15 +764,15 @@
     //************************************************************************************
     //********************* get number of events for PCM/calo analysis *******************
     //************************************************************************************
-    Int_t GetNEvents (  TH1* histo,
+    ULong_t GetNEvents (  TH1* histo,
                         Bool_t doCout=kTRUE){
         Int_t debugOutputLevel=0;
         if (debugOutputLevel>=1){cout<<"Debug, ConversionFunctionsBasicsAndLabeling.h, Line: "<<__LINE__<<"; histo->GetNbinsX(): "<<histo->GetNbinsX()<<endl;}
         if (!histo) cout << "NO EVENT HISTO" << endl;
         if(histo->GetNbinsX()==11){
             if(histo->GetEntries()-histo->GetBinContent(5)-histo->GetBinContent(7)-histo->GetBinContent(4)==0) return 0;
-            Int_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
-            Int_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9);
+            ULong_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
+            ULong_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9);
             for (Int_t i = 1; i<12; i++ ){
                 if(doCout) cout << histo->GetBinContent(i) << "\t";
             }
@@ -794,8 +794,8 @@
             return nEvents;
         }else if(histo->GetNbinsX()==12){
             if(histo->GetEntries()-histo->GetBinContent(5)-histo->GetBinContent(7)-histo->GetBinContent(12)-histo->GetBinContent(4)==0) return 0;
-            Int_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
-            Int_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9)-histo->GetBinContent(2);
+            ULong_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
+            ULong_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9)-histo->GetBinContent(2);
             for (Int_t i = 1; i<13; i++ ){
                 if(doCout) cout << histo->GetBinContent(i) << "\t";
             }
@@ -819,8 +819,8 @@
             return nEvents;
         }else if(histo->GetNbinsX()==13){
             if(histo->GetEntries()-histo->GetBinContent(5)-histo->GetBinContent(7)-histo->GetBinContent(12)-histo->GetBinContent(4)-histo->GetBinContent(13)==0) return 0;
-            Int_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
-            Int_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9)-histo->GetBinContent(2);
+            ULong_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
+            ULong_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9)-histo->GetBinContent(2);
             for (Int_t i = 1; i<14; i++ ){
                 if(doCout) cout << histo->GetBinContent(i) << "\t";
             }
@@ -845,8 +845,8 @@
             return nEvents;
         }else if(histo->GetNbinsX()==14){
             if(histo->GetEntries()-histo->GetBinContent(5)-histo->GetBinContent(7)-histo->GetBinContent(12)-histo->GetBinContent(4)-histo->GetBinContent(13)-histo->GetBinContent(14)==0) return 0;
-            Int_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
-            Int_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9)-histo->GetBinContent(2);
+            ULong_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
+            ULong_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9)-histo->GetBinContent(2);
             for (Int_t i = 1; i<15; i++ ){
                 if(doCout) cout << "("<<i<<")" << histo->GetBinContent(i) << "\t";
             }
@@ -872,8 +872,8 @@
             return nEvents;
         }else if(histo->GetNbinsX()==15){
             if(histo->GetEntries()-histo->GetBinContent(5)-histo->GetBinContent(7)-histo->GetBinContent(12)-histo->GetBinContent(4)-histo->GetBinContent(13)-histo->GetBinContent(14)-histo->GetBinContent(15)==0) return 0;
-            Int_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
-            Int_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9)-histo->GetBinContent(2);
+            ULong_t nEvents = histo->GetBinContent(1)+(histo->GetBinContent(1)/(histo->GetBinContent(1)+histo->GetBinContent(5)))*histo->GetBinContent(6);
+            ULong_t nEventsMB = histo->GetEntries()-histo->GetBinContent(4) -histo->GetBinContent(8)-histo->GetBinContent(9)-histo->GetBinContent(2);
             for (Int_t i = 1; i<16; i++ ){
                 if(doCout) cout << histo->GetBinContent(i) << "\t";
             }

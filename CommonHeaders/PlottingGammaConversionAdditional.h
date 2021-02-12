@@ -4709,6 +4709,8 @@
             return 28;
         if ( variationName.CompareTo("DoubleCount") == 0)
             return 29;
+        if ( variationName.CompareTo("ExoticCluster") == 0)
+            return 29;
         if ( variationName.CompareTo("ClusterMinEnergy") == 0 )
             return 29;
         if ( variationName.CompareTo("ClusterNCells") == 0 )
