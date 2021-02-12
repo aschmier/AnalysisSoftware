@@ -5963,7 +5963,7 @@ TString rBin = photonCutSelection(2,1);
                 TString heavyIonCut = eventCutSelection(0, 1);
                 TString multiplicityCut = eventCutSelection(1, 2);
                 TString sharedElecCut = photonCutSelection(21, 1);
-                Int_t iDet = photonCutSelection(21,1).Atoi();
+                Int_t iDet = sharedElecCut.Atoi();
 
                 // Pi0 DCAz
                 if (heavyIonCut.CompareTo("m") == 0) {
