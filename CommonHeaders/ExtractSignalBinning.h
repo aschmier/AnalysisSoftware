@@ -2557,11 +2557,6 @@
                 if (mode == 0){
                     startPtBin      = 1;
                 }
-            } else if (energy.CompareTo("13TeV") == 0 ){
-                if (mode == 0){
-                    printf("13tev directphoton\n");
-                    startPtBin      = 2;
-                }
             } else if (energy.BeginsWith("5TeV") == 0 ){
                 if ( mode == 0){
                     startPtBin = 1;
@@ -2949,9 +2944,8 @@
                                 } else if (centrality.Contains("V0M")) {
                                     maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMMultBinsPt, binning, 54 );
                                 } else {
-                                   cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeV_PCM_CombinedBinning"<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMMultBinsPt, binning, 54 );
-				//    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCM_CombinedBinning, binning, 66 );
+                                    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeV_PCM_CombinedBinning"<<endl;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCM_CombinedBinning, binning, 66 );
                                 }
                                 break;
                             case 1: cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7Pt"<<endl; maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigEMC7Pt, binning, 64 ); break;
@@ -3855,8 +3849,7 @@
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMMultBinsPt, binning, 16 );
                                 }else  {
 				    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCM_CombinedBinning"<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMMultBinsPt, binning, 16 );
-                                    // maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCM_CombinedBinning, binning, 28 ) ;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCM_CombinedBinning, binning, 28 ) ;
                                 }
                                 cout << "maxNBins"<< maxNBins<< endl;
                                 break;
@@ -5753,6 +5746,10 @@ TString rBin = photonCutSelection(2,1);
             //*********************************************************************************************
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ) {
                 if (directPhoton.CompareTo("directPhoton") == 0){
+                    if (modi == 0) {
+                        GetBinning( fBinsPt, maxPtBinAvail, "Gamma", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis);
+                    }
+
                     fStartPtBin                 = GetStartBin("Pi0", energy, modi, specialTrigg, centrality);
                     if (fNBinsPt > 75) {
                         cout << "You have chosen Direct Photon Plots and more than 75 bins, this is not possible, it will be reduced to 75 bins." << endl;
@@ -5963,10 +5960,10 @@ TString rBin = photonCutSelection(2,1);
                 //		    optionBGSmoothingVar1       = "BackDecreasingWindow,BackSmoothing7";
                 //		    optionBGSmoothingVar2       = "BackDecreasingWindow,BackSmoothing3";
                 TString rBin = photonCutSelection(2,1);
-                TString iDet = photonCutSelection(21,1);
                 TString heavyIonCut = eventCutSelection(0, 1);
                 TString multiplicityCut = eventCutSelection(1, 2);
                 TString sharedElecCut = photonCutSelection(21, 1);
+                Int_t iDet = photonCutSelection(21,1).Atoi();
 
                 // Pi0 DCAz
                 if (heavyIonCut.CompareTo("m") == 0) {
