@@ -671,7 +671,7 @@ void AnalyseDCADist(    TString meson           ="",
                     fFitDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]->SetParameter(2,fitWithHole->GetParameter(2));
                     fFitDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]->SetParError(2,fitWithHole->GetParError(2));
                 }
-                if (fSharedElecCut.CompareTo("6") == 0 || fSharedElecCut.CompareTo("7") == 0) {
+                if (fSharedElecCut.CompareTo("7") == 0) {
                     fHistDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]     = (TH1F*)fHistDCAZUnderMeson_MesonPt_AllCat[j]->ShowBackground(nIterBGFit+2,optionBGSmoothingStandard.Data());
                 } else {
                     fHistDCAZUnderMesonBGEstimate_MesonPt_AllCat[j]     = (TH1F*)fHistDCAZUnderMeson_MesonPt_AllCat[j]->ShowBackground(nIterBGFit,optionBGSmoothingStandard.Data());
