@@ -1034,7 +1034,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         fMesonId                  = 223;
 
         // what function is used to fit total background (alternative to event mixing)
-        fTotalBackFitMode = 3; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3
+        fTotalBackFitMode = 3; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3; 7: exp only; 8: gauss+exp
         fFitRangeForMaximumMode = 0; //Meson Range
         if (fEnergyFlag.Contains("13TeV")){
             if(mode == 60 || mode == 61 || mode == 62 || mode == 64 || mode == 65){
