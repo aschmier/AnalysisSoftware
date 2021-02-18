@@ -46,6 +46,7 @@ Bool_t  DoMonitoring_WidthFWHM                              = kTRUE;
 Bool_t  DoMonitoring_WidthFWHMToSigma                       = kTRUE;
 Bool_t  DoMonitoring_WidthSigma                             = kTRUE;
 Bool_t  DoMonitoring_Amplitude                              = kTRUE;
+Bool_t  DoMonitoring_BackFitParameters                      = kTRUE;
 
 // TSring
 TString fTextCent;
@@ -289,6 +290,16 @@ TH1D*   fHistoYieldTrueMeson_FixedPzPiZero[3]               = {NULL, NULL, NULL}
 TH1D*   fHistoYieldTrueMesonReweighted[3]                   = {NULL, NULL, NULL};
 TH1D*   fHistoYieldTrueMesonReweighted_SubPiZero[3]         = {NULL, NULL, NULL};
 TH1D*   fHistoYieldTrueMesonReweighted_FixedPzPiZero[3]     = {NULL, NULL, NULL};
+
+//BackFit
+const Int_t     fMaxPossibleNumOfBackgroundFits=            5;
+Int_t           fMaxNumOfBackgroundFits=                    fMaxPossibleNumOfBackgroundFits;
+TH1D*           fHistoBackgroundFitPolParameter[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+TH1D*           fHistoBackgroundFitPolParameter_SubPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+TH1D*           fHistoBackgroundFitPolParameter_FixedPzPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
 
 TH1D*   fHistoMCMesonAcceptPt                               = NULL;
 TH1D*   fHistoMCMesonEffiPt                                 = NULL;
@@ -698,6 +709,32 @@ Double_t* fMesonTrueAmplitudeReweighted=					NULL;
 Double_t* fMesonTrueAmplitudeReweighted_SubPiZero=			NULL;
 Double_t* fMesonTrueAmplitudeReweighted_FixedPzPiZero=		NULL;
 
+//BackFit
+Double_t*           fBackgroundFitPolParameter[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+Double_t*           fBackgroundFitPolParameter_SubPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+Double_t*           fBackgroundFitPolParameter_FixedPzPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+Double_t*           fBackgroundFitPolParameterErr[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+Double_t*           fBackgroundFitPolParameterErr_SubPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+Double_t*           fBackgroundFitPolParameterErr_FixedPzPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+Double_t           fBackgroundFitPolParameterMaximumValue[fMaxPossibleNumOfBackgroundFits]=
+                        {0., 0., 0., 0., 0.};
+Double_t           fBackgroundFitPolParameterMaximumValue_SubPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {0., 0., 0., 0., 0.};
+Double_t           fBackgroundFitPolParameterMaximumValue_FixedPzPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {0., 0., 0., 0., 0.};
+Double_t           fBackgroundFitPolParameterMinimumValue[fMaxPossibleNumOfBackgroundFits]=
+                        {0., 0., 0., 0., 0.};
+Double_t           fBackgroundFitPolParameterMinimumValue_SubPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {0., 0., 0., 0., 0.};
+Double_t           fBackgroundFitPolParameterMinimumValue_FixedPzPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {0., 0., 0., 0., 0.};
+
 Double_t fScaleFac  =                                         1.;
 
 Double_t* fGGYieldsError[6]                             = {NULL, NULL, NULL, NULL, NULL, NULL};
@@ -1038,7 +1075,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         fFitRangeForMaximumMode = 0; //Meson Range
         if (fEnergyFlag.Contains("13TeV")){
             if(mode == 60 || mode == 61 || mode == 62 || mode == 64 || mode == 65){
-               fTotalBackFitMode = 3;
+               fTotalBackFitMode = 6;
                fFitRangeForMaximumMode = 0; //1 for pure fit
             }
         }
