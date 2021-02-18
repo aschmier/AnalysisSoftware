@@ -2928,7 +2928,6 @@
 
             } else if (energy.CompareTo("13TeV") == 0  || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0){
 
-                Int_t BinningChoice_Pi0_PCMPHOS=1;
                 if (DCAcase==kTRUE) CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7PtDCA, binning, 27 );
                 // Copy binning according to cases
                 else switch(mode) {
@@ -2996,13 +2995,8 @@
                                     maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
 
                                 } else {
-                                    if (BinningChoice_Pi0_PCMPHOS==1){//------------------------------------Std PCM-PHOS Binning MB_Preview
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<" => MB; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_CombinedBinning_Reduced_INT7_Preview"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_CombinedBinning_Reduced_INT7_Preview, binning, 83 );
-                                    } else{ //------------------------------------Std PCM-PHOS Binning MB
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<" => MB; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_CombinedBinning_Reduced_INT7"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_CombinedBinning_Reduced_INT7, binning, 92 );
-                                    }
+                                    cout<<"; Special Trigger: "<<SpecialTrigger<<" => MB; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_INT7"<<"; Line: "<<__LINE__<<endl;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_INT7, binning, 83 );
                                 }
                                 break;
                             case 6:
@@ -3014,16 +3008,8 @@
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7RBinsPt"<<endl;
                                     maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 } else {
-                                    if (BinningChoice_Pi0_PCMPHOS==1){//------------------------------------Std PCM-PHOS Binning Reduced PHI7_Preview
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_CombinedBinning_Reduced_PHI7_Preview"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_CombinedBinning_Reduced_PHI7_Preview, binning, 54 );
-                                    } else if (BinningChoice_Pi0_PCMPHOS==2){//------------------------------------Std PCM-PHOS Binning PHI7
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsPi013TeV_CombinedBinning"<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_CombinedBinning, binning, 107 );
-                                    } else {//------------------------------------Std PCM-PHOS Binning Reduced PHI7
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_CombinedBinning_Reduced_PHI7"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_CombinedBinning_Reduced_PHI7, binning, 67 );
-                                    }
+                                    cout<<"; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_PHI7"<<"; Line: "<<__LINE__<<endl;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_PHI7, binning, 54 );
                                 }
                                 break;
                             default:
@@ -3035,13 +3021,8 @@
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeVPCMTrigINT7RBinsPt"<<endl;
                                     maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 } else {
-                                    if (BinningChoice_Pi0_PCMPHOS==1){//------------------------------------Std PCM-PHOS Binning Combined_Preview
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_CombinedBinning_Preview"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_CombinedBinning_Preview, binning, 91 );
-                                    } else {//------------------------------------Std PCM-PHOS Binning Combined
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_CombinedBinning"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_CombinedBinning, binning, 104 );
-                                    }
+                                    cout<<"; Special Trigger: "<<SpecialTrigger<<" => default; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_CombinedBinning"<<"; Line: "<<__LINE__<<endl;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_CombinedBinning, binning, 91 );
                                 }
                                 break;
                         }
@@ -3835,7 +3816,6 @@
 
             } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  ){
 
-                Int_t BinningChoice_Eta_PCMPHOS=1;
                 switch(mode) {
                     case 0: //PCM-PCM
                         cout<<"13 TeV "<<energy<<" Binning used for mode "<<mode << "  SpecialTrigger::"<< SpecialTrigger << endl;
@@ -3886,13 +3866,8 @@
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeVPCMTrigINT7RBinsPt"<<endl;
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 } else {
-                                    if (BinningChoice_Eta_PCMPHOS==1){//------------------------------------PCM Binning, for Combination of Measurements_Preview
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_CombinedBinning_Reduced_INT7_Preview"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_CombinedBinning_Reduced_INT7_Preview, binning, 29 );
-                                    } else{//------------------------------------PCM Binning, for Combination of Measurements
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_CombinedBinning_Reduced_INT7"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_CombinedBinning_Reduced_INT7, binning, 33 );
-                                    }
+                                    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_INT7"<<"; Line: "<<__LINE__<<endl;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_INT7, binning, 29 );
                                 }
                                 break;
                             case 6:
@@ -3904,13 +3879,8 @@
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeVPCMTrigINT7RBinsPt"<<endl;
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 } else {
-                                    if (BinningChoice_Eta_PCMPHOS==1){//------------------------------------PCM Binning, for Combination of Measurements_Preview
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_CombinedBinning_Reduced_PHI7_Preview"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_CombinedBinning_Reduced_PHI7_Preview, binning, 17 );
-                                    } else{//------------------------------------PCM Binning, for Combination of Measurements
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_CombinedBinning_Reduced_PHI7"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_CombinedBinning_Reduced_PHI7, binning, 21 );
-                                    }
+                                    cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_PHI7"<<"; Line: "<<__LINE__<<endl;
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_PHI7, binning, 17 );
                                 }
                                 break;
                             default:
@@ -3922,13 +3892,8 @@
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeVPCMTrigINT7RBinsPt"<<endl;
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 } else {
-                                    if (BinningChoice_Eta_PCMPHOS==1){//------------------------------------PCM Binning, for Combination of Measurements_Preview
-                                        cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_CombinedBinning_Preview"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_CombinedBinning_Preview, binning, 31 );
-                                    }  else {//------------------------------------PCM Binning, for Combination of Measurements
                                         cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_CombinedBinning"<<"; Line: "<<__LINE__<<endl;
-                                        maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_CombinedBinning, binning, 36 );
-                                    }
+                                        maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_CombinedBinning, binning, 31 );
                                 }
                                 break;
                         }
@@ -5810,12 +5775,8 @@ TString rBin = photonCutSelection(2,1);
                                         //------------------------------------Std PCM RBins Rebin
                                         fNRebin[i]      = fBinsPi013TeVPCMTrigINT7RBinsPtRebin[i];
                                     } else {
-                                        //------------------------------------PCM Rebin, for Combination of Measurements
-                                        //fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning[i];
                                         //------------------------------------PCM Rebin, for Combination of Measurements Reduced
-                                        //fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7[i];
-                                        //------------------------------------PCM Rebin, for Combination of Measurements Reduced
-                                        fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7_Preview[i];
+                                        fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_INT7[i];
                                     }
                                     break;
                                 case 6:
@@ -5825,12 +5786,8 @@ TString rBin = photonCutSelection(2,1);
                                         //------------------------------------Std PCM RBins Rebin
                                         fNRebin[i]      = fBinsPi013TeVPCMTrigINT7RBinsPtRebin[i];
                                     } else {
-                                        //------------------------------------PCM Rebin, for Combination of Measurements
-                                        //fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning[i];
                                         //------------------------------------PCM Rebin, for Combination of Measurements Reduced
-                                        //fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7[i];
-                                        //------------------------------------PCM Rebin, for Combination of Measurements Reduced
-                                        fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7_Preview[i];
+                                        fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_PHI7[i];
                                     }
                                     break;
                                 default:
@@ -5841,9 +5798,7 @@ TString rBin = photonCutSelection(2,1);
                                         fNRebin[i]      = fBinsPi013TeVPCMTrigINT7RBinsPtRebin[i];
                                     } else {
                                         //------------------------------------PCM Rebin, for Combination of Measurements
-                                        //fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning[i];
-                                        //------------------------------------PCM Rebin, for Combination of Measurements
-                                        fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning_Preview[i];
+                                        fNRebin[i]      = fBinsPi013TeV_PCMPHOS_Rebin_CombinedBinning[i];
                                     }
                                     break;
                                 }
@@ -7251,11 +7206,8 @@ TString rBin = photonCutSelection(2,1);
                                         CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin,fNRebin);
                                     } else {
                                         //------------------------------------PCM Rebin, for Combination of Measurements
-                                        //cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7"<<endl;
-                                        //CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7,fNRebin);
-                                        //------------------------------------PCM Rebin, for Combination of Measurements
-                                        cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7_Preview"<<endl;
-                                        CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7_Preview,fNRebin);
+                                        cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_INT7"<<endl;
+                                        CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_INT7,fNRebin);
                                     }
                                     break;
                                 case 6:
@@ -7268,11 +7220,8 @@ TString rBin = photonCutSelection(2,1);
                                     CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin,fNRebin);
                                     } else {
                                         //------------------------------------PCM Rebin, for Combination of Measurements
-                                        //cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7"<<endl;
-                                        //CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7,fNRebin);
-                                        //------------------------------------PCM Rebin, for Combination of Measurements
-                                        cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7"<<endl;
-                                        CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7_Preview,fNRebin);
+                                        cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_PHI7"<<endl;
+                                        CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_PHI7,fNRebin);
                                     }
                                     break;
                                 default:
@@ -7285,11 +7234,8 @@ TString rBin = photonCutSelection(2,1);
                                     CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin,fNRebin);
                                     } else {
                                         //------------------------------------PCM Rebin, for Combination of Measurements
-                                        //cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning"<<endl;
-                                        //CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning,fNRebin);
-                                        //------------------------------------PCM Rebin, for Combination of Measurements
                                         cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning"<<endl;
-                                        CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Preview,fNRebin);
+                                        CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning,fNRebin);
                                     }
                                     break;
                             }
@@ -7392,11 +7338,8 @@ TString rBin = photonCutSelection(2,1);
                                     CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin,fNRebin);
                                 } else {
                                     //------------------------------------PCM Rebin, for Combination of Measurements
-                                    //cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7"<<endl;
-                                    //CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7,fNRebin);
-                                    //------------------------------------PCM Rebin, for Combination of Measurements
-                                    cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7_Preview"<<endl;
-                                    CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_INT7_Preview,fNRebin);
+                                    cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_INT7"<<endl;
+                                    CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_INT7,fNRebin);
                                 }
                                 break;
                             case 6:
@@ -7409,11 +7352,8 @@ TString rBin = photonCutSelection(2,1);
                                 CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin,fNRebin);
                                 } else {
                                     //------------------------------------PCM Rebin, for Combination of Measurements
-                                    //cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7"<<endl;
-                                    //CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7,fNRebin);
-                                    //------------------------------------PCM Rebin, for Combination of Measurements
-                                    cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7_Preview"<<endl;
-                                    CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Reduced_PHI7_Preview,fNRebin);
+                                    cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_PHI7"<<endl;
+                                    CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_PHI7,fNRebin);
                                 }
                                 break;
                             default:
@@ -7426,11 +7366,8 @@ TString rBin = photonCutSelection(2,1);
                                 CopyVectorToArray(fBinsEta13TeVPCMTrigINT7RBinsPtRebin,fNRebin);
                                 } else {
                                     //------------------------------------PCM Rebin, for Combination of Measurements
-                                    //cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning"<<endl;
-                                    //CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning,fNRebin);
-                                    //------------------------------------PCM Rebin, for Combination of Measurements
-                                    cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Preview"<<endl;
-                                    CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning_Preview,fNRebin);
+                                    cout<<"Use Rebin Vector: fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning"<<endl;
+                                    CopyVectorToArray(fBinsEta13TeV_PCMPHOS_Rebin_CombinedBinning,fNRebin);
                                 }
                                 break;
                             }
