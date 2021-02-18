@@ -18,7 +18,7 @@ Int_t fCrysFitting                                          = 0;
 Int_t fIsMC                                                 = 0;
 Int_t fMesonId                                              = 0;
 Float_t fBackgroundMultNumber;
-Int_t fTotalBackFitMode                                     = 1; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3
+Int_t fTotalBackFitMode                                     = 1; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3; 7: exp only; 8: gauss+exp
 Int_t fFitRangeForMaximumMode                               = 0; // MesonRange for Maximum extraction for Fit: 0==Meson, 1==Peak, 2==Fit
 
 Double_t fYMaxMeson                                         = 0.9;
