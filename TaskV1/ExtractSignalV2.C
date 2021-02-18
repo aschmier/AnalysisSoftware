@@ -2623,6 +2623,9 @@ void ExtractSignalV2(
     DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassExpect, fMesonMassExpect, 1, kGray+2, 2);
     DrawGammaLines(0., fBinsPt[fNBinsPt], fMesonMassRange[1], fMesonMassRange[1], 1, kRed+1, 2);
 
+    PutProcessLabelAndEnergyOnPlot(0.55, 0.95, 0.035, fCollisionSystem.Data(), fTextMeasurement.Data(), fDetectionProcess.Data());
+
+
     if (fIsMC) canvasMesonMass->SaveAs(Form("%s/%s_MC_MesonMass%s_%s.%s",outputDirMon.Data(),fPrefix.Data(),addSigString.Data(),fCutSelection.Data(),Suffix.Data()));
     else canvasMesonMass->SaveAs(Form("%s/%s_data_MesonMass_%s.%s",outputDirMon.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
 
@@ -5527,12 +5530,12 @@ void FillPtHistos(){
             fHistoTrueMassMeson->SetBinError(iPt,fMesonTrueMassError[iPt-1]);
             fHistoTrueMassGaussianMeson->SetBinContent(iPt,fMesonTrueMassGaussian[iPt-1]);
             fHistoTrueMassGaussianMeson->SetBinError(iPt,fMesonTrueMassGaussianError[iPt-1]);
- 
+
             fHistoTrueMassMesonReweighted->SetBinContent(iPt,fMesonTrueMassReweighted[iPt-1]);
             fHistoTrueMassMesonReweighted->SetBinError(iPt,fMesonTrueMassReweightedError[iPt-1]);
             fHistoTrueMassMesonUnweighted->SetBinContent(iPt,fMesonTrueMassUnweighted[iPt-1]);
             fHistoTrueMassMesonUnweighted->SetBinError(iPt,fMesonTrueMassUnweightedError[iPt-1]);
- 
+
             fHistoTrueFWHMMeson->SetBinContent(iPt,fMesonTrueFWHM[iPt-1]);
             fHistoTrueFWHMMeson->SetBinError(iPt,fMesonTrueFWHMError[iPt-1]);
             fHistoTrueWidthGaussianMeson->SetBinContent(iPt,fMesonTrueWidthGaussian[iPt-1]);
@@ -5541,12 +5544,12 @@ void FillPtHistos(){
             fHistoTrueFWHMMesonReweighted->SetBinError(iPt,fMesonTrueFWHMReweightedError[iPt-1]);
             fHistoTrueFWHMMesonUnweighted->SetBinContent(iPt,fMesonTrueFWHMUnweighted[iPt-1]);
             fHistoTrueFWHMMesonUnweighted->SetBinError(iPt,fMesonTrueFWHMUnweightedError[iPt-1]);
- 
+
             fHistoTrueSignMeson->SetBinContent(iPt,fMesonTrueSign[iPt-1]);
             fHistoTrueSignMeson->SetBinError(iPt,fMesonTrueSignError[iPt-1]);
             fHistoTrueSBMeson->SetBinContent(iPt,fMesonTrueSB[iPt-1]);
             fHistoTrueSBMeson->SetBinError(iPt,fMesonTrueSBError[iPt-1]);
- 
+
             if (fAdvancedMesonQA && (fMode == 2 || fMode == 13 || fMode == 3 || fMode == 4 || fMode == 12 || fMode == 5 || fMode==14)){
                 fHistoTrueMassMesonCaloConvPhoton->SetBinContent(iPt,fMesonTrueMassCaloConvPhoton[iPt-1]);
                 fHistoTrueMassMesonCaloConvPhoton->SetBinError(iPt,fMesonTrueMassErrorCaloConvPhoton[iPt-1]);
