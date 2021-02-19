@@ -1661,47 +1661,6 @@ void PrimaryTrackQA(
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_HighPt | could not be found! Skipping Draw...") << endl;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         }
         //-------------------------------------------------------------------------------------------------------------------------------
         //-------------------------|Get Histograms: AfterQA (Pion Cut folder in Cut number directory)|--------------------------------------
