@@ -30,6 +30,7 @@ void PrimaryTrackQA(
     TH1::AddDirectory(kFALSE);
     StyleSettingsThesis();
     SetPlotStyle();
+    Int_t doDebugOutputLevel                  = 0;
     //**************************************************************************************************************
     //****************************** Setting common variables ******************************************************
     //**************************************************************************************************************
@@ -3965,8 +3966,11 @@ void PrimaryTrackQA(
     //---------------------------------------|Compare Histograms: MC vs True Histograms|---------------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------------
     if (isMC){
-        if(vecMCvsTrueAllPosPions_Pt.size()>0){
-            for (Int_t iVec=0; iVec<(Int_t)vecMCvsTrueAllPosPions_Pt.size();iVec++){
+        cout<<"---------------------------------------|Compare Histograms: MC vs True Histograms|---------------------------------------------"<<endl;
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<endl;}
+        if(vecMC_AllPosPions_Pt.size()>0){
+            if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<"; vecMCvsTrueAllPosPions_Pt"<<endl;}
+            for (Int_t iVec=0; iVec<(Int_t)vecMC_AllPosPions_Pt.size();iVec++){
                 vecMCvsTrueAllPosPions_Pt[iVec].at(0)=vecMC_AllPosPions_Pt.at(iVec);
                 vecMCvsTrueAllPosPions_Pt[iVec].at(1)=(TH1D*)vecESD_TruePosPion_Pt.at(iVec)->Clone("ESD_TruePosPion_PtClone");
                 vecMCvsTrueAllNegPions_Pt[iVec].at(0)=vecMC_AllNegPions_Pt.at(iVec);
@@ -3977,10 +3981,13 @@ void PrimaryTrackQA(
                 vecMCvsTrueNegPionsFromNeutralMeson_Pt[iVec].at(1)=(TH1D*)vecESD_TrueNegPionFromNeutralMeson_Pt.at(iVec)->Clone("ESD_TrueNegPionFromNeutralMeson_PtClone");
             }
         }
-        for (Int_t iVecLoop=0; iVecLoop<(Int_t)vecMCvsTrueAllPosPions_Pt.size();iVecLoop++){
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<endl;}
+        for (Int_t iVecLoop=0; iVecLoop<(Int_t)vecMC_AllPosPions_Pt.size();iVecLoop++){
+            if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<"; iVecLoop: "<<iVecLoop<<endl;}
             //-------------------------------------------------------------------------------------------------------------------------------
             // MCvsTrueAllPosPions_Pt
             if ((Int_t)vecMCvsTrueAllPosPions_Pt[iVecLoop].size()>0){
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<"; vecMCvsTrueAllPosPions_Pt["<<iVecLoop<<"]"<<endl;}
                 GetMinMaxBin(vecMCvsTrueAllPosPions_Pt[iVecLoop],minB,maxB);
                 for(Int_t iVec=0; iVec<(Int_t)vecMCvsTrueAllPosPions_Pt[iVecLoop].size(); iVec++){
                     TH1D* temp = vecMCvsTrueAllPosPions_Pt[iVecLoop].at(iVec);
@@ -4004,7 +4011,9 @@ void PrimaryTrackQA(
             }
             //-------------------------------------------------------------------------------------------------------------------------------
             // MCvsTrueAllNegPions_Pt
+            if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<endl;}
             if ((Int_t)vecMCvsTrueAllNegPions_Pt[iVecLoop].size()>0){
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<"; vecMCvsTrueAllNegPions_Pt["<<iVecLoop<<"]"<<endl;}
                 GetMinMaxBin(vecMCvsTrueAllNegPions_Pt[iVecLoop],minB,maxB);
                 for(Int_t iVec=0; iVec<(Int_t)vecMCvsTrueAllNegPions_Pt[iVecLoop].size(); iVec++){
                     TH1D* temp = vecMCvsTrueAllNegPions_Pt[iVecLoop].at(iVec);
@@ -4028,7 +4037,9 @@ void PrimaryTrackQA(
             }
             //-------------------------------------------------------------------------------------------------------------------------------
             // MCvsTruePosPionsFromNeutralMeson_Pt
+            if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<endl;}
             if ((Int_t)vecMCvsTruePosPionsFromNeutralMeson_Pt[iVecLoop].size()>0){
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<"; vecMCvsTruePosPionsFromNeutralMeson_Pt["<<iVecLoop<<"]"<<endl;}
                 GetMinMaxBin(vecMCvsTruePosPionsFromNeutralMeson_Pt[iVecLoop],minB,maxB);
                 for(Int_t iVec=0; iVec<(Int_t)vecMCvsTruePosPionsFromNeutralMeson_Pt[iVecLoop].size(); iVec++){
                     TH1D* temp = vecMCvsTruePosPionsFromNeutralMeson_Pt[iVecLoop].at(iVec);
@@ -4052,7 +4063,9 @@ void PrimaryTrackQA(
             }
             //-------------------------------------------------------------------------------------------------------------------------------
             // MCvsTrueNegPionsFromNeutralMeson_Pt
+            if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<endl;}
             if ((Int_t)vecMCvsTrueNegPionsFromNeutralMeson_Pt[iVecLoop].size()>0){
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<"; vecMCvsTrueNegPionsFromNeutralMeson_Pt["<<iVecLoop<<"]"<<endl;}
                 GetMinMaxBin(vecMCvsTrueNegPionsFromNeutralMeson_Pt[iVecLoop],minB,maxB);
                 for(Int_t iVec=0; iVec<(Int_t)vecMCvsTrueNegPionsFromNeutralMeson_Pt[iVecLoop].size(); iVec++){
                     TH1D* temp = vecMCvsTrueNegPionsFromNeutralMeson_Pt[iVecLoop].at(iVec);
@@ -4074,12 +4087,15 @@ void PrimaryTrackQA(
                                                  0.95,0.92,0.03,fCollisionSystem,DataSetsMC,fTrigger[0],31);
                 SaveCanvas(canvas, Form("%s/Comparison/Ratios/ratio_MCvsTrueNegPionsFromNeutralMeson_Pt_%s.%s", outputDir.Data(), DataSets[iVecLoop].Data(), suffix.Data()));
             }
+            if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<endl;}
         }
     }
     //-------------------------------------------------------------------------------------------------------------------------------
     //-------------------------------------------|Compare Histograms: MC-Histograms|-------------------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------------
     if(isMC){
+        cout<<"-------------------------------------------|Compare Histograms: MC-Histograms|-------------------------------------------------"<<endl;
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; PrimaryTrackQA.C; Line: "<<__LINE__<<endl;}
         // MC_AllPosPions_Pt
         if ((Int_t)vecMC_AllPosPions_Pt.size()>0){
             GetMinMaxBin(vecMC_AllPosPions_Pt,minB,maxB);
@@ -4180,6 +4196,7 @@ void PrimaryTrackQA(
     //-----------------------------------------|Compare Histograms: True Histograms|-------------------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------------
     if (isMC){
+        cout<<"-----------------------------------------|Compare Histograms: True Histograms|-------------------------------------------------"<<endl;
         // ESD_TruePosPion_Pt
         if ((Int_t)vecESD_TruePosPion_Pt.size()>0){
             GetMinMaxBin(vecESD_TruePosPion_Pt,minB,maxB);
@@ -4279,6 +4296,7 @@ void PrimaryTrackQA(
     //-------------------------------------------------------------------------------------------------------------------------------
     //-------------------------------------------|Compare Histograms: AfterQA-Histograms|-----------------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------------
+    cout<<"-------------------------------------------|Compare Histograms: AfterQA-Histograms|-----------------------------------------------"<<endl;
     //AfterQA
     // AfterQA: IsPionSelected
     if ((Int_t)vecIsPionSelected_AfterQA.size()>0){
@@ -4828,6 +4846,7 @@ void PrimaryTrackQA(
     //-------------------------------------------------------------------------------------------------------------------------------
     //-----------------------------------------|Compare Histograms: Pre Selection-Histograms|-------------------------------------------------
     //-------------------------------------------------------------------------------------------------------------------------------
+    cout<<"-----------------------------------------|Compare Histograms: Pre Selection-Histograms|-------------------------------------------------"<<endl;
     // Pre Selection: IsPionSelected
     if ((Int_t)vecIsPionSelected_PreSel.size()>0){
         if (iParticleType==0){StrNameOfHistogram="IsPionSelected_PreSel";}
@@ -5870,6 +5889,7 @@ void PrimaryTrackQA(
     //*****************************************************************************************************
     //***************************** Cleanup vectors *******************************************************
     //*****************************************************************************************************
+    cout<<"***************************** Cleanup vectors *******************************************************"<<endl;
     DeleteVecTH1D(vecESD_PrimaryNegPions_Pt);
     DeleteVecTH1D(vecESD_PrimaryPosPions_Pt);
     DeleteVecTH1D(vecESD_PrimaryNegPions_Phi);
