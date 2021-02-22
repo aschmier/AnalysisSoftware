@@ -59,6 +59,7 @@ mkdir -p ToyModels
 mkdir -p SimulationStudies
 mkdir -p SupportingMacros
 mkdir -p LocalTrainTests
+mkdir -p FlexibleCocktail
 
 ln -sf $PHOTONCONVDIR/SystematicErrorsNew/* SystematicErrorsNew/
 ln -sf $PHOTONCONVDIR/CommonHeaders/*.h CommonHeaders/
@@ -81,6 +82,7 @@ ln -sf $PHOTONCONVDIR/SupportingMacros/*.h SupportingMacros/
 ln -sf $PHOTONCONVDIR/LocalTrainTests/*.C LocalTrainTests/
 ln -sf $PHOTONCONVDIR/LocalTrainTests/*.h LocalTrainTests/
 ln -sf $PHOTONCONVDIR/LocalTrainTests/*.sh LocalTrainTests/
+ln -sf $PHOTONCONVDIR/FlexibleCocktail/* FlexibleCocktail/
 
 if [ $1 = "dmuhlhei" ]; then
 	ln -sf $PHOTONCONVDIR/DataQA DataQA
