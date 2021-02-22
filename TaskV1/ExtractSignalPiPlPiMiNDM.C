@@ -126,7 +126,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     Bool_t isNewTask = kTRUE;
     Int_t doDebugOutputLevel    =   0;
 
-    if (fileMC.EndsWith("none")){
+    if (fileMC.EndsWith("none")||fileMC.EqualTo("")){
         useMCBck                =   0;
     }
     if((UsrMode>=40) && (UsrMode <= 50)) isNewTask = kFALSE;
@@ -287,7 +287,9 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     nameMainDir     = AutoDetectMainTList(mode , f); // TODO: Change 40 to mode if modes are changed in ConversionFunctions correctly
 
     TString nameMainDirMC = "";
-    nameMainDirMC     = AutoDetectMainTList(mode , fMC);
+    if (useMCBck!=0){
+        nameMainDirMC     = AutoDetectMainTList(mode , fMC);
+    }
 
     if(nameMainDir.CompareTo("")!=0){
         cout << "Succesfully detected " << nameMainDir <<" as MainDir!" << endl;
@@ -1937,7 +1939,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                                                fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]->GetBinContent(binHighMassMeson));
                     bHighNorm->SetFillColor(kRed);
                     bHighNorm->Draw("same");
-                    if(!fIsMC) Test_InvMassBackFitPtBin->Print(Form("test%d_%s.pdf",iPt,nameIntRange[k].Data()));
+                    if(!fIsMC) TestInvMassBackFitPtBin->Print(Form("test%d_%s.pdf",iPt,nameIntRange[k].Data()));
                 }
                 
                 // Integrate the Backfit histo with Pz of pi0 fixed
