@@ -73,6 +73,8 @@ TFile*  fOutput                                             = NULL;
 TFile*  fOutput1                                            = NULL;
 TFile*  fOutput2                                            = NULL;
 
+Int_t       iBckSwitch                                      = 5;
+const Int_t       iNumberOfOtherSigToBckRatioFits           = 2; //If u change this value remember to also change: fHistoChi2SigToBckFit, fHistoChi2SigToBckFit, colorFitSigToBckFit, styleFitSigToBckFit, fSigToBckFitChi2, fFitPHOSAllOtherSigToBckFits, labelsOtherFitsRatio
 //TH1D
 TH1D*   fBckNorm                                            = NULL;
 TH1D*   fSignal                                             = NULL;
@@ -407,6 +409,15 @@ TF1 * 	fFitLinearBckCheck=									NULL;
 TF1 * 	fFitLinearBckExcl=									NULL;
 TF1 * 	fFitPol2BckExcl=									NULL;
 TF1 * 	fFitLinearBckOut=									NULL;
+TF1 * 	fFitPHOSPol1 =                                      NULL;
+TF1 * 	fFitPHOSPol2 =                                      NULL;
+TF1 * 	fFitPHOSPol3 =                                      NULL;
+TF1 * 	fFitPHOSPol1_Prefit =                               NULL;
+TF1 * 	fFitPHOSPol2_Prefit =                               NULL;
+TF1 * 	fFitPHOSPol3_Prefit =                               NULL;
+TF1 * 	fFitPHOSPol1_withGaus =                             NULL;
+TF1 * 	fFitPHOSPol2_withGaus =                             NULL;
+TF1 * 	fFitPHOSPol3_withGaus =                             NULL;
 TF1 * 	fFitSignalInvMassMidPt=								NULL;
 TF1 * 	fFitSignalInvMassMidPt_SubPiZero=					NULL;
 TF1 * 	fFitSignalInvMassMidPt_FixedPzPiZero=				NULL;
@@ -491,6 +502,9 @@ Double_t 	*fMesonLambdaTailRange = 						NULL;
 Double_t 	*fMesonLambdaTailRangeTrue =					NULL;
 Double_t 	*fMidPt = 										NULL;
 Double_t 	*fFullPt = 										NULL;
+Double_t FitRangeSigBckRatioOption =                        0;
+Double_t usePolNForBackgroundScaling =                      0;
+
 // end common meson analysis variables
 
 //Background histograms in different M and Z bins
@@ -999,6 +1013,18 @@ void ProcessEMLeftRight(    TH1D* , TH1D*, Double_t*, Double_t* );
 //void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeDummy, Double_t *fFitRangeDummy, TString energy, TString suffix, TString cutSelection, TString meson, Int_t InvMassType);
 void ProcessBckFitSubtraction(TH1D*, Int_t, Double_t* ,Double_t*, TString, TString, TString, TString, Int_t);
 void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D*, TH1D*, TH1D*, Int_t, Double_t* ,Double_t*, TString, TString, TString, TString, Int_t, TH1D*, TH1D*);
+void ProcessEM_switch(TH1D*,TH1D*,Double_t *);
+Double_t FitFunctionPHOSBck(Double_t *, Double_t *);
+Double_t FitFunctionPHOSBckPol1(Double_t *, Double_t *);
+Double_t FitFunctionPHOSBckPol2(Double_t *, Double_t *);
+Double_t FitFunctionPHOSBckPol3(Double_t *, Double_t *);
+Double_t FitFunctionPHOSBckPol1_withGaus(Double_t *, Double_t *);
+Double_t FitFunctionPHOSBckPol2_withGaus(Double_t *, Double_t *);
+Double_t FitFunctionPHOSBckPol3_withGaus(Double_t *, Double_t *);
+Double_t FitFunctionPHOSBckPol1_withGausExp(Double_t *, Double_t *);
+Double_t FitFunctionPHOSBckPol2_withGausExp(Double_t *, Double_t *);
+Double_t FitFunctionPHOSBckPol3_withGausExp(Double_t *, Double_t *);
+void ProcessEM_FitBins(TH1D*,TH1D*,Double_t *);
 void ProcessRatioSignalBackground(TH1D* , TH1D* );
 void FillMassHistosArray(TH2D* fGammaGammaInvMassVSPtDummy, TH2D *fGammaGammaInvMassVSPtDummy_SubPiZero, TH2D *fGammaGammaInvMassVSPtDummy_FixedPzPiZero);
 void ProjectHistogramInPtBins(TH2D* HistogramToProject, TH1D **ProjectedHistograms);
@@ -1423,6 +1449,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
          // Set remaining parameters for fitting
          if(mode == 40 || mode == 60){ //PCM
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 1;
              fMesonWidthExpect            = 0.010;
              fMesonWidthRange[0]          = 0.001;
              fMesonWidthRange[1]          = 0.100;
@@ -1445,6 +1473,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
 
          } else if(mode == 41 || mode == 61){ //PCM-EMCAL
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 1;
              fMesonWidthExpect           = 0.012;
              fMesonWidthRange[0]         = 0.001;
              fMesonWidthRange[1]         = 0.055;
@@ -1466,6 +1496,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
          } else if(mode == 42 || mode == 62){ //PCM-PHOS
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 1;
              fMesonWidthExpect           = 0.01;
              fMesonWidthRange[0]         = 0.001;
              fMesonWidthRange[1]         = 0.070;
@@ -1487,6 +1519,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
          } else if(mode == 44 || mode == 64){ //EMCAL
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 2;
              fMesonWidthExpect           = 0.06;
              fMesonWidthRange[0]         = 0.005;
              fMesonWidthRange[1]         = 0.030;
@@ -1512,6 +1546,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
          } else if(mode == 45 || mode == 65){ //PHOS
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 1;
              fMesonWidthExpect           = 0.040;
              fMesonWidthRange[0]         = 0.005;
              fMesonWidthRange[1]         = 0.120;
@@ -1806,6 +1842,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
          // Set remaining parameters for fitting
          if(mode == 40 || mode == 60){
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 1;
              fMesonWidthExpect           = 0.010;
              fMesonWidthRange[0]         = 0.004;
              fMesonWidthRange[1]         = 0.030;
@@ -1829,6 +1867,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonLambdaTailRangeTrue[0] = fMesonLambdaTailRange[0];
              fMesonLambdaTailRangeTrue[1] = fMesonLambdaTailRange[1];
          } else if(mode == 41 || mode == 61){
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 1;
              fMesonWidthExpect           = 0.010;
              fMesonWidthRange[0]         = 0.004;
              fMesonWidthRange[1]         = 0.030;
@@ -1852,6 +1892,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonLambdaTailRangeTrue[0] = fMesonLambdaTailRange[0];
              fMesonLambdaTailRangeTrue[1] = fMesonLambdaTailRange[1];
          } else if(mode == 42 || mode == 62){
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 1;
              fMesonWidthExpect           = 0.005;
              fMesonWidthRange[0]         = 0.004;
              fMesonWidthRange[1]         = 0.070;
@@ -1875,6 +1917,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonLambdaTailRangeTrue[0] = fMesonLambdaTailRange[0];
              fMesonLambdaTailRangeTrue[1] = fMesonLambdaTailRange[1];
          } else if (mode == 44 || mode == 64){
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 1;
              fMesonWidthExpect           = 0.006;
              fMesonWidthRange[0]         = 0.001;
              fMesonWidthRange[1]         = 0.1;
@@ -1898,6 +1942,8 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonLambdaTailRangeTrue[0] = fMesonLambdaTailRange[0];
              fMesonLambdaTailRangeTrue[1] = fMesonLambdaTailRange[1];
          } else if (mode == 45 || mode == 65){
+             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             usePolNForBackgroundScaling = 1;
              fMesonWidthExpect           = 0.006;
              fMesonWidthRange[0]         = 0.001;
              fMesonWidthRange[1]         = 0.1;

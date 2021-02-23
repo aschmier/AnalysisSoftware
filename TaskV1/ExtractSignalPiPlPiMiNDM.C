@@ -1002,7 +1002,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     }
     //fBck->Scale(1./fNRebinGlobal);
     if(fGammaGamma && fBck[0]){
-        ProcessEM( fGammaGamma , fBck[0], fBGFitRange); // scale the added background
+        ProcessEM_switch( fGammaGamma , fBck[0], fBGFitRange); // scale the added background
         fHistoMappingBackNormInvMass = fBckNorm;
         fHistoMappingSignalInvMass = fSignal;
 
@@ -1012,7 +1012,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     }
 
     if(fGammaGamma_SubPiZero && fBck_SubPiZero[0]){
-        ProcessEM( fGammaGamma_SubPiZero , fBck_SubPiZero[0], fBGFitRange_SubPiZero);
+        ProcessEM_switch( fGammaGamma_SubPiZero , fBck_SubPiZero[0], fBGFitRange_SubPiZero);
         fHistoMappingBackNormInvMass_SubPiZero = fBckNorm;
         fHistoMappingSignalInvMass_SubPiZero = fSignal;
 
@@ -1022,7 +1022,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     }
 
     if(fGammaGamma_FixedPzPiZero && fBck_FixedPzPiZero[0]){
-        ProcessEM( fGammaGamma_FixedPzPiZero , fBck_FixedPzPiZero[0], fBGFitRange_FixedPzPiZero);
+        ProcessEM_switch( fGammaGamma_FixedPzPiZero , fBck_FixedPzPiZero[0], fBGFitRange_FixedPzPiZero);
         fHistoMappingBackNormInvMass_FixedPzPiZero = fBckNorm;
         fHistoMappingSignalInvMass_FixedPzPiZero = fSignal;
 
@@ -1036,23 +1036,23 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     // TODO: Check if I have done this correctly
     FillMassHistosArray(fGammaGammaInvMassVSPt,fGammaGammaInvMassVSPt_SubPiZero,fGammaGammaInvMassVSPt_FixedPzPiZero);
     if(fMesonFullPtSignal && fMesonFullPtBackground[0] && fFittingHistMidPtSignal && fFittingHistMidPtBackground[0]){
-        ProcessEM( fMesonFullPtSignal, fMesonFullPtBackground[0], fBGFitRange);
+        ProcessEM_switch( fMesonFullPtSignal, fMesonFullPtBackground[0], fBGFitRange);
         fMesonFullPtBackNorm            = fBckNorm;
-        ProcessEM( fFittingHistMidPtSignal, fFittingHistMidPtBackground[0], fBGFitRange);
+        ProcessEM_switch( fFittingHistMidPtSignal, fFittingHistMidPtBackground[0], fBGFitRange);
         fFittingHistMidPtSignalSub = fSignal;
     }
 
     if(fMesonFullPtSignal_SubPiZero && fMesonFullPtBackground_SubPiZero[0] && fFittingHistMidPtSignal_SubPiZero && fFittingHistMidPtBackground_SubPiZero[0]){
-        ProcessEM( fMesonFullPtSignal_SubPiZero, fMesonFullPtBackground_SubPiZero[0], fBGFitRange_SubPiZero);
+        ProcessEM_switch( fMesonFullPtSignal_SubPiZero, fMesonFullPtBackground_SubPiZero[0], fBGFitRange_SubPiZero);
         fMesonFullPtBackNorm_SubPiZero            = fBckNorm;
-        ProcessEM( fFittingHistMidPtSignal_SubPiZero, fFittingHistMidPtBackground_SubPiZero[0], fBGFitRange_SubPiZero);
+        ProcessEM_switch( fFittingHistMidPtSignal_SubPiZero, fFittingHistMidPtBackground_SubPiZero[0], fBGFitRange_SubPiZero);
         fFittingHistMidPtSignalSub_SubPiZero = fSignal;
     }
 
     if(fMesonFullPtSignal_FixedPzPiZero && fMesonFullPtBackground_FixedPzPiZero[0] && fFittingHistMidPtSignal_FixedPzPiZero &&  fFittingHistMidPtBackground_FixedPzPiZero[0]){
-        ProcessEM( fMesonFullPtSignal_FixedPzPiZero, fMesonFullPtBackground_FixedPzPiZero[0], fBGFitRange_FixedPzPiZero);
+        ProcessEM_switch( fMesonFullPtSignal_FixedPzPiZero, fMesonFullPtBackground_FixedPzPiZero[0], fBGFitRange_FixedPzPiZero);
         fMesonFullPtBackNorm_FixedPzPiZero            = fBckNorm;
-        ProcessEM( fFittingHistMidPtSignal_FixedPzPiZero, fFittingHistMidPtBackground_FixedPzPiZero[0], fBGFitRange_FixedPzPiZero);
+        ProcessEM_switch( fFittingHistMidPtSignal_FixedPzPiZero, fFittingHistMidPtBackground_FixedPzPiZero[0], fBGFitRange_FixedPzPiZero);
         fFittingHistMidPtSignalSub_FixedPzPiZero = fSignal;
     }
     if(fCrysFitting==0){
@@ -1197,7 +1197,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         Double_t fNormTot = 1.; // variable containing the factor used to scale the total background
         for(Int_t k=0;k<5;k++){
           if((fHistoMappingGGInvMassBackFitPtBin[iPt]!=NULL) && (fHistoMappingBackInvMassPtBin[k][iPt]!=NULL )){
-            ProcessEM( fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[k][iPt], fBGFitRange);
+            ProcessEM_switch( fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[k][iPt], fBGFitRange);
             if(k==0){
                 fNormTot = fNorm; // k==0 means tot back was just scaled -> store value for using for samescale
                 fHistoMappingSignalInvMassPtBin[iPt] = fSignal; // only use signal that was obtained by subtracting total background
@@ -1210,7 +1210,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
           }
 
           if((fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]!=NULL) && (fHistoMappingBackInvMassPtBin_SubPiZero[k][iPt]!=NULL )){
-            ProcessEM( fHistoMappingGGInvMassPtBin_SubPiZero[iPt], fHistoMappingBackInvMassPtBin_SubPiZero[k][iPt], fBGFitRange_SubPiZero);
+            ProcessEM_switch( fHistoMappingGGInvMassPtBin_SubPiZero[iPt], fHistoMappingBackInvMassPtBin_SubPiZero[k][iPt], fBGFitRange_SubPiZero);
             if(k==0){
                 fNormTot = fNorm; // k==0 means tot back was just scaled -> store value for using for samescale
                 fHistoMappingSignalInvMassPtBin_SubPiZero[iPt] = fSignal; // only use signal that was obtained by subtracting total background
@@ -1223,7 +1223,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
           }
 
           if((fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[iPt]!=NULL) && (fHistoMappingBackInvMassPtBin_FixedPzPiZero[k][iPt]!=NULL )){
-            ProcessEM( fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt], fHistoMappingBackInvMassPtBin_FixedPzPiZero[k][iPt], fBGFitRange_FixedPzPiZero);
+            ProcessEM_switch( fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt], fHistoMappingBackInvMassPtBin_FixedPzPiZero[k][iPt], fBGFitRange_FixedPzPiZero);
             if(k==0){
                 fNormTot = fNorm; // k==0 means tot back was just scaled -> store value for using for samescale
                 fHistoMappingSignalInvMassPtBin_FixedPzPiZero[iPt] = fSignal; // only use signal that was obtained by subtracting total background
@@ -2659,7 +2659,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         cout << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << endl;
 
         if(fHistoMappingGGInvMassPtBin[iPt] && fHistoMappingBackInvMassPtBin[0][iPt]) {
-            ProcessEM( fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[0][iPt], fBGFitRangeLeft); // only done for added background so far
+            ProcessEM_switch( fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[0][iPt], fBGFitRangeLeft); // only done for added background so far
             fHistoMappingSignalInvMassLeftPtBin[iPt] = fSignal;
             fHistoMappingBackNormInvMassLeftPtBin[iPt] = fBckNorm;
         }
@@ -2667,14 +2667,14 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         // Function to subtract GG minus Bck (pi0 mass subtracted)
         cout << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << endl;
        if( fHistoMappingGGInvMassPtBin_SubPiZero[iPt] && fHistoMappingBackInvMassPtBin_SubPiZero[0][iPt]) {
-            ProcessEM( fHistoMappingGGInvMassPtBin_SubPiZero[iPt], fHistoMappingBackInvMassPtBin_SubPiZero[0][iPt], fBGFitRangeLeft_SubPiZero); // only done for added background so far
+            ProcessEM_switch( fHistoMappingGGInvMassPtBin_SubPiZero[iPt], fHistoMappingBackInvMassPtBin_SubPiZero[0][iPt], fBGFitRangeLeft_SubPiZero); // only done for added background so far
             fHistoMappingSignalInvMassLeftPtBin_SubPiZero[iPt] = fSignal;
             fHistoMappingBackNormInvMassLeftPtBin_SubPiZero[iPt] = fBckNorm;
        } 
         // Function to subtract GG minus Bck (pi0 pz fixed)
         cout << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << endl;
        if( fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt] && fHistoMappingBackInvMassPtBin_FixedPzPiZero[0][iPt]) {
-            ProcessEM( fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt], fHistoMappingBackInvMassPtBin_FixedPzPiZero[0][iPt], fBGFitRangeLeft_FixedPzPiZero); // only done for added background so far
+            ProcessEM_switch( fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt], fHistoMappingBackInvMassPtBin_FixedPzPiZero[0][iPt], fBGFitRangeLeft_FixedPzPiZero); // only done for added background so far
             fHistoMappingSignalInvMassLeftPtBin_FixedPzPiZero[iPt] = fSignal;
             fHistoMappingBackNormInvMassLeftPtBin_FixedPzPiZero[iPt] = fBckNorm;
        }
@@ -5906,6 +5906,15 @@ void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D *fGammaGamma, T
     }
 }
 
+void ProcessEM_switch(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM){
+    if ( iBckSwitch == 0 ){
+        ProcessEM(fGammaGamma, fBck, fBGFitRangeEM);
+    } else if ( iBckSwitch == 5 ) {
+        ProcessEM_FitBins(fGammaGamma, fBck, fBGFitRangeEM);
+    } else {
+        ProcessEM(fGammaGamma, fBck, fBGFitRangeEM);
+    }
+}
 
 void ProcessEM( TH1D* fGammaGamma,
                 TH1D* fBck,
@@ -6030,6 +6039,736 @@ void ProcessEMLeftRight(    TH1D* fFgr,
     if ((Double_t)numberOfZeros/fBck->GetNbinsX()< 0.25) fSignal->Add(fBckNorm,-1.);
     //cout<<"ProcessEM finished"<<endl<<"}"<<endl;
                             }
+
+Double_t FitFunctionPHOSBck(Double_t *x, Double_t *par){
+    Double_t result=0;
+    result=FitFunctionPHOSBckPol2(x, par);
+    return result;
+}
+
+Double_t FitFunctionPHOSBckPol1(Double_t *x, Double_t *par){
+    Double_t result=0;
+    Double_t xx=x[0];
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+        if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+            //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+            FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+            FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+        } else {
+            //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+            FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+        }
+        //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+        //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+        if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
+            ;
+            TF1::RejectPoint();
+            //return 0;
+        }
+    result=par[0];
+    result+=(par[1]*xx);
+    return result;
+}
+
+Double_t FitFunctionPHOSBckPol2(Double_t *x, Double_t *par){
+    Double_t result=0;
+    Double_t xx=x[0];
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+        if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+            //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+            FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+            FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+        } else {
+            //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+            FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+        }
+        //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+        //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+        if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
+            ;
+            TF1::RejectPoint();
+            //return 0;
+        }
+    result=par[0];
+    result+=(par[1]*xx);
+    result+=(par[2]*xx*xx);
+    return result;
+}
+
+Double_t FitFunctionPHOSBckPol3(Double_t *x, Double_t *par){
+    Double_t result=0;
+    Double_t xx=x[0];
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+        if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+            //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+            FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+            FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+        } else {
+            //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+            FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+        }
+        //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+        //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+        if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
+            ;
+            TF1::RejectPoint();
+            //return 0;
+        }
+    result=par[0];
+    result+=(par[1]*xx);
+    result+=(par[2]*xx*xx);
+    result+=(par[3]*xx*xx*xx);
+    return result;
+}
+
+Double_t FitFunctionPHOSBckPol1_withGaus(Double_t *x, Double_t *par){
+    Double_t result=0;
+    Double_t xx=x[0];
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+    //GausFit Parameters
+    Double_t GausValue;
+    Double_t GausValueUnscaled;
+    Double_t GausMeanPosition;
+    Double_t GausSigma;
+    Double_t GausAmplitude;
+    GausAmplitude=par[2];
+    GausMeanPosition=par[3];
+    GausSigma=par[4];
+    if (FitRangeSigBckRatioOption < 10){
+        if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+            //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+            FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+            FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+        } else {
+            //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+            FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+        }
+        //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+        //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+        if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
+            ;
+            TF1::RejectPoint();
+            //return 0;
+        }
+    }
+    GausValueUnscaled=TMath::Gaus(xx, GausMeanPosition, GausSigma, kFALSE);
+    GausValue=GausAmplitude*GausValueUnscaled;
+    result=par[0];
+    result+=(par[1]*xx);
+    result+=GausValue;
+    return result;
+}
+
+Double_t FitFunctionPHOSBckPol2_withGaus(Double_t *x, Double_t *par){
+    Double_t result=0;
+    Double_t xx=x[0];
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+    //GausFit Parameters
+    Double_t GausValue;
+    Double_t GausValueUnscaled;
+    Double_t GausMeanPosition;
+    Double_t GausSigma;
+    Double_t GausAmplitude;
+    GausAmplitude=par[3];
+    GausMeanPosition=par[4];
+    GausSigma=par[5];
+    if (FitRangeSigBckRatioOption < 10){
+        if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+            //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+            FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+            FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+        } else {
+            //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+            FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+        }
+        //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+        //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+        if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
+            ;
+            TF1::RejectPoint();
+            //return 0;
+        }
+    }
+    GausValueUnscaled=TMath::Gaus(xx, GausMeanPosition, GausSigma, kFALSE);
+    GausValue=GausAmplitude*GausValueUnscaled;
+    result=par[0];
+    result+=(par[1]*xx);
+    result+=(par[2]*xx*xx);
+    result+=GausValue;
+    return result;
+}
+
+Double_t FitFunctionPHOSBckPol3_withGaus(Double_t *x, Double_t *par){
+    Double_t result=0;
+    Double_t xx=x[0];
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+    //GausFit Parameters
+    Double_t GausValue;
+    Double_t GausValueUnscaled;
+    Double_t GausMeanPosition;
+    Double_t GausSigma;
+    Double_t GausAmplitude;
+    GausAmplitude=par[4];
+    GausMeanPosition=par[5];
+    GausSigma=par[6];
+    if (FitRangeSigBckRatioOption < 10){
+        if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+            //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+            FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+            FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+        } else {
+            //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+            FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+        }
+        //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+        //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+        if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
+            ;
+            TF1::RejectPoint();
+            //return 0;
+        }
+    }
+    GausValueUnscaled=TMath::Gaus(xx, GausMeanPosition, GausSigma, kFALSE);
+    GausValue=GausAmplitude*GausValueUnscaled;
+    result=par[0];
+    result+=(par[1]*xx);
+    result+=(par[2]*xx*xx);
+    result+=(par[3]*xx*xx*xx);
+    result+=GausValue;
+    return result;
+}
+
+Double_t FitFunctionPHOSBckPol1_withGausExp(Double_t *x, Double_t *par){
+    Double_t result=0;
+    Double_t xx=x[0];
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+    //GausFit Parameters
+    Double_t PeakValue;
+    Double_t GausArgument;
+    Double_t PeakValueUnscaled;
+    Double_t PeakValueUnscaled_Part1;
+    Double_t PeakValueUnscaled_Part2;
+    Double_t MeanPosition;
+    Double_t PeakSigma;
+    Double_t PeakAmplitude;
+    Double_t MesonLambdaTailValue;
+    PeakAmplitude=par[2];
+    MeanPosition=par[3];
+    PeakSigma=par[4];
+    MesonLambdaTailValue=par[5];
+    if (FitRangeSigBckRatioOption < 10){
+        if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+            //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+            FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+            FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+        } else {
+            //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+            FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+        }
+        //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+        //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+        if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
+            ;
+            TF1::RejectPoint();
+            //return 0;
+        }
+    }
+    //(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)+[4]+[5]*x)
+    if (xx<MeanPosition){ //([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2))))
+        GausArgument=TMath::Power(((xx-MeanPosition)/PeakSigma),2);
+        PeakValueUnscaled_Part1=TMath::Exp(-0.5*GausArgument);
+        PeakValueUnscaled_Part2=TMath::Exp((xx-MeanPosition)/MesonLambdaTailValue);
+        PeakValueUnscaled=PeakValueUnscaled_Part1+PeakValueUnscaled_Part2*(1.-PeakValueUnscaled_Part1);
+        PeakValue=PeakAmplitude*PeakValueUnscaled;
+    } else { //([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)
+        GausArgument=TMath::Power(((xx-MeanPosition)/PeakSigma),2);
+        PeakValueUnscaled=TMath::Exp(-0.5*GausArgument);
+        PeakValue=PeakAmplitude*PeakValueUnscaled;
+    }
+    result=par[0];
+    result+=(par[1]*xx);
+    result+=PeakValue;
+    return result;
+}
+
+Double_t FitFunctionPHOSBckPol2_withGausExp(Double_t *x, Double_t *par){
+    Double_t result=0;
+    Double_t xx=x[0];
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+    //GausFit Parameters
+    Double_t PeakValue;
+    Double_t GausArgument;
+    Double_t PeakValueUnscaled;
+    Double_t PeakValueUnscaled_Part1;
+    Double_t PeakValueUnscaled_Part2;
+    Double_t MeanPosition;
+    Double_t PeakSigma;
+    Double_t PeakAmplitude;
+    Double_t MesonLambdaTailValue;
+    PeakAmplitude=par[3];
+    MeanPosition=par[4];
+    PeakSigma=par[5];
+    MesonLambdaTailValue=par[6];
+    if (FitRangeSigBckRatioOption < 10){
+        if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+            //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+            FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+            FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+        } else {
+            //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+            FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+        }
+        //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+        //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+        if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
+            ;
+            TF1::RejectPoint();
+            //return 0;
+        }
+    }
+    //(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)+[4]+[5]*x)
+    if (xx<MeanPosition){ //([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2))))
+        GausArgument=TMath::Power(((xx-MeanPosition)/PeakSigma),2);
+        PeakValueUnscaled_Part1=TMath::Exp(-0.5*GausArgument);
+        PeakValueUnscaled_Part2=TMath::Exp((xx-MeanPosition)/MesonLambdaTailValue);
+        PeakValueUnscaled=PeakValueUnscaled_Part1+PeakValueUnscaled_Part2*(1.-PeakValueUnscaled_Part1);
+        PeakValue=PeakAmplitude*PeakValueUnscaled;
+    } else { //([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)
+        GausArgument=TMath::Power(((xx-MeanPosition)/PeakSigma),2);
+        PeakValueUnscaled=TMath::Exp(-0.5*GausArgument);
+        PeakValue=PeakAmplitude*PeakValueUnscaled;
+    }
+    result=par[0];
+    result+=(par[1]*xx);
+    result+=(par[2]*xx*xx);
+    result+=PeakValue;
+    return result;
+}
+
+Double_t FitFunctionPHOSBckPol3_withGausExp(Double_t *x, Double_t *par){
+    Double_t result=0;
+    Double_t xx=x[0];
+    Double_t FitRangeIgnoreSigBckRatioMin;
+    Double_t FitRangeIgnoreSigBckRatioMax;
+    //GausFit Parameters
+    Double_t PeakValue;
+    Double_t GausArgument;
+    Double_t PeakValueUnscaled;
+    Double_t PeakValueUnscaled_Part1;
+    Double_t PeakValueUnscaled_Part2;
+    Double_t MeanPosition;
+    Double_t PeakSigma;
+    Double_t PeakAmplitude;
+    Double_t MesonLambdaTailValue;
+    PeakAmplitude=par[4];
+    MeanPosition=par[5];
+    PeakSigma=par[6];
+    MesonLambdaTailValue=par[7];
+    if (FitRangeSigBckRatioOption < 10){
+        if ((FitRangeSigBckRatioOption == 1)||(FitRangeSigBckRatioOption == 2)||(FitRangeSigBckRatioOption == 3)){
+            //PCM:fPeakRange[0]=0.52;fPeakRange[1]=0.56;
+            FitRangeIgnoreSigBckRatioMin=fPeakRange[0];
+            FitRangeIgnoreSigBckRatioMax=fPeakRange[1];
+        } else {
+            //PHOS: fBGFitRangeLeft[1]=0.08;fBGFitRange[0]=0.19 PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]==0.17
+            FitRangeIgnoreSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeIgnoreSigBckRatioMax=fBGFitRange[0];
+        }
+        //if (xx > fBGFitRangeLeft[1] && xx < fBGFitRange[0]) {
+        //if (xx > fPeakRange[0] && xx < fPeakRange[1]) {
+        if (xx > FitRangeIgnoreSigBckRatioMin && xx < FitRangeIgnoreSigBckRatioMax) {
+            ;
+            TF1::RejectPoint();
+            //return 0;
+        }
+    }
+    //(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)+[4]+[5]*x)
+    if (xx<MeanPosition){ //([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2))))
+        GausArgument=TMath::Power(((xx-MeanPosition)/PeakSigma),2);
+        PeakValueUnscaled_Part1=TMath::Exp(-0.5*GausArgument);
+        PeakValueUnscaled_Part2=TMath::Exp((xx-MeanPosition)/MesonLambdaTailValue);
+        PeakValueUnscaled=PeakValueUnscaled_Part1+PeakValueUnscaled_Part2*(1.-PeakValueUnscaled_Part1);
+        PeakValue=PeakAmplitude*PeakValueUnscaled;
+    } else { //([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)
+        GausArgument=TMath::Power(((xx-MeanPosition)/PeakSigma),2);
+        PeakValueUnscaled=TMath::Exp(-0.5*GausArgument);
+        PeakValue=PeakAmplitude*PeakValueUnscaled;
+    }
+    result=par[0];
+    result+=(par[1]*xx);
+    result+=(par[2]*xx*xx);
+    result+=(par[3]*xx*xx*xx);
+    result+=PeakValue;
+    return result;
+}
+
+
+void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) {
+    Int_t debugOutputLevel=0;
+    Double_t NumberOfZeroesRatioLimit=0.5;
+    Double_t CurrentNumberOfZeroesRatio;
+    Double_t FitRangeSigBckRatioMin;
+    Double_t FitRangeSigBckRatioMax;
+    Double_t FitRangeSigBckRatioMin_Prefit;
+    Double_t FitRangeSigBckRatioMax_Prefit;
+    Double_t mesonAmplitude;
+    Double_t mesonAmplitude_PlusBaseline;
+    Double_t mesonAmplitudeMin;
+    Double_t mesonAmplitudeMax;
+    Double_t findAmplitudeMinRange;
+    Double_t findAmplitudeMaxRange;
+    Double_t AmplitudeBaselineLeft;
+    Double_t AmplitudeBaselineRight;
+    //Double_t AmplitudeBaselineAbs; //outcommented as currently not used
+    if (debugOutputLevel>=1){
+        cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; usePolNForBackgroundScaling: "<<usePolNForBackgroundScaling<<"; FitRangeSigBckRatioOption: "<<FitRangeSigBckRatioOption<<"; fBGFitRangeEM[0]: "<<fBGFitRangeEM[0]<<"; fBGFitRangeEM[1]: "<<fBGFitRangeEM[1]<<endl;
+    }
+    //Just for crosschecks
+    //fFitReco = new TF1("GaussExpLinear","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp(-(x-[1])/[6])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)",fMesonFitRange[0],fMesonFitRange[1]);
+    if (FitRangeSigBckRatioOption == 1){
+        //PHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]=0.19; PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]=0.17
+        FitRangeSigBckRatioMin=fBGFitRangeLeft[1];
+        FitRangeSigBckRatioMax=fBGFitRange[0];
+        FitRangeSigBckRatioMin_Prefit=fBGFitRangeLeft[0];
+        FitRangeSigBckRatioMax_Prefit=fBGFitRange[1];
+    } else if (FitRangeSigBckRatioOption == 2){
+        FitRangeSigBckRatioMin=0.070;
+        FitRangeSigBckRatioMax=0.200;
+        FitRangeSigBckRatioMin_Prefit=fBGFitRangeLeft[0];
+        FitRangeSigBckRatioMax_Prefit=fBGFitRange[1];
+    } else if (FitRangeSigBckRatioOption == 3){
+        FitRangeSigBckRatioMin=0.080;
+        FitRangeSigBckRatioMax=0.190;
+        FitRangeSigBckRatioMin_Prefit=fBGFitRangeLeft[0];
+        FitRangeSigBckRatioMax_Prefit=fBGFitRange[1];
+    } else if (FitRangeSigBckRatioOption >= 10){
+        if ((FitRangeSigBckRatioOption == 11)||(FitRangeSigBckRatioOption == 21)){
+            //Pi0 PHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]=0.19; PCMPHOS: fBGFitRangeLeft[1]=0.08; fBGFitRange[0]=0.17
+            //Eta PHOS: fBGFitRangeLeft[1]=0.48; fBGFitRange[0]=0.62; PCMPHOS: fBGFitRangeLeft[1]=0.48; fBGFitRange[0]=0.58
+            FitRangeSigBckRatioMin=fBGFitRangeLeft[1];
+            FitRangeSigBckRatioMax=fBGFitRange[0];
+            //Pi0 PHOS: fBGFitRangeLeft[0]=0.04; fBGFitRange[1]=0.3; PCMPHOS: fBGFitRangeLeft[0]=0.05; fBGFitRange[1]=0.3
+            //Eta PHOS: fBGFitRangeLeft[0]=0.35; fBGFitRange[1]=0.79; PCMPHOS: fBGFitRangeLeft[0]=0.35; fBGFitRange[1]=0.79
+            FitRangeSigBckRatioMin_Prefit=fBGFitRangeLeft[0];
+            FitRangeSigBckRatioMax_Prefit=fBGFitRange[1];
+        }else if ((FitRangeSigBckRatioOption == 12)||(FitRangeSigBckRatioOption == 22)){
+            //Pi0 PHOS FitRangeSigBckRatioMin (0.04+0.08)/2=0.06 FitRangeSigBckRatioMax (0.19+0.3)/2=0.245; PCMPHOS FitRangeSigBckRatioMin (0.05+0.08)/2=0.065 FitRangeSigBckRatioMax (0.17+0.3)/2=0.235
+            //Eta PHOS FitRangeSigBckRatioMin (0.35+0.48)/2=0.415 FitRangeSigBckRatioMax (0.62+0.79)/2=0.705; PCMPHOS FitRangeSigBckRatioMin (0.35+0.48)/2=0.415 FitRangeSigBckRatioMax (0.58+0.79)/2=0.685
+            FitRangeSigBckRatioMin=(fBGFitRangeLeft[0]+fBGFitRangeLeft[1])*0.5;
+            FitRangeSigBckRatioMax=(fBGFitRange[0]+fBGFitRange[1])*0.5;
+            //Pi0 PHOS: fBGFitRangeLeft[0]=0.04; fBGFitRange[1]=0.3; PCMPHOS: fBGFitRangeLeft[0]=0.05; fBGFitRange[1]=0.3
+            //Eta PHOS: fBGFitRangeLeft[0]=0.35; fBGFitRange[1]=0.79; PCMPHOS: fBGFitRangeLeft[0]=0.35; fBGFitRange[1]=0.79
+            FitRangeSigBckRatioMin_Prefit=fBGFitRangeLeft[0];
+            FitRangeSigBckRatioMax_Prefit=fBGFitRange[1];
+        } else {
+            //Pi0 fBGFitRange PHOS 0.19-0.3 PCMPHOS 0.17-0.3
+            //Pi0 fBGFitRangeLeft PHOS 0.04-0.08 PCMPHOS 0.05-0.08
+            //-
+            //Eta fBGFitRange PHOS 0.62-0.79 PCMPHOS 0.58-0.79
+            //Eta fBGFitRangeLeft PHOS 0.35-0.48 PCMPHOS 0.35-0.48
+            //-
+            //PHOS: fBGFitRangeLeft[0]=0.04; fBGFitRange[1]=0.3; PCMPHOS: fBGFitRangeLeft[0]=0.05; fBGFitRange[1]=0.3
+            //Eta PHOS: fBGFitRangeLeft[0]=0.35; fBGFitRange[1]=0.79; PCMPHOS: fBGFitRangeLeft[0]=0.35; fBGFitRange[1]=0.79
+            FitRangeSigBckRatioMin=fBGFitRangeLeft[0];
+            FitRangeSigBckRatioMax=fBGFitRange[1];
+            FitRangeSigBckRatioMin_Prefit=fBGFitRangeLeft[0];
+            FitRangeSigBckRatioMax_Prefit=fBGFitRange[1];
+        }
+    } else {
+        //PHOS: fBGFitRangeLeft[0]=0.04; fBGFitRange[1]=0.3; PCMPHOS: fBGFitRangeLeft[0]=0.05; fBGFitRange[1]=0.3
+        FitRangeSigBckRatioMin=fBGFitRangeLeft[0];
+        FitRangeSigBckRatioMax=fBGFitRange[1];
+        FitRangeSigBckRatioMin_Prefit=fBGFitRangeLeft[0];
+        FitRangeSigBckRatioMax_Prefit=fBGFitRange[1];
+    }
+    for (Int_t binx= 0; binx < fGammaGamma->GetNbinsX()+1; binx++){
+        if(fGammaGamma->GetBinContent(binx) == 0){
+            fGammaGamma->SetBinError(binx,1.);
+            fGammaGamma->SetBinContent(binx,0.);
+        }
+    }
+    fBckNorm = (TH1D*)fBck->Clone("fBckNorm");
+    fGammaGamma->Sumw2();
+    fBck->Sumw2();
+    fBckNorm->Sumw2();
+    if (fRatioSB != NULL){delete fRatioSB; fRatioSB=NULL;}
+    ProcessRatioSignalBackground(fGammaGamma, fBck);
+    Double_t    norm    = 1;
+    //------------------------------------------------------------------------------------------------------------
+    //Calculate mesonAmplitude Parameter
+    if (debugOutputLevel>=1){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Calculate mesonAmplitude Parameter"<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    mesonAmplitude = 0;
+    mesonAmplitude_PlusBaseline = 0;
+    findAmplitudeMinRange=fMesonMassExpect-((fMesonWidthExpect*1.1774)*3);
+    findAmplitudeMaxRange=fMesonMassExpect+((fMesonWidthExpect*1.1774)*3);
+    AmplitudeBaselineLeft = fRatioSB->GetBinContent(fRatioSB->FindBin(findAmplitudeMinRange));
+    AmplitudeBaselineRight = fRatioSB->GetBinContent(fRatioSB->FindBin(findAmplitudeMaxRange));
+    for(Int_t i=fRatioSB->FindBin(findAmplitudeMinRange); i<fRatioSB->FindBin(findAmplitudeMaxRange) ; i++){
+        if(fRatioSB->GetBinContent(i)>mesonAmplitude_PlusBaseline) mesonAmplitude_PlusBaseline = fRatioSB->GetBinContent(i);
+    }
+    //AmplitudeBaselineAbs=TMath::Abs(AmplitudeBaselineLeft-AmplitudeBaselineRight); //outcommented as currently not used
+    if (AmplitudeBaselineLeft<AmplitudeBaselineRight){
+        mesonAmplitude=mesonAmplitude_PlusBaseline-AmplitudeBaselineLeft;
+    } else {
+        mesonAmplitude=mesonAmplitude_PlusBaseline-AmplitudeBaselineRight;
+    }
+    if (mesonAmplitude<=0){mesonAmplitude=mesonAmplitude_PlusBaseline;}
+    mesonAmplitudeMin  = mesonAmplitude*10./100.;
+    mesonAmplitudeMax  = mesonAmplitude*400./100.;
+    if (debugOutputLevel>=2){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Calculate mesonAmplitude Parameter"<<endl<<"\t"<<"findAmplitudeMinRange: "<<findAmplitudeMinRange<<"; findAmplitudeMaxRange: "<<findAmplitudeMaxRange<<"\t "<<" mesonAmplitude: "<<mesonAmplitude<<"; mesonAmplitudeMin: "<<mesonAmplitudeMin<<"; mesonAmplitudeMax: "<<mesonAmplitudeMax<<"\t"<<"mesonAmplitude_PlusBaseline: "<<mesonAmplitude_PlusBaseline<<"; AmplitudeBaselineLeft: "<<AmplitudeBaselineLeft<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    //Number of Fit Parameters
+    if (debugOutputLevel>=1){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Number of Fit Parameters"<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    Int_t NumberOfParametersAdditionGaus=3;
+    //Pol_N_Prefit
+    TString fFitBackgroundHistogramFitNamePol1_Prefit="PolFitBackgroundPol1_Prefit";
+    Int_t iNumberOfFitParametersPol1_Prefit=2;
+    TString fFitBackgroundHistogramFitNamePol2_Prefit="PolFitBackgroundPol2_Prefit";
+    Int_t iNumberOfFitParametersPol2_Prefit=3;
+    TString fFitBackgroundHistogramFitNamePol3_Prefit="PolFitBackgroundPol3_Prefit";
+    Int_t iNumberOfFitParametersPol3_Prefit=4;
+    //------------------------------------
+    //Pol_N
+    TString fFitBackgroundHistogramFitNamePol1="PolFitBackgroundPol1";
+    Int_t iNumberOfFitParametersPol1=iNumberOfFitParametersPol1_Prefit;
+    TString fFitBackgroundHistogramFitNamePol2="PolFitBackgroundPol2";
+    Int_t iNumberOfFitParametersPol2=iNumberOfFitParametersPol2_Prefit;
+    TString fFitBackgroundHistogramFitNamePol3="PolFitBackgroundPol3";
+    Int_t iNumberOfFitParametersPol3=iNumberOfFitParametersPol3_Prefit;
+    //------------------------------------
+    //Pol_N_plus_Gaus
+    TString fFitBackgroundHistogramFitNamePol1_withGaus="PolFitBackgroundPol1_withGaus";
+    Int_t iNumberOfFitParametersPol1_withGaus=iNumberOfFitParametersPol1+NumberOfParametersAdditionGaus;
+    TString fFitBackgroundHistogramFitNamePol2_withGaus="PolFitBackgroundPol2_withGaus";
+    Int_t iNumberOfFitParametersPol2_withGaus=iNumberOfFitParametersPol2+NumberOfParametersAdditionGaus;
+    TString fFitBackgroundHistogramFitNamePol3_withGaus="PolFitBackgroundPol3_withGaus";
+    Int_t iNumberOfFitParametersPol3_withGaus=iNumberOfFitParametersPol3+NumberOfParametersAdditionGaus;
+    //------------------------------------------------------------------------------------------------------------
+    //Check if Fits already exist
+    if (debugOutputLevel>=1){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Check if Fits already exist"<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    //Pol_N_Prefit
+    if (fFitPHOSPol1_Prefit!=NULL){delete fFitPHOSPol1_Prefit; fFitPHOSPol1_Prefit=NULL;}
+    if (fFitPHOSPol2_Prefit!=NULL){delete fFitPHOSPol2_Prefit; fFitPHOSPol2_Prefit=NULL;}
+    if (fFitPHOSPol3_Prefit!=NULL){delete fFitPHOSPol3_Prefit; fFitPHOSPol3_Prefit=NULL;}
+    //------------------------------------
+    //Pol_N
+    if (fFitPHOSPol1!=NULL){delete fFitPHOSPol1; fFitPHOSPol1=NULL;}
+    if (fFitPHOSPol2!=NULL){delete fFitPHOSPol2; fFitPHOSPol2=NULL;}
+    if (fFitPHOSPol3!=NULL){delete fFitPHOSPol3; fFitPHOSPol3=NULL;}
+    //------------------------------------
+    //Pol_N_plus_Gaus
+    if (fFitPHOSPol1_withGaus!=NULL){delete fFitPHOSPol1_withGaus; fFitPHOSPol1_withGaus=NULL;}
+    if (fFitPHOSPol2_withGaus!=NULL){delete fFitPHOSPol2_withGaus; fFitPHOSPol2_withGaus=NULL;}
+    if (fFitPHOSPol3_withGaus!=NULL){delete fFitPHOSPol3_withGaus; fFitPHOSPol3_withGaus=NULL;}
+    //------------------------------------------------------------------------------------------------------------
+    //Define Fits
+    if (debugOutputLevel>=1){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Define Fits"<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    //Pol_N_Prefit
+    if (debugOutputLevel>=2){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Define Fits"<<" -> Pol_N_Prefit"<<endl;}
+    fFitPHOSPol1_Prefit = new TF1(fFitBackgroundHistogramFitNamePol1_Prefit.Data(), FitFunctionPHOSBckPol1, FitRangeSigBckRatioMin_Prefit, FitRangeSigBckRatioMax_Prefit, iNumberOfFitParametersPol1_Prefit);
+    fFitPHOSPol2_Prefit = new TF1(fFitBackgroundHistogramFitNamePol2_Prefit.Data(), FitFunctionPHOSBckPol2, FitRangeSigBckRatioMin_Prefit, FitRangeSigBckRatioMax_Prefit, iNumberOfFitParametersPol2_Prefit);
+    fFitPHOSPol3_Prefit = new TF1(fFitBackgroundHistogramFitNamePol3_Prefit.Data(), FitFunctionPHOSBckPol3, FitRangeSigBckRatioMin_Prefit, FitRangeSigBckRatioMax_Prefit, iNumberOfFitParametersPol3_Prefit);
+    //------------------------------------
+    //Pol_N
+    if (debugOutputLevel>=2){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Define Fits"<<" -> Pol_N"<<endl;}
+    fFitPHOSPol1 = new TF1(fFitBackgroundHistogramFitNamePol1.Data(), "pol1", FitRangeSigBckRatioMin, FitRangeSigBckRatioMax);
+    fFitPHOSPol2 = new TF1(fFitBackgroundHistogramFitNamePol2.Data(), "pol2", FitRangeSigBckRatioMin, FitRangeSigBckRatioMax);
+    fFitPHOSPol3 = new TF1(fFitBackgroundHistogramFitNamePol3.Data(), "pol3", FitRangeSigBckRatioMin, FitRangeSigBckRatioMax);
+    //------------------------------------
+    //Pol_N_plus_Gaus
+    if (debugOutputLevel>=2){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Define Fits"<<" -> Pol_N_plus_Gaus"<<endl;}
+    if (FitRangeSigBckRatioOption<20){
+        fFitPHOSPol1_withGaus = new TF1(fFitBackgroundHistogramFitNamePol1_withGaus.Data(), FitFunctionPHOSBckPol1_withGaus, FitRangeSigBckRatioMin, FitRangeSigBckRatioMax, iNumberOfFitParametersPol1_withGaus);
+        fFitPHOSPol2_withGaus = new TF1(fFitBackgroundHistogramFitNamePol2_withGaus.Data(), FitFunctionPHOSBckPol2_withGaus, FitRangeSigBckRatioMin, FitRangeSigBckRatioMax, iNumberOfFitParametersPol2_withGaus);
+        fFitPHOSPol3_withGaus = new TF1(fFitBackgroundHistogramFitNamePol3_withGaus.Data(), FitFunctionPHOSBckPol3_withGaus, FitRangeSigBckRatioMin, FitRangeSigBckRatioMax, iNumberOfFitParametersPol3_withGaus);
+    } else {
+        iNumberOfFitParametersPol1_withGaus++;
+        iNumberOfFitParametersPol2_withGaus++;
+        iNumberOfFitParametersPol3_withGaus++;
+        fFitPHOSPol1_withGaus = new TF1(fFitBackgroundHistogramFitNamePol1_withGaus.Data(), FitFunctionPHOSBckPol1_withGausExp, FitRangeSigBckRatioMin, FitRangeSigBckRatioMax, iNumberOfFitParametersPol1_withGaus);
+        fFitPHOSPol2_withGaus = new TF1(fFitBackgroundHistogramFitNamePol2_withGaus.Data(), FitFunctionPHOSBckPol2_withGausExp, FitRangeSigBckRatioMin, FitRangeSigBckRatioMax, iNumberOfFitParametersPol2_withGaus);
+        fFitPHOSPol3_withGaus = new TF1(fFitBackgroundHistogramFitNamePol3_withGaus.Data(), FitFunctionPHOSBckPol3_withGausExp, FitRangeSigBckRatioMin, FitRangeSigBckRatioMax, iNumberOfFitParametersPol3_withGaus);
+    }
+    //------------------------------------------------------------------------------------------------------------
+    //Fitting Pol_N_Prefit
+    if (debugOutputLevel>=1){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Fitting Pol_N_Prefit"<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    fRatioSB->Fit(fFitBackgroundHistogramFitNamePol1_Prefit,"QRME0");
+    fRatioSB->Fit(fFitBackgroundHistogramFitNamePol2_Prefit,"QRME0");
+    fRatioSB->Fit(fFitBackgroundHistogramFitNamePol3_Prefit,"QRME0");
+    if (debugOutputLevel>=2){
+        cout<<"------------------------------------"<<endl;
+        cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; fFitPHOSPol2_Prefit Parameters after Fit"<<endl;
+        for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol2_Prefit; iNumberOfPolParameters_Loop++){
+            cout<<"fFitPHOSPol2_Prefit->GetParameter("<<iNumberOfPolParameters_Loop<<"): "<<fFitPHOSPol2_Prefit->GetParameter(iNumberOfPolParameters_Loop)<<endl;
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------
+    //Fitting Pol_N_plus_Gaus
+    if (debugOutputLevel>=1){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Fitting Pol_N_plus_Gaus"<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol1_Prefit; iNumberOfPolParameters_Loop++){
+        fFitPHOSPol1_withGaus->SetParameter(iNumberOfPolParameters_Loop, fFitPHOSPol1_Prefit->GetParameter(iNumberOfPolParameters_Loop));
+        fFitPHOSPol1_withGaus->SetParError(iNumberOfPolParameters_Loop, fFitPHOSPol1_Prefit->GetParError(iNumberOfPolParameters_Loop));
+    }
+    for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol2_Prefit; iNumberOfPolParameters_Loop++){
+        fFitPHOSPol2_withGaus->SetParameter(iNumberOfPolParameters_Loop, fFitPHOSPol2_Prefit->GetParameter(iNumberOfPolParameters_Loop));
+        fFitPHOSPol2_withGaus->SetParError(iNumberOfPolParameters_Loop, fFitPHOSPol2_Prefit->GetParError(iNumberOfPolParameters_Loop));
+    }
+    for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol3_Prefit; iNumberOfPolParameters_Loop++){
+        fFitPHOSPol3_withGaus->SetParameter(iNumberOfPolParameters_Loop, fFitPHOSPol3_Prefit->GetParameter(iNumberOfPolParameters_Loop));
+        fFitPHOSPol3_withGaus->SetParError(iNumberOfPolParameters_Loop, fFitPHOSPol3_Prefit->GetParError(iNumberOfPolParameters_Loop));
+    }
+    //------------------------------------
+    fFitPHOSPol1_withGaus->SetParameter(iNumberOfFitParametersPol1_Prefit, mesonAmplitude);
+    fFitPHOSPol1_withGaus->SetParLimits(iNumberOfFitParametersPol1_Prefit, mesonAmplitudeMin, mesonAmplitudeMax);
+    fFitPHOSPol1_withGaus->SetParameter(iNumberOfFitParametersPol1_Prefit+1, fMesonMassExpect);
+    fFitPHOSPol1_withGaus->SetParLimits(iNumberOfFitParametersPol1_Prefit+1, fMesonMassExpect*0.95, fMesonMassExpect*1.1);
+    fFitPHOSPol1_withGaus->SetParameter(iNumberOfFitParametersPol1_Prefit+2, fMesonWidthExpect);
+    fFitPHOSPol1_withGaus->SetParLimits(iNumberOfFitParametersPol1_Prefit+2, fMesonWidthRange[0], fMesonWidthRange[1]);
+    if (FitRangeSigBckRatioOption>=20){
+        if (fMesonLambdaTail == fMesonLambdaTailRange[0] && fMesonLambdaTail == fMesonLambdaTailRange[1] ){
+            fFitPHOSPol1_withGaus->FixParameter(iNumberOfFitParametersPol1_Prefit+3,fMesonLambdaTail);
+        } else {
+            fFitPHOSPol1_withGaus->SetParameter(iNumberOfFitParametersPol1_Prefit+3,fMesonLambdaTail);
+            fFitPHOSPol1_withGaus->SetParLimits(iNumberOfFitParametersPol1_Prefit+3,fMesonLambdaTailRange[0],fMesonLambdaTailRange[1]);
+        }
+    }
+    //------------------------------------
+    fFitPHOSPol2_withGaus->SetParameter(iNumberOfFitParametersPol2_Prefit, mesonAmplitude);
+    fFitPHOSPol2_withGaus->SetParLimits(iNumberOfFitParametersPol2_Prefit, mesonAmplitudeMin, mesonAmplitudeMax);
+    fFitPHOSPol2_withGaus->SetParameter(iNumberOfFitParametersPol2_Prefit+1, fMesonMassExpect);
+    fFitPHOSPol2_withGaus->SetParLimits(iNumberOfFitParametersPol2_Prefit+1, fMesonMassExpect*0.9, fMesonMassExpect*1.1);
+    fFitPHOSPol2_withGaus->SetParameter(iNumberOfFitParametersPol2_Prefit+2, fMesonWidthExpect);
+    fFitPHOSPol2_withGaus->SetParLimits(iNumberOfFitParametersPol2_Prefit+2, fMesonWidthRange[0], fMesonWidthRange[1]);
+    if (FitRangeSigBckRatioOption>=20){
+        if (fMesonLambdaTail == fMesonLambdaTailRange[0] && fMesonLambdaTail == fMesonLambdaTailRange[1] ){
+            fFitPHOSPol2_withGaus->FixParameter(iNumberOfFitParametersPol2_Prefit+3,fMesonLambdaTail);
+        } else {
+            fFitPHOSPol2_withGaus->SetParameter(iNumberOfFitParametersPol2_Prefit+3,fMesonLambdaTail);
+            fFitPHOSPol2_withGaus->SetParLimits(iNumberOfFitParametersPol2_Prefit+3,fMesonLambdaTailRange[0],fMesonLambdaTailRange[1]);
+        }
+    }
+    //------------------------------------
+    fFitPHOSPol3_withGaus->SetParameter(iNumberOfFitParametersPol3_Prefit, mesonAmplitude);
+    fFitPHOSPol3_withGaus->SetParLimits(iNumberOfFitParametersPol3_Prefit, mesonAmplitudeMin, mesonAmplitudeMax);
+    fFitPHOSPol3_withGaus->SetParameter(iNumberOfFitParametersPol3_Prefit+1, fMesonMassExpect);
+    fFitPHOSPol3_withGaus->SetParLimits(iNumberOfFitParametersPol3_Prefit+1, fMesonMassExpect*0.9, fMesonMassExpect*1.1);
+    fFitPHOSPol3_withGaus->SetParameter(iNumberOfFitParametersPol3_Prefit+2, fMesonWidthExpect);
+    fFitPHOSPol3_withGaus->SetParLimits(iNumberOfFitParametersPol3_Prefit+2, fMesonWidthRange[0], fMesonWidthRange[1]);
+    if (FitRangeSigBckRatioOption>=20){
+        if (fMesonLambdaTail == fMesonLambdaTailRange[0] && fMesonLambdaTail == fMesonLambdaTailRange[1] ){
+            fFitPHOSPol3_withGaus->FixParameter(iNumberOfFitParametersPol3_Prefit+3,fMesonLambdaTail);
+        } else {
+            fFitPHOSPol3_withGaus->SetParameter(iNumberOfFitParametersPol3_Prefit+3,fMesonLambdaTail);
+            fFitPHOSPol3_withGaus->SetParLimits(iNumberOfFitParametersPol3_Prefit+3,fMesonLambdaTailRange[0],fMesonLambdaTailRange[1]);
+        }
+    }
+    if (debugOutputLevel>=2){
+        cout<<"------------------------------------"<<endl;
+        cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; fFitBackgroundHistogramFitNamePol2_withGaus Parameters before Fit"<<endl;
+        for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol2_withGaus; iNumberOfPolParameters_Loop++){
+            cout<<"fFitPHOSPol2_withGaus->GetParameter("<<iNumberOfPolParameters_Loop<<"): "<<fFitPHOSPol2_withGaus->GetParameter(iNumberOfPolParameters_Loop)<<endl;
+        }
+    }
+    //------------------------------------
+    fRatioSB->Fit(fFitBackgroundHistogramFitNamePol1_withGaus,"QRME0");
+    fRatioSB->Fit(fFitBackgroundHistogramFitNamePol2_withGaus,"QRME0");
+    fRatioSB->Fit(fFitBackgroundHistogramFitNamePol3_withGaus,"QRME0");
+    if (debugOutputLevel>=2){
+        cout<<"------------------------------------"<<endl;
+        cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; fFitBackgroundHistogramFitNamePol2_withGaus Parameters after Fit"<<endl;
+        for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol2_withGaus; iNumberOfPolParameters_Loop++){
+            cout<<"fFitPHOSPol2_withGaus->GetParameter("<<iNumberOfPolParameters_Loop<<"): "<<fFitPHOSPol2_withGaus->GetParameter(iNumberOfPolParameters_Loop)<<endl;
+        }
+    }
+    //------------------------------------------------------------------------------------------------------------
+    //Set Pol_N Fit Parameters
+    if (debugOutputLevel>=1){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Set Pol_N Fit Parameters"<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol1_Prefit; iNumberOfPolParameters_Loop++){
+        fFitPHOSPol1->SetParameter(iNumberOfPolParameters_Loop, fFitPHOSPol1_withGaus->GetParameter(iNumberOfPolParameters_Loop));
+        fFitPHOSPol1->SetParError(iNumberOfPolParameters_Loop, fFitPHOSPol1_withGaus->GetParError(iNumberOfPolParameters_Loop));
+    }
+    for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol2_Prefit; iNumberOfPolParameters_Loop++){
+        fFitPHOSPol2->SetParameter(iNumberOfPolParameters_Loop, fFitPHOSPol2_withGaus->GetParameter(iNumberOfPolParameters_Loop));
+        fFitPHOSPol2->SetParError(iNumberOfPolParameters_Loop, fFitPHOSPol2_withGaus->GetParError(iNumberOfPolParameters_Loop));
+    }
+    for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol3_Prefit; iNumberOfPolParameters_Loop++){
+        fFitPHOSPol3->SetParameter(iNumberOfPolParameters_Loop, fFitPHOSPol3_withGaus->GetParameter(iNumberOfPolParameters_Loop));
+        fFitPHOSPol3->SetParError(iNumberOfPolParameters_Loop, fFitPHOSPol3_withGaus->GetParError(iNumberOfPolParameters_Loop));
+    }
+    if (debugOutputLevel>=2){
+        cout<<"------------------------------------"<<endl;
+        cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; fFitPHOSPol2 Parameters"<<endl;
+        for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<iNumberOfFitParametersPol2; iNumberOfPolParameters_Loop++){
+            cout<<"fFitPHOSPol2->GetParameter("<<iNumberOfPolParameters_Loop<<"): "<<fFitPHOSPol2->GetParameter(iNumberOfPolParameters_Loop)<<endl;
+        }
+    }
+    if (debugOutputLevel>=2){cout<<"------------------------------------"<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    //Background Scaling
+    if (debugOutputLevel>=1){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; Background Scaling"<<endl;}
+    //------------------------------------------------------------------------------------------------------------
+    Double_t CurrentBinContentRatio;
+    Double_t CurrentBinContentBckNorm;
+    Double_t CurrentBinErrorBckNorm;
+    Double_t CurrentBinCenter;
+    Int_t numberOfZeros = 0;
+    for (Int_t i = 1; i < fBckNorm->GetNbinsX()+1; i++){
+        CurrentBinContentBckNorm=fBckNorm->GetBinContent(i);
+        CurrentBinErrorBckNorm=fBckNorm->GetBinError(i);
+        CurrentBinCenter=fBckNorm->GetBinCenter(i);
+        if (usePolNForBackgroundScaling == 1){
+            CurrentBinContentRatio=fFitPHOSPol1->Eval(CurrentBinCenter);
+        } else if(usePolNForBackgroundScaling == 2){
+            CurrentBinContentRatio=fFitPHOSPol2->Eval(CurrentBinCenter);
+        } else if(usePolNForBackgroundScaling == 3){
+            CurrentBinContentRatio=fFitPHOSPol3->Eval(CurrentBinCenter);
+        } else {
+            CurrentBinContentRatio=fFitPHOSPol2->Eval(CurrentBinCenter);
+        }
+        if (fBckNorm->GetBinContent(i) == 0){
+            numberOfZeros++;
+            if (norm > 1.){
+                fBckNorm->SetBinError(i,1.);
+                fBckNorm->SetBinContent(i,0.);
+            }
+        } else {
+            fBckNorm->SetBinContent(i,CurrentBinContentRatio*CurrentBinContentBckNorm);
+            fBckNorm->SetBinError(i,CurrentBinContentRatio*CurrentBinErrorBckNorm);
+        }
+    }
+    fSignal             = (TH1D*)fGammaGamma->Clone("fSignal");
+    fSignal->Sumw2();
+    CurrentNumberOfZeroesRatio=(Double_t)numberOfZeros/fBck->GetNbinsX();
+    if (CurrentNumberOfZeroesRatio < NumberOfZeroesRatioLimit){
+        fSignal->Add(fBckNorm,-1.);
+    } else {
+        cout<<"WARNING!!! numberOfZeros/fBck->GetNbinsX()< "<<NumberOfZeroesRatioLimit<<": "<<"numberOfZeros: "<<numberOfZeros<<"; fBck->GetNbinsX(): "<<fBck->GetNbinsX()<<"; numberOfZeros/fBck->GetNbinsX(): "<<CurrentNumberOfZeroesRatio<<endl;
+    }
+    if (debugOutputLevel>=1){cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), ended Line: "<<__LINE__<<endl;}
+}
 
 
 void ProcessRatioSignalBackground(TH1D* fGammaGamma, TH1D* fBck)
