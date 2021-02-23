@@ -1537,7 +1537,7 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
          } else if(mode == 44 || mode == 64){ //EMCAL
-             FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
+             FitRangeSigBckRatioOption   = 23; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
              usePolNForBackgroundScaling = 2;
              fMesonWidthExpect           = 0.06;
              fMesonWidthRange[0]         = 0.005;

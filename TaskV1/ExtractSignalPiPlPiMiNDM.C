@@ -6898,6 +6898,11 @@ void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) 
             //Eta PHOS: fBGFitRangeLeft[0]=0.35; fBGFitRange[1]=0.79; PCMPHOS: fBGFitRangeLeft[0]=0.35; fBGFitRange[1]=0.79
             FitRangeSigBckRatioMin_Prefit=fBGFitRangeLeft[0];
             FitRangeSigBckRatioMax_Prefit=fBGFitRange[1];
+        } else if ((FitRangeSigBckRatioOption == 13)||(FitRangeSigBckRatioOption == 23)){
+            FitRangeSigBckRatioMin=0.6;
+            FitRangeSigBckRatioMax=0.99;
+            FitRangeSigBckRatioMin_Prefit=fBGFitRangeLeft[0];
+            FitRangeSigBckRatioMax_Prefit=fBGFitRange[1];
         } else {
             //Pi0 fBGFitRange PHOS 0.19-0.3 PCMPHOS 0.17-0.3
             //Pi0 fBGFitRangeLeft PHOS 0.04-0.08 PCMPHOS 0.05-0.08
