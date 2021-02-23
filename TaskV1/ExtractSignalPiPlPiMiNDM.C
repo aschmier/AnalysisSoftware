@@ -124,11 +124,21 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     //Int_t fMode = -1;
     // Extract Mode from CutString
     Bool_t isNewTask = kTRUE;
-    Int_t doDebugOutputLevel    =   0;
+    Int_t doDebugOutputLevel    =   3;
 
+    TString TStrBckSwitchEnable="Ratio";
+    if(optionCrystalBall.EndsWith(TStrBckSwitchEnable.Data())){
+        cout<<"Signal to Background Fitting Chosen to be Scaling Option for Background Chosen due to optionCrystalBall: "<<optionCrystalBall;
+        optionCrystalBall.Replace(optionCrystalBall.Length()-TStrBckSwitchEnable.Length(),TStrBckSwitchEnable.Length(),"");
+        cout<<" => Fitting Method: "<<optionCrystalBall<<endl;
+        iBckSwitch=5; //activate Fitting Signal To Background Ratio Fitting
+    } else {
+        iBckSwitch=0; //deactivate Fitting Signal To Background Ratio Fitting
+    }
     if (fileMC.EndsWith("none")||fileMC.EqualTo("")){
         useMCBck                =   0;
     }
+
     if((UsrMode>=40) && (UsrMode <= 50)) isNewTask = kFALSE;
 
     fMode                       = ReturnSeparatedCutNumberPiPlPiMiPiZero( cutSelection, fTypeCutSelection, fEventCutSelection, fGammaCutSelection, fClusterCutSelection,
@@ -573,7 +583,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     TString ObjectNameContaminationTrue_FromMC              = Form("ESD_TruePiPlPiMiNDMContamination_InvMassPt");
 
 
-    if (useMCBck == 0){
+    if ((useMCBck == 0)||(iBckSwitch>=1)){
         if(fBackMixingMode.CompareTo("a")!=0){
             for(Int_t k=0;k<4;k++){
                 hist_bck[k]                       = (TH2D*)ESDContainer->FindObject(ObjectNameBck[k].Data());
@@ -598,6 +608,27 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             if(hist_bck_FixedPzPiZero[0]) fBckInvMassVSPt_FixedPzPiZero[0]        = (TH2D*) hist_bck_FixedPzPiZero[0]->Clone("hist_bck0_FixedPzPiZero");
         }
     } else {
+        hist_bck_Signal                                                 = (TH2D*)ESDContainerMC->FindObject(ObjectNameBck_FromMC.Data());
+        hist_bck_SubPiZero_Signal                                       = (TH2D*)ESDContainerMC->FindObject(ObjectNameBckSubPiZero_FromMC.Data());
+        hist_bck_FixedPzPiZero_Signal                                   = (TH2D*)ESDContainerMC->FindObject(ObjectNameBckFixedPzPiZero_FromMC.Data());
+
+        hist_bck_True                                                   = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameTrue_FromMC.Data());
+        hist_bck_SubPiZero_True                                         = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameTrueSubPiZero_FromMC.Data());
+        hist_bck_FixedPzPiZero_True                                     = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameTrueFixedPzPiZero_FromMC.Data());
+
+        hist_bck[0]                                                     = (TH2D*)hist_bck_Signal->Clone(Form("%s_Back", ObjectNameBck_FromMC.Data()));
+        hist_bck_SubPiZero[0]                                           = (TH2D*)hist_bck_SubPiZero_Signal->Clone(Form("%s_Back", ObjectNameBckSubPiZero_FromMC.Data()));
+        hist_bck_FixedPzPiZero[0]                                       = (TH2D*)hist_bck_FixedPzPiZero_Signal->Clone(Form("%s_Back", ObjectNameBckFixedPzPiZero_FromMC.Data()));
+
+        hist_bck[0]                                                     -> Add((TH2D*)hist_bck_True,-1);
+        hist_bck_SubPiZero[0]                                           -> Add((TH2D*)hist_bck_SubPiZero_True,-1);
+        hist_bck_FixedPzPiZero[0]                                       -> Add((TH2D*)hist_bck_FixedPzPiZero_True,-1);
+        if(hist_bck[0]) fBckInvMassVSPt[0]                              = (TH2D*) hist_bck[0]->Clone("hist_bck0");
+        if(hist_bck_SubPiZero[0]) fBckInvMassVSPt_SubPiZero[0]          = (TH2D*) hist_bck_SubPiZero[0]->Clone("hist_bck0_SubPiZero");
+        if(hist_bck_FixedPzPiZero[0]) fBckInvMassVSPt_FixedPzPiZero[0]  = (TH2D*) hist_bck_FixedPzPiZero[0]->Clone("hist_bck0_FixedPzPiZero");
+    }
+
+    if (useMCBck>=2){
         Bool_t          useSamePlotsForContamination                    = kFALSE;
         const Int_t     iNumberOfSamePlots                              = 16;
         TString         TStrSameMother[iNumberOfSamePlots]              ={
@@ -621,79 +652,63 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             "ESD_TruePiMiPiZeroSameMotherFromOther_InvMassPt"           //16
         };
 
-        hist_bck_Signal                                                 = (TH2D*)ESDContainerMC->FindObject(ObjectNameBck_FromMC.Data());
-        hist_bck_SubPiZero_Signal                                       = (TH2D*)ESDContainerMC->FindObject(ObjectNameBckSubPiZero_FromMC.Data());
-        hist_bck_FixedPzPiZero_Signal                                   = (TH2D*)ESDContainerMC->FindObject(ObjectNameBckFixedPzPiZero_FromMC.Data());
-
-        hist_bck_True                                                   = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameTrue_FromMC.Data());
-        hist_bck_SubPiZero_True                                         = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameTrueSubPiZero_FromMC.Data());
-        hist_bck_FixedPzPiZero_True                                     = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameTrueFixedPzPiZero_FromMC.Data());
-
-        hist_bck[0]                                                     = (TH2D*)hist_bck_Signal->Clone(Form("%s_Back", ObjectNameBck_FromMC.Data()));
-        hist_bck_SubPiZero[0]                                           = (TH2D*)hist_bck_SubPiZero_Signal->Clone(Form("%s_Back", ObjectNameBckSubPiZero_FromMC.Data()));
-        hist_bck_FixedPzPiZero[0]                                       = (TH2D*)hist_bck_FixedPzPiZero_Signal->Clone(Form("%s_Back", ObjectNameBckFixedPzPiZero_FromMC.Data()));
-
-        hist_bck[0]                                                     -> Add((TH2D*)hist_bck_True,-1);
-        hist_bck_SubPiZero[0]                                           -> Add((TH2D*)hist_bck_SubPiZero_True,-1);
-        hist_bck_FixedPzPiZero[0]                                       -> Add((TH2D*)hist_bck_FixedPzPiZero_True,-1);
-        if(hist_bck[0]) fBckInvMassVSPt[0]                              = (TH2D*) hist_bck[0]->Clone("hist_bck0");
-        if(hist_bck_SubPiZero[0]) fBckInvMassVSPt_SubPiZero[0]          = (TH2D*) hist_bck_SubPiZero[0]->Clone("hist_bck0_SubPiZero");
-        if(hist_bck_FixedPzPiZero[0]) fBckInvMassVSPt_FixedPzPiZero[0]  = (TH2D*) hist_bck_FixedPzPiZero[0]->Clone("hist_bck0_FixedPzPiZero");
-
-        if (useMCBck>=2){
-            hist_bck_Contamination                                      = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameContaminationTrue_FromMC.Data());
-            hist_bck_TrueContamination                                  = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameContaminationTrue_FromMC.Data());
-            hist_bck_TrueCombinatorical                                 = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
-            if (hist_bck_Contamination == NULL){
-                cout<<"(hist_bck_Contamination == NULL)"<<" -> ContaminationBackHistMode level turned down: useMCBck = 1"<<endl;
-                useMCBck                    = 1;
-            } else {
-                if (useSamePlotsForContamination){
-                    hist_bck_Combinatorical_SameMother                          = (TH2D*)TrueConversionContainerMC->FindObject(TStrSameMother[0].Data());
-                    for (Int_t iNofSameMotherPlots=1; iNofSameMotherPlots<iNumberOfSamePlots; iNofSameMotherPlots++){
-                        hist_bck_Combinatorical_SameMother->Add(                (TH2D*)TrueConversionContainerMC->FindObject(TStrSameMother[iNofSameMotherPlots].Data()), 1);
-                    }
-                    hist_bck_Contamination->Add(                                hist_bck_Combinatorical_SameMother, 1);
+        hist_bck_Contamination                                      = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameContaminationTrue_FromMC.Data());
+        hist_bck_TrueContamination                                  = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameContaminationTrue_FromMC.Data());
+        hist_bck_TrueCombinatorical                                 = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
+        if (hist_bck_Contamination == NULL){
+            cout<<"(hist_bck_Contamination == NULL)"<<" -> ContaminationBackHistMode level turned down: useMCBck = 1"<<endl;
+            useMCBck                    = 1;
+        } else {
+            if (useSamePlotsForContamination){
+                hist_bck_Combinatorical_SameMother                          = (TH2D*)TrueConversionContainerMC->FindObject(TStrSameMother[0].Data());
+                for (Int_t iNofSameMotherPlots=1; iNofSameMotherPlots<iNumberOfSamePlots; iNofSameMotherPlots++){
+                    hist_bck_Combinatorical_SameMother->Add(                (TH2D*)TrueConversionContainerMC->FindObject(TStrSameMother[iNofSameMotherPlots].Data()), 1);
                 }
+                hist_bck_Contamination->Add(                                hist_bck_Combinatorical_SameMother, 1);
             }
+        }
 
-            if (useMCBck==4) {
-                hist_bck_Combinatorical                                 = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
-                hist_bck_Combinatorical_SubPiZero                       = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
-                hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
-                if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
-                     cout<<"((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL))"<<" -> ContaminationBackHistMode level turned down: useMCBck = 3"<<endl;
-                    useMCBck=3;
-                }
+        if (useMCBck==4) {
+            hist_bck_Combinatorical                                 = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
+            hist_bck_Combinatorical_SubPiZero                       = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
+            hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)TrueConversionContainerMC->FindObject(ObjectNameCombinatoricalTrue_FromMC.Data());
+            if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
+                cout<<"((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL))"<<" -> ContaminationBackHistMode level turned down: useMCBck = 3"<<endl;
+                useMCBck=3;
             }
-            if (useMCBck==3){
-                hist_bck_Combinatorical                                 = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatorical_FromMC.Data());
-                hist_bck_Combinatorical_SubPiZero                       = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatoricalSubPiZero_FromMC.Data());
-                hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatoricalFixedPzPiZero_FromMC.Data());
-                if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
-                    cout<<"((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL))"<<" -> ContaminationBackHistMode level turned down: useMCBck = 2"<<endl;
-                    useMCBck=2;
-                }
+        }
+        if (useMCBck==3){
+            hist_bck_Combinatorical                                 = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatorical_FromMC.Data());
+            hist_bck_Combinatorical_SubPiZero                       = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatoricalSubPiZero_FromMC.Data());
+            hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)ESDContainerMC->FindObject(ObjectNameCombinatoricalFixedPzPiZero_FromMC.Data());
+            if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
+                cout<<"((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL))"<<" -> ContaminationBackHistMode level turned down: useMCBck = 2"<<endl;
+                useMCBck=2;
             }
-            if ((useMCBck==2)||(useMCBck>=5)) {
-                hist_bck_Combinatorical                                 = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatorical_FromData.Data());
-                hist_bck_Combinatorical_SubPiZero                       = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatoricalSubPiZero_FromData.Data());
-                hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatoricalFixedPzPiZero_FromData.Data());
-                if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
-                    cout<<"((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL))"<<" -> ContaminationBackHistMode level turned down: useMCBck = 1"<<endl;
+        }
+        if ((useMCBck==2)||(useMCBck>=5)) {
+            hist_bck_Combinatorical                                 = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatorical_FromData.Data());
+            hist_bck_Combinatorical_SubPiZero                       = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatoricalSubPiZero_FromData.Data());
+            hist_bck_Combinatorical_FixedPzPiZero                   = (TH2D*)ESDContainer->FindObject(ObjectNameCombinatoricalFixedPzPiZero_FromData.Data());
+            if ((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL)){
+                cout<<"((hist_bck_Combinatorical==NULL)||(hist_bck_Combinatorical_SubPiZero==NULL)||(hist_bck_Combinatorical_FixedPzPiZero==NULL))"<<" -> ContaminationBackHistMode level turned down: useMCBck = 1"<<endl;
+                if (iBckSwitch>=1){
+                    useMCBck=0;
+                } else {
                     useMCBck=1;
                 }
             }
-            if (useMCBck>=2){
-                if (hist_bck_Contamination){ProjectHistogramInPtBins(hist_bck_Contamination, fHistoMapping_bck_Contamination);}
-                if (hist_bck_Combinatorical){ProjectHistogramInPtBins(hist_bck_Combinatorical, fHistoMapping_bck_Combinatorical);}
-                if (hist_bck_Combinatorical_SubPiZero){ProjectHistogramInPtBins(hist_bck_Combinatorical_SubPiZero, fHistoMapping_bck_Combinatorical_SubPiZero);}
-                if (hist_bck_Combinatorical_FixedPzPiZero){ProjectHistogramInPtBins(hist_bck_Combinatorical_FixedPzPiZero, fHistoMapping_bck_Combinatorical_FixedPzPiZero);}
-                if (hist_bck_TrueContamination){ProjectHistogramInPtBins(hist_bck_TrueContamination, fHistoMapping_bck_TrueContamination);}
-                if (hist_bck_TrueCombinatorical){ProjectHistogramInPtBins(hist_bck_TrueCombinatorical, fHistoMapping_bck_TrueCombinatorical);}
-            }
+        }
+        if (useMCBck>=2){
+            if (hist_bck_Contamination){ProjectHistogramInPtBins(hist_bck_Contamination, fHistoMapping_bck_Contamination);}
+            if (hist_bck_Combinatorical){ProjectHistogramInPtBins(hist_bck_Combinatorical, fHistoMapping_bck_Combinatorical);}
+            if (hist_bck_Combinatorical_SubPiZero){ProjectHistogramInPtBins(hist_bck_Combinatorical_SubPiZero, fHistoMapping_bck_Combinatorical_SubPiZero);}
+            if (hist_bck_Combinatorical_FixedPzPiZero){ProjectHistogramInPtBins(hist_bck_Combinatorical_FixedPzPiZero, fHistoMapping_bck_Combinatorical_FixedPzPiZero);}
+            if (hist_bck_TrueContamination){ProjectHistogramInPtBins(hist_bck_TrueContamination, fHistoMapping_bck_TrueContamination);}
+            if (hist_bck_TrueCombinatorical){ProjectHistogramInPtBins(hist_bck_TrueCombinatorical, fHistoMapping_bck_TrueCombinatorical);}
         }
     }
+
 
 
     fGammaGammaInvMassVSPt                = (TH2D*)ESDContainer->FindObject(ObjectNameESD.Data());
@@ -1193,7 +1208,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             }
         }
 
-        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; After ProcessBckFitSubtraction";}
+        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; After ProcessBckFitSubtraction"<<endl;}
         Double_t fNormTot = 1.; // variable containing the factor used to scale the total background
         for(Int_t k=0;k<5;k++){
           if((fHistoMappingGGInvMassBackFitPtBin[iPt]!=NULL) && (fHistoMappingBackInvMassPtBin[k][iPt]!=NULL )){
@@ -1201,12 +1216,80 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             if(k==0){
                 fNormTot = fNorm; // k==0 means tot back was just scaled -> store value for using for samescale
                 fHistoMappingSignalInvMassPtBin[iPt] = fSignal; // only use signal that was obtained by subtracting total background
+
+                if (iBckSwitch == 5){
+                    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<endl;}
+                    fHistoMappingRatioSBInvMassPtBin[k][iPt]       = fRatioSB;
+                    if ( usePolNForBackgroundScaling == 1){
+                        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling == "<<usePolNForBackgroundScaling<<endl;}
+                        fFitAllOtherSigToBckFits[0][iPt]        = fFitSigBckPol2;
+                        fFitAllOtherSigToBckFits[1][iPt]        = fFitSigBckPol3;
+                        fFitAllOtherSigToBckFits_withGaus[0][iPt] = fFitSigBckPol2_withGaus;
+                        fFitAllOtherSigToBckFits_withGaus[1][iPt] = fFitSigBckPol3_withGaus;
+                        //------------------------------------
+                        fFitPolSigToBckFitPtBin[iPt]            = fFitSigBckPol1;
+                        fFitPolSigToBckFitPtBin_withGaus[iPt]   = fFitSigBckPol1_withGaus;
+                    } else if ( usePolNForBackgroundScaling == 3){
+                        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling == "<<usePolNForBackgroundScaling<<endl;}
+                        fFitAllOtherSigToBckFits[0][iPt]        = fFitSigBckPol1;
+                        fFitAllOtherSigToBckFits[1][iPt]        = fFitSigBckPol2;
+                        fFitAllOtherSigToBckFits_withGaus[0][iPt] = fFitSigBckPol1_withGaus;
+                        fFitAllOtherSigToBckFits_withGaus[1][iPt] = fFitSigBckPol2_withGaus;
+                        //------------------------------------
+                        fFitPolSigToBckFitPtBin[iPt]            = fFitSigBckPol3;
+                        fFitPolSigToBckFitPtBin_withGaus[iPt]   = fFitSigBckPol3_withGaus;
+                    } else {
+                        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling ==  else ("<<usePolNForBackgroundScaling<<")"<<endl;}
+                        fFitAllOtherSigToBckFits[0][iPt]        = fFitSigBckPol1;
+                        fFitAllOtherSigToBckFits[1][iPt]        = fFitSigBckPol3;
+                        fFitAllOtherSigToBckFits_withGaus[0][iPt] = fFitSigBckPol1_withGaus;
+                        fFitAllOtherSigToBckFits_withGaus[1][iPt] = fFitSigBckPol3_withGaus;
+                        //------------------------------------
+                        fFitPolSigToBckFitPtBin[iPt]            = fFitSigBckPol2;
+
+                        if (doDebugOutputLevel>=3){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling ==  else ("<<usePolNForBackgroundScaling<<")"<<"; fFitPolSigToBckFitPtBin_withGaus[iPt]   = fFitSigBckPol2_withGaus;"<<endl;}
+                        fFitPolSigToBckFitPtBin_withGaus[iPt]   = fFitSigBckPol2_withGaus;
+                    }
+
+                    if (doDebugOutputLevel>=3){
+                        cout<<"------------------------------------"<<endl;
+                        cout<<"Debug Output, ExtractSignalV2.C, Line: "<<__LINE__<<"; iPt: "<<iPt<<"; fFitSigBckPol2_withGaus Parameters"<<endl;
+                        for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<6; iNumberOfPolParameters_Loop++){
+                            cout<<"fFitSigBckPol2_withGaus->GetParameter("<<iNumberOfPolParameters_Loop<<"): "<<fFitSigBckPol2_withGaus->GetParameter(iNumberOfPolParameters_Loop)<<endl;
+                        }
+                    }
+                    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<endl;}
+
+                    if (fFitPolSigToBckFitPtBin_withGaus[iPt]){
+                        fSigToBckFitChi2[0][iPt]                      = fFitPolSigToBckFitPtBin_withGaus[iPt]->GetChisquare()/fFitReco->GetNDF();
+                    } else {
+                        fSigToBckFitChi2[0][iPt]                      = -1;}
+                    if (fFitAllOtherSigToBckFits[0][iPt]){
+                        fSigToBckFitChi2[1][iPt]                      = fFitAllOtherSigToBckFits_withGaus[0][iPt]->GetChisquare()/fFitReco->GetNDF();
+                    } else {
+                        fSigToBckFitChi2[1][iPt]                      = -1;}
+                    if (fFitAllOtherSigToBckFits[1][iPt]){
+                        fSigToBckFitChi2[2][iPt]                      = fFitAllOtherSigToBckFits_withGaus[1][iPt]->GetChisquare()/fFitReco->GetNDF();
+                    } else {
+                        fSigToBckFitChi2[2][iPt]                      = -1;}
+                    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<endl;}
+
+                    //-----------------------------------------
+                    fRatioSB                                    = NULL;
+                    fFitSigBckPol1                                = NULL;
+                    fFitSigBckPol2                                = NULL;
+                    fFitSigBckPol3                                = NULL;
+                    fFitSigBckPol1_withGaus                       = NULL;
+                    fFitSigBckPol2_withGaus                       = NULL;
+                    fFitSigBckPol3_withGaus                       = NULL;
+                    if (doDebugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
+                }
             }
             fHistoMappingBackNormInvMassPtBin[k][iPt] = fBckNorm;
 
             fHistoMappingBackSameNormInvMassPtBin[k][iPt] = (TH1D*) fHistoMappingBackInvMassPtBin[k][iPt]->Clone(Form("BckSameNorm%i",k)); // clone all the unscaled bckgroups
             fHistoMappingBackSameNormInvMassPtBin[k][iPt]->Sumw2();
-            fHistoMappingBackSameNormInvMassPtBin[k][iPt]->Scale(fNormTot); // scale verything with the SAME factor -> factor obtained from scaling of total background
+            fHistoMappingBackSameNormInvMassPtBin[k][iPt]->Scale(fNormTot); // scale verything with the SAME factor -> factor obtained from scaling of total background    
           }
 
           if((fHistoMappingGGInvMassBackFitPtBin_SubPiZero[iPt]!=NULL) && (fHistoMappingBackInvMassPtBin_SubPiZero[k][iPt]!=NULL )){
@@ -1214,6 +1297,74 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             if(k==0){
                 fNormTot = fNorm; // k==0 means tot back was just scaled -> store value for using for samescale
                 fHistoMappingSignalInvMassPtBin_SubPiZero[iPt] = fSignal; // only use signal that was obtained by subtracting total background
+
+                if (iBckSwitch == 5){
+                    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5 _SubPiZero"<<"; Store Fit Values"<<endl;}
+                    fHistoMappingRatioSBInvMassPtBin_SubPiZero[k][iPt]       = fRatioSB;
+                    if ( usePolNForBackgroundScaling == 1){
+                        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling == "<<usePolNForBackgroundScaling<<endl;}
+                        fFitAllOtherSigToBckFits_SubPiZero[0][iPt]        = fFitSigBckPol2;
+                        fFitAllOtherSigToBckFits_SubPiZero[1][iPt]        = fFitSigBckPol3;
+                        fFitAllOtherSigToBckFits_withGaus_SubPiZero[0][iPt] = fFitSigBckPol2_withGaus;
+                        fFitAllOtherSigToBckFits_withGaus_SubPiZero[1][iPt] = fFitSigBckPol3_withGaus;
+                        //------------------------------------
+                        fFitPolSigToBckFitPtBin_SubPiZero[iPt]            = fFitSigBckPol1;
+                        fFitPolSigToBckFitPtBin_withGaus_SubPiZero[iPt]   = fFitSigBckPol1_withGaus;
+                    } else if ( usePolNForBackgroundScaling == 3){
+                        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling == "<<usePolNForBackgroundScaling<<endl;}
+                        fFitAllOtherSigToBckFits_SubPiZero[0][iPt]        = fFitSigBckPol1;
+                        fFitAllOtherSigToBckFits_SubPiZero[1][iPt]        = fFitSigBckPol2;
+                        fFitAllOtherSigToBckFits_withGaus_SubPiZero[0][iPt] = fFitSigBckPol1_withGaus;
+                        fFitAllOtherSigToBckFits_withGaus_SubPiZero[1][iPt] = fFitSigBckPol2_withGaus;
+                        //------------------------------------
+                        fFitPolSigToBckFitPtBin_SubPiZero[iPt]            = fFitSigBckPol3;
+                        fFitPolSigToBckFitPtBin_withGaus_SubPiZero[iPt]   = fFitSigBckPol3_withGaus;
+                    } else {
+                        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling ==  else ("<<usePolNForBackgroundScaling<<")"<<endl;}
+                        fFitAllOtherSigToBckFits_SubPiZero[0][iPt]        = fFitSigBckPol1;
+                        fFitAllOtherSigToBckFits_SubPiZero[1][iPt]        = fFitSigBckPol3;
+                        fFitAllOtherSigToBckFits_withGaus_SubPiZero[0][iPt] = fFitSigBckPol1_withGaus;
+                        fFitAllOtherSigToBckFits_withGaus_SubPiZero[1][iPt] = fFitSigBckPol3_withGaus;
+                        //------------------------------------
+                        fFitPolSigToBckFitPtBin_SubPiZero[iPt]            = fFitSigBckPol2;
+
+                        if (doDebugOutputLevel>=3){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling ==  else ("<<usePolNForBackgroundScaling<<")"<<"; fFitPolSigToBckFitPtBin_withGaus_SubPiZero[iPt]   = fFitSigBckPol2_withGaus;"<<endl;}
+                        fFitPolSigToBckFitPtBin_withGaus_SubPiZero[iPt]   = fFitSigBckPol2_withGaus;
+                    }
+
+                    if (doDebugOutputLevel>=3){
+                        cout<<"------------------------------------"<<endl;
+                        cout<<"Debug Output, ExtractSignalV2.C, Line: "<<__LINE__<<"; iPt: "<<iPt<<"; fFitSigBckPol2_withGaus Parameters"<<endl;
+                        for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<6; iNumberOfPolParameters_Loop++){
+                            cout<<"fFitSigBckPol2_withGaus->GetParameter("<<iNumberOfPolParameters_Loop<<"): "<<fFitSigBckPol2_withGaus->GetParameter(iNumberOfPolParameters_Loop)<<endl;
+                        }
+                    }
+                    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<endl;}
+
+                    if (fFitPolSigToBckFitPtBin_withGaus_SubPiZero[iPt]){
+                        fSigToBckFitChi2_SubPiZero[0][iPt]                      = fFitPolSigToBckFitPtBin_withGaus_SubPiZero[iPt]->GetChisquare()/fFitReco->GetNDF();
+                    } else {
+                        fSigToBckFitChi2_SubPiZero[0][iPt]                      = -1;}
+                    if (fFitAllOtherSigToBckFits_SubPiZero[0][iPt]){
+                        fSigToBckFitChi2_SubPiZero[1][iPt]                      = fFitAllOtherSigToBckFits_withGaus_SubPiZero[0][iPt]->GetChisquare()/fFitReco->GetNDF();
+                    } else {
+                        fSigToBckFitChi2_SubPiZero[1][iPt]                      = -1;}
+                    if (fFitAllOtherSigToBckFits_SubPiZero[1][iPt]){
+                        fSigToBckFitChi2_SubPiZero[2][iPt]                      = fFitAllOtherSigToBckFits_withGaus_SubPiZero[1][iPt]->GetChisquare()/fFitReco->GetNDF();
+                    } else {
+                        fSigToBckFitChi2_SubPiZero[2][iPt]                      = -1;}
+                    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<endl;}
+
+                    //-----------------------------------------
+                    fRatioSB                                    = NULL;
+                    fFitSigBckPol1                                = NULL;
+                    fFitSigBckPol2                                = NULL;
+                    fFitSigBckPol3                                = NULL;
+                    fFitSigBckPol1_withGaus                       = NULL;
+                    fFitSigBckPol2_withGaus                       = NULL;
+                    fFitSigBckPol3_withGaus                       = NULL;
+                    if (doDebugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
+                }
             }
             fHistoMappingBackNormInvMassPtBin_SubPiZero[k][iPt] = fBckNorm;
 
@@ -1227,6 +1378,74 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             if(k==0){
                 fNormTot = fNorm; // k==0 means tot back was just scaled -> store value for using for samescale
                 fHistoMappingSignalInvMassPtBin_FixedPzPiZero[iPt] = fSignal; // only use signal that was obtained by subtracting total background
+
+                if (iBckSwitch == 5){
+                    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5 _FixedPzPiZero"<<"; Store Fit Values"<<endl;}
+                    fHistoMappingRatioSBInvMassPtBin_FixedPzPiZero[k][iPt]       = fRatioSB;
+                    if ( usePolNForBackgroundScaling == 1){
+                        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling == "<<usePolNForBackgroundScaling<<endl;}
+                        fFitAllOtherSigToBckFits_FixedPzPiZero[0][iPt]        = fFitSigBckPol2;
+                        fFitAllOtherSigToBckFits_FixedPzPiZero[1][iPt]        = fFitSigBckPol3;
+                        fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[0][iPt] = fFitSigBckPol2_withGaus;
+                        fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[1][iPt] = fFitSigBckPol3_withGaus;
+                        //------------------------------------
+                        fFitPolSigToBckFitPtBin_FixedPzPiZero[iPt]            = fFitSigBckPol1;
+                        fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero[iPt]   = fFitSigBckPol1_withGaus;
+                    } else if ( usePolNForBackgroundScaling == 3){
+                        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling == "<<usePolNForBackgroundScaling<<endl;}
+                        fFitAllOtherSigToBckFits_FixedPzPiZero[0][iPt]        = fFitSigBckPol1;
+                        fFitAllOtherSigToBckFits_FixedPzPiZero[1][iPt]        = fFitSigBckPol2;
+                        fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[0][iPt] = fFitSigBckPol1_withGaus;
+                        fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[1][iPt] = fFitSigBckPol2_withGaus;
+                        //------------------------------------
+                        fFitPolSigToBckFitPtBin_FixedPzPiZero[iPt]            = fFitSigBckPol3;
+                        fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero[iPt]   = fFitSigBckPol3_withGaus;
+                    } else {
+                        if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling ==  else ("<<usePolNForBackgroundScaling<<")"<<endl;}
+                        fFitAllOtherSigToBckFits_FixedPzPiZero[0][iPt]        = fFitSigBckPol1;
+                        fFitAllOtherSigToBckFits_FixedPzPiZero[1][iPt]        = fFitSigBckPol3;
+                        fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[0][iPt] = fFitSigBckPol1_withGaus;
+                        fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[1][iPt] = fFitSigBckPol3_withGaus;
+                        //------------------------------------
+                        fFitPolSigToBckFitPtBin_FixedPzPiZero[iPt]            = fFitSigBckPol2;
+
+                        if (doDebugOutputLevel>=3){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<"; Store Fit Values"<<"; usePolNForBackgroundScaling ==  else ("<<usePolNForBackgroundScaling<<")"<<"; fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero[iPt]   = fFitSigBckPol2_withGaus;"<<endl;}
+                        fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero[iPt]   = fFitSigBckPol2_withGaus;
+                    }
+
+                    if (doDebugOutputLevel>=3){
+                        cout<<"------------------------------------"<<endl;
+                        cout<<"Debug Output, ExtractSignalV2.C, Line: "<<__LINE__<<"; iPt: "<<iPt<<"; fFitSigBckPol2_withGaus Parameters"<<endl;
+                        for (Int_t iNumberOfPolParameters_Loop=0; iNumberOfPolParameters_Loop<6; iNumberOfPolParameters_Loop++){
+                            cout<<"fFitSigBckPol2_withGaus->GetParameter("<<iNumberOfPolParameters_Loop<<"): "<<fFitSigBckPol2_withGaus->GetParameter(iNumberOfPolParameters_Loop)<<endl;
+                        }
+                    }
+                    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<endl;}
+
+                    if (fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero[iPt]){
+                        fSigToBckFitChi2_FixedPzPiZero[0][iPt]                      = fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero[iPt]->GetChisquare()/fFitReco->GetNDF();
+                    } else {
+                        fSigToBckFitChi2_FixedPzPiZero[0][iPt]                      = -1;}
+                    if (fFitAllOtherSigToBckFits_FixedPzPiZero[0][iPt]){
+                        fSigToBckFitChi2_FixedPzPiZero[1][iPt]                      = fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[0][iPt]->GetChisquare()/fFitReco->GetNDF();
+                    } else {
+                        fSigToBckFitChi2_FixedPzPiZero[1][iPt]                      = -1;}
+                    if (fFitAllOtherSigToBckFits_FixedPzPiZero[1][iPt]){
+                        fSigToBckFitChi2_FixedPzPiZero[2][iPt]                      = fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[1][iPt]->GetChisquare()/fFitReco->GetNDF();
+                    } else {
+                        fSigToBckFitChi2_FixedPzPiZero[2][iPt]                      = -1;}
+                    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; iBckSwitch==5"<<endl;}
+
+                    //-----------------------------------------
+                    fRatioSB                                    = NULL;
+                    fFitSigBckPol1                                = NULL;
+                    fFitSigBckPol2                                = NULL;
+                    fFitSigBckPol3                                = NULL;
+                    fFitSigBckPol1_withGaus                       = NULL;
+                    fFitSigBckPol2_withGaus                       = NULL;
+                    fFitSigBckPol3_withGaus                       = NULL;
+                    if (doDebugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
+                }
             }
             fHistoMappingBackNormInvMassPtBin_FixedPzPiZero[k][iPt] = fBckNorm;
 
@@ -3334,6 +3553,44 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     TString nameMesonSub; 
     TString nameCanvasSub;
     TString namePadSub;   
+
+    TString labelUsedFitsRatio="pol2";
+    TString labelsOtherFitsRatio[iNumberOfOtherSigToBckRatioFits]= {"pol1 SigToBG Fit", "pol3 SigToBG Fit"};  // array of size iNumberOfOtherSigToBckRatioFits;
+    TString labelsOtherFitsRatio_withGaus[iNumberOfOtherSigToBckRatioFits]= {"pol1 SigToBG Fit", "pol3 SigToBG Fit"};  // array of size iNumberOfOtherSigToBckRatioFits;
+    if ( usePolNForBackgroundScaling == 1){
+        labelUsedFitsRatio="pol1";
+        labelsOtherFitsRatio[0]="pol2 SigToBG Fit";
+        labelsOtherFitsRatio[1]="pol3 SigToBG Fit";
+        if ((FitRangeSigBckRatioOption)<20){
+            labelsOtherFitsRatio_withGaus[0]="pol2 with Gaus SigToBG Fit";
+            labelsOtherFitsRatio_withGaus[1]="pol3 with Gaus SigToBG Fit";
+        } else {
+            labelsOtherFitsRatio_withGaus[0]="pol2 with GausExp SigToBG Fit";
+            labelsOtherFitsRatio_withGaus[1]="pol3 with GausExp SigToBG Fit";
+        }
+    } else if ( usePolNForBackgroundScaling == 3){
+        labelUsedFitsRatio="pol3";
+        labelsOtherFitsRatio[0]="pol1 SigToBG Fit";
+        labelsOtherFitsRatio[1]="pol2 SigToBG Fit";
+        if ((FitRangeSigBckRatioOption)<20){
+            labelsOtherFitsRatio_withGaus[0]="pol1 with Gaus SigToBG Fit";
+            labelsOtherFitsRatio_withGaus[1]="pol2 with Gaus SigToBG Fit";
+        } else {
+            labelsOtherFitsRatio_withGaus[0]="pol1 with GausExp SigToBG Fit";
+            labelsOtherFitsRatio_withGaus[1]="pol2 with GausExp SigToBG Fit";
+        }
+    } else {
+        labelUsedFitsRatio="pol2";
+        labelsOtherFitsRatio[0]="pol1 SigToBG Fit";
+        labelsOtherFitsRatio[1]="pol3 SigToBG Fit";
+        if ((FitRangeSigBckRatioOption)<20){
+            labelsOtherFitsRatio_withGaus[0]="pol1 with Gaus SigToBG Fit";
+            labelsOtherFitsRatio_withGaus[1]="pol3 with Gaus SigToBG Fit";
+        } else {
+            labelsOtherFitsRatio_withGaus[0]="pol1 with GausExp SigToBG Fit";
+            labelsOtherFitsRatio_withGaus[1]="pol3 with GausExp SigToBG Fit";
+        }
+    }
     if(((TString)fMesonCutSelection(1,1)).CompareTo("4")!=0){
         // Meson Subtracted
         TString nameMesonSub        = Form("%s/%s_%s_MesonSubtracted%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
@@ -3474,6 +3731,58 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     namePadSub                  = "MesonPadBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
     PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fBackgroundFitGaussPol_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+
+    if (iBckSwitch == 5){
+        //Signal to Backround Fit
+        nameMesonSub    = Form("%s/%s_MesonSignalBckRatioFits.%s",outputDir.Data() , fPrefix.Data(), Suffix.Data());
+        nameCanvasSub   = "MesonCanvasSignalBckRatioFits";
+        namePadSub      = "MesonPadSignalBckRatioFits";
+        cout << nameMesonSub.Data() << endl;
+        PlotWithManyFitSigToBckRatioInPtBins(   fHistoMappingRatioSBInvMassPtBin[0], fFitPolSigToBckFitPtBin, fFitAllOtherSigToBckFits, iNumberOfOtherSigToBckRatioFits, labelsOtherFitsRatio, nameMesonSub,
+                                                nameCanvasSub, namePadSub, fMesonMassPlotRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
+                                                fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s SigToBG Fit", labelUsedFitsRatio.Data()));
+        //Signal to Backround Fit with Gauss
+        nameMesonSub    = Form("%s/%s_MesonSignalBckRatioFits_withGaus.%s",outputDir.Data() , fPrefix.Data(), Suffix.Data());
+        nameCanvasSub   = "MesonCanvasSignalBckRatioFits_withGaus";
+        namePadSub      = "MesonPadSignalBckRatioFits_withGaus";
+        cout << nameMesonSub.Data() << endl;
+        PlotWithManyFitSigToBckRatioInPtBins(   fHistoMappingRatioSBInvMassPtBin[0], fFitPolSigToBckFitPtBin_withGaus, fFitAllOtherSigToBckFits_withGaus, iNumberOfOtherSigToBckRatioFits, labelsOtherFitsRatio_withGaus, nameMesonSub,
+                                                nameCanvasSub, namePadSub, fMesonMassPlotRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
+                                                fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s withGaus SigToBG Fit", labelUsedFitsRatio.Data()));
+        //Signal to Backround Fit (pz of pi0 fixed)
+        nameMesonSub    = Form("%s/%s_MesonSignalBckRatioFits_FixedPzPiZero.%s",outputDir.Data() , fPrefix.Data(), Suffix.Data());
+        nameCanvasSub   = "MesonCanvasSignalBckRatioFits_FixedPzPiZero";
+        namePadSub      = "MesonPadSignalBckRatioFits_FixedPzPiZero";
+        cout << nameMesonSub.Data() << endl;
+        PlotWithManyFitSigToBckRatioInPtBins(   fHistoMappingRatioSBInvMassPtBin_FixedPzPiZero[0], fFitPolSigToBckFitPtBin_FixedPzPiZero, fFitAllOtherSigToBckFits_FixedPzPiZero, iNumberOfOtherSigToBckRatioFits, labelsOtherFitsRatio, nameMesonSub,
+                                                nameCanvasSub, namePadSub, fMesonMassPlotRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
+                                                fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s SigToBG Fit", labelUsedFitsRatio.Data()));
+        //Signal to Backround Fit with Gauss (pz of pi0 fixed)
+        nameMesonSub    = Form("%s/%s_MesonSignalBckRatioFits_withGaus_FixedPzPiZero.%s",outputDir.Data() , fPrefix.Data(), Suffix.Data());
+        nameCanvasSub   = "MesonCanvasSignalBckRatioFits_withGaus_FixedPzPiZero";
+        namePadSub      = "MesonPadSignalBckRatioFits_withGaus_FixedPzPiZero";
+        cout << nameMesonSub.Data() << endl;
+        PlotWithManyFitSigToBckRatioInPtBins(   fHistoMappingRatioSBInvMassPtBin_FixedPzPiZero[0], fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero, fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero, iNumberOfOtherSigToBckRatioFits, labelsOtherFitsRatio_withGaus, nameMesonSub,
+                                                nameCanvasSub, namePadSub, fMesonMassPlotRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
+                                                fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s withGaus SigToBG Fit", labelUsedFitsRatio.Data()));
+        //Signal to Backround Fit (minus pi0 inv mass)
+        nameMesonSub    = Form("%s/%s_MesonSignalBckRatioFits_SubPiZero.%s",outputDir.Data() , fPrefix.Data(), Suffix.Data());
+        nameCanvasSub   = "MesonCanvasSignalBckRatioFits_SubPiZero";
+        namePadSub      = "MesonPadSignalBckRatioFits_SubPiZero";
+        cout << nameMesonSub.Data() << endl;
+        PlotWithManyFitSigToBckRatioInPtBins(   fHistoMappingRatioSBInvMassPtBin_SubPiZero[0], fFitPolSigToBckFitPtBin_SubPiZero, fFitAllOtherSigToBckFits_SubPiZero, iNumberOfOtherSigToBckRatioFits, labelsOtherFitsRatio, nameMesonSub,
+                                                nameCanvasSub, namePadSub, fMesonMassPlotRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
+                                                fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s SigToBG Fit", labelUsedFitsRatio.Data()));
+        //Signal to Backround Fit with Gauss (minus pi0 inv mass)
+        nameMesonSub    = Form("%s/%s_MesonSignalBckRatioFits_withGaus_SubPiZero.%s",outputDir.Data() , fPrefix.Data(), Suffix.Data());
+        nameCanvasSub   = "MesonCanvasSignalBckRatioFits_withGaus_SubPiZero";
+        namePadSub      = "MesonPadSignalBckRatioFits_withGaus_SubPiZero";
+        cout << nameMesonSub.Data() << endl;
+        PlotWithManyFitSigToBckRatioInPtBins(   fHistoMappingRatioSBInvMassPtBin_SubPiZero[0], fFitPolSigToBckFitPtBin_withGaus_SubPiZero, fFitAllOtherSigToBckFits_withGaus, iNumberOfOtherSigToBckRatioFits, labelsOtherFitsRatio_withGaus, nameMesonSub,
+                                                nameCanvasSub, namePadSub, fMesonMassPlotRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
+                                                fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s withGaus SigToBG Fit", labelUsedFitsRatio.Data()));
+
+    }
 
     // Meson with back left
     nameMeson                   = Form("%s/%s_%s_MesonWithBckLeft%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
@@ -4297,6 +4606,119 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 if (fIsMC) canvasAmplitude_SubPiZero->SaveAs(Form("%s/%s_MC_Amplitude_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
                 else canvasAmplitude_SubPiZero->SaveAs(Form("%s/%s_data_Amplitude_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
             }
+        }
+        // **************************************************************************************************************
+        // ************************ Chi2/ndf Different Signal To Ratio Fits *********************************************
+        // **************************************************************************************************************
+        if (iBckSwitch!=0){
+            TCanvas* canvasChi2SigToBckFit = new TCanvas("canvasChi2SigToBckFit","",200,10,1350,900);  // gives the page size
+            DrawGammaCanvasSettings( canvasChi2SigToBckFit, 0.092, 0.01, 0.02, 0.082);
+            Double_t maxChi2SigToBckFit    = fHistoChi2SigToBckFit[0]->GetMaximum();
+            for (Int_t m = 1; m <= iNumberOfOtherSigToBckRatioFits; m++){
+                if (maxChi2SigToBckFit < fHistoChi2SigToBckFit[m]->GetMaximum())
+                    maxChi2SigToBckFit     = fHistoChi2SigToBckFit[m]->GetMaximum();
+            }
+            maxChi2SigToBckFit             = maxChi2SigToBckFit*1.2;
+            TLegend* legendChi2SigToBckFit = GetAndSetLegend2(0.75, 0.95-(0.035*4), 0.95, 0.95, 0.035, 1, "", 42, 0.25);
+
+            fHistoChi2SigToBckFit[0]->GetYaxis()->SetRangeUser(0, maxChi2SigToBckFit);
+            DrawAutoGammaMesonHistos(   fHistoChi2SigToBckFit[0],
+                    "", "#it{p}_{T} (GeV/#it{c})", "#it{#chi}^{2}/ndf",
+                    kFALSE, 0., 0.7, kFALSE,
+                    kFALSE, 0., 0.7,
+                    kFALSE, 0., 10.);
+            DrawGammaSetMarker(fHistoChi2SigToBckFit[0], 20, 2, kCyan+2, kCyan+2);
+            fHistoChi2SigToBckFit[0]->DrawCopy("same,e1,p");
+            legendChi2SigToBckFit->AddEntry(fHistoChi2SigToBckFit[0],Form("%s SigToBG Fit", labelUsedFitsRatio.Data()),"p");
+            Color_t colorFitSigToBckFit[3] = {kRed+1, kAzure+2, 807};
+            Style_t styleFitSigToBckFit[3] = {34, 21, 33};
+
+            for (Int_t m = 1; m <= iNumberOfOtherSigToBckRatioFits; m++){
+                DrawGammaSetMarker(fHistoChi2SigToBckFit[m], styleFitSigToBckFit[m-1], 2, colorFitSigToBckFit[m-1], colorFitSigToBckFit[m-1]);
+                fHistoChi2SigToBckFit[m]->DrawCopy("same,e1,p");
+                legendChi2SigToBckFit->AddEntry(fHistoChi2SigToBckFit[m],labelsOtherFitsRatio[m-1],"p");
+            }
+            fHistoChi2SigToBckFit[0]->DrawCopy("same,e1,p");
+            legendChi2SigToBckFit->Draw();
+
+            PutProcessLabelAndEnergyOnPlot(0.15, 0.25, 0.035, fCollisionSystem.Data(), fTextMeasurement.Data(), fDetectionProcess.Data());
+            canvasChi2SigToBckFit->Update();
+            if (fIsMC) canvasChi2SigToBckFit->SaveAs(Form("%s/%s_MC_Chi2SigToBckFitFitComp_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+            else canvasChi2SigToBckFit->SaveAs(Form("%s/%s_data_Chi2SigToBckFitFitComp_%s.%s",outputDirMon_BackMixing_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+            // **************************************************************************************************************
+            //pz of pi0 fixed
+            TCanvas* canvasChi2SigToBckFit_FixedPzPiZero = new TCanvas("canvasChi2SigToBckFit_FixedPzPiZero","",200,10,1350,900);  // gives the page size
+            DrawGammaCanvasSettings( canvasChi2SigToBckFit_FixedPzPiZero, 0.092, 0.01, 0.02, 0.082);
+            Double_t maxChi2SigToBckFit_FixedPzPiZero    = fHistoChi2SigToBckFit_FixedPzPiZero[0]->GetMaximum();
+            for (Int_t m = 1; m <= iNumberOfOtherSigToBckRatioFits; m++){
+                if (maxChi2SigToBckFit_FixedPzPiZero < fHistoChi2SigToBckFit_FixedPzPiZero[m]->GetMaximum())
+                    maxChi2SigToBckFit_FixedPzPiZero     = fHistoChi2SigToBckFit_FixedPzPiZero[m]->GetMaximum();
+            }
+            maxChi2SigToBckFit_FixedPzPiZero             = maxChi2SigToBckFit_FixedPzPiZero*1.2;
+            TLegend* legendChi2SigToBckFit_FixedPzPiZero = GetAndSetLegend2(0.75, 0.95-(0.035*4), 0.95, 0.95, 0.035, 1, "", 42, 0.25);
+
+            fHistoChi2SigToBckFit_FixedPzPiZero[0]->GetYaxis()->SetRangeUser(0, maxChi2SigToBckFit);
+            DrawAutoGammaMesonHistos(   fHistoChi2SigToBckFit_FixedPzPiZero[0],
+                    "", "#it{p}_{T} (GeV/#it{c})", "#it{#chi}^{2}/ndf",
+                    kFALSE, 0., 0.7, kFALSE,
+                    kFALSE, 0., 0.7,
+                    kFALSE, 0., 10.);
+            DrawGammaSetMarker(fHistoChi2SigToBckFit_FixedPzPiZero[0], 20, 2, kCyan+2, kCyan+2);
+            fHistoChi2SigToBckFit_FixedPzPiZero[0]->DrawCopy("same,e1,p");
+            legendChi2SigToBckFit->AddEntry(fHistoChi2SigToBckFit_FixedPzPiZero[0],Form("%s SigToBG Fit FixedPzPiZero", labelUsedFitsRatio.Data()),"p");
+            Color_t colorFitSigToBckFit_FixedPzPiZero[3] = {kRed+1, kAzure+2, 807};
+            Style_t styleFitSigToBckFit_FixedPzPiZero[3] = {34, 21, 33};
+
+            for (Int_t m = 1; m <= iNumberOfOtherSigToBckRatioFits; m++){
+                DrawGammaSetMarker(fHistoChi2SigToBckFit_FixedPzPiZero[m], styleFitSigToBckFit_FixedPzPiZero[m-1], 2, colorFitSigToBckFit_FixedPzPiZero[m-1], colorFitSigToBckFit_FixedPzPiZero[m-1]);
+                fHistoChi2SigToBckFit_FixedPzPiZero[m]->DrawCopy("same,e1,p");
+                legendChi2SigToBckFit_FixedPzPiZero->AddEntry(fHistoChi2SigToBckFit_FixedPzPiZero[m],labelsOtherFitsRatio[m-1],"p");
+            }
+            fHistoChi2SigToBckFit_FixedPzPiZero[0]->DrawCopy("same,e1,p");
+            legendChi2SigToBckFit_FixedPzPiZero->Draw();
+
+            PutProcessLabelAndEnergyOnPlot(0.15, 0.25, 0.035, fCollisionSystem.Data(), fTextMeasurement.Data(), fDetectionProcess.Data());
+            canvasChi2SigToBckFit_FixedPzPiZero->Update();
+            if (fIsMC) canvasChi2SigToBckFit->SaveAs(Form("%s/%s_MC_Chi2SigToBckFitFitComp_FixedPzPiZero_%s.%s", outputDirMon_BackMixing_FixedPzPiZero.Data(), fPrefix.Data(), fCutSelection.Data(), Suffix.Data()));
+            else canvasChi2SigToBckFit->SaveAs(Form("%s/%s_data_Chi2SigToBckFitFitComp_FixedPzPiZero_%s.%s", outputDirMon_BackMixing_FixedPzPiZero.Data(), fPrefix.Data(), fCutSelection.Data(), Suffix.Data()));
+
+            // **************************************************************************************************************
+            //minus pi0 inv mass
+            TCanvas* canvasChi2SigToBckFit_SubPiZero = new TCanvas("canvasChi2SigToBckFit_SubPiZero","",200,10,1350,900);  // gives the page size
+            DrawGammaCanvasSettings( canvasChi2SigToBckFit_SubPiZero, 0.092, 0.01, 0.02, 0.082);
+            Double_t maxChi2SigToBckFit_SubPiZero    = fHistoChi2SigToBckFit_SubPiZero[0]->GetMaximum();
+            for (Int_t m = 1; m <= iNumberOfOtherSigToBckRatioFits; m++){
+                if (maxChi2SigToBckFit_SubPiZero < fHistoChi2SigToBckFit_SubPiZero[m]->GetMaximum())
+                    maxChi2SigToBckFit_SubPiZero     = fHistoChi2SigToBckFit_SubPiZero[m]->GetMaximum();
+            }
+            maxChi2SigToBckFit_SubPiZero             = maxChi2SigToBckFit_SubPiZero*1.2;
+            TLegend* legendChi2SigToBckFit_SubPiZero = GetAndSetLegend2(0.75, 0.95-(0.035*4), 0.95, 0.95, 0.035, 1, "", 42, 0.25);
+
+            fHistoChi2SigToBckFit_SubPiZero[0]->GetYaxis()->SetRangeUser(0, maxChi2SigToBckFit);
+            DrawAutoGammaMesonHistos(   fHistoChi2SigToBckFit_SubPiZero[0],
+                    "", "#it{p}_{T} (GeV/#it{c})", "#it{#chi}^{2}/ndf",
+                    kFALSE, 0., 0.7, kFALSE,
+                    kFALSE, 0., 0.7,
+                    kFALSE, 0., 10.);
+            DrawGammaSetMarker(fHistoChi2SigToBckFit_SubPiZero[0], 20, 2, kCyan+2, kCyan+2);
+            fHistoChi2SigToBckFit_SubPiZero[0]->DrawCopy("same,e1,p");
+            legendChi2SigToBckFit->AddEntry(fHistoChi2SigToBckFit_SubPiZero[0],Form("%s SigToBG Fit SubPiZero", labelUsedFitsRatio.Data()),"p");
+            Color_t colorFitSigToBckFit_SubPiZero[3] = {kRed+1, kAzure+2, 807};
+            Style_t styleFitSigToBckFit_SubPiZero[3] = {34, 21, 33};
+
+            for (Int_t m = 1; m <= iNumberOfOtherSigToBckRatioFits; m++){
+                DrawGammaSetMarker(fHistoChi2SigToBckFit_SubPiZero[m], styleFitSigToBckFit_SubPiZero[m-1], 2, colorFitSigToBckFit_SubPiZero[m-1], colorFitSigToBckFit_SubPiZero[m-1]);
+                fHistoChi2SigToBckFit_SubPiZero[m]->DrawCopy("same,e1,p");
+                legendChi2SigToBckFit_SubPiZero->AddEntry(fHistoChi2SigToBckFit_SubPiZero[m],labelsOtherFitsRatio[m-1],"p");
+            }
+            fHistoChi2SigToBckFit_SubPiZero[0]->DrawCopy("same,e1,p");
+            legendChi2SigToBckFit_SubPiZero->Draw();
+
+            PutProcessLabelAndEnergyOnPlot(0.15, 0.25, 0.035, fCollisionSystem.Data(), fTextMeasurement.Data(), fDetectionProcess.Data());
+            canvasChi2SigToBckFit_SubPiZero->Update();
+            if (fIsMC) canvasChi2SigToBckFit->SaveAs(Form("%s/%s_MC_Chi2SigToBckFitFitComp_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+            else canvasChi2SigToBckFit->SaveAs(Form("%s/%s_data_Chi2SigToBckFitFitComp_SubPiZero_%s.%s",outputDirMon_BackMixing_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
         }
 
         if (DoMonitoringBackFit){
@@ -7712,6 +8134,11 @@ void FillPtHistos()
             fHistoChi2[m]->SetBinError(iPt,0);
         }
 
+        for (Int_t m = 0; m <= iNumberOfOtherSigToBckRatioFits; m++){
+            fHistoChi2SigToBckFit[m]->SetBinContent(iPt,fSigToBckFitChi2[m][iPt-1]);
+            fHistoChi2SigToBckFit[m]->SetBinError(iPt,0);
+        }
+
         //Fit Parameters
         //Fit Parameters: Mass
         fHistoMassMeson->SetBinContent(iPt,fMesonMass[iPt-1]);
@@ -9370,6 +9797,7 @@ void Initialize(TString setPi0, Int_t numberOfBins){
         fHistoChi2[m]->Sumw2();
     }
 
+
     // initialize integration pt-arrays for integration windows: normal, wide, narrow, left, left wide, left narrow
     for (Int_t k = 0; k < 6; k++){
         // Initialize yield arrays
@@ -9884,6 +10312,39 @@ void Initialize(TString setPi0, Int_t numberOfBins){
     fFitWithPol2ForBG_SubPiZero =							new TF1*[fNBinsPt];
     fFitWithPol2ForBG_FixedPzPiZero =						new TF1*[fNBinsPt];
 
+    fFitPolSigToBckFitPtBin                                 = new TF1*[fNBinsPt];
+    fFitPolSigToBckFitPtBin_withGaus                        = new TF1*[fNBinsPt];
+
+    fFitPolSigToBckFitPtBin_FixedPzPiZero                   = new TF1*[fNBinsPt];
+    fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero          = new TF1*[fNBinsPt];
+
+    fFitPolSigToBckFitPtBin_SubPiZero                       = new TF1*[fNBinsPt];
+    fFitPolSigToBckFitPtBin_withGaus_SubPiZero              = new TF1*[fNBinsPt];
+    for (Int_t m = 0; m < iNumberOfOtherSigToBckRatioFits+1; m++){
+        fSigToBckFitChi2[m]                                 = new Double_t[fNBinsPt];
+        fHistoChi2SigToBckFit[m]                            = new TH1D(Form("histoChi2SigToBckFit_%d",m),"",fNBinsPt,fBinsPt);
+        fHistoChi2SigToBckFit[m]->Sumw2();
+
+        fSigToBckFitChi2_FixedPzPiZero[m]                   = new Double_t[fNBinsPt];
+        fHistoChi2SigToBckFit_FixedPzPiZero[m]              = new TH1D(Form("histoChi2SigToBckFit_FixedPzPiZero_%d",m),"",fNBinsPt,fBinsPt);
+        fHistoChi2SigToBckFit_FixedPzPiZero[m]->Sumw2();
+
+        fSigToBckFitChi2_SubPiZero[m]                       = new Double_t[fNBinsPt];
+        fHistoChi2SigToBckFit_SubPiZero[m]                  = new TH1D(Form("histoChi2SigToBckFit_SubPiZero_%d",m),"",fNBinsPt,fBinsPt);
+        fHistoChi2SigToBckFit_SubPiZero[m]->Sumw2();
+    }
+
+    for (Int_t m = 0; m < iNumberOfOtherSigToBckRatioFits; m++){
+        fFitAllOtherSigToBckFits[m]                         = new TF1*[fNBinsPt];
+        fFitAllOtherSigToBckFits_withGaus[m]                = new TF1*[fNBinsPt];
+
+        fFitAllOtherSigToBckFits_FixedPzPiZero[m]           = new TF1*[fNBinsPt];
+        fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[m]  = new TF1*[fNBinsPt];
+
+        fFitAllOtherSigToBckFits_SubPiZero[m]               = new TF1*[fNBinsPt];
+        fFitAllOtherSigToBckFits_withGaus_SubPiZero[m]      = new TF1*[fNBinsPt];
+    }
+
     for(Int_t i = 0;i<fNBinsPt; i++){
         fHistoMappingTrueMesonInvMassPtBins[i] =                         NULL;
         fHistoMappingTrueMesonInvMassPtBins_SubPiZero[i] =               NULL;
@@ -10290,7 +10751,36 @@ void Delete(){
     if (fFitWithPol2ForBG_FixedPzPiZero)    delete fFitWithPol2ForBG_FixedPzPiZero;
     if (fHistoWeightsBGZbinVsMbin)          delete fHistoWeightsBGZbinVsMbin;
     if (fHistoFillPerEventBGZbinVsMbin)     delete fHistoFillPerEventBGZbinVsMbin;
-    if (DebugOutputLevel>=1){cout << "Debug Output; ExtractSignalPiPlPiMiNDM.C; Delete() ended; Line: " << __LINE__ << endl;}
+
+    if (fFitPolSigToBckFitPtBin)                            delete[] fFitPolSigToBckFitPtBin;
+    if (fFitPolSigToBckFitPtBin_withGaus)                   delete[] fFitPolSigToBckFitPtBin_withGaus;
+
+    if (fFitPolSigToBckFitPtBin_FixedPzPiZero)              delete[] fFitPolSigToBckFitPtBin_FixedPzPiZero;
+    if (fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero)     delete[] fFitPolSigToBckFitPtBin_withGaus_FixedPzPiZero;
+
+    if (fFitPolSigToBckFitPtBin_SubPiZero)                  delete[] fFitPolSigToBckFitPtBin_SubPiZero;
+    if (fFitPolSigToBckFitPtBin_withGaus_SubPiZero)         delete[] fFitPolSigToBckFitPtBin_withGaus_SubPiZero;
+    for (Int_t m = 0; m < iNumberOfOtherSigToBckRatioFits+1; m++){
+        if (fSigToBckFitChi2[m])                            delete fSigToBckFitChi2[m];
+        if (fHistoChi2SigToBckFit[m])                       delete fHistoChi2SigToBckFit[m];
+
+        if (fSigToBckFitChi2_FixedPzPiZero[m])               delete fSigToBckFitChi2_FixedPzPiZero[m];
+        if (fHistoChi2SigToBckFit_FixedPzPiZero[m])          delete fHistoChi2SigToBckFit_FixedPzPiZero[m];
+
+        if (fSigToBckFitChi2_SubPiZero[m])                   delete fSigToBckFitChi2_SubPiZero[m];
+        if (fHistoChi2SigToBckFit_SubPiZero[m])              delete fHistoChi2SigToBckFit_SubPiZero[m];
+    }
+
+    for (Int_t m = 0; m < iNumberOfOtherSigToBckRatioFits; m++){
+        if (fFitAllOtherSigToBckFits[m])                    delete[] fFitAllOtherSigToBckFits[m];
+        if (fFitAllOtherSigToBckFits_withGaus[m])           delete[] fFitAllOtherSigToBckFits_withGaus[m];
+
+        if (fFitAllOtherSigToBckFits_FixedPzPiZero[m])      delete[] fFitAllOtherSigToBckFits_FixedPzPiZero[m];
+        if (fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[m]) delete[] fFitAllOtherSigToBckFits_withGaus_FixedPzPiZero[m];
+
+        if (fFitAllOtherSigToBckFits_SubPiZero[m])           delete[] fFitAllOtherSigToBckFits_SubPiZero[m];
+        if (fFitAllOtherSigToBckFits_withGaus_SubPiZero[m])  delete[] fFitAllOtherSigToBckFits_withGaus_SubPiZero[m];
+    }
 }
 
 // only needed for backwards compability

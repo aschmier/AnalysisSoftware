@@ -698,6 +698,14 @@ if [ $ONLYRESULTS = 0 ] ; then
                 echo "Gaussian chosen with Contamination == $ContaminationBackHistMode...";
                 correct=1
                 crystal=Gaussian
+            elif [ $answer = "CrystalBallRatio" ] || [ $answer = "CRatio" ] || [ $answer = "cRatio" ]; then
+                echo -e "--> CrystalBall with Signal To Background Fit Option chosen ...\n";
+                correct=1
+                crystal=CrystalBallRatio
+            elif [ $answer = "GaussianRatio" ] || [ $answer = "GRatio" ] || [ $answer = "gRatio" ]; then
+                echo -e "--> Gaussian with Signal To Background Fit Option  chosen ...\n";
+                correct=1
+                crystal=GaussianRatio
             else
                 echo "Command not found. Please try again.";
             fi
