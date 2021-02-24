@@ -124,7 +124,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     //Int_t fMode = -1;
     // Extract Mode from CutString
     Bool_t isNewTask = kTRUE;
-    Int_t doDebugOutputLevel    =   3;
+    Int_t doDebugOutputLevel    =   0;
 
     TString TStrBckSwitchEnable="Ratio";
     if(optionCrystalBall.EndsWith(TStrBckSwitchEnable.Data())){
@@ -5914,7 +5914,7 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
 
 void ProcessBckFitSubtraction_CombinatoricsAndContamination(TH1D *fGammaGamma, TH1D *fCombinatorics, TH1D *fContamination, Int_t i, Double_t * fPeakRangeDummy, Double_t *fFitRangeDummy, TString energy, TString suffix, TString cutSelection, TString meson,Int_t InvMassType, TH1D* fTrueCombinatorics, TH1D* fTrueContamination){
 
-    Int_t doDebugOutputLevel    =   1;
+    Int_t doDebugOutputLevel    =   0;
     Bool_t useTestingErrors     =   kTRUE;
     if (doDebugOutputLevel>=1){
         cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; ProcessBckFitSubtraction(); Line: "<<__LINE__<<endl;
