@@ -10037,18 +10037,33 @@ void SaveHistos(Int_t optionMC, TString fCutID, TString fPrefix3)
         // Write back fit subtracted signal
         nameHistoSignal = Form("fHistoMappingSignalBackFitInvMass_in_Pt_Bin%02d", ii);
         if(fHistoMappingGGInvMassBackFitPtBin[ii]) fHistoMappingGGInvMassBackFitPtBin[ii]->Write(nameHistoSignal.Data());
+        //-
         nameHistoSignal = Form("fHistoMappingSignalBackFitInvMass_SubPiZero_in_Pt_Bin%02d", ii);
         if( fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii])  fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii]->Write(nameHistoSignal.Data());
+        //-
         nameHistoSignal = Form("fHistoMappingSignalBackFitInvMass_FixedPzPiZero_in_Pt_Bin%02d", ii);
         if(  fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii])  fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii]->Write(nameHistoSignal.Data());
+        //----------
         fitnameSignal = Form("Signal_InvMassBackFit_in_Pt_Bin%02d", ii);
         if(fFitSignalInvMassBackFitPtBin[ii]!=0x00) fFitSignalInvMassBackFitPtBin[ii]->Write(fitnameSignal.Data());
-
+        //-
         fitnameSignal = Form("Signal_InvMassBackFit_SubPiZero_in_Pt_Bin%02d", ii);
         if(fFitSignalInvMassBackFitPtBin_SubPiZero[ii]!=0x00) fFitSignalInvMassBackFitPtBin_SubPiZero[ii]->Write(fitnameSignal.Data());
-
+        //-
         fitnameSignal = Form("Signal_InvMassBackFit_FixedPzPiZero_in_Pt_Bin%02d", ii);
         if(fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]!=0x00) fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]->Write(fitnameSignal.Data());
+        //----------
+        fitnameSignal = Form("Background_InvMassBackFit_in_Pt_Bin%02d", ii);
+        if(fBackgroundFitPol[ii]!=0x00) fBackgroundFitPol[ii]->Write(fitnameSignal.Data());
+        //-
+        fitnameSignal = Form("Background_InvMassBackFit_SubPiZero_in_Pt_Bin%02d", ii);
+        if(fBackgroundFitPol_SubPiZero[ii]!=0x00) fBackgroundFitPol_SubPiZero[ii]->Write(fitnameSignal.Data());
+        //-
+        fitnameSignal = Form("Background_InvMassBackFit_FixedPzPiZero_in_Pt_Bin%02d", ii);
+        if(fBackgroundFitPol_FixedPzPiZero[ii]!=0x00) fBackgroundFitPol_FixedPzPiZero[ii]->Write(fitnameSignal.Data());
+
+
+
 
     }
 
