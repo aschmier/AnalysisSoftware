@@ -3050,8 +3050,8 @@
                         switch(SpecialTrigger) {
                           case -1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
                           case 0:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
-                          case 4:
-                          case 5:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigINT7Pt, binning ); break;
+                          case 4:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigHMPt, binning ); break;
+                          case 5:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigHMPt, binning ); break;
                           case 1:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEMC7Pt, binning ); break;
                           case 2:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG1Pt, binning ); break;
                           case 3:  maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVEMCTrigEG2Pt, binning ); break;
@@ -5852,10 +5852,12 @@ TString rBin = photonCutSelection(2,1);
                                     fNRebin[i]      = fBinsPi013TeVEMCTrigINT7PtRebin[i];
                                 } else if (specialTrigg==1){
                                     fNRebin[i]      = fBinsPi013TeVEMCTrigEMC7PtRebin[i];
-                                } else if (specialTrigg==3){
-                                    fNRebin[i]      = fBinsPi013TeVEMCTrigEG2PtRebin[i];
                                 } else if (specialTrigg==2){
                                     fNRebin[i]      = fBinsPi013TeVEMCTrigEG1PtRebin[i];
+                                } else if (specialTrigg==3){
+                                    fNRebin[i]      = fBinsPi013TeVEMCTrigEG2PtRebin[i];
+                                } else if (specialTrigg==4 || specialTrigg==5){
+                                    fNRebin[i]      = fBinsPi013TeVEMCTrigHMPtRebin[i];
                                 } else{
                                   fNRebin[i]      = fBinsPi013TeVEMCTrigINT7PtRebin[i];
                                 }
@@ -6277,6 +6279,8 @@ TString rBin = photonCutSelection(2,1);
                               CopyVectorToArray(fBinsPi013TeVEMCTrigEG2PtRebin,fNRebin);
                           } else if (specialTrigg==2){
                               CopyVectorToArray(fBinsPi013TeVEMCTrigEG1PtRebin,fNRebin);
+                          } else if (specialTrigg==4 || specialTrigg==5 ){
+                              CopyVectorToArray(fBinsPi013TeVEMCTrigHMPtRebin,fNRebin);
                           } else{
                             CopyVectorToArray(fBinsPi013TeVEMCTrigINT7PtRebin,fNRebin);
                           }
