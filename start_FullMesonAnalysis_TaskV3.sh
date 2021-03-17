@@ -86,7 +86,11 @@ source start_FullMesonAnalysis_helperPbPb.sh
 
 function ExtractSignal()
 {
-    root -x -q -l -b  TaskV1/ExtractSignalV2.C\+\($1\,$MODE\,$USETHNSPARSE\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
+    if [ $2 -eq 0 ]; then
+      root -x -q -l -b  TaskV1/ExtractSignalV2.C\+\($1\,$MODE\,$USETHNSPARSE\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
+    else
+      root -x -q -l -b  TaskV1/ExtractSignalTemplates.C\+\($1\,$MODE\,$USETHNSPARSE\,-1\,\"$CORRFSETTING\"\,$USEEXTACC\)
+    fi
 }
 
 # Compile directly with G++ incl fsanitize (prototype)
@@ -1202,9 +1206,12 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
         # crystal=Gaussian
 
         CORRECT=0
+        UseTemplate=0
         while [ $CORRECT -eq 0 ]
         do
             echo "Which fit do you want to do? CrystalBall or gaussian convoluted with an exponential function? CrystalBall/Gaussian?";
+            echo "Add \"Ratio\" if you want to scale the mixed-evt. with a function ";
+            echo "Add \"Template\" if you want to scale the background together with the true signal to the same evt. ";
             read answer
             if [ $answer = "CrystalBall" ] || [ $answer = "C" ] || [ $answer = "c" ]; then
                 echo -e "--> CrystalBall chosen ...\n";
@@ -1230,6 +1237,31 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                 echo -e "--> Gaussian without linear back chosen ...\n";
                 CORRECT=1
                 crystal=GausWOLinear
+            elif [ $answer = "GaussianTemplate" ] || [ $answer = "Template" ]; then
+                echo -e "--> Gaussian without linear back chosen ...\n";
+                CORRECT=1
+                crystal=GausWOLinear
+                UseTemplate=1
+            elif [ $answer = "GaussianTemplateScale" ] || [ $answer = "TemplateScale" ]; then
+                echo -e "--> Gaussian without linear back chosen ...\n";
+                CORRECT=1
+                crystal=GausWOLinearScale
+                UseTemplate=1
+            elif [ $answer = "GaussianTemplateScalePol1" ] || [ $answer = "TemplateScalePol1" ]; then
+                echo -e "--> Gaussian without linear back chosen ...\n";
+                CORRECT=1
+                crystal=GausWOLinearScalePol1
+                UseTemplate=1
+            elif [ $answer = "GaussianTemplateScalePlusPol1" ] || [ $answer = "TemplateScalePlusPol1" ]; then
+                echo -e "--> Gaussian without linear back chosen ...\n";
+                CORRECT=1
+                crystal=GausWOLinearScalePlusPol1
+                UseTemplate=1
+            elif [ $answer = "GaussianTemplateScaleMCBack" ] || [ $answer = "TemplateScaleMCBack" ]; then
+                echo -e "--> Gaussian without linear back chosen ...\n";
+                CORRECT=1
+                crystal=GausWOLinearScaleMCBack
+                UseTemplate=1
             else
                 echo "--> Command \"$answer\" not found. Please try again."
             fi
@@ -1350,14 +1382,20 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                     echo -e "\n\n_________________________"
                     echo -e "EXTRACTING SIGNAL FOR PI0\n"
                     OPTIONSPI0DATA=\"Pi0\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,kFALSE
+                    if [ $UseTemplate -eq 1 ]; then
+                      OPTIONSPI0DATA=\"Pi0\"\,\"$DATAROOTFILE\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,kFALSE
+                    fi
                     echo $DATAROOTFILE
                     if [ -f $DATAROOTFILE ]; then
-                        ExtractSignal $OPTIONSPI0DATA
+                        ExtractSignal $OPTIONSPI0DATA $UseTemplate
                     fi
                     PI0DATARAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0_data_GammaConvV1WithoutCorrection_*.root`
                     if [ $MCFILE -eq 1 ]; then
                         OPTIONSPI0MC=\"Pi0\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,kFALSE
-                        ExtractSignal $OPTIONSPI0MC
+                        if [ $UseTemplate -eq 1 ]; then
+                          OPTIONSPI0MC=\"Pi0\"\,\"$MCROOTFILE\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTPI0\,kFALSE
+                        fi
+                        ExtractSignal $OPTIONSPI0MC $UseTemplate
                         PI0MCRAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1WithoutCorrection_*$CUTSELECTION.root`
                         PI0MCCORRFILE=`ls $CUTSELECTION/$ENERGY/Pi0_MC_GammaConvV1CorrectionHistos_*$CUTSELECTION.root`
                         if [ $MERGINGMC -eq 1 ]; then
@@ -1447,12 +1485,18 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                     echo -e "EXTRACTING SIGNAL FOR PI0-ETA\n"
                     if [ -f $DATAROOTFILE ]; then
                         OPTIONSPI0ETADATA=\"Pi0EtaBinning\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,kFALSE
-                        ExtractSignal $OPTIONSPI0ETADATA
+                        if [ $UseTemplate -eq 1 ]; then
+                          OPTIONSPI0ETADATA=\"Pi0EtaBinning\"\,\"$DATAROOTFILE\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,kFALSE
+                        fi
+                        ExtractSignal $OPTIONSPI0ETADATA $UseTemplate
                     fi
                     PI0ETADATARAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_data_GammaConvV1WithoutCorrection_$CUTSELECTION.root`
                     if [ $MCFILE -eq 1 ]; then
                         OPTIONSPI0ETAMC=\"Pi0EtaBinning\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,kFALSE
-                        ExtractSignal $OPTIONSPI0ETAMC
+                        if [ $UseTemplate -eq 1 ]; then
+                          OPTIONSPI0ETAMC=\"Pi0EtaBinning\"\,\"$MCROOTFILE\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,kFALSE
+                        fi
+                        ExtractSignal $OPTIONSPI0ETADATA $UseTemplate
                         PI0ETAMCRAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaConvV1WithoutCorrection_*$CUTSELECTION.root`
                         PI0ETAMCCORRFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaConvV1CorrectionHistos_*$CUTSELECTION.root`
                         if [ $MERGINGMC -eq 1 ]; then
@@ -1561,12 +1605,18 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                     echo -e "EXTRACTING SIGNAL FOR ETA\n"
                     if [ -f $DATAROOTFILE ]; then
                         OPTIONSETADATA=\"Eta\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,kFALSE
-                        ExtractSignal $OPTIONSETADATA
+                        if [ $UseTemplate -eq 1 ]; then
+                          OPTIONSETADATA=\"Eta\"\,\"$DATAROOTFILE\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,kFALSE
+                        fi
+                        ExtractSignal $OPTIONSETADATA $UseTemplate
                     fi
                     ETADATARAWFILE=`ls $CUTSELECTION/$ENERGY/Eta_data_GammaConvV1WithoutCorrection_*$CUTSELECTION.root`
                     if [ $MCFILE -eq 1 ]; then
                         OPTIONSETAMC=\"Eta\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,kFALSE
-                        ExtractSignal $OPTIONSETAMC
+                        if [ $UseTemplate -eq 1 ]; then
+                          OPTIONSETAMC=\"Eta\"\,\"$MCROOTFILE\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,kFALSE
+                        fi
+                        ExtractSignal $OPTIONSETAMC $UseTemplate
                         ETAMCRAWFILE=`ls $CUTSELECTION/$ENERGY/Eta_MC_GammaConvV1WithoutCorrection_*$CUTSELECTION.root`
                         ETAMCCORRFILE=`ls $CUTSELECTION/$ENERGY/Eta_MC_GammaConvV1CorrectionHistos_*$CUTSELECTION.root`
 

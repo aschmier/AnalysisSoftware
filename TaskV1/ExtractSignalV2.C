@@ -334,6 +334,12 @@ void ExtractSignalV2(
     }
 
 
+    optionBackgroundMethod = 0;                           // mixed evt.
+    if (GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1))){
+      optionBackgroundMethod = 1;                         // rotation back.
+    }
+
+
     //***************************** Specification Data/MC ************************************************************
     if(optionMC.CompareTo("kTRUE") == 0){
         fIsMC               = 1;
@@ -1988,12 +1994,6 @@ void ExtractSignalV2(
     //******************************** OUTPUT END ******************************************************
     TString plotPrefix  = Form("%s/%s_%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data());
     TString plotSuffix  = Form("%s_%s.%s",fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
-    TString nameMeson   = Form("%s_MesonWithBck%s", plotPrefix.Data(), plotSuffix.Data());
-    TString nameCanvas  = "MesonWithBckCanvas";
-    TString namePad     = "MesonWithBckPad";
-    cout << nameMeson.Data() << endl;
-    PlotInvMassInPtBins( fHistoMappingGGInvMassPtBin, fHistoMappingBackNormInvMassPtBin, nameMeson, nameCanvas, namePad, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt,
-                        fBinsPt, fTextMeasurement, fIsMC ,fDecayChannel, fDetectionProcess, fCollisionSystem);
 
     TString nameMesonSub    = "";
     TString nameCanvasSub   = "";
@@ -2036,6 +2036,21 @@ void ExtractSignalV2(
             labelsOtherFitsRatio_withGaus[1]="pol3 with GausExp SigToBG Fit";
         }
     }
+
+    TString optionBackgroundStr = "mixed evt. subtr. #it{M}_{#gamma#gamma}";
+    if(optionBackgroundMethod == 1){
+      optionBackgroundStr = "rotation bck. subtr. #it{M}_{#gamma#gamma}";
+    }else if(optionBackgroundMethod == 2){
+      optionBackgroundStr = "MC true bck. subtr. #it{M}_{#gamma#gamma}";
+    }
+
+    TString nameMeson   = Form("%s_MesonWithBck%s", plotPrefix.Data(), plotSuffix.Data());
+    TString nameCanvas  = "MesonWithBckCanvas";
+    TString namePad     = "MesonWithBckPad";
+    cout << nameMeson.Data() << endl;
+    PlotInvMassInPtBins( fHistoMappingGGInvMassPtBin, fHistoMappingBackNormInvMassPtBin, nameMeson, nameCanvas, namePad, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt,
+      fBinsPt, fTextMeasurement, fIsMC ,fDecayChannel, fDetectionProcess, fCollisionSystem, ((TString)optionBackgroundStr.Copy()).Remove(optionBackgroundStr.Length() - 22, 22 ));
+
     if (fCrysFitting == 0){
         // plot with std fit
         nameMesonSub    = Form("%s_MesonSubtracted%s", plotPrefix.Data(), plotSuffix.Data());
@@ -2044,7 +2059,7 @@ void ExtractSignalV2(
         cout << nameMesonSub.Data() << endl;
         PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassPtBinStd, nameMesonSub, nameCanvasSub, namePadSub,
                                               fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess,
-                                              fCollisionSystem, "MC validated");
+                                              fCollisionSystem, "MC validated", kTRUE, optionBackgroundStr);
 
         // plot with fit based on linear remaining BG
         if(optionOtherResBckAsStd > -1){ // plotted additionally only if not standard
@@ -2054,7 +2069,7 @@ void ExtractSignalV2(
             cout << nameMesonSub.Data() << endl;
             PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub,
                                                   fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess,
-                                                  fCollisionSystem, "MC validated");
+                                                  fCollisionSystem, "MC validated", kTRUE, optionBackgroundStr);
         }
 
         // plot with different fits based on all possible remaining BG functions
@@ -2064,7 +2079,7 @@ void ExtractSignalV2(
         cout << nameMesonSub.Data() << endl;
         PlotWithManyFitSubtractedInvMassInPtBins(   fHistoMappingSignalInvMassPtBin, fFitSignalInvMassPtBin, fFitSignalWithOtherBGInvMassPtBin, nOtherFits, labelsOtherFits, nameMesonSub,
                                                     nameCanvasSub, namePadSub, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
-                                                    fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, "pol1 BG");
+                                                    fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, "pol1 BG", optionBackgroundStr);
 
         // plot with only remaing BG parts of the different fits (all possible remaining BG functions)
         nameMesonSub    = Form("%s_MesonSubtractedWithOtherOnlyBGFits%s", plotPrefix.Data(), plotSuffix.Data());
@@ -2073,7 +2088,7 @@ void ExtractSignalV2(
         cout << nameMesonSub.Data() << endl;
         PlotWithManyFitSubtractedInvMassInPtBins(   fHistoMappingSignalInvMassPtBin, fFitBckInvMassPtBin, fFitBckOtherInvMassPtBin, nOtherFits, labelsOtherFits, nameMesonSub,
                                                     nameCanvasSub, namePadSub, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
-                                                    fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, "pol1 BG");
+                                                    fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, "pol1 BG", optionBackgroundStr);
 
         nameMesonSub    = Form("%s_MesonSubtractedRemaingBGSubtracted%s", plotPrefix.Data(), plotSuffix.Data());
         nameCanvasSub   = "MesonCanvasSubtracted";
@@ -2091,7 +2106,7 @@ void ExtractSignalV2(
 
             PlotWithManyFitSigToBckRatioInPtBins(   fHistoMappingRatioSBInvMassPtBin, fFitPHOSPolSigToBckFitPtBin, fFitPHOSAllOtherSigToBckFits, iNumberOfOtherSigToBckRatioFits, labelsOtherFitsRatio, nameMesonSub,
                                                     nameCanvasSub, namePadSub, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
-                                                    fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s SigToBG Fit", labelUsedFitsRatio.Data()));
+                                                    fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s SigToBG Fit", labelUsedFitsRatio.Data()), optionBackgroundStr);
 
             nameMesonSub    = Form("%s_MesonSignalBckRatioFits_withGaus%s", plotPrefix.Data(), plotSuffix.Data());
             nameCanvasSub   = "MesonCanvasSignalBckRatioFits_withGaus";
@@ -2100,7 +2115,7 @@ void ExtractSignalV2(
 
             PlotWithManyFitSigToBckRatioInPtBins(   fHistoMappingRatioSBInvMassPtBin, fFitPHOSPolSigToBckFitPtBin_withGaus, fFitPHOSAllOtherSigToBckFits_withGaus, iNumberOfOtherSigToBckRatioFits, labelsOtherFitsRatio_withGaus, nameMesonSub,
                                                     nameCanvasSub, namePadSub, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt,
-                                                    fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s withGaus SigToBG Fit", labelUsedFitsRatio.Data()));
+                                                    fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem, "MC validated", kTRUE, Form("%s withGaus SigToBG Fit", labelUsedFitsRatio.Data()), optionBackgroundStr);
 
         }
 
@@ -2110,7 +2125,7 @@ void ExtractSignalV2(
         namePadSub      = "MesonPadSubtractedWithFits";
         PlotWith2FitsSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassPtBinStd, fFitBckInvMassPtBinStd, nameMesonSub, nameCanvasSub, namePadSub,
                                                 fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess,
-                                                fCollisionSystem, "MC validated");
+                                                fCollisionSystem, "MC validated", kTRUE, "Fit", optionBackgroundStr);
 
 
         // plot with full fit and remaining BG fit (linear)
@@ -2120,7 +2135,7 @@ void ExtractSignalV2(
             namePadSub      = "MesonPadSubtractedWithLinBGFits";
             PlotWith2FitsSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassPtBin, fFitBckInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub,
                                                     fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess,
-                                                    fCollisionSystem, "MC validated");
+                                                    fCollisionSystem, "MC validated", kTRUE, "Fit", optionBackgroundStr);
         }
 
         // plot with full fit (pure gaussian)
@@ -2130,7 +2145,7 @@ void ExtractSignalV2(
         cout << nameMesonSub.Data() << endl;
         PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitSignalGaussianInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub,
                                               fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess,
-                                              fCollisionSystem, "MC validated");
+                                              fCollisionSystem, "MC validated", kTRUE, "Fit", optionBackgroundStr);
 
         // plot with full fit (std, left normalization)
         nameMesonSub    = Form("%s_MesonSubtractedLeft%s", plotPrefix.Data(), plotSuffix.Data());
@@ -2139,7 +2154,7 @@ void ExtractSignalV2(
         cout << nameMesonSub.Data() << endl;
         PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassLeftPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitInvMassLeftPtBin, nameMesonSub, nameCanvasSub, namePadSub,
                                               fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess,
-                                              fCollisionSystem, "MC validated");
+                                              fCollisionSystem, "MC validated", kTRUE, "Fit", optionBackgroundStr);
 
         // plot example bin including std choice of remaining background
         cout << "Example bin (" << meson << "): " << fExampleBin << endl;
@@ -2150,7 +2165,7 @@ void ExtractSignalV2(
                                   fFitSignalInvMassPtBinStd[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassPlotRange, pictDrawingCoordinatesFWHM,
                                   fNEvents, fDate, fPrefix, fPrefix2, fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, triggerInt.Atoi(), fExampleBinScaleFac,
                                   fMode, addSig,
-                                  kFALSE, NULL, optionOtherResBckAsStd );
+                                  kFALSE, NULL, optionOtherResBckAsStd, optionBackgroundMethod );
 
 
     } else {
@@ -2158,14 +2173,18 @@ void ExtractSignalV2(
         nameCanvasSub   = "MesonCanvasSubtracted";
         namePadSub      = "MesonPadSubtracted";
         cout << nameMesonSub.Data() << endl;
-        PlotWithBGFitSubtractedInvMassInPtBins(fHistoMappingSignalInvMassPtBin, fHistoMappingRemainingBGInvMassPtBin, fHistoMappingSignalRemainingBGSubInvMassPtBin, fFitRemainingBGInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem );
+        PlotWithBGFitSubtractedInvMassInPtBins(fHistoMappingSignalInvMassPtBin, fHistoMappingRemainingBGInvMassPtBin, fHistoMappingSignalRemainingBGSubInvMassPtBin, fFitRemainingBGInvMassPtBin,
+                                               nameMesonSub, nameCanvasSub, namePadSub, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,
+                                               fDecayChannel, fDetectionProcess, fCollisionSystem );
 
         nameMesonSub    = Form("%s_MesonSubtractedLeft%s", plotPrefix.Data(), plotSuffix.Data());
         nameCanvasSub   = "MesonCanvasSubtracted";
         namePadSub      = "MesonPadSubtracted";
         cout << nameMesonSub.Data() << endl;
         PlotWithBGFitSubtractedInvMassInPtBins(
-            fHistoMappingSignalInvMassLeftPtBin, fHistoMappingRemainingBGInvMassLeftPtBin, fHistoMappingSignalRemainingBGSubInvMassLeftPtBin, fFitRemainingBGInvMassLeftPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem );
+            fHistoMappingSignalInvMassLeftPtBin, fHistoMappingRemainingBGInvMassLeftPtBin, fHistoMappingSignalRemainingBGSubInvMassLeftPtBin, fFitRemainingBGInvMassLeftPtBin,
+            nameMesonSub, nameCanvasSub, namePadSub, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,
+            fDecayChannel, fDetectionProcess, fCollisionSystem );
 
         nameMesonSub    = Form("%s_MesonSubtractedRemaingBGSubtracted%s", plotPrefix.Data(), plotSuffix.Data());
         nameCanvasSub   = "MesonCanvasSubtracted";
@@ -2203,7 +2222,7 @@ void ExtractSignalV2(
         cout << nameMesonTrue.Data() << endl;
         PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins, fHistoMappingTrueMesonInvMassPtBins, fFitTrueSignalInvMassPtBin, nameMesonTrue, nameCanvasTrue, namePadTrue,
                                             fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess,
-                                            fCollisionSystem, "MC validated weighted",kFALSE);
+                                            fCollisionSystem, "MC validated weighted",kFALSE, "Fit", optionBackgroundStr);
 
         nameMesonTrue           = Form("%s_TrueMesonReweightedFitted%s", plotPrefix.Data(), plotSuffix.Data());
         nameCanvasTrue          = "TrueMesonCanvasReweightedFitted";
@@ -2211,7 +2230,7 @@ void ExtractSignalV2(
         cout << nameMesonTrue.Data() << endl;
         PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtReweightedBins, fHistoMappingTrueMesonInvMassPtReweightedBins, fFitTrueSignalInvMassPtReweightedBin, nameMesonTrue,
                                             nameCanvasTrue, namePadTrue, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel,
-                                            fDetectionProcess, fCollisionSystem, "MC validated reweighted",kFALSE);
+                                            fDetectionProcess, fCollisionSystem, "MC validated reweighted",kFALSE, "Fit", optionBackgroundStr);
 
         nameMesonTrue           = Form("%s_TrueMesonUnweightedFitted%s", plotPrefix.Data(), plotSuffix.Data());
         nameCanvasTrue          = "TrueMesonCanvasUnweightedFitted";
@@ -2219,7 +2238,7 @@ void ExtractSignalV2(
         cout << nameMesonTrue.Data() << endl;
         PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtUnweightedBins, fHistoMappingTrueMesonInvMassPtUnweightedBins, fFitTrueSignalInvMassPtUnweightedBin, nameMesonTrue,
                                             nameCanvasTrue, namePadTrue, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel,
-                                            fDetectionProcess, fCollisionSystem, "MC validated unweighted",kFALSE);
+                                            fDetectionProcess, fCollisionSystem, "MC validated unweighted",kFALSE, "Fit", optionBackgroundStr);
 
         nameMesonTrue           = Form("%s_TrueMesonFittedPureGaussian%s", plotPrefix.Data(), plotSuffix.Data());
         nameCanvasTrue          = "TrueMesonCanvasFittedPureGaussian";
@@ -2227,7 +2246,7 @@ void ExtractSignalV2(
         cout << nameMesonTrue.Data() << endl;
         PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins, fHistoMappingTrueMesonInvMassPtBins, fFitTrueSignalGaussianInvMassPtBin, nameMesonTrue, nameCanvasTrue,
                                             namePadTrue, fMesonMassPlotRange, fDate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel,
-                                            fDetectionProcess, fCollisionSystem, "MC validated weighted",kFALSE);
+                                            fDetectionProcess, fCollisionSystem, "MC validated weighted",kFALSE, "Fit", optionBackgroundStr);
 
         if (meson.Contains("Pi0")){
             nameMesonTrue       = Form("%s_TrueMesonSecondary%s", plotPrefix.Data(), plotSuffix.Data());
@@ -3561,7 +3580,8 @@ void Initialize(TString setPi0, Int_t numberOfBins, Int_t triggerSet){
 
     TString trigger         = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
     Bool_t isRotationBG     = GetMesonBGSchemeIsRotation(fMesonCutSelection(GetMesonBGSchemeCutPosition(),1));
-    InitializeWindows(setPi0, fMode, trigger, triggerSet, isRotationBG);
+    TString rotationBack = (isRotationBG == 0) ? "" : "rotation";
+    InitializeWindows(setPi0, fMode, trigger, triggerSet, rotationBack);
 
     // initialize integration array for integration windows: normal, wide, narrow, left, left wide, left narrow
     for (Int_t k = 0; k < 6; k++){
@@ -5503,6 +5523,23 @@ void CreatePtHistos(){
             fHistoYieldTrueSecMeson[k][j]->Sumw2();
         }
     }
+
+    //--------------------------------------------------------
+    // Histos for template fits
+    //--------------------------------------------------------
+    fHistoScaleFacBack                  = new TH1D("fHistoScaleFacBack","",fNBinsPt,fBinsPt);
+    fHistoScaleFacBack->Sumw2();
+    fHistoScaleFacPi0                   = new TH1D("fHistoScaleFacPi0","",fNBinsPt,fBinsPt);
+    fHistoScaleFacPi0->Sumw2();
+    fHistoScaleFacEta                   = new TH1D("fHistoScaleFacEta","",fNBinsPt,fBinsPt);
+    fHistoScaleFacEta->Sumw2();
+
+    fHistoScaleFacLeftBack                  = new TH1D("fHistoScaleFacLeftBack","",fNBinsPt,fBinsPt);
+    fHistoScaleFacLeftBack->Sumw2();
+    fHistoScaleFacLeftPi0                   = new TH1D("fHistoScaleFacLeftPi0","",fNBinsPt,fBinsPt);
+    fHistoScaleFacLeftPi0->Sumw2();
+    fHistoScaleFacLeftEta                   = new TH1D("fHistoScaleFacLeftEta","",fNBinsPt,fBinsPt);
+    fHistoScaleFacLeftEta->Sumw2();
 }
 
 
@@ -6489,6 +6526,9 @@ void FitSubtractedInvMassInPtBinsWOLinear(TH1D* histoMappingSignalInvMassPtBinSi
 
   Double_t mesonAmplitudeMin  = mesonAmplitude*60./100.;
   Double_t mesonAmplitudeMax  = mesonAmplitude*200./100.;
+  if(fPrefix.Contains("Pi0")) fMesonMassExpect = 0.135;
+  else if(fPrefix.Contains("Eta")) fMesonMassExpect = 0.548;
+
   if ( fEnergyFlag.Contains("13TeV")  ){
     if(fPrefix.Contains("Pi0")){
       mesonAmplitudeMin = mesonAmplitude*40./100.;
@@ -6552,7 +6592,7 @@ void FitSubtractedInvMassInPtBinsWOLinear(TH1D* histoMappingSignalInvMassPtBinSi
       if(doDoubleExp)fFitReco->SetParameter(6, fMesonLambdaTail*0.9);
     } else if(fPrefix.Contains("Eta")){
       fFitReco->SetParLimits(0,mesonAmplitudeMin*0.05, mesonAmplitudeMax);
-      fFitReco->SetParLimits(1,fMesonMassExpect*0.85,fMesonMassExpect*1.15);
+      fFitReco->SetParLimits(1,fMesonMassExpect*0.92,fMesonMassExpect*1.1);
       fFitReco->SetParLimits(2,fMesonWidthRange[0],fMesonWidthRange[1]);
       fFitReco->SetParLimits(3,fMesonLambdaTailRange[0]*0.0002,fMesonLambdaTailRange[0]);
       fFitReco->SetParameter(0, mesonAmplitudeMax*0.2);
@@ -7182,7 +7222,6 @@ void FitSubtractedExp2InvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle
 //************* Fit of Signal+ BG with Gaussian + Linear BG ******************
 //****************************************************************************
 void FitSubtractedPureGaussianInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Int_t ptBin ){
-
     histoMappingSignalInvMassPtBinSingle->GetXaxis()->SetRangeUser(fMesonMassPlotRange[0],fMesonMassPlotRange[1]);
     Double_t mesonAmplitude         = histoMappingSignalInvMassPtBinSingle->GetMaximum();
     Double_t mesonAmplitudeMin      = 0;
@@ -8455,13 +8494,14 @@ void SaveHistos(Int_t optionMC, TString cutID, TString prefix3, Bool_t UseTHnSpa
     fHistoFWHMMeson->Write();
     fDeltaPt->Write();
 
-
     fHistoMassMesonLeft->Write();
     fHistoFWHMMesonLeft->Write();
-    fMesonFullPtSignal->Write();
-    fMesonFullPtBackground->Write();
-    fMesonFullPtBackNorm->SetName("Mapping_BackNorm_InvMass_FullPt");
-    fMesonFullPtBackNorm->Write();
+    if(fMesonFullPtSignal)fMesonFullPtSignal->Write();
+    if(fMesonFullPtBackground)fMesonFullPtBackground->Write();
+    if(fMesonFullPtBackNorm){
+      fMesonFullPtBackNorm->SetName("Mapping_BackNorm_InvMass_FullPt");
+      fMesonFullPtBackNorm->Write();
+    }
     if(fNumberOfGoodESDTracks) fNumberOfGoodESDTracks->Write();
     fEventQuality->Write();
     if(fDoJetAnalysis) fHistNEventswithJets->Write();
@@ -8520,7 +8560,6 @@ void SaveHistos(Int_t optionMC, TString cutID, TString prefix3, Bool_t UseTHnSpa
             if (fFitRemainingBGInvMassPtBin[ii]) fFitRemainingBGInvMassPtBin[ii]->Write();
         }
     }
-
     if(optionMC){
         fHistoTrueSignMeson->Write();
         fHistoTrueSBMeson->Write();
@@ -8530,7 +8569,6 @@ void SaveHistos(Int_t optionMC, TString cutID, TString prefix3, Bool_t UseTHnSpa
         fHistoMCMesonPt1->Write(); // Proper bins in Pt
         if (fHistoMCMesonPt1WOWeights) fHistoMCMesonPt1WOWeights->Write(); // Proper bins in Pt
         fHistoTrueMesonInvMassVSPt->Write();
-
         for (Int_t k = 0; k < 3; k++){ // different integration windows: normal, wide, narrow
             if (fHistoYieldTrueMeson[k])            fHistoYieldTrueMeson[k]->Write();
             if (fHistoYieldTrueMesonFromFit[k])            fHistoYieldTrueMesonFromFit[k]->Write();
@@ -9345,4 +9383,3 @@ void Delete(){
     }
     if (fFileCocktailInput)                                     delete fFileCocktailInput;
 }
-
