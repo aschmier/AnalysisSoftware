@@ -2195,52 +2195,52 @@ void CalculatePileUpBackground(Bool_t doMC){
                     Int_t nCurrentIterations                                            = nIterationsShowBackground[catIter];
                     if (oobEstMethod == 3) nCurrentIterations++;
                     if (oobEstMethod == 4) nCurrentIterations--;
-		    // fESDGammaPtDCAzBinsBack[catIter][0][oobEstMethod]                   = (TH1D*)fESDGammaPtDCAzBins[catIter][0]->ShowBackground( nCurrentIterations,
-		    //                                                                                                                            optionShowBackground[oobEstMethod].Data());
+		     fESDGammaPtDCAzBinsBack[catIter][0][oobEstMethod]                   = (TH1D*)fESDGammaPtDCAzBins[catIter][0]->ShowBackground( nCurrentIterations,
+		                                                                                                                                optionShowBackground[oobEstMethod].Data());
 
-		    TString rBin = fGammaCutSelection(2,1);
-		    //For RBins studies try to make a pT dependent  pileup subtraction
-		    if( rBin.CompareTo("k") ==0    ){
-		      if (fBinsPtDummy[bin-1]<0.4){
-			fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-2,
-																		    optionShowBackground[oobEstMethod].Data());
+		    // TString rBin = fGammaCutSelection(2,1);
+		    // //For RBins studies try to make a pT dependent  pileup subtraction
+		    // if( rBin.CompareTo("k") ==0    ){
+		    //   // if (fBinsPtDummy[bin-1]<0.4){
+		    //   // 	fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-2,
+		    //   // 																    optionShowBackground[oobEstMethod].Data());
 			
-		      }else if (fBinsPtDummy[bin-1]>=0.4 && fBinsPtDummy[bin-1]<0.6 ){
-			fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-1,
-																		    optionShowBackground[oobEstMethod].Data());
-		      }else{
-			fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations,
-																		    optionShowBackground[oobEstMethod].Data());
-		      }
-		    }else if(rBin.CompareTo("l") ==0 ) {
-		      if (fBinsPtDummy[bin-1]<0.8){
-			fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-2,
-																		    optionShowBackground[oobEstMethod].Data());
-		      }else{
-			fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations,
-																		    optionShowBackground[oobEstMethod].Data());
-		      }
+		    //   // }else if (fBinsPtDummy[bin-1]>=0.4 && fBinsPtDummy[bin-1]<0.6 ){
+		    //   // 	fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-1,
+		    //   // 																    optionShowBackground[oobEstMethod].Data());
+		    //   // }else{
+		    // 	fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations,
+		    // 																    optionShowBackground[oobEstMethod].Data());
+		    // 	//		      }
+		    // }else if(rBin.CompareTo("l") ==0 ) {
+		    //   if (fBinsPtDummy[bin-1]<0.8){
+		    // 	fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-2,
+		    // 																    optionShowBackground[oobEstMethod].Data());
+		    //   }else{
+		    // 	fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations,
+		    // 																    optionShowBackground[oobEstMethod].Data());
+		    //   }
 		      
 		      
-		    }else if(rBin.CompareTo("g") ==0 ) {
-		      if (fBinsPtDummy[bin-1]<0.8){
-			fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-2,
-																		    optionShowBackground[oobEstMethod].Data());
+		    // }else if(rBin.CompareTo("g") ==0 ) {
+		    //   if (fBinsPtDummy[bin-1]<0.8){
+		    // 	fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-2,
+		    // 																    optionShowBackground[oobEstMethod].Data());
 			
-		      }else if (fBinsPtDummy[bin-1]>=0.8 && fBinsPtDummy[bin-1]<1.2 ){
-			fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-1,
-																		    optionShowBackground[oobEstMethod].Data());
+		    //   }else if (fBinsPtDummy[bin-1]>=0.8 && fBinsPtDummy[bin-1]<1.2 ){
+		    // 	fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations-1,
+		    // 																    optionShowBackground[oobEstMethod].Data());
 			
-		      }else{
-			fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations,
-																		    optionShowBackground[oobEstMethod].Data());
-		      }
+		    //   }else{
+		    // 	fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations,
+		    // 																    optionShowBackground[oobEstMethod].Data());
+		    //   }
 		      
 		      
-		    }else{
-		      fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations,
-																		  optionShowBackground[oobEstMethod].Data());
-		    }
+		    // }else{
+		     // fESDGammaPtDCAzBinsBack[catIter][bin][oobEstMethod]             = (TH1D*)fESDGammaPtDCAzBins[catIter][bin]->ShowBackground( nCurrentIterations,
+		     //																  optionShowBackground[oobEstMethod].Data());
+		      //		    }
 		    
 
 
@@ -4823,9 +4823,9 @@ Bool_t CalculatePileUpCorrectionFactor(TH1D* ratioWithWithoutPileUp, TH1D* &pile
 	TString rBin = fGammaCutSelection(2,1);
 	if( (rBin.CompareTo("l") ==0)   ){
 
-	  fitToRatio                          = new TF1("fitRatio", "1.0+[0]/TMath::Power((x-[1]), [2])", fBinsPtDummy[2], 7.5);
+	  fitToRatio                          = new TF1("fitRatio", "1.0+[0]/TMath::Power((x-[1]), [2])", fBinsPtDummy[8], 7.5);
 	} else  if( rBin.CompareTo("g") ==0  ) {
-	  fitToRatio                          = new TF1("fitRatio", "1.0+[0]/TMath::Power((x-[1]), [2])", fBinsPtDummy[2], 7.5);
+	  fitToRatio                          = new TF1("fitRatio", "1.0+[0]/TMath::Power((x-[1]), [2])", fBinsPtDummy[8], 7.5);
 	} else {
 	  fitToRatio                          = new TF1("fitRatio", "1.0+[0]/TMath::Power((x-[1]), [2])", fBinsPtDummy[1], fBinsPtDummy[fNBinsPtDummy]);
 	} 
