@@ -10018,49 +10018,122 @@ void SaveHistos(Int_t optionMC, TString fCutID, TString fPrefix3)
         fHistoMappingGGInvMassPtBin[ii]->Write();
         fHistoMappingGGInvMassPtBin_SubPiZero[ii]->Write();
         fHistoMappingGGInvMassPtBin_FixedPzPiZero[ii]->Write();
+
         nameHistoSignal = Form("fHistoMappingSignalInvMass_in_Pt_Bin%02d", ii);
-        if(fHistoMappingSignalInvMassPtBin[ii]) fHistoMappingSignalInvMassPtBin[ii]->Write(nameHistoSignal.Data());
+        if(fHistoMappingSignalInvMassPtBin[ii]) {
+            fHistoMappingSignalInvMassPtBin[ii]->SetLineColor(3);
+            fHistoMappingSignalInvMassPtBin[ii]->SetLineWidth(1);
+            fHistoMappingSignalInvMassPtBin[ii]->SetLineStyle(1);
+            fHistoMappingSignalInvMassPtBin[ii]->Write(nameHistoSignal.Data());
+        }
         nameHistoSignal = Form("fHistoMappingSignalInvMass_SubPiZero_in_Pt_Bin%02d", ii);
-        if(fHistoMappingSignalInvMassPtBin_SubPiZero[ii]) fHistoMappingSignalInvMassPtBin_SubPiZero[ii]->Write(nameHistoSignal.Data());
+        if(fHistoMappingSignalInvMassPtBin_SubPiZero[ii]){
+            fHistoMappingSignalInvMassPtBin_SubPiZero[ii]->SetLineColor(3);
+            fHistoMappingSignalInvMassPtBin_SubPiZero[ii]->SetLineWidth(1);
+            fHistoMappingSignalInvMassPtBin_SubPiZero[ii]->SetLineStyle(1);
+            fHistoMappingSignalInvMassPtBin_SubPiZero[ii]->Write(nameHistoSignal.Data());
+        }
         nameHistoSignal = Form("fHistoMappingSignalInvMass_FixedPzPiZero_in_Pt_Bin%02d", ii);
-        if( fHistoMappingSignalInvMassPtBin_FixedPzPiZero[ii]) fHistoMappingSignalInvMassPtBin_FixedPzPiZero[ii]->Write(nameHistoSignal.Data());
+        if( fHistoMappingSignalInvMassPtBin_FixedPzPiZero[ii]){
+            fHistoMappingSignalInvMassPtBin_FixedPzPiZero[ii]->SetLineColor(3);
+            fHistoMappingSignalInvMassPtBin_FixedPzPiZero[ii]->SetLineWidth(1);
+            fHistoMappingSignalInvMassPtBin_FixedPzPiZero[ii]->SetLineStyle(1);
+            fHistoMappingSignalInvMassPtBin_FixedPzPiZero[ii]->Write(nameHistoSignal.Data());
+        }
         fitnameSignal = Form("Signal_InvMassFit_in_Pt_Bin%02d", ii);
-        if(fFitSignalInvMassPtBin[ii]!=0x00) fFitSignalInvMassPtBin[ii]->Write(fitnameSignal.Data());
+        if(fFitSignalInvMassPtBin[ii]!=0x00){
+            fFitSignalInvMassPtBin[ii]->SetLineColor(3);
+            fFitSignalInvMassPtBin[ii]->SetLineWidth(1);
+            fFitSignalInvMassPtBin[ii]->SetLineStyle(1);
+            fFitSignalInvMassPtBin[ii]->Write(fitnameSignal.Data());
+        }
 
         fitnameSignal = Form("Signal_InvMassFit_SubPiZero_in_Pt_Bin%02d", ii);
-        if(fFitSignalInvMassPtBin_SubPiZero[ii]!=0x00) fFitSignalInvMassPtBin_SubPiZero[ii]->Write(fitnameSignal.Data());
+        if(fFitSignalInvMassPtBin_SubPiZero[ii]!=0x00){
+            fFitSignalInvMassPtBin_SubPiZero[ii]->SetLineColor(3);
+            fFitSignalInvMassPtBin_SubPiZero[ii]->SetLineWidth(1);
+            fFitSignalInvMassPtBin_SubPiZero[ii]->SetLineStyle(1);
+            fFitSignalInvMassPtBin_SubPiZero[ii]->Write(fitnameSignal.Data());
+        }
 
         fitnameSignal = Form("Signal_InvMassFit_FixedPzPiZero_in_Pt_Bin%02d", ii);
-        if(fFitSignalInvMassPtBin_FixedPzPiZero[ii]!=0x00) fFitSignalInvMassPtBin_FixedPzPiZero[ii]->Write(fitnameSignal.Data());
+        if(fFitSignalInvMassPtBin_FixedPzPiZero[ii]!=0x00){
+            fFitSignalInvMassPtBin_FixedPzPiZero[ii]->SetLineColor(3);
+            fFitSignalInvMassPtBin_FixedPzPiZero[ii]->SetLineWidth(1);
+            fFitSignalInvMassPtBin_FixedPzPiZero[ii]->SetLineStyle(1);
+            fFitSignalInvMassPtBin_FixedPzPiZero[ii]->Write(fitnameSignal.Data());
+        }
     
 
         // Write back fit subtracted signal
         nameHistoSignal = Form("fHistoMappingSignalBackFitInvMass_in_Pt_Bin%02d", ii);
-        if(fHistoMappingGGInvMassBackFitPtBin[ii]) fHistoMappingGGInvMassBackFitPtBin[ii]->Write(nameHistoSignal.Data());
+        if(fHistoMappingGGInvMassBackFitPtBin[ii]){
+            fHistoMappingGGInvMassBackFitPtBin[ii]->SetLineColor(3);
+            fHistoMappingGGInvMassBackFitPtBin[ii]->SetLineWidth(1);
+            fHistoMappingGGInvMassBackFitPtBin[ii]->SetLineStyle(1);
+            fHistoMappingGGInvMassBackFitPtBin[ii]->Write(nameHistoSignal.Data());}
         //-
         nameHistoSignal = Form("fHistoMappingSignalBackFitInvMass_SubPiZero_in_Pt_Bin%02d", ii);
-        if( fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii])  fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii]->Write(nameHistoSignal.Data());
+        if( fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii]){
+            fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii]->SetLineColor(3);
+            fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii]->SetLineWidth(1);
+            fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii]->SetLineStyle(1);
+            fHistoMappingGGInvMassBackFitPtBin_SubPiZero[ii]->Write(nameHistoSignal.Data());}
         //-
         nameHistoSignal = Form("fHistoMappingSignalBackFitInvMass_FixedPzPiZero_in_Pt_Bin%02d", ii);
-        if(  fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii])  fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii]->Write(nameHistoSignal.Data());
+        if(  fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii]){
+            fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii]->SetLineColor(3);
+            fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii]->SetLineWidth(1);
+            fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii]->SetLineStyle(1);
+            fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[ii]->Write(nameHistoSignal.Data());
+        }
         //----------
         fitnameSignal = Form("Signal_InvMassBackFit_in_Pt_Bin%02d", ii);
-        if(fFitSignalInvMassBackFitPtBin[ii]!=0x00) fFitSignalInvMassBackFitPtBin[ii]->Write(fitnameSignal.Data());
+        if(fFitSignalInvMassBackFitPtBin[ii]!=0x00){
+            fFitSignalInvMassBackFitPtBin[ii]->SetLineColor(3);
+            fFitSignalInvMassBackFitPtBin[ii]->SetLineWidth(1);
+            fFitSignalInvMassBackFitPtBin[ii]->SetLineStyle(1);
+            fFitSignalInvMassBackFitPtBin[ii]->Write(fitnameSignal.Data());}
         //-
         fitnameSignal = Form("Signal_InvMassBackFit_SubPiZero_in_Pt_Bin%02d", ii);
-        if(fFitSignalInvMassBackFitPtBin_SubPiZero[ii]!=0x00) fFitSignalInvMassBackFitPtBin_SubPiZero[ii]->Write(fitnameSignal.Data());
+        if(fFitSignalInvMassBackFitPtBin_SubPiZero[ii]!=0x00){
+            fFitSignalInvMassBackFitPtBin_SubPiZero[ii]->SetLineColor(3);
+            fFitSignalInvMassBackFitPtBin_SubPiZero[ii]->SetLineWidth(1);
+            fFitSignalInvMassBackFitPtBin_SubPiZero[ii]->SetLineStyle(1);
+            fFitSignalInvMassBackFitPtBin_SubPiZero[ii]->Write(fitnameSignal.Data());
+        }
         //-
         fitnameSignal = Form("Signal_InvMassBackFit_FixedPzPiZero_in_Pt_Bin%02d", ii);
-        if(fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]!=0x00) fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]->Write(fitnameSignal.Data());
+        if(fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]!=0x00){
+            fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]->SetLineColor(3);
+            fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]->SetLineWidth(1);
+            fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]->SetLineStyle(1);
+            fFitSignalInvMassBackFitPtBin_FixedPzPiZero[ii]->Write(fitnameSignal.Data());
+        }
         //----------
         fitnameSignal = Form("Background_InvMassBackFit_in_Pt_Bin%02d", ii);
-        if(fBackgroundFitPol[ii]!=0x00) fBackgroundFitPol[ii]->Write(fitnameSignal.Data());
+        if(fBackgroundFitPol[ii]!=0x00){
+            fBackgroundFitPol[ii]->SetLineColor(3);
+            fBackgroundFitPol[ii]->SetLineWidth(1);
+            fBackgroundFitPol[ii]->SetLineStyle(1);
+            fBackgroundFitPol[ii]->Write(fitnameSignal.Data());
+        }
         //-
         fitnameSignal = Form("Background_InvMassBackFit_SubPiZero_in_Pt_Bin%02d", ii);
-        if(fBackgroundFitPol_SubPiZero[ii]!=0x00) fBackgroundFitPol_SubPiZero[ii]->Write(fitnameSignal.Data());
+        if(fBackgroundFitPol_SubPiZero[ii]!=0x00){
+            fBackgroundFitPol_SubPiZero[ii]->SetLineColor(3);
+            fBackgroundFitPol_SubPiZero[ii]->SetLineWidth(1);
+            fBackgroundFitPol_SubPiZero[ii]->SetLineStyle(1);
+            fBackgroundFitPol_SubPiZero[ii]->Write(fitnameSignal.Data());
+        }
         //-
         fitnameSignal = Form("Background_InvMassBackFit_FixedPzPiZero_in_Pt_Bin%02d", ii);
-        if(fBackgroundFitPol_FixedPzPiZero[ii]!=0x00) fBackgroundFitPol_FixedPzPiZero[ii]->Write(fitnameSignal.Data());
+        if(fBackgroundFitPol_FixedPzPiZero[ii]!=0x00){
+            fBackgroundFitPol_FixedPzPiZero[ii]->SetLineColor(3);
+            fBackgroundFitPol_FixedPzPiZero[ii]->SetLineWidth(1);
+            fBackgroundFitPol_FixedPzPiZero[ii]->SetLineStyle(1);
+            fBackgroundFitPol_FixedPzPiZero[ii]->Write(fitnameSignal.Data());
+        }
 
 
 
