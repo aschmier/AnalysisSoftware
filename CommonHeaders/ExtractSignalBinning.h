@@ -1495,7 +1495,7 @@
         // Heavy meson fix
         if( mode>=100 ) mode -= 100;
 
-        cout << "Debug: GetStartBin: " << meson.Data() <<  "\t" <<  specialTrigg << "\t" << energy.Data() << endl;
+        cout << "Debug: GetStartBin: " << meson.Data() <<  "\tmode:" <<  mode <<  "\tspecialTrigg:" <<  specialTrigg << "\t" << energy.Data() << endl;
         Int_t startPtBin = 0;
         //*************************************************************************************************
         //******************** Determine startbin for Pi0  ************************************************
@@ -2996,7 +2996,7 @@
 
                                 } else {
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => MB; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_INT7"<<"; Line: "<<__LINE__<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_INT7, binning, 83 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_INT7, binning, 92 );
                                 }
                                 break;
                             case 6:
@@ -3009,7 +3009,7 @@
                                     maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 } else {
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsPi013TeV_PCMPHOS_PHI7"<<"; Line: "<<__LINE__<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_PHI7, binning, 54 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PCMPHOS_PHI7, binning, 92 );
                                 }
                                 break;
                             default:
@@ -3867,7 +3867,7 @@
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 } else {
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_INT7"<<"; Line: "<<__LINE__<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_INT7, binning, 29 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_INT7, binning, 31 );
                                 }
                                 break;
                             case 6:
@@ -3880,7 +3880,7 @@
                                     maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMTrigINT7RBinsPt, binning, 18 );
                                 } else {
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<"; Used Binning: "<<"fBinsEta13TeV_PCMPHOS_PHI7"<<"; Line: "<<__LINE__<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_PHI7, binning, 17 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeV_PCMPHOS_PHI7, binning, 21 );
                                 }
                                 break;
                             default:
