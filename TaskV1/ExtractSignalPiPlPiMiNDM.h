@@ -1164,7 +1164,12 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         fTotalBackFitMode = 3; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3; 7: exp only; 8: gauss+exp
         fFitRangeForMaximumMode = 0; //Meson Range
         if (fEnergyFlag.Contains("13TeV")){
-            if(mode == 60 || mode == 61 || mode == 62 || mode == 64 || mode == 65){
+            if(     mode == 60 ||   //PCM
+                    mode == 61 ||   //PCM-EMCAL
+                    mode == 62 ||   //PCM-PHOS
+                    mode == 64 ||   //EMCAL
+                    mode == 65)     //PHOS
+            {
                fTotalBackFitMode = 6;
                fFitRangeForMaximumMode = 0; //1 for pure fit
             }

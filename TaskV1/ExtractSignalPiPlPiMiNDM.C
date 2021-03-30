@@ -118,6 +118,17 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     //			49 // new output PHOS-DALITZ
     //			50 // new output DCAL-DALITZ
 
+
+
+
+    //useMCBck:
+    //              0 // Standard analysis
+    //              1 // Use true MC histograms for background histograms and replace f.e. event mixing histograms
+    //              2-4 // Option 1 + Use contamination and combinatorics from external File
+    //                      2 //Contamination from true MC, combinatorics from data
+    //                      3 //Contamination from true MC, combinatorics from MC
+    //                      4 //Contamination from true MC, combinatorics from true MC
+
     fCutSelection               = cutSelection;
     TString fCutSelectionRead   = cutSelection;
 
@@ -715,6 +726,12 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             if (hist_bck_TrueContamination){ProjectHistogramInPtBins(hist_bck_TrueContamination, fHistoMapping_bck_TrueContamination);}
             if (hist_bck_TrueCombinatorical){ProjectHistogramInPtBins(hist_bck_TrueCombinatorical, fHistoMapping_bck_TrueCombinatorical);}
         }
+    }
+
+    if (useMCBck>=1){
+        cout<<"useMCBck == "<<useMCBck<<" -> ContaminationBackHistMode Turned on; fileMC: "<<fileMC.Data()<<endl;
+    } else {
+        cout<<"useMCBck == "<<useMCBck<<" -> No Contamination histogram is used; Standard analysis performed"<<endl;
     }
 
 
