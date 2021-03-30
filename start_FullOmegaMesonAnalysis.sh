@@ -748,7 +748,7 @@ if [ $ONLYRESULTS = 0 ] ; then
             if [ $ONLYCORRECTION -eq 0 ]; then
                 echo "CutSelection is $cutSelection";
                 ContaminationBackFile="none"
-                if [ $ContaminationBackHistMode -gt 0 ]&&[$MCFILE -eq 1]; then
+                if [ $ContaminationBackHistMode -gt 0 ]&&[ $MCFILE -eq 1 ]; then
                     echo "Contamination Mode activated, ContaminationBackHistMode: $ContaminationBackHistMode "
                     ContaminationBackFile=$MCRootFile
                 fi
