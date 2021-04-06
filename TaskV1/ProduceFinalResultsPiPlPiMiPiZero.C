@@ -154,7 +154,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     if (optionEnergy.CompareTo("13TeV")==0){
         doLinesStatErr              = kTRUE;
         if (debugLevel==0){
-            debugLevel              = 1;
+            debugLevel              = 2;
         }
     }
 
@@ -1136,6 +1136,13 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                 maxTriggRejectLin = 1005;
             }else if (mode == 5){
                 maxTriggRejectLin = 10000;
+            } else if ( mode == 60 ||   //PCM
+                        mode == 61 ||   //PCM-EMCAL
+                        mode == 62 ||   //PCM-PHOS
+                        mode == 64 ||   //EMCAL
+                        mode == 65)     //PHOS
+            {
+                maxTriggRejectLin = 700;
             }
         } else if( optionEnergy.CompareTo("pPb_8TeV")==0 ){
             if (mode == 2 || mode == 4 || mode == 10 )
@@ -3958,8 +3965,13 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     // TF1* fitInvYieldOmega = FitObject("tcm","fitInvYieldOmega","Omega",graphCorrectedYieldWeightedAverageOmegaStat,minPtGlobalOmega,maxPtGlobalOmega,paramTCM,"QNRMEX0+");
  
     // Tsallis fit
+    TString TsallisFitOptions               = "QNRME+";
+    if (optionEnergy.CompareTo("13TeV")==0){
+        TsallisFitOptions                       = "QNRMEX0+";
+    }
+    if (debugLevel >= 1 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<< "; Tsallis fit" << "; minPtGlobalOmega: " << minPtGlobalOmega << "; maxPtGlobalOmega: " << maxPtGlobalOmega << "; TsallisFitOptions: " << TsallisFitOptions.Data() << endl;}
     Double_t paramGraph[3]                  = {1000, 8., 0.13};
-    TF1* fitInvYieldOmega                     = FitObject("l","fitInvYieldOmega","Omega",graphCorrectedYieldWeightedAverageOmegaStat,minPtGlobalOmega,maxPtGlobalOmega,paramGraph,"QNRME+");
+    TF1* fitInvYieldOmega                     = FitObject("l","fitInvYieldOmega","Omega",graphCorrectedYieldWeightedAverageOmegaStat,minPtGlobalOmega,maxPtGlobalOmega,paramGraph, TsallisFitOptions.Data());
 
     DrawGammaSetMarkerTGraphAsym(graphCorrectedYieldWeightedAverageOmegaSys, 24, 2, kGray+1 , kGray+1, 1, kTRUE);
     graphCorrectedYieldWeightedAverageOmegaSys->Draw("p,E2,same");
@@ -4045,7 +4057,10 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     canvasRatioSpec->SetLogy(0);
 
     TH2F * histo2DRatioToFitOmega;
-    histo2DRatioToFitOmega = new TH2F("histo2DRatioToFitOmega","histo2DRatioToFitOmega",1000,0., maxPtGlobalOmega,1000,0.55, 1.85);
+    Double_t minYValue_histo2DRatioToFitOmega=0.55;
+    Double_t maxYValue_histo2DRatioToFitOmega=1.85;
+    minYValue_histo2DRatioToFitOmega=-0.1;
+    histo2DRatioToFitOmega = new TH2F("histo2DRatioToFitOmega","histo2DRatioToFitOmega",1000,0., maxPtGlobalOmega,1000,minYValue_histo2DRatioToFitOmega, maxYValue_histo2DRatioToFitOmega);
     SetStyleHistoTH2ForGraphs(histo2DRatioToFitOmega, "#it{p}_{T} (GeV/#it{c})","Data/Fit",
                             0.85*textSizeSpectra,textSizeSpectra, 0.85*textSizeSpectra,textSizeSpectra, 0.85,1.2);
     histo2DRatioToFitOmega->DrawCopy();
@@ -4055,7 +4070,9 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
     TLegend* legendRatioSpecOmega = GetAndSetLegend2(0.12, 0.95-(1.05*nrOfTrigToBeCombOmegaRed/2*0.85*textSizeSpectra), 0.5, 0.95,28);
     legendRatioSpecOmega->SetNColumns(2);
     for (Int_t i = 0; i< nrOfTrigToBeComb; i++){
+        if (debugLevel >= 2 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<"; i(nrOfTrigToBeComb): "<<i<<"("<<nrOfTrigToBeComb<<")"<<endl;}
         if (graphsCorrectedYieldSysRemoved0Omega[i] && !maskedFullyOmega[i]){
+          if (debugLevel >= 2 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line: "<<__LINE__<<"graphsCorrectedYieldSysRemoved0Omega&&!maskedFullyOmega"<<endl;}
           histoCorrectedYieldToFitOmega[i] = CalculateHistoRatioToFit (histoCorrectedYieldOmegaScaled[i], fitInvYieldOmega);
           DrawGammaSetMarker(histoCorrectedYieldToFitOmega[i], markerTrigg[i], sizeTrigg[i], colorTrigg[i], colorTrigg[i]);
           legendRatioSpecOmega->AddEntry(histoCorrectedYieldToFitOmega[i],triggerNameLabel[i].Data(),"p");
@@ -4069,6 +4086,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
         DrawGammaLines(0., maxPtGlobalOmega , 0.9, 0.9,1, kGray, 7);
 
         if (graphsCorrectedYieldSysRemoved0Omega[i]){
+          if (debugLevel >= 2 ){cout<<"Debug Output, ProduceFinalResultsPiPlPiMiPiZero.C, Line:"<<__LINE__<<"graphsCorrectedYieldSysRemoved0Omega[i]->DrawCopy(\"e1,same\")"<<endl;}
           histoCorrectedYieldToFitOmega[i]->DrawCopy("e1,same");
         }
     }
