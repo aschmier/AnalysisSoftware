@@ -2471,7 +2471,7 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
         )
         scaleTrueEffiWithFit        = kFALSE;
     if (mode == 5 && ( optionEnergy.Contains("5TeV2017") || optionEnergy.Contains("PbPb_5.02TeV") )){scaleTrueEffiWithFit        = kTRUE;}
-    if (mode == 5 && ( optionEnergy.Contains("13TeV")  )){scaleTrueEffiWithFit        = kTRUE;}
+    //if (mode == 5 && ( optionEnergy.Contains("13TeV")  )){scaleTrueEffiWithFit        = kTRUE;}
     if ( ( mode == 4 || mode == 2 || mode == 3 ) && optionEnergy.CompareTo("pPb_5.023TeV") == 0 && centralityString.CompareTo("0-100%") != 0 && nameMeson.CompareTo("Eta") == 0){
         scaleTrueEffiWithFit        = kFALSE;
     }
@@ -2658,7 +2658,8 @@ void  CorrectSignalV2(  TString fileNameUnCorrectedFile = "myOutput",
                   (mode==5 && (optionEnergy.Contains("5TeV2017")||optionEnergy.Contains("PbPb_5.02TeV") ))||
                   (mode==5 && (optionEnergy.Contains("13TeV") ))){
                     if ( (mode==5 && (optionEnergy.Contains("13TeV") ))&&kIsEta ){
-                        histoTrueEffiPt[k]->Scale(0.94);
+                        histoTrueEffiPt[k]->Multiply(histoTrueEffiPt[k],histoRatioEffWOWeightingEffCFPol0[k]);
+                        //histoTrueEffiPt[k]->Scale(0.94);
                     } else {
                         histoTrueEffiPt[k]->Multiply(histoTrueEffiPt[k],histoRatioEffWOWeightingEffCFPol0[k]);
                     }

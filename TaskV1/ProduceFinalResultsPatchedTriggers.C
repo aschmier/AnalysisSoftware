@@ -267,11 +267,15 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             nameEfficiency                              = "TrueMesonEffiPt";
         }
         if(optionEnergy.Contains("13TeV") ){
-            //nameCorrectedYield                          = "CorrectedYieldNormEff"; //if rec. effi is used
-            nameCorrectedYield                          = "CorrectedYieldTrueEff"; //if scaling of true eff. is used
+            nameCorrectedYield                          = "CorrectedYieldNormEff"; //if rec. effi is used
             nameEfficiency                              = "MesonEffiPt";
             nameMassMC                                  = "histoMassMesonRecMC";
             nameWidthMC                                 = "histoFWHMMesonRecMC";
+
+            //nameCorrectedYield                          = "CorrectedYieldTrueEff"; //if scaling of true eff. is used
+            //nameEfficiency                              = "TrueMesonEffiPt";
+            //nameMassMC                                  = "histoTrueMassMeson";
+            //nameWidthMC                                 = "histoTrueFWHMMeson";
         }
     } else if (mode == 2 && optionEnergy.BeginsWith("13TeV") ){
         // cout << "using TRUE quantities for PCM-EMC/PCM-PHOS" << endl;
