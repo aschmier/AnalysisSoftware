@@ -1188,12 +1188,24 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fHistoMappingGGInvMassPtBin[iPt]->Dump();
         }
         if (useMCBck<=1){
-            if(fHistoMappingGGInvMassPtBin[iPt])
+            if(fHistoMappingGGInvMassPtBin[iPt]){
                 ProcessBckFitSubtraction(fHistoMappingGGInvMassPtBin[iPt],iPt,fPeakRange,fFitRange,optionEnergy,Suffix,cutSelection,meson,0);
-            if(fHistoMappingGGInvMassPtBin_SubPiZero[iPt])
+                for (Int_t k=0; k<1; k++){
+                    fHistoMappingBackNormInvMassPtBinBackFit[k][iPt]=fHistoMappingGGInvMassBackFitWithoutSignalPtBin[iPt];
+                }
+            }
+            if(fHistoMappingGGInvMassPtBin_SubPiZero[iPt]){
                 ProcessBckFitSubtraction(fHistoMappingGGInvMassPtBin_SubPiZero[iPt],iPt,fPeakRange_SubPiZero,fFitRange_SubPiZero,optionEnergy,Suffix,cutSelection,meson,1);
-            if(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt])
+                for (Int_t k=0; k<1; k++){
+                    fHistoMappingBackNormInvMassPtBinBackFit_SubPiZero[k][iPt]=fHistoMappingGGInvMassBackFitWithoutSignalPtBin[iPt];
+                }
+            }
+            if(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt]){
                 ProcessBckFitSubtraction(fHistoMappingGGInvMassPtBin_FixedPzPiZero[iPt],iPt,fPeakRange_FixedPzPiZero,fFitRange_FixedPzPiZero,optionEnergy,Suffix,cutSelection,meson,2);
+                for (Int_t k=0; k<1; k++){
+                    fHistoMappingBackNormInvMassPtBinBackFit_FixedPzPiZero[k][iPt]=fHistoMappingGGInvMassBackFitWithoutSignalPtBin[iPt];
+                }
+            }
 
             if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<endl;}
         } else {
@@ -2052,6 +2064,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             }
         }
 
+        if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Set Yields To Variables"<<endl;}
         for (Int_t k = 0; k < 3; k++){
 
             if(fHistoMappingGGInvMassPtBin[iPt]) {
@@ -2113,7 +2126,47 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
               fBckYieldsError_FixedPzPiZero[k][iPt]         = 0.;
             }
 
+            if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Set Yields To Variables for BackFit"<<endl;}
             if (k < 3){ // backfitting doesnt have 6 cases (left doesnt make sense for fitting)
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Set Background Yields To Variables for BackFit"<<endl;}
+                // Integrate the bck histo backfit
+                if(fHistoMappingBackNormInvMassPtBinBackFit[0][iPt]) {
+                    if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; fHistoMappingBackNormInvMassPtBinBackFit"<<endl;}
+                    IntegrateHistoInvMass( fHistoMappingBackNormInvMassPtBinBackFit[0][iPt], fMesonCurIntRange[k]); // 0 because of tot back
+                    fBckYieldsBackFit[k][iPt]              = fYields;
+                    fBckYieldsBackFitError[k][iPt]         = fYieldsError;
+                } else {
+                    if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; fHistoMappingBackNormInvMassPtBinBackFit else case"<<endl;}
+                    fBckYieldsBackFit[k][iPt]              = 0.;
+                    fBckYieldsBackFitError[k][iPt]         = 0.;
+                }
+
+                // Integrate the bck histo with InvMass pi0 subtracted backfit
+                if(  fHistoMappingBackNormInvMassPtBinBackFit_SubPiZero[0][iPt] != NULL){
+                    if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; fHistoMappingBackNormInvMassPtBinBackFit_SubPiZero"<<endl;}
+                    IntegrateHistoInvMass( fHistoMappingBackNormInvMassPtBinBackFit_SubPiZero[0][iPt], fMesonCurIntRange_SubPiZero[k]);
+                    fBckYieldsBackFit_SubPiZero[k][iPt]              = fYields;
+                    fBckYieldsBackFitError_SubPiZero[k][iPt]         = fYieldsError;
+                } else{
+                    if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; fHistoMappingBackNormInvMassPtBinBackFit_SubPiZero else case"<<endl;}
+                    fBckYieldsBackFit_SubPiZero[k][iPt]              = 0.;
+                    fBckYieldsBackFitError_SubPiZero[k][iPt]         = 0.;
+                }
+
+                // Integrate the bck histo with Pz of pi0 fixed backfit
+                if(fHistoMappingBackNormInvMassPtBinBackFit_FixedPzPiZero[0][iPt] != NULL){
+                    if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; fHistoMappingBackNormInvMassPtBinBackFit_FixedPzPiZero"<<endl;}
+                    IntegrateHistoInvMass( fHistoMappingBackNormInvMassPtBinBackFit_FixedPzPiZero[0][iPt], fMesonCurIntRange_FixedPzPiZero[k]);
+                    fBckYieldsBackFit_FixedPzPiZero[k][iPt]              = fYields;
+                    fBckYieldsBackFitError_FixedPzPiZero[k][iPt]         = fYieldsError;
+                } else {
+                    if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; fHistoMappingBackNormInvMassPtBinBackFit_FixedPzPiZero else case"<<endl;}
+                    fBckYieldsBackFit_FixedPzPiZero[k][iPt]              = 0.;
+                    fBckYieldsBackFitError_FixedPzPiZero[k][iPt]         = 0.;
+                }
+
+
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Set Signal Yields To Variables for BackFit"<<endl;}
                 // Integrate the Backfit histo
                 if(fHistoMappingGGInvMassBackFitPtBin[iPt]){
                     fFileDataLog<< endl <<"BackFit histo "<< nameIntRange[k].Data() << ":\t" << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << endl;
@@ -2172,6 +2225,8 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     fMesonYieldsBackFitError_FixedPzPiZero[k][iPt] = 0.;
                 }
             }
+
+            if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Set Yields To Variables for BackFit ended"<<endl;}
 
             // Integrate the signal histo
             if(fHistoMappingSignalInvMassPtBin[iPt]){
@@ -2646,6 +2701,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                         << fTotalBckYields_FixedPzPiZero[k][iPt] << "\t +- \t" << fTotalBckYieldsError_FixedPzPiZero[k][iPt] << endl<< endl;
             fFileDataLog << "Background (Pi0 pz fixed)" << nameIntRange[k].Data() << " in iPt " << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << ":\t"
                         << fBckYields_FixedPzPiZero[k][iPt] << "\t +- \t" << fBckYieldsError_FixedPzPiZero[k][iPt] << endl<< endl;
+
+            fTotalBckYieldsBackFit[k][iPt]                         = fBckYieldsBackFit[k][iPt] + fMesonYieldsResidualBckFuncBackFit[iPt];
+            fTotalBckYieldsBackFit_SubPiZero[k][iPt]               = fBckYieldsBackFit_SubPiZero[k][iPt] + fMesonYieldsResidualBckFuncBackFit_SubPiZero[iPt];
+            fTotalBckYieldsBackFit_FixedPzPiZero[k][iPt]           = fBckYieldsBackFit_FixedPzPiZero[k][iPt] + fMesonYieldsResidualBckFuncBackFit_FixedPzPiZero[iPt];
+            fTotalBckYieldsBackFitError[k][iPt]                    = TMath::Power(fBckYieldsBackFitError[k][iPt]*fBckYieldsBackFitError[k][iPt] + fMesonYieldsResidualBckFuncBackFitError[iPt]*fMesonYieldsResidualBckFuncBackFitError[iPt],0.5);
+            fTotalBckYieldsBackFitError_SubPiZero[k][iPt]          = TMath::Power(fBckYieldsBackFitError_SubPiZero[k][iPt]*fBckYieldsBackFitError_SubPiZero[k][iPt] + fMesonYieldsResidualBckFuncBackFitError_SubPiZero[iPt]*fMesonYieldsResidualBckFuncBackFitError_SubPiZero[iPt],0.5);
+            fTotalBckYieldsBackFitError_FixedPzPiZero[k][iPt]     = TMath::Power(fBckYieldsBackFitError_FixedPzPiZero[k][iPt]*fBckYieldsBackFitError_FixedPzPiZero[k][iPt] + fMesonYieldsResidualBckFuncBackFitError_FixedPzPiZero[iPt]*fMesonYieldsResidualBckFuncBackFitError_FixedPzPiZero[iPt],0.5);
             if (k<3){
                 fMesonYieldsCorResidualBckFunc[k][iPt]          = fMesonYields[k][iPt]- fMesonYieldsResidualBckFunc[k][iPt];
                 fMesonYieldsCorResidualBckFuncError[k][iPt]     = TMath::Power(( fMesonYieldsError[k][iPt]*fMesonYieldsError[k][iPt] +
@@ -2700,6 +2762,10 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 fMesonYieldsBackFitFromFitPerEvent_SubPiZero[iPt]                    = fMesonYieldsBackFitFromFit_SubPiZero[iPt]/fNEvents;
                 fMesonYieldsBackFitFromFitPerEventError_SubPiZero[iPt]               = fMesonYieldsBackFitFromFitError_SubPiZero[iPt]/fNEvents;
 
+                //----------------------------------------------------
+                //Signal to Background Ratios
+                //----------------------------------------------------
+
                 //SB default
                 if (fTotalBckYields[k][iPt] != 0){
                     fMesonSBdefault[k][iPt]                     = fMesonYieldsCorResidualBckFunc[k][iPt]/fTotalBckYields[k][iPt];
@@ -2730,6 +2796,41 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     fMesonSBdefaultError_FixedPzPiZero[k][iPt]    = 0.;
                 }
 
+                //----------------------------------------------------
+                //BackFit
+                //SB default BackFit
+                if (fTotalBckYieldsBackFit[k][iPt] != 0){
+                    fMesonSBdefaultBackFit[k][iPt]                     = fMesonYieldsCorResidualBckFuncBackFit[k][iPt]/fTotalBckYieldsBackFit[k][iPt];
+                    fMesonSBdefaultBackFitError[k][iPt]                = TMath::Power( TMath::Power(fMesonYieldsCorResidualBckFuncBackFitError[k][iPt]/fTotalBckYieldsBackFit[k][iPt], 2.) +
+                                                                                       TMath::Power((fTotalBckYieldsBackFitError[k][iPt]*fMesonYieldsCorResidualBckFuncBackFit[k][iPt])/(fTotalBckYieldsBackFit[k][iPt] *fTotalBckYieldsBackFit[k][iPt]), 2.), 0.5);
+                } else {
+                    fMesonSBdefaultBackFit[k][iPt]         = 0.;
+                    fMesonSBdefaultBackFitError[k][iPt]    = 0.;
+                }
+
+                //SB default BackFit SubPiZero
+                if (fTotalBckYieldsBackFit_SubPiZero[k][iPt] != 0){
+                    fMesonSBdefaultBackFit_SubPiZero[k][iPt]                     = fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt]/fTotalBckYieldsBackFit_SubPiZero[k][iPt];
+                    fMesonSBdefaultBackFitError_SubPiZero[k][iPt]                = TMath::Power( TMath::Power(fMesonYieldsCorResidualBckFuncBackFitError_SubPiZero[k][iPt]/fTotalBckYieldsBackFit_SubPiZero[k][iPt], 2.) +
+                                                                                                 TMath::Power((fTotalBckYieldsBackFitError_SubPiZero[k][iPt]*fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt])/(fTotalBckYieldsBackFit_SubPiZero[k][iPt] *fTotalBckYieldsBackFit_SubPiZero[k][iPt]), 2.), 0.5);
+                } else {
+                    fMesonSBdefaultBackFit_SubPiZero[k][iPt]         = 0.;
+                    fMesonSBdefaultBackFitError_SubPiZero[k][iPt]    = 0.;
+                }
+
+                //SB default BackFit FixedPzPiZero
+                if (fTotalBckYieldsBackFit_FixedPzPiZero[k][iPt] != 0){
+                    fMesonSBdefaultBackFit_FixedPzPiZero[k][iPt]                     = fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt]/fTotalBckYieldsBackFit_FixedPzPiZero[k][iPt];
+                    fMesonSBdefaultBackFitError_FixedPzPiZero[k][iPt]                = TMath::Power( TMath::Power(fMesonYieldsCorResidualBckFuncBackFitError_FixedPzPiZero[k][iPt]/fTotalBckYieldsBackFit_FixedPzPiZero[k][iPt], 2.) +
+                                                                                                     TMath::Power((fTotalBckYieldsBackFitError_FixedPzPiZero[k][iPt]*fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt])/(fTotalBckYieldsBackFit_FixedPzPiZero[k][iPt] *fTotalBckYieldsBackFit_FixedPzPiZero[k][iPt]), 2.), 0.5);
+                } else {
+                    fMesonSBdefaultBackFit_FixedPzPiZero[k][iPt]         = 0.;
+                    fMesonSBdefaultBackFitError_FixedPzPiZero[k][iPt]    = 0.;
+                }
+
+                //----------------------------------------------------
+                //Significances
+                //----------------------------------------------------
                 //Significance default
                 if ( TMath::Power(fMesonYieldsCorResidualBckFunc[k][iPt] + fTotalBckYields[k][iPt],0.5) != 0){
                     fMesonSigndefault[k][iPt]                   = fMesonYieldsCorResidualBckFunc[k][iPt]/TMath::Power(fMesonYieldsCorResidualBckFunc[k][iPt] + fTotalBckYields[k][iPt],0.5);
@@ -2770,6 +2871,49 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                 } else {
                     fMesonSigndefault_FixedPzPiZero[k][iPt]       = 0.;
                     fMesonSigndefaultError_FixedPzPiZero[k][iPt]  = 0.;
+                }
+
+                //----------------------------------------------------
+                //BackFit
+                if ( TMath::Power(fMesonYieldsCorResidualBckFuncBackFit[k][iPt] + fTotalBckYields[k][iPt],0.5) != 0){
+                    fMesonSigndefaultBackFit[k][iPt]                   = fMesonYieldsCorResidualBckFuncBackFit[k][iPt]/TMath::Power(fMesonYieldsCorResidualBckFuncBackFit[k][iPt] + fTotalBckYields[k][iPt],0.5);
+                    Double_t a                                  = ( TMath::Power(fMesonYieldsCorResidualBckFuncBackFit[k][iPt] + fTotalBckYields[k][iPt], -0.5) -
+                                                                    0.5*fMesonYieldsCorResidualBckFuncBackFit[k][iPt]*TMath::Power(fMesonYieldsCorResidualBckFuncBackFit[k][iPt] +
+                                                                    fTotalBckYields[k][iPt], -1.5) * fMesonYieldsCorResidualBckFuncBackFitError[k][iPt]);
+                    Double_t b                                  = 0.5*fMesonYieldsCorResidualBckFuncBackFit[k][iPt]*TMath::Power(fMesonYieldsCorResidualBckFuncBackFit[k][iPt]
+                                                                  + fTotalBckYields[k][iPt],-1.5) * fTotalBckYieldsError[k][iPt];
+                    fMesonSigndefaultBackFitError[k][iPt]              = TMath::Power( a*a + b*b, 0.5);
+                } else {
+                    fMesonSigndefaultBackFit[k][iPt]       = 0.;
+                    fMesonSigndefaultBackFitError[k][iPt]  = 0.;
+                }
+
+                //Significance default SubPiZero
+                if ( TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt] + fTotalBckYields_SubPiZero[k][iPt],0.5) != 0){
+                    fMesonSigndefaultBackFit_SubPiZero[k][iPt]                   = fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt]/TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt] + fTotalBckYields_SubPiZero[k][iPt],0.5);
+                    Double_t a                                  = ( TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt] + fTotalBckYields_SubPiZero[k][iPt], -0.5) -
+                                                                    0.5*fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt]*TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt] +
+                                                                    fTotalBckYields_SubPiZero[k][iPt], -1.5) * fMesonYieldsCorResidualBckFuncBackFitError_SubPiZero[k][iPt]);
+                    Double_t b                                  = 0.5*fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt]*TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt]
+                                                                  + fTotalBckYields_SubPiZero[k][iPt],-1.5) * fTotalBckYieldsError_SubPiZero[k][iPt];
+                    fMesonSigndefaultBackFitError_SubPiZero[k][iPt]              = TMath::Power( a*a + b*b, 0.5);
+                } else {
+                    fMesonSigndefaultBackFit_SubPiZero[k][iPt]       = 0.;
+                    fMesonSigndefaultBackFitError_SubPiZero[k][iPt]  = 0.;
+                }
+
+                //Significance default FixedPzPiZero
+                if ( TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt] + fTotalBckYields_FixedPzPiZero[k][iPt],0.5) != 0){
+                    fMesonSigndefaultBackFit_FixedPzPiZero[k][iPt]                   = fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt]/TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt] + fTotalBckYields_FixedPzPiZero[k][iPt],0.5);
+                    Double_t a                                  = ( TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt] + fTotalBckYields_FixedPzPiZero[k][iPt], -0.5) -
+                                                                    0.5*fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt]*TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt] +
+                                                                    fTotalBckYields_FixedPzPiZero[k][iPt], -1.5) * fMesonYieldsCorResidualBckFuncBackFitError_FixedPzPiZero[k][iPt]);
+                    Double_t b                                  = 0.5*fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt]*TMath::Power(fMesonYieldsCorResidualBckFuncBackFit_FixedPzPiZero[k][iPt]
+                                                                  + fTotalBckYields_FixedPzPiZero[k][iPt],-1.5) * fTotalBckYieldsError_FixedPzPiZero[k][iPt];
+                    fMesonSigndefaultBackFitError_FixedPzPiZero[k][iPt]              = TMath::Power( a*a + b*b, 0.5);
+                } else {
+                    fMesonSigndefaultBackFit_FixedPzPiZero[k][iPt]       = 0.;
+                    fMesonSigndefaultBackFitError_FixedPzPiZero[k][iPt]  = 0.;
                 }
             }
 
@@ -5278,7 +5422,242 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     else canvasParametersBackFit_SubPiZero[NumOfBackgroundFits]->SaveAs(Form("%s/%s_data_ParametersBackFit_Par%d_%s.%s",outputDirMon_BackFit_SubPiZero_Parameters.Data(), fPrefix.Data(), NumOfBackgroundFits, fCutSelection.Data(),Suffix.Data()));
                 }
             }
+            ///*********************** Signal To Background Ratio
+            if (DoMonitoring_BackFitSignalToBG){
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background fitting without mixing: "<<" Signal To Background Ratio"<<endl;}
 
+                //Normal InvMass
+                TCanvas* canvasSBBackFit = new TCanvas("canvasSBBackFit","",1550,1200);  // gives the page size
+                canvasSBBackFit->SetTickx();
+                canvasSBBackFit->SetTicky();
+                DrawGammaSetMarker(fHistoSBdefaultMesonBackFit[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSBdefaultMesonBackFit[0],
+                                          "", "p_{T} (GeV/c)", "Signal to Background Ratio",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                canvasSBBackFit->Update();
+                TLegend* legendSBBackFit = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSBBackFit->AddEntry(fHistoSBdefaultMesonBackFit[0],Form("SB parameter for %s",fPrefix.Data()),"p");
+                legendSBBackFit->Draw();
+
+                if (fIsMC) canvasSBBackFit->SaveAs(Form("%s/%s_MC_SB_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSBBackFit->SaveAs(Form("%s/%s_data_SB_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //FixedPzPiZero
+                TCanvas* canvasSBBackFit_FixedPzPiZero = new TCanvas("canvasSBBackFit_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasSBBackFit_FixedPzPiZero->SetTickx();
+                canvasSBBackFit_FixedPzPiZero->SetTicky();
+                DrawGammaSetMarker(fHistoSBdefaultMesonBackFit_FixedPzPiZero[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSBdefaultMesonBackFit_FixedPzPiZero[0],
+                                          "", "p_{T} (GeV/c)", "Signal to Background Ratio",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                canvasSBBackFit_FixedPzPiZero->Update();
+                TLegend* legendSBBackFit_FixedPzPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSBBackFit_FixedPzPiZero->AddEntry(fHistoSBdefaultMesonBackFit_FixedPzPiZero[0],Form("SB parameter for %s",fPrefix.Data()),"p");
+                legendSBBackFit_FixedPzPiZero->Draw();
+
+                if (fIsMC) canvasSBBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_SB_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSBBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_data_SB_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //SubPiZero
+                TCanvas* canvasSBBackFit_SubPiZero = new TCanvas("canvasSBBackFit_SubPiZero","",1550,1200);  // gives the page size
+                canvasSBBackFit_SubPiZero->SetTickx();
+                canvasSBBackFit_SubPiZero->SetTicky();
+                DrawGammaSetMarker(fHistoSBdefaultMesonBackFit_SubPiZero[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSBdefaultMesonBackFit_SubPiZero[0],
+                                          "", "p_{T} (GeV/c)", "Signal to Background Ratio",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                canvasSBBackFit_SubPiZero->Update();
+                TLegend* legendSBBackFit_SubPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSBBackFit_SubPiZero->AddEntry(fHistoSBdefaultMesonBackFit_SubPiZero[0],Form("SB parameter for %s",fPrefix.Data()),"p");
+                legendSBBackFit_SubPiZero->Draw();
+
+                if (fIsMC) canvasSBBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_SB_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSBBackFit_SubPiZero->SaveAs(Form("%s/%s_data_SB_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                //-----------------------------------------------------------
+                //LogScale
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background fitting without mixing: "<<" Signal To Background Ratio Log Scale"<<endl;}
+
+                //Normal InvMass
+                TCanvas* canvasSBBackFitLog = new TCanvas("canvasSBBackFit","",1550,1200);  // gives the page size
+                canvasSBBackFitLog->SetTickx();
+                canvasSBBackFitLog->SetTicky();
+                canvasSBBackFitLog->SetLogy();
+                DrawGammaSetMarker(fHistoSBdefaultMesonBackFit[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSBdefaultMesonBackFit[0],
+                        "", "p_{T} (GeV/c)", "Signal to Background Ratio",
+                        kFALSE, 3.,0.,  kTRUE,
+                        kFALSE, 0., 0.,
+                        kFALSE, 0., 10.);
+                canvasSBBackFitLog->Update();
+                TLegend* legendSBBackFitLog = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSBBackFitLog->AddEntry(fHistoSBdefaultMesonBackFit[0],Form("SB parameter for %s",fPrefix.Data()),"p");
+                legendSBBackFitLog->Draw();
+
+                if (fIsMC) canvasSBBackFitLog->SaveAs(Form("%s/%s_MC_SB_Log_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSBBackFitLog->SaveAs(Form("%s/%s_data_SB_Log_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //FixedPzPiZero
+                TCanvas* canvasSBBackFitLog_FixedPzPiZero = new TCanvas("canvasSBBackFitLog_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasSBBackFitLog_FixedPzPiZero->SetTickx();
+                canvasSBBackFitLog_FixedPzPiZero->SetTicky();
+                canvasSBBackFitLog_FixedPzPiZero->SetLogy();
+                DrawGammaSetMarker(fHistoSBdefaultMesonBackFit_FixedPzPiZero[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSBdefaultMesonBackFit_FixedPzPiZero[0],
+                        "", "p_{T} (GeV/c)", "Signal to Background Ratio",
+                        kFALSE, 3.,0.,  kTRUE,
+                        kFALSE, 0., 0.,
+                        kFALSE, 0., 10.);
+                canvasSBBackFitLog_FixedPzPiZero->Update();
+                TLegend* legendSBBackFitLog_FixedPzPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSBBackFitLog_FixedPzPiZero->AddEntry(fHistoSBdefaultMesonBackFit_FixedPzPiZero[0],Form("SB parameter for %s",fPrefix.Data()),"p");
+                legendSBBackFitLog_FixedPzPiZero->Draw();
+
+                if (fIsMC) canvasSBBackFitLog_FixedPzPiZero->SaveAs(Form("%s/%s_MC_SB_Log_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSBBackFitLog_FixedPzPiZero->SaveAs(Form("%s/%s_data_SB_Log_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //SubPiZero
+                TCanvas* canvasSBBackFitLog_SubPiZero = new TCanvas("canvasSBBackFitLog_SubPiZero","",1550,1200);  // gives the page size
+                canvasSBBackFitLog_SubPiZero->SetTickx();
+                canvasSBBackFitLog_SubPiZero->SetTicky();
+                canvasSBBackFitLog_SubPiZero->SetLogy();
+                DrawGammaSetMarker(fHistoSBdefaultMesonBackFit_SubPiZero[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSBdefaultMesonBackFit_SubPiZero[0],
+                        "", "p_{T} (GeV/c)", "Signal to Background Ratio",
+                        kFALSE, 3.,0.,  kTRUE,
+                        kFALSE, 0., 0.,
+                        kFALSE, 0., 10.);
+                canvasSBBackFitLog_SubPiZero->Update();
+                TLegend* legendSBBackFitLog_SubPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSBBackFitLog_SubPiZero->AddEntry(fHistoSBdefaultMesonBackFit_SubPiZero[0],Form("SB parameter for %s",fPrefix.Data()),"p");
+                legendSBBackFit_SubPiZero->Draw();
+
+                if (fIsMC) canvasSBBackFitLog_SubPiZero->SaveAs(Form("%s/%s_MC_SB_Log_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSBBackFitLog_SubPiZero->SaveAs(Form("%s/%s_data_SB_Log_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+            }
+            ///*********************** Significance
+            if (DoMonitoring_BackFitSignificance){
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background fitting without mixing: "<<" Significance"<<endl;}
+
+                //Normal InvMass
+                TCanvas* canvasSigndefaultBackFit = new TCanvas("canvasSigndefaultBackFit","",1550,1200);  // gives the page size
+                canvasSigndefaultBackFit->SetTickx();
+                canvasSigndefaultBackFit->SetTicky();
+                DrawGammaSetMarker(fHistoSigndefaultMesonBackFit[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSigndefaultMesonBackFit[0],
+                                          "", "p_{T} (GeV/c)", "Significance",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                canvasSigndefaultBackFit->Update();
+                TLegend* legendSigndefaultBackFit = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSigndefaultBackFit->AddEntry(fHistoSigndefaultMesonBackFit[0],Form("Significance parameter for %s",fPrefix.Data()),"p");
+                legendSigndefaultBackFit->Draw();
+
+                if (fIsMC) canvasSigndefaultBackFit->SaveAs(Form("%s/%s_MC_Significance_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSigndefaultBackFit->SaveAs(Form("%s/%s_data_Significance_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //FixedPzPiZero
+                TCanvas* canvasSigndefaultBackFit_FixedPzPiZero = new TCanvas("canvasSigndefaultBackFit_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasSigndefaultBackFit_FixedPzPiZero->SetTickx();
+                canvasSigndefaultBackFit_FixedPzPiZero->SetTicky();
+                DrawGammaSetMarker(fHistoSigndefaultMesonBackFit_FixedPzPiZero[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSigndefaultMesonBackFit_FixedPzPiZero[0],
+                                          "", "p_{T} (GeV/c)", "Significance",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                canvasSigndefaultBackFit_FixedPzPiZero->Update();
+                TLegend* legendSigndefaultBackFit_FixedPzPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSigndefaultBackFit_FixedPzPiZero->AddEntry(fHistoSigndefaultMesonBackFit_FixedPzPiZero[0],Form("Significance parameter for %s",fPrefix.Data()),"p");
+                legendSigndefaultBackFit_FixedPzPiZero->Draw();
+
+                if (fIsMC) canvasSigndefaultBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_Significance_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSigndefaultBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_data_Significance_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //SubPiZero
+                TCanvas* canvasSigndefaultBackFit_SubPiZero = new TCanvas("canvasSigndefaultBackFit_SubPiZero","",1550,1200);  // gives the page size
+                canvasSigndefaultBackFit_SubPiZero->SetTickx();
+                canvasSigndefaultBackFit_SubPiZero->SetTicky();
+                DrawGammaSetMarker(fHistoSigndefaultMesonBackFit_SubPiZero[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSigndefaultMesonBackFit_SubPiZero[0],
+                                          "", "p_{T} (GeV/c)", "Significance",
+                                          kFALSE, 3.,0.,  kTRUE,
+                                          kFALSE, 0., 0.,
+                                          kFALSE, 0., 10.);
+                canvasSigndefaultBackFit_SubPiZero->Update();
+                TLegend* legendSigndefaultBackFit_SubPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSigndefaultBackFit_SubPiZero->AddEntry(fHistoSigndefaultMesonBackFit_SubPiZero[0],Form("Significance parameter for %s",fPrefix.Data()),"p");
+                legendSigndefaultBackFit_SubPiZero->Draw();
+
+                if (fIsMC) canvasSigndefaultBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_Significance_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSigndefaultBackFit_SubPiZero->SaveAs(Form("%s/%s_data_Significance_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                //-----------------------------------------------------------
+                //LogScale
+                if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting monitoring: Background fitting without mixing: "<<" Significance Log Scale"<<endl;}
+
+                //Normal InvMass
+                TCanvas* canvasSigndefaultBackFitLog = new TCanvas("canvasSigndefaultBackFitLog","",1550,1200);  // gives the page size
+                canvasSigndefaultBackFitLog->SetTickx();
+                canvasSigndefaultBackFitLog->SetTicky();
+                canvasSigndefaultBackFitLog->SetLogy();
+                DrawGammaSetMarker(fHistoSigndefaultMesonBackFit[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSigndefaultMesonBackFit[0],
+                        "", "p_{T} (GeV/c)", "Significance",
+                        kFALSE, 3.,0.,  kTRUE,
+                        kFALSE, 0., 0.,
+                        kFALSE, 0., 10.);
+                canvasSigndefaultBackFitLog->Update();
+                TLegend* legendSigndefaultBackFitLog = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSigndefaultBackFitLog->AddEntry(fHistoSigndefaultMesonBackFit[0],Form("Significance parameter for %s",fPrefix.Data()),"p");
+                legendSigndefaultBackFitLog->Draw();
+
+                if (fIsMC) canvasSigndefaultBackFitLog->SaveAs(Form("%s/%s_MC_Significance_Log_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSigndefaultBackFitLog->SaveAs(Form("%s/%s_data_Significance_Log_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //FixedPzPiZero
+                TCanvas* canvasSigndefaultBackFitLog_FixedPzPiZero = new TCanvas("canvasSigndefaultBackFitLog_FixedPzPiZero","",1550,1200);  // gives the page size
+                canvasSigndefaultBackFitLog_FixedPzPiZero->SetTickx();
+                canvasSigndefaultBackFitLog_FixedPzPiZero->SetTicky();
+                canvasSigndefaultBackFitLog_FixedPzPiZero->SetLogy();
+                DrawGammaSetMarker(fHistoSigndefaultMesonBackFit_FixedPzPiZero[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSigndefaultMesonBackFit_FixedPzPiZero[0],
+                        "", "p_{T} (GeV/c)", "Significance",
+                        kFALSE, 3.,0.,  kTRUE,
+                        kFALSE, 0., 0.,
+                        kFALSE, 0., 10.);
+                canvasSigndefaultBackFitLog_FixedPzPiZero->Update();
+                TLegend* legendSigndefaultBackFitLog_FixedPzPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSigndefaultBackFitLog_FixedPzPiZero->AddEntry(fHistoSigndefaultMesonBackFit_FixedPzPiZero[0],Form("Significance parameter for %s",fPrefix.Data()),"p");
+                legendSigndefaultBackFitLog_FixedPzPiZero->Draw();
+
+                if (fIsMC) canvasSigndefaultBackFitLog_FixedPzPiZero->SaveAs(Form("%s/%s_MC_Significance_Log_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSigndefaultBackFitLog_FixedPzPiZero->SaveAs(Form("%s/%s_data_Significance_Log_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+
+                //SubPiZero
+                TCanvas* canvasSigndefaultBackFitLog_SubPiZero = new TCanvas("canvasSigndefaultBackFitLog_SubPiZero","",1550,1200);  // gives the page size
+                canvasSigndefaultBackFitLog_SubPiZero->SetTickx();
+                canvasSigndefaultBackFitLog_SubPiZero->SetTicky();
+                canvasSigndefaultBackFitLog_SubPiZero->SetLogy();
+                DrawGammaSetMarker(fHistoSigndefaultMesonBackFit_SubPiZero[0], 20, 1., kBlack, kBlack);
+                DrawAutoGammaMesonHistos( fHistoSigndefaultMesonBackFit_SubPiZero[0],
+                        "", "p_{T} (GeV/c)", "Significance",
+                        kFALSE, 3.,0.,  kTRUE,
+                        kFALSE, 0., 0.,
+                        kFALSE, 0., 10.);
+                canvasSigndefaultBackFitLog_SubPiZero->Update();
+                TLegend* legendSigndefaultBackFitLog_SubPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                legendSigndefaultBackFitLog_SubPiZero->AddEntry(fHistoSigndefaultMesonBackFit_SubPiZero[0],Form("Significance parameter for %s",fPrefix.Data()),"p");
+                legendSigndefaultBackFit_SubPiZero->Draw();
+
+                if (fIsMC) canvasSigndefaultBackFitLog_SubPiZero->SaveAs(Form("%s/%s_MC_Significance_Log_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+                else canvasSigndefaultBackFitLog_SubPiZero->SaveAs(Form("%s/%s_data_Significance_Log_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
+            }
         }
     } // Plot Parameters Ended
     if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Before SaveHistos"<<endl;}
@@ -5485,17 +5864,29 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
     }
 
     // set ranges for width fitting
-    if     (fTotalBackFitMode == 3)  FitPol2Gauss->SetParLimits(5,0.005,0.030);
-    else if(fTotalBackFitMode == 2)  FitPol2Gauss->SetParLimits(4,0.005,0.030);
-    else if(fTotalBackFitMode == 6)  FitPol2Gauss->SetParLimits(6,0.005,0.030);
-    else if(fTotalBackFitMode == 8)  FitPol2Gauss->SetParLimits(6,0.005,0.030);
-    if(fIsMC){
+    if (useFitIntDeltaRange) {
+        if     (fTotalBackFitMode == 3)  FitPol2Gauss->SetParLimits(5, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
+        else if(fTotalBackFitMode == 2)  FitPol2Gauss->SetParLimits(4, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
+        else if(fTotalBackFitMode == 6)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
+        else if(fTotalBackFitMode == 8)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
+        if(fIsMC){
+            if     (fTotalBackFitMode == 3)  FitPol2Gauss->SetParLimits(5, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
+            else if(fTotalBackFitMode == 2)  FitPol2Gauss->SetParLimits(4, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
+            else if(fTotalBackFitMode == 6)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
+            else if(fTotalBackFitMode == 8)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
+        }
+    } else {
         if     (fTotalBackFitMode == 3)  FitPol2Gauss->SetParLimits(5,0.005,0.030);
         else if(fTotalBackFitMode == 2)  FitPol2Gauss->SetParLimits(4,0.005,0.030);
         else if(fTotalBackFitMode == 6)  FitPol2Gauss->SetParLimits(6,0.005,0.030);
         else if(fTotalBackFitMode == 8)  FitPol2Gauss->SetParLimits(6,0.005,0.030);
+        if(fIsMC){
+            if     (fTotalBackFitMode == 3)  FitPol2Gauss->SetParLimits(5,0.005,0.030);
+            else if(fTotalBackFitMode == 2)  FitPol2Gauss->SetParLimits(4,0.005,0.030);
+            else if(fTotalBackFitMode == 6)  FitPol2Gauss->SetParLimits(6,0.005,0.030);
+            else if(fTotalBackFitMode == 8)  FitPol2Gauss->SetParLimits(6,0.005,0.030);
+        }
     }
-
     if        (disablePar[0]==kTRUE){
          if(fTotalBackFitMode == 6 || fTotalBackFitMode == 3 || fTotalBackFitMode == 2 || fTotalBackFitMode == 8 ){
             FitPol2Gauss->FixParameter(0, 0.0);
@@ -7952,12 +8343,25 @@ void CreatePtHistos(){
         fHistoSigndefaultMeson[k]->Sumw2();
         fHistoSigndefaultMeson_SubPiZero[k]->Sumw2();
         fHistoSigndefaultMeson_FixedPzPiZero[k]->Sumw2();
+        fHistoSigndefaultMesonBackFit[k]                            = new TH1D(Form("histoSigndefaultBackFit%sMeson",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+        fHistoSigndefaultMesonBackFit_SubPiZero[k]                  = new TH1D(Form("histoSigndefaultBackFit%sMeson_SubPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+        fHistoSigndefaultMesonBackFit_FixedPzPiZero[k]              = new TH1D(Form("histoSigndefaultBackFit%sMeson_FixedPzPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+        fHistoSigndefaultMesonBackFit[k]->Sumw2();
+        fHistoSigndefaultMesonBackFit_SubPiZero[k]->Sumw2();
+        fHistoSigndefaultMesonBackFit_FixedPzPiZero[k]->Sumw2();
         fHistoSBdefaultMeson[k]                              = new TH1D(Form("histoSBdefault%sMeson",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
         fHistoSBdefaultMeson_SubPiZero[k]                    = new TH1D(Form("histoSBdefault%sMeson_SubPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
         fHistoSBdefaultMeson_FixedPzPiZero[k]                = new TH1D(Form("histoSBdefault%sMeson_FixedPzPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
         fHistoSBdefaultMeson[k]->Sumw2();
         fHistoSBdefaultMeson_SubPiZero[k]->Sumw2();
         fHistoSBdefaultMeson_FixedPzPiZero[k]->Sumw2();
+
+        fHistoSBdefaultMesonBackFit[k]                              = new TH1D(Form("histoSBdefault%sMesonBackFit",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+        fHistoSBdefaultMesonBackFit_SubPiZero[k]                    = new TH1D(Form("histoSBdefault%sMesonBackFit_SubPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+        fHistoSBdefaultMesonBackFit_FixedPzPiZero[k]                = new TH1D(Form("histoSBdefault%sMesonBackFit_FixedPzPiZero",nameIntRange[k].Data()),"",fNBinsPt,fBinsPt);
+        fHistoSBdefaultMesonBackFit[k]->Sumw2();
+        fHistoSBdefaultMesonBackFit_SubPiZero[k]->Sumw2();
+        fHistoSBdefaultMesonBackFit_FixedPzPiZero[k]->Sumw2();
     }
 
     if(fIsMC){
@@ -8394,12 +8798,28 @@ void FillPtHistos()
             fHistoSigndefaultMeson[k]->SetBinError(iPt,fMesonSigndefaultError[k][iPt-1]);
             fHistoSigndefaultMeson_SubPiZero[k]->SetBinError(iPt,fMesonSigndefaultError_SubPiZero[k][iPt-1]);
             fHistoSigndefaultMeson_FixedPzPiZero[k]->SetBinError(iPt,fMesonSigndefaultError_FixedPzPiZero[k][iPt-1]);
+
+
+            fHistoSigndefaultMesonBackFit[k]->SetBinContent(iPt,fMesonSigndefaultBackFit[k][iPt-1]);
+            fHistoSigndefaultMesonBackFit_SubPiZero[k]->SetBinContent(iPt,fMesonSigndefaultBackFit_SubPiZero[k][iPt-1]);
+            fHistoSigndefaultMesonBackFit_FixedPzPiZero[k]->SetBinContent(iPt,fMesonSigndefaultBackFit_FixedPzPiZero[k][iPt-1]);
+            fHistoSigndefaultMesonBackFit[k]->SetBinError(iPt,fMesonSigndefaultBackFitError[k][iPt-1]);
+            fHistoSigndefaultMesonBackFit_SubPiZero[k]->SetBinError(iPt,fMesonSigndefaultBackFitError_SubPiZero[k][iPt-1]);
+            fHistoSigndefaultMesonBackFit_FixedPzPiZero[k]->SetBinError(iPt,fMesonSigndefaultBackFitError_FixedPzPiZero[k][iPt-1]);
+
             fHistoSBdefaultMeson[k]->SetBinContent(iPt,fMesonSBdefault[k][iPt-1]);
             fHistoSBdefaultMeson_SubPiZero[k]->SetBinContent(iPt,fMesonSBdefault_SubPiZero[k][iPt-1]);
             fHistoSBdefaultMeson_FixedPzPiZero[k]->SetBinContent(iPt,fMesonSBdefault_FixedPzPiZero[k][iPt-1]);
             fHistoSBdefaultMeson[k]->SetBinError(iPt,fMesonSBdefaultError[k][iPt-1]);
             fHistoSBdefaultMeson_SubPiZero[k]->SetBinError(iPt,fMesonSBdefaultError_SubPiZero[k][iPt-1]);
             fHistoSBdefaultMeson_FixedPzPiZero[k]->SetBinError(iPt,fMesonSBdefaultError_FixedPzPiZero[k][iPt-1]);
+
+            fHistoSBdefaultMesonBackFit[k]->SetBinContent(iPt,fMesonSBdefaultBackFit[k][iPt-1]);
+            fHistoSBdefaultMesonBackFit_SubPiZero[k]->SetBinContent(iPt,fMesonSBdefaultBackFit_SubPiZero[k][iPt-1]);
+            fHistoSBdefaultMesonBackFit_FixedPzPiZero[k]->SetBinContent(iPt,fMesonSBdefaultBackFit_FixedPzPiZero[k][iPt-1]);
+            fHistoSBdefaultMesonBackFit[k]->SetBinError(iPt,fMesonSBdefaultBackFitError[k][iPt-1]);
+            fHistoSBdefaultMesonBackFit_SubPiZero[k]->SetBinError(iPt,fMesonSBdefaultBackFitError_SubPiZero[k][iPt-1]);
+            fHistoSBdefaultMesonBackFit_FixedPzPiZero[k]->SetBinError(iPt,fMesonSBdefaultBackFitError_FixedPzPiZero[k][iPt-1]);
 
             fHistoYieldMesonBackFit[k]->SetBinContent(iPt,fMesonYieldsCorResidualBckFuncBackFit[k][iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
             fHistoYieldMesonBackFit_SubPiZero[k]->SetBinContent(iPt,fMesonYieldsCorResidualBckFuncBackFit_SubPiZero[k][iPt-1]/(fBinsPt[iPt]-fBinsPt[iPt-1]));
@@ -9478,9 +9898,16 @@ void SaveHistos(Int_t optionMC, TString fCutID, TString fPrefix3)
         if (fHistoSigndefaultMeson[k])                fHistoSigndefaultMeson[k]->Write();
         if (fHistoSigndefaultMeson_SubPiZero[k])      fHistoSigndefaultMeson_SubPiZero[k]->Write();
         if (fHistoSigndefaultMeson_FixedPzPiZero[k])  fHistoSigndefaultMeson_FixedPzPiZero[k]->Write();
+        if (fHistoSigndefaultMesonBackFit[k])                fHistoSigndefaultMesonBackFit[k]->Write();
+        if (fHistoSigndefaultMesonBackFit_SubPiZero[k])      fHistoSigndefaultMesonBackFit_SubPiZero[k]->Write();
+        if (fHistoSigndefaultMesonBackFit_FixedPzPiZero[k])  fHistoSigndefaultMesonBackFit_FixedPzPiZero[k]->Write();
         if (fHistoSBdefaultMeson[k])                  fHistoSBdefaultMeson[k]->Write();
         if (fHistoSBdefaultMeson_SubPiZero[k])        fHistoSBdefaultMeson_SubPiZero[k]->Write();
         if (fHistoSBdefaultMeson_FixedPzPiZero[k])    fHistoSBdefaultMeson_FixedPzPiZero[k]->Write();
+
+        if (fHistoSBdefaultMesonBackFit[k])                  fHistoSBdefaultMesonBackFit[k]->Write();
+        if (fHistoSBdefaultMesonBackFit_SubPiZero[k])        fHistoSBdefaultMesonBackFit_SubPiZero[k]->Write();
+        if (fHistoSBdefaultMesonBackFit_FixedPzPiZero[k])    fHistoSBdefaultMesonBackFit_FixedPzPiZero[k]->Write();
     }
 
     if (fHistoYieldMesonBackFitFromFit)               fHistoYieldMesonBackFitFromFit->Write();
@@ -9735,6 +10162,18 @@ void SaveCorrectionHistos(TString fCutID, TString fPrefix3)
     fHistoTrueMassMesonReweighted->Write();
     fHistoTrueMassMesonReweighted_SubPiZero->Write();
     fHistoTrueMassMesonReweighted_FixedPzPiZero->Write();
+    fHistoTrueLambdaMeson->Write();
+    fHistoTrueLambdaMeson_SubPiZero->Write();
+    fHistoTrueLambdaMeson_FixedPzPiZero->Write();
+    fHistoTrueLambdaMesonReweighted->Write();
+    fHistoTrueLambdaMesonReweighted_SubPiZero->Write();
+    fHistoTrueLambdaMesonReweighted_FixedPzPiZero->Write();
+    fHistoTrueWidthMeson->Write();
+    fHistoTrueWidthMeson_SubPiZero->Write();
+    fHistoTrueWidthMeson_FixedPzPiZero->Write();
+    fHistoTrueWidthMesonReweighted->Write();
+    fHistoTrueWidthMesonReweighted_SubPiZero->Write();
+    fHistoTrueWidthMesonReweighted_FixedPzPiZero->Write();
     fHistoTrueFWHMMeson->Write();
     fHistoTrueFWHMMeson_SubPiZero->Write();
     fHistoTrueFWHMMeson_FixedPzPiZero->Write();
@@ -9812,9 +10251,15 @@ void Initialize(TString setPi0, Int_t numberOfBins){
         fBckYields[k] =                                         new Double_t[fNBinsPt];
         fBckYields_SubPiZero[k] =                               new Double_t[fNBinsPt];
         fBckYields_FixedPzPiZero[k] =                           new Double_t[fNBinsPt];
+        fBckYieldsBackFit[k] =                                  new Double_t[fNBinsPt];
+        fBckYieldsBackFit_SubPiZero[k] =                        new Double_t[fNBinsPt];
+        fBckYieldsBackFit_FixedPzPiZero[k] =                    new Double_t[fNBinsPt];
         fTotalBckYields[k] = 								    new Double_t[fNBinsPt];
         fTotalBckYields_SubPiZero[k] =						    new Double_t[fNBinsPt];
         fTotalBckYields_FixedPzPiZero[k] =					    new Double_t[fNBinsPt];
+        fTotalBckYieldsBackFit[k] = 							new Double_t[fNBinsPt];
+        fTotalBckYieldsBackFit_SubPiZero[k] =					new Double_t[fNBinsPt];
+        fTotalBckYieldsBackFit_FixedPzPiZero[k] =				new Double_t[fNBinsPt];
         fMesonYields[k] = 									    new Double_t[fNBinsPt];
         fMesonYields_SubPiZero[k] =							    new Double_t[fNBinsPt];
         fMesonYields_FixedPzPiZero[k] =						    new Double_t[fNBinsPt];
@@ -9838,6 +10283,12 @@ void Initialize(TString setPi0, Int_t numberOfBins){
         fTotalBckYieldsError[k] = 								new Double_t[fNBinsPt];
         fTotalBckYieldsError_SubPiZero[k] = 					new Double_t[fNBinsPt];
         fTotalBckYieldsError_FixedPzPiZero[k] =					new Double_t[fNBinsPt];
+        fBckYieldsBackFitError[k] = 							new Double_t[fNBinsPt];
+        fBckYieldsBackFitError_SubPiZero[k] =  					new Double_t[fNBinsPt];
+        fBckYieldsBackFitError_FixedPzPiZero[k] =				new Double_t[fNBinsPt];
+        fTotalBckYieldsBackFitError[k] = 						new Double_t[fNBinsPt];
+        fTotalBckYieldsBackFitError_SubPiZero[k] = 				new Double_t[fNBinsPt];
+        fTotalBckYieldsBackFitError_FixedPzPiZero[k] =			new Double_t[fNBinsPt];
         fMesonYieldsError[k] = 									new Double_t[fNBinsPt];
         fMesonYieldsError_SubPiZero[k] =						new Double_t[fNBinsPt];
         fMesonYieldsError_FixedPzPiZero[k] =					new Double_t[fNBinsPt];
@@ -9890,15 +10341,27 @@ void Initialize(TString setPi0, Int_t numberOfBins){
         fMesonSBdefault[k]                                           = new Double_t[fNBinsPt];
         fMesonSBdefault_SubPiZero[k]                                 = new Double_t[fNBinsPt];
         fMesonSBdefault_FixedPzPiZero[k]                             = new Double_t[fNBinsPt];
+        fMesonSBdefaultBackFit[k]                                    = new Double_t[fNBinsPt];
+        fMesonSBdefaultBackFit_SubPiZero[k]                          = new Double_t[fNBinsPt];
+        fMesonSBdefaultBackFit_FixedPzPiZero[k]                      = new Double_t[fNBinsPt];
         fMesonSigndefault[k]                                         = new Double_t[fNBinsPt];
         fMesonSigndefault_SubPiZero[k]                               = new Double_t[fNBinsPt];
         fMesonSigndefault_FixedPzPiZero[k]                           = new Double_t[fNBinsPt];
+        fMesonSigndefaultBackFit[k]                                  = new Double_t[fNBinsPt];
+        fMesonSigndefaultBackFit_SubPiZero[k]                        = new Double_t[fNBinsPt];
+        fMesonSigndefaultBackFit_FixedPzPiZero[k]                    = new Double_t[fNBinsPt];
         fMesonSBdefaultError[k]                                      = new Double_t[fNBinsPt];
         fMesonSBdefaultError_SubPiZero[k]                            = new Double_t[fNBinsPt];
         fMesonSBdefaultError_FixedPzPiZero[k]                        = new Double_t[fNBinsPt];
+        fMesonSBdefaultBackFitError[k]                               = new Double_t[fNBinsPt];
+        fMesonSBdefaultBackFitError_SubPiZero[k]                     = new Double_t[fNBinsPt];
+        fMesonSBdefaultBackFitError_FixedPzPiZero[k]                 = new Double_t[fNBinsPt];
         fMesonSigndefaultError[k]                                    = new Double_t[fNBinsPt];
         fMesonSigndefaultError_SubPiZero[k]                          = new Double_t[fNBinsPt];
         fMesonSigndefaultError_FixedPzPiZero[k]                      = new Double_t[fNBinsPt];
+        fMesonSigndefaultBackFitError[k]                             = new Double_t[fNBinsPt];
+        fMesonSigndefaultBackFitError_SubPiZero[k]                   = new Double_t[fNBinsPt];
+        fMesonSigndefaultBackFitError_FixedPzPiZero[k]               = new Double_t[fNBinsPt];
 
         fMesonCurIntRangeBackFit[k] = 								new Double_t[2];
         fMesonCurIntRangeBackFit_SubPiZero[k] = 					new Double_t[2];
@@ -10243,6 +10706,9 @@ void Initialize(TString setPi0, Int_t numberOfBins){
         fHistoMappingBackNormInvMassPtBin[k] = 					new TH1D*[fNBinsPt];
         fHistoMappingBackNormInvMassPtBin_SubPiZero[k] =		new TH1D*[fNBinsPt];
         fHistoMappingBackNormInvMassPtBin_FixedPzPiZero[k] =	new TH1D*[fNBinsPt];
+        fHistoMappingBackNormInvMassPtBinBackFit[k] = 				new TH1D*[fNBinsPt];
+        fHistoMappingBackNormInvMassPtBinBackFit_SubPiZero[k] =		new TH1D*[fNBinsPt];
+        fHistoMappingBackNormInvMassPtBinBackFit_FixedPzPiZero[k] =	new TH1D*[fNBinsPt];
         fHistoMappingBackSameNormInvMassPtBin[k] =              new TH1D*[fNBinsPt];
         fHistoMappingBackSameNormInvMassPtBin_SubPiZero[k]=     new TH1D*[fNBinsPt];
         fHistoMappingBackSameNormInvMassPtBin_FixedPzPiZero[k]= new TH1D*[fNBinsPt];
@@ -10256,6 +10722,9 @@ void Initialize(TString setPi0, Int_t numberOfBins){
             fHistoMappingBackNormInvMassPtBin[k][i] = 						NULL;
             fHistoMappingBackNormInvMassPtBin_SubPiZero[k][i] = 						NULL;
             fHistoMappingBackNormInvMassPtBin_FixedPzPiZero[k][i] = 						NULL;
+            fHistoMappingBackNormInvMassPtBinBackFit[k][i] = 						NULL;
+            fHistoMappingBackNormInvMassPtBinBackFit_SubPiZero[k][i] = 						NULL;
+            fHistoMappingBackNormInvMassPtBinBackFit_FixedPzPiZero[k][i] = 						NULL;
     //      fRatio[i] =                                                 NULL;
             fHistoMappingRatioSBInvMassPtBin[k][i] = 						NULL;
             fHistoMappingRatioSBInvMassPtBin_SubPiZero[k][i] = 						NULL;
@@ -10568,6 +11037,12 @@ void Delete(){
         if (fBckYieldsError[k])                   delete fBckYieldsError[k];
         if (fBckYieldsError_SubPiZero[k])         delete fBckYieldsError_SubPiZero[k];
         if (fBckYieldsError_FixedPzPiZero[k])     delete fBckYieldsError_FixedPzPiZero[k];
+        if (fBckYieldsBackFit[k])                        delete fBckYieldsBackFit[k];
+        if (fBckYieldsBackFit_SubPiZero[k])              delete fBckYieldsBackFit_SubPiZero[k];
+        if (fBckYieldsBackFit_FixedPzPiZero[k])          delete fBckYieldsBackFit_FixedPzPiZero[k];
+        if (fBckYieldsBackFitError[k])                   delete fBckYieldsBackFitError[k];
+        if (fBckYieldsBackFitError_SubPiZero[k])         delete fBckYieldsBackFitError_SubPiZero[k];
+        if (fBckYieldsBackFitError_FixedPzPiZero[k])     delete fBckYieldsBackFitError_FixedPzPiZero[k];
         if (fMesonYields[k])                      delete fMesonYields[k];
         if (fMesonYields_SubPiZero[k])            delete fMesonYields_SubPiZero[k];
         if (fMesonYields_FixedPzPiZero[k])        delete fMesonYields_FixedPzPiZero[k];
@@ -10724,6 +11199,9 @@ void Delete(){
         if (fHistoMappingBackNormInvMassPtBin[k]) delete fHistoMappingBackNormInvMassPtBin[k];
         if (fHistoMappingBackNormInvMassPtBin_SubPiZero[k]) delete fHistoMappingBackNormInvMassPtBin_SubPiZero[k];
         if (fHistoMappingBackNormInvMassPtBin_FixedPzPiZero[k]) delete fHistoMappingBackNormInvMassPtBin_FixedPzPiZero[k];
+        if (fHistoMappingBackNormInvMassPtBinBackFit[k]) delete fHistoMappingBackNormInvMassPtBinBackFit[k];
+        if (fHistoMappingBackNormInvMassPtBinBackFit_SubPiZero[k]) delete fHistoMappingBackNormInvMassPtBinBackFit_SubPiZero[k];
+        if (fHistoMappingBackNormInvMassPtBinBackFit_FixedPzPiZero[k]) delete fHistoMappingBackNormInvMassPtBinBackFit_FixedPzPiZero[k];
         if (fHistoMappingRatioSBInvMassPtBin[k]) delete fHistoMappingRatioSBInvMassPtBin[k];
         if (fHistoMappingRatioSBInvMassPtBin_SubPiZero[k]) delete fHistoMappingRatioSBInvMassPtBin_SubPiZero[k];
         if (fHistoMappingRatioSBInvMassPtBin_FixedPzPiZero[k]) delete fHistoMappingRatioSBInvMassPtBin_FixedPzPiZero[k];
@@ -10826,6 +11304,9 @@ Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t Pa
     Double_t        IntegrationFactor_Normal            = 2.;
     Double_t        IntegrationFactor_Narrow            = 1.5;
     Double_t        IntegrationFactor_Wide              = 3.;
+    Double_t        PeakRangeByFit_Normal[2];
+    Double_t        PeakRangeByFit_Narrow[2];
+    Double_t        PeakRangeByFit_Wide[2];
 
     if (FitFunctionNumber == 0){
         TStrDeltaRangeFitFunction                       = "pol2";
@@ -10848,6 +11329,15 @@ Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t Pa
 
             TF1DeltaRangeFitFunction->SetParameter( 2,  1.47242e-05);
             TF1DeltaRangeFitFunction->SetParError(  2,  3.42979e-07);
+         } else if (ParameterNumber == 1){
+                TF1DeltaRangeFitFunction->SetParameter( 0,  0.0159211);
+                TF1DeltaRangeFitFunction->SetParError(  0,  0.000218137);
+
+                TF1DeltaRangeFitFunction->SetParameter( 1,  -0.000436431);
+                TF1DeltaRangeFitFunction->SetParError(  1,  4.10559e-05);
+
+                TF1DeltaRangeFitFunction->SetParameter( 2,  1.75233e-05);
+                TF1DeltaRangeFitFunction->SetParError(  2,  1.14507e-06);
         } else { //ParameterNumber
             return 0;
         }
@@ -10857,12 +11347,38 @@ Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t Pa
 
     FitValue                                            =
             TF1DeltaRangeFitFunction->Eval(ptValue);
+    fMesonWidthFitValue                                 =
+            FitValue;
     IntegrationValueByFit_Normal                        =
             FitValue*IntegrationFactor_Normal;
     IntegrationValueByFit_Narrow                        =
             FitValue*IntegrationFactor_Narrow;
     IntegrationValueByFit_Wide                          =
             FitValue*IntegrationFactor_Wide;
+    PeakRangeByFit_Normal[0]                            =
+            fMesonMassExpect-IntegrationValueByFit_Normal;
+    PeakRangeByFit_Normal[1]                            =
+            fMesonMassExpect+IntegrationValueByFit_Normal;
+    PeakRangeByFit_Narrow[0]                            =
+            fMesonMassExpect-IntegrationValueByFit_Narrow;
+    PeakRangeByFit_Narrow[1]                            =
+            fMesonMassExpect+IntegrationValueByFit_Narrow;
+    PeakRangeByFit_Wide[0]                            =
+            fMesonMassExpect-IntegrationValueByFit_Wide;
+    PeakRangeByFit_Wide[1]                            =
+            fMesonMassExpect+IntegrationValueByFit_Wide;
+
+
+    if (fPeakRange[0]>PeakRangeByFit_Normal[0]){
+        fPeakRange[0]=PeakRangeByFit_Normal[0];
+        fPeakRange_SubPiZero[0]=fPeakRange[0];
+        fPeakRange_FixedPzPiZero[0]=fPeakRange[0];
+    }
+    if (fPeakRange[1]<PeakRangeByFit_Normal[1]){
+        fPeakRange[1]=PeakRangeByFit_Normal[1];
+        fPeakRange_SubPiZero[1]=fPeakRange[1];
+        fPeakRange_FixedPzPiZero[1]=fPeakRange[1];
+    }
 
     fMesonIntDeltaRange[0]                              = -IntegrationValueByFit_Normal;
     fMesonIntDeltaRange[1]                              = IntegrationValueByFit_Normal;

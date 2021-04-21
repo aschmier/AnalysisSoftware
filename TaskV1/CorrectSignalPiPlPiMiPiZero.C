@@ -1662,9 +1662,9 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
         CorrectYield(histoCorrectedYieldTrueWideFittedBackFit, histoTrueEffiWidePtFit, histoAcceptance,  deltaRapid, scaling, nEvt, nameMeson,optDecayChannel);
     }
 
-	TCanvas* canvasCorrecftedYield = new TCanvas("canvasCorrecftedYield","",1350,1500);  // gives the page size
-	DrawGammaCanvasSettings( canvasCorrecftedYield, 0.13, 0.02, 0.02, 0.09);   
-	canvasCorrecftedYield->SetLogy();   
+    TCanvas* canvasCorrectedYield = new TCanvas("canvasCorrectedYield","",1350,1500);  // gives the page size
+    DrawGammaCanvasSettings( canvasCorrectedYield, 0.13, 0.02, 0.02, 0.09);
+    canvasCorrectedYield->SetLogy();
 
 	TPad* padCorrectedYieldHistos = new TPad("padCorrectedYieldHistos", "", 0., 0.25, 1., 1.,-1, -1, -2);
 	DrawGammaPadSettings( padCorrectedYieldHistos, 0.12, 0.02, 0.02, 0.);
@@ -1779,8 +1779,8 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	DrawGammaSetMarker(RatioTrueLeftWide, 24, 1., kBlue+2, kBlue+2);                              
 	RatioTrueLeftWide->DrawCopy("e1,same"); 
 
-	canvasCorrecftedYield->Update();
-	canvasCorrecftedYield->SaveAs(Form("%s/%s_%s_CorrectedYieldTrueEff_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
+    canvasCorrectedYield->Update();
+    canvasCorrectedYield->SaveAs(Form("%s/%s_%s_CorrectedYieldTrueEff_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
 
 //
 	// ─── CORRECTED YIELD BACK INT RANGE COMPARISON ────────────────
@@ -2107,10 +2107,29 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 	
 
     if (isMC == kTRUE){
-		canvasCorrecftedYield->cd();   
+        canvasCorrectedYield->cd();
 
-		padCorrectedYieldHistos->cd();
-		padCorrectedYieldHistos->SetLogy();    
+        TPad* padCorrectedYieldHistosSanity = new TPad("padCorrectedYieldHistosSanity", "", 0., 0.3, 1., 1.,-1, -1, -2);
+        DrawGammaPadSettings( padCorrectedYieldHistosSanity, 0.12, 0.02, 0.02, 0.);
+        padCorrectedYieldHistosSanity->Draw();
+
+        TPad* padCorrectedYieldRatiosSanity = new TPad("padCorrectedYieldRatiosSanity", "", 0., 0.0, 1., 0.3, -1, -1, -2);
+        DrawGammaPadSettings( padCorrectedYieldRatiosSanity, 0.12, 0.02, 0., 0.18);
+        padCorrectedYieldRatiosSanity->Draw();
+
+        padCorrectedYieldHistosSanity->cd();
+        padCorrectedYieldHistosSanity->SetLogy();
+
+        TH2F* histo2DDummyPtSanity;
+        histo2DDummyPtSanity               = new TH2F("histo2DDummyPt","histo2DDummyPt",
+                                                      1000, 0, histoCorrectedYieldTrue->GetXaxis()->GetBinUpEdge(histoCorrectedYieldTrue->GetNbinsX()),
+                                                      10000, 0.01*FindSmallestBin1DHist(histoCorrectedYieldTrue,1e6 ), 3*histoCorrectedYieldTrue->GetMaximum());
+        SetStyleHistoTH2ForGraphs(histo2DDummyPtSanity,
+                                  "#it{p}_{T} (GeV/#it{c})",
+                                  //"#frac{1}{2#pi #it{N}_{ev.}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)^{2}",
+                                  "",
+                                  0.033,0.04, 0.033,0.04, 1,1.35);
+        histo2DDummyPtSanity->DrawCopy();
 
         DrawGammaSetMarker(histoCorrectedYieldTrue, 22, 1., kBlack, kBlack);
         histoCorrectedYieldTrue->DrawCopy("e1");
@@ -2137,14 +2156,24 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 
 		legendYield3->Draw();
 
-		padCorrectedYieldRatios->cd();
-		padCorrectedYieldRatios->SetTickx();
-		padCorrectedYieldRatios->SetTicky();
-		padCorrectedYieldRatios->SetLogy(0);
+        padCorrectedYieldRatiosSanity->cd();
+        padCorrectedYieldRatiosSanity->SetTickx();
+        padCorrectedYieldRatiosSanity->SetTicky();
+        padCorrectedYieldRatiosSanity->SetLogy(0);
+
+        Double_t rangeRatioPtSanity[2]    = {0.8, 1.23};
+        TH2F* histo2DDummyRatioPtSanity;
+        histo2DDummyRatioPtSanity         = new TH2F("histo2DDummyRatioPtSanity","histo2DDummyRatioPtSanity",
+                                                     1000, 0, histoCorrectedYieldTrue->GetXaxis()->GetBinUpEdge(histoCorrectedYieldTrue->GetNbinsX()),
+                                                     1000, rangeRatioPtSanity[0], rangeRatioPtSanity[1]);
+
+        SetStyleHistoTH2ForGraphs(histo2DDummyRatioPtSanity, "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.07,0.1, 0.07,0.1, 0.8,0.55, 510, 505);
+
+        histo2DDummyRatioPtSanity->DrawCopy();
 		
         DrawGammaSetMarker(RatioNormalMCInput, 22, 1., kBlack, kBlack);
         RatioNormalMCInput->SetYTitle("#frac{standard}{modified}");
-        RatioNormalMCInput->GetYaxis()->SetRangeUser(0.1,2.0);
+        RatioNormalMCInput->GetYaxis()->SetRangeUser(rangeRatioPtSanity[0], rangeRatioPtSanity[1]);
         RatioNormalMCInput->GetYaxis()->SetLabelSize(0.07);
         RatioNormalMCInput->GetYaxis()->SetNdivisions(505);
         RatioNormalMCInput->GetYaxis()->SetTitleSize(0.1);
@@ -2161,15 +2190,15 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
         RatioTrueMCInput->DrawCopy("e1,same"); // true/ mc
 
 
-		canvasCorrecftedYield->Update();
-		canvasCorrecftedYield->SaveAs(Form("%s/%s_%s_CorrectedYield_SanityCheck_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
+        canvasCorrectedYield->Update();
+        canvasCorrectedYield->SaveAs(Form("%s/%s_%s_CorrectedYield_SanityCheck_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
 			
 		
 	}
 
     // Plot Sanity check but now histoMCYield meson in the old pT binning will be plottet aswelll
     if (isMC == kTRUE){
-        canvasCorrecftedYield->cd();
+        canvasCorrectedYield->cd();
 
         padCorrectedYieldHistos->cd();
         padCorrectedYieldHistos->SetLogy();
@@ -2217,13 +2246,13 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
         RatioTrueMCInput->DrawCopy("e1,same"); // true/ mc
 
 
-        canvasCorrecftedYield->Update();
-        canvasCorrecftedYield->SaveAs(Form("%s/%s_%s_CorrectedYield_SanityCheck_MCInputOldBinning_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
+        canvasCorrectedYield->Update();
+        canvasCorrectedYield->SaveAs(Form("%s/%s_%s_CorrectedYield_SanityCheck_MCInputOldBinning_%s.%s",outputDir.Data(), nameMeson.Data(), prefix2.Data(),  fCutSelection.Data(), suffix.Data()));
 
 
     }
 
-	delete canvasCorrecftedYield;
+    delete canvasCorrectedYield;
 	delete legendYield3;
 
     //**********************************************************************************

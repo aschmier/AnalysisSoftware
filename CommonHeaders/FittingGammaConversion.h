@@ -234,6 +234,7 @@
         TF1 *FitFunction = new TF1();
         TString ClassName = Obj_Dummy->ClassName();
 
+
         if(ClassName.BeginsWith("TH1")){
             TH1D *Obj = (TH1D*)Obj_Dummy;
             if(type.BeginsWith("xqcd") || type.BeginsWith("XQCD")){
@@ -988,6 +989,161 @@
                 return FitFunction;
             }
         }
+
+        if(ClassName.CompareTo("TMultiGraph") == 0){
+            TMultiGraph *Obj = (TMultiGraph*)Obj_Dummy;
+            if(type.BeginsWith("h") || type.BeginsWith("H")){
+                cout <<Form("fitting %s with Hagedorn",FunctionName.Data()) << endl;
+                TF1 *Hagedorn_Dummy = new TF1("Hagedorn_Dummy","[0]*TMath::Power([2]/([2]+x),[1])");
+                FitFunction = (TF1*)Hagedorn_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if(Parameter == NULL) FitFunction->SetParameters(19.,6.8,0.84); // standard parameter optimize if necessary
+                else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2]);
+                //FitFunction->SetParNames("C_{H}","n","p_{0} (GeV/c)");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("p") || type.BeginsWith("P")){
+                cout <<Form("fitting %s with Powerlaw",FunctionName.Data()) << endl;
+                TF1 *PowerLaw_Dummy = new TF1("PowerLaw_Dummy","[0] * 2 / TMath::Pi() * ([1]-1.)*([1]-2.)/TMath::Power([1]-3.,2) /x * TMath::Power(1+2*x/[2]/([1]-3),-[1])");
+                FitFunction = (TF1*)PowerLaw_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if(Parameter == NULL)FitFunction->SetParameters(2.,5.,0.37); // standard parameter optimize if necessary
+                else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2]);
+                //FitFunction->SetParNames("A_{pow}","n","p_{0}");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("l") || type.BeginsWith("L")){
+                cout <<Form("fitting %s with Levy",FunctionName.Data()) << endl;
+                TF1 *Levy_Dummy = new TF1("Levy_Dummy",Form("[0] / ( 2 * TMath::Pi())*([1]-1.)*([1]-2.) / ([1]*[2]*([1]*[2]+%.10f*([1]-2.)))  * TMath::Power(1.+(TMath::Sqrt(x*x+%.10f*%.10f)-%.10f)/([1]*[2]), -[1])",mass,mass,mass,mass));
+                FitFunction = (TF1*)Levy_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if(Parameter == NULL)FitFunction->SetParameters(2.,5.,0.18); // standard parameter optimize if necessary
+                else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2]);
+                if (fixingPar.CompareTo("fixn") == 0){
+                    cout << "entered fixing" << endl;
+                    FitFunction->FixParameter(1, Parameter[1]);
+                }
+                //FitFunction->SetParNames("dN/dy","n","T_{Levy} (GeV/c)");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("qcd") || type.BeginsWith("QCD")){
+                cout <<Form("fitting %s with QCD",FunctionName.Data()) << endl;
+                TF1 *QCD_Dummy = new TF1("QCD_Dummy","[0]*TMath::Power(x,-1*([1]+[2]/(TMath::Power(x,[3])+[4])))");
+                FitFunction = (TF1*)QCD_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if(Parameter == NULL)FitFunction->SetParameters(24,6.7,-6.5,1.,10); // standard parameter optimize if necessary
+                else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2],Parameter[3],Parameter[4]);
+                //FitFunction->SetParNames("a","b","c","d","e");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("oHag") || type.BeginsWith("OHag")){
+                cout <<Form("fitting %s with ModHagedorn",FunctionName.Data()) << endl;
+                TF1 *ModPowerLaw_Dummy = new TF1("ModHagedorn_Dummy","[0]*TMath::Power(TMath::Exp(-[1]*x-TMath::Abs([2])*x*x)+x/[3],-[4])");
+                FitFunction = (TF1*)ModPowerLaw_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if(Parameter == NULL)FitFunction->SetParameters(450.,0.37,0.2,0.7,8.); // standard parameter optimize if necessary
+                else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2],Parameter[3],Parameter[4]);
+                //FitFunction->SetParNames("A (mbGeV^{-2}c^{3})","a [(GeV/c)^{-1}]","b [(GeV/c)^{-1}]","p_{0} (GeV/c)","n");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("b") || type.BeginsWith("B")){
+                cout <<Form("fitting %s with Boltzmann",FunctionName.Data()) << endl;
+                TF1 *Boltzmann_Dummy =  new TF1("Boltzmann_Dummy",Form("[0] *TMath::Sqrt(x*x+%.10f*%.10f)* TMath::Exp(- TMath::Sqrt(x*x+%.10f*%.10f)/[1])",mass,mass,mass,mass));
+                FitFunction = (TF1*)Boltzmann_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if(Parameter == NULL)FitFunction->SetParameters(2.5,0.3); // standard parameter optimize if necessary
+                else FitFunction->SetParameters(Parameter[0],Parameter[1]);
+                //FitFunction->SetParNames("C_{B}","T_{Boltzm.} (GeV/c)");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("e") || type.BeginsWith("E")){
+                cout <<Form("fitting %s with Exponential",FunctionName.Data()) << endl;
+                TF1 *Exponential_Dummy = new TF1("Exponential_Dummy",Form("[0]/( 2 * TMath::Pi())/([1]*(%.10f+[1]))*TMath::Exp(-(TMath::Sqrt(x*x+%.10f*%.10f)-%.10f)/[1])",mass,mass,mass,mass));
+                FitFunction = (TF1*)Exponential_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if(Parameter == NULL)FitFunction->SetParameters(1.1,0.37); // standard parameter optimize if necessary
+                else FitFunction->SetParameters(Parameter[0],Parameter[1]);
+                //FitFunction->SetParNames("C_{E}","T_{exp} (GeV/c)");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("m") || type.BeginsWith("M")){
+                cout <<Form("fitting %s with ModPowerlaw",FunctionName.Data()) << endl;
+                TF1 *ModPowerLaw_Dummy = new TF1("ModPowerLaw_Dummy","[0]*TMath::Power((1 + (x)/[1]),-[2])");
+                FitFunction = (TF1*)ModPowerLaw_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if(Parameter == NULL)FitFunction->SetParameters(2.,0.37,5.); // standard parameter optimize if necessary
+                else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2]);
+                //FitFunction->SetParNames("A","p_{0}","n");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("tcm") || type.BeginsWith("TCM")){ // Two component model fit [A. Bylinkin and A. Rostovtsev, Phys. Atom. Nucl 75 (2012) 999-1005]
+                cout <<Form("fitting %s with two component model by Bylinkin",FunctionName.Data()) << endl;
+                TF1 *TwoCompModel_Dummy = new TF1("twoCompModel_Dummy",Form("[0]*TMath::Exp(-(TMath::Sqrt(x*x+%.10f*%.10f)-%.10f)/[1]) + [2]/(TMath::Power(1+x*x/([3]*[3]*[4]),[4]) )",mass,mass,mass));
+                FitFunction = (TF1*)TwoCompModel_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if (mesonType.CompareTo("Pi0")==0 || mesonType.CompareTo("Gamma")==0){
+                    if(Parameter == NULL)FitFunction->SetParameters(450.,0.3,1,0.3,8.); // standard parameter optimize if necessary
+                    else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2],Parameter[3],Parameter[4]);
+                } else if (mesonType.CompareTo("Eta")==0){
+                    if(Parameter == NULL)FitFunction->SetParameters(450.,0.3,1,0.3,8.); // 450.,0.01,1,0.3,.5)
+                    else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2],Parameter[3],Parameter[4]);
+                }
+                if (limitPar){
+                    FitFunction->SetParLimits(1,0,10000);
+                    FitFunction->SetParLimits(3,0,10000);
+                    FitFunction->SetParLimits(4,0,10);
+                }
+                //FitFunction->SetParNames("Ae","Te","A","T","n");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("tcmpt") || type.BeginsWith("TCMPT")){ // Two component model fit [A. Bylinkin and A. Rostovtsev, Phys. Atom. Nucl 75 (2012) 999-1005]
+                cout <<Form("fitting %s with two component model by Bylinkin multiplied by pT",FunctionName.Data()) << endl;
+                TF1 *TwoCompModel_Dummy = new TF1("twoCompModel_Dummy",Form(" x*[0]*TMath::Exp(-(TMath::Sqrt(x*x+%.10f*%.10f)-%.10f)/[1]) + x*[2]/(TMath::Power(1+x*x/([3]*[3]*[4]),[4]) )",mass,mass,mass));
+                FitFunction = (TF1*)TwoCompModel_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                if (mesonType.CompareTo("Pi0")==0 || mesonType.CompareTo("Gamma")==0){
+                    if(Parameter == NULL)FitFunction->SetParameters(450.,0.3,1,0.3,8.); // standard parameter optimize if necessary
+                    else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2],Parameter[3],Parameter[4]);
+                } else if (mesonType.CompareTo("Eta")==0){
+                    if(Parameter == NULL)FitFunction->SetParameters(450.,0.3,1,0.3,8.);
+                    else FitFunction->SetParameters(Parameter[0],Parameter[1],Parameter[2],Parameter[3],Parameter[4]);
+                }
+                if (limitPar){
+                    FitFunction->SetParLimits(1,0,10000);
+                    FitFunction->SetParLimits(3,0,10000);
+                    FitFunction->SetParLimits(4,0,10);
+                }
+                //FitFunction->SetParNames("Ae","Te","A","T","n");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+            } else if(type.BeginsWith("rad") || type.BeginsWith("RAD")){
+                cout <<Form("fitting %s with Radoslav Func",FunctionName.Data()) << endl;
+                TF1 *Rad_Dummy = new TF1("Rad_Dummy",Form("(x<=[3])*x*[0]*([1]-1.)*([1]-2.)/([1]*[2]*([1]*[2]+%.10f*([1]-2.)))*TMath::Power(1.+(TMath::Sqrt(x*x+%.10f*%.10f)-%.10f)/([1]*[2]), -[1]) + (x>[3]) * x *[0] * ([1]-1.)*([1]-2.)/([1]*[2]*([1]*[2]+%.10f*([1]-2.))) * TMath::Power([1]*[2]/([3]+[1]*[2]-%.10f),[1]) * TMath::Power([3],[4]) * TMath::Power( 1./x, [4] )",mass,mass,mass,mass,mass,mass));
+                FitFunction = (TF1*)Rad_Dummy->Clone(FunctionName);
+                FitFunction->SetRange(xmin, xmax);
+                Double_t par0min3 = 150.;
+                Double_t par0max3 = 1500.;
+                Double_t par1min3 = 4.;
+                Double_t par1max3 = 40.;
+                Double_t par2min3 = 0.07;
+                Double_t par2max3 = .7;
+                Double_t par3min3 = 4.36;
+                Double_t par3max3 = 4.40;
+                Double_t par4min3 = 2.;
+                Double_t par4max3 = 18.;
+                if(Parameter != NULL){
+                    par0min3 = Parameter[0];
+                    par0max3 = Parameter[1];
+                    par1min3 = Parameter[2];
+                    par1max3 = Parameter[3];
+                    par2min3 = Parameter[4];
+                    par2max3 = Parameter[5];
+                    par3min3 = Parameter[6];
+                    par3max3 = Parameter[7];
+                    par4min3 = Parameter[8];
+                    par4max3 = Parameter[9];
+                }
+                FitFunction->SetParLimits(0, par0min3, par0max3);
+                FitFunction->SetParLimits(1, par1min3, par1max3);
+                FitFunction->SetParLimits(2, par2min3, par2max3);
+                FitFunction->SetParLimits(3, par3min3, par3max3);
+                FitFunction->SetParLimits(4, par4min3, par4max3);
+                //FitFunction->SetParNames("a","b","c","d");
+                Obj->Fit(FitFunction,FitOptions,"",xmin,xmax);
+                return FitFunction;
+            }
+        }
+
         return FitFunction;
     }
 
