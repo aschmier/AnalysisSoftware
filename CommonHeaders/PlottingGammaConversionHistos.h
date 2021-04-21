@@ -328,6 +328,26 @@
     }
 
     //__________________________________________________________________________________________________________
+    void DrawGammaSetLines(    TH1* histo1,
+                                Int_t LineColor,
+                                Int_t LineWidth,
+                                Int_t LineStyle ) {
+        histo1->SetLineColor(LineColor);
+        histo1->SetLineWidth(LineWidth);
+        histo1->SetLineStyle(LineStyle);
+    }
+
+    //__________________________________________________________________________________________________________
+    void DrawGammaSetLinesTF1(  TF1*  Fit1,
+                                Int_t LineColor,
+                                Int_t LineWidth,
+                                Int_t LineStyle ) {
+        Fit1->SetLineColor(LineColor);
+        Fit1->SetLineWidth(LineWidth);
+        Fit1->SetLineStyle(LineStyle);
+    }
+
+    //__________________________________________________________________________________________________________
     // GammaScalingHistogram will scale the histogram by "Factor"
     void GammaScalingHistogramm(TH1 *histo, Double_t Factor){
         histo->Sumw2();
