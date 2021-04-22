@@ -190,6 +190,13 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     Bool_t readCorrectedFile[ConstNumberOfCuts];
     Bool_t plotOnlyUncorrectedOutput = kFALSE;
     if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
+
+    Double_t PlotRangeYWidthMin=0.;
+    Double_t PlotRangeYWidthMax=0.05;
+    if ( mode == modePCM_Omega || mode == modeEMCAL_Omega || mode == modePHOS_Omega || mode == modePCMEMCAL_Omega || mode == modePCMPHOS_Omega ){
+                PlotRangeYWidthMax=0.1;
+    }
+
     for (Int_t i=0; i< NumberOfCuts; i++){
 
         // Decode individual cutnumber
@@ -961,7 +968,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             DrawAutoGammaMesonHistos( histoWidthCut[i],
                                     "", "#it{p}_{T} (GeV/#it{c})", Form("#it{#sigma}_{%s} (GeV/c^{2})",textMeson.Data()),
                                     kFALSE, 5., 10e-10,kFALSE,
-                                    kTRUE, 0., 0.10,
+                                    kTRUE, PlotRangeYWidthMin, PlotRangeYWidthMax,
                                     kFALSE, 0., 10.);
             if (optionEnergy.CompareTo("8TeV") == 0 && cutVariationName.Contains("Calo") && cutVariationName.Contains("EGA")) histoWidthCut[i]->GetYaxis()->SetRangeUser(0.,0.10);
             histoWidthCut[i]->GetYaxis()->SetTitleOffset(1.4);
