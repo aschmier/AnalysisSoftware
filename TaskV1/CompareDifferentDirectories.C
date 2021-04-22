@@ -65,12 +65,33 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                                     TString cutVariationName        = "NonLinearity",
                                     Bool_t setFullPathInInputFile   = kFALSE
                                 ){
+    Int_t DebugOutputLevel = 0;
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ <<
+                                     "; FolderList: " << FolderList.Data() << "; suffix: " << suffix.Data() << "; meson: " << meson.Data() <<
+                                     "; kIsMC: " << kIsMC << "; optionEnergy: "<< optionEnergy.Data() << "; NumberOfCuts: " << NumberOfCuts <<
+                                     "; optionPeriod: " << optionPeriod.Data() << "; mode: " << mode << "; cutVariationName: " << cutVariationName.Data() <<
+                                     "; setFullPathInInputFile: " << setFullPathInInputFile << endl;}
 
+    //Number of Mode
+    Double_t modePCM_Omega=60;
+    Double_t modePCMEMCAL_Omega=61;
+    Double_t modePCMPHOS_Omega=62;
+    Double_t modeEMCAL_Omega=64;
+    Double_t modePHOS_Omega=65;
+
+    //Enable or Disable certain histograms
+    Bool_t doCorrectedYieldWOSecCut;
+    if ( mode == modePCM_Omega || mode == modePCMEMCAL_Omega || mode == modePCMPHOS_Omega || mode == modeEMCAL_Omega || mode == modePHOS_Omega ){
+        doCorrectedYieldWOSecCut = kFALSE;
+    } else {
+        doCorrectedYieldWOSecCut = kTRUE;
+    }
     // Initialize arrays
     TString fileDirectory[50];
     TString cutNumber[50];
     TString cutStringsName[50];
 
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
     // prepare nice plotting algorithms
     StyleSettingsThesis();
     SetPlotStyle();
@@ -85,6 +106,8 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     Bool_t isEta                                                = kFALSE;
     if (meson.CompareTo("Pi0")==0 || meson.CompareTo("Pi0EtaBinning")==0){
         textMeson                                               = "#pi^{0}";
+    } else if (meson.CompareTo("Omega")==0){
+        textMeson                                               = "#omega";
     } else {
         textMeson                                               = "#eta";
         isEta                                                   = kTRUE;
@@ -98,6 +121,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     }
     Bool_t isEDC        = kFALSE;
 
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
     // Set collisions system
     TString collisionSystem     = ReturnFullCollisionsSystem(optionEnergy);
     if (collisionSystem.CompareTo("") == 0){
@@ -132,6 +156,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     cout<<"=========================="<<endl;
 
     // Definition of necessary histogram arrays
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
     const Int_t ConstNumberOfCuts = 22;
     TString FileNameCorrected[ConstNumberOfCuts];
     TString FileNameUnCorrected[ConstNumberOfCuts];
@@ -164,6 +189,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
 
     Bool_t readCorrectedFile[ConstNumberOfCuts];
     Bool_t plotOnlyUncorrectedOutput = kFALSE;
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
     for (Int_t i=0; i< NumberOfCuts; i++){
 
         // Decode individual cutnumber
@@ -175,7 +201,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
         cout << cutNumber[i].Data() << endl;
         ReturnSeparatedCutNumberAdvanced(cutNumber[i].Data(),fEventCutSelection, fGammaCutSelection, fClusterCutSelection, fElectronCutSelection, fMesonCutSelection, mode);
 
-        if (mode == 4 || mode == 2){
+        if (mode == 4 || mode == 2 || mode == modePCMEMCAL_Omega || mode == modeEMCAL_Omega ){
             if (fClusterCutSelection.BeginsWith("4")) isEDC = kTRUE;
         }
         // read file with corrections
@@ -183,7 +209,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             FileNameCorrected[i] = Form("%s/%s_%s_GammaConvV1Correction_%s.root", fileDirectory[i].Data(), meson.Data(), prefix2.Data(), cutNumber[i].Data());
         else
             FileNameCorrected[i] = Form("%s%s/%s/%s_%s_GammaConvV1Correction_%s.root", fileDirectory[i].Data(), cutNumber[i].Data(), optionEnergy.Data(), meson.Data(), prefix2.Data(), cutNumber[i].Data());
-        cout<< FileNameCorrected[i] << endl;
+        cout<< "FileNameCorrected["<<i<<"]: " << FileNameCorrected[i] << endl;
         Cutcorrfile[i] = new TFile(FileNameCorrected[i]);
         if (Cutcorrfile[i]->IsZombie()){
           readCorrectedFile[i] = kFALSE;
@@ -194,60 +220,140 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             FileNameUnCorrected[i] = Form("%s/%s_%s_GammaConvV1WithoutCorrection_%s.root", fileDirectory[i].Data(), meson.Data(), prefix2.Data(), cutNumber[i].Data());
         else
             FileNameUnCorrected[i] = Form("%s%s/%s/%s_%s_GammaConvV1WithoutCorrection_%s.root", fileDirectory[i].Data(), cutNumber[i].Data(), optionEnergy.Data(), meson.Data(), prefix2.Data(), cutNumber[i].Data());
-        cout<< FileNameUnCorrected[i] << endl;
+        cout<< "FileNameUnCorrected[" << i << "]: " << FileNameUnCorrected[i] << endl;
         Cutuncorrfile[i] = new TFile(FileNameUnCorrected[i]);
         if (Cutuncorrfile[i]->IsZombie()) return;
 
         // Set correct histogram name for corrected yield and efficiency
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Set correct histogram name for corrected yield and efficiency" << endl;}
         TString nameCorrectedYield;
         TString nameEfficiency;
         TString nameCorrectedYieldWOSec;
+        TString nameAcceptance;
+        TString nameRawYield;
+        TString nameMassCut;
+        TString nameWidthCut;
+        TString nameSBCut;
+        TString nameClusterE;
+
+        TString InvMassTypeEnding = "_SubPiZero";
+        Int_t useEfficiency=2;
+        Bool_t useBackFitOutput=kTRUE;
         nameCorrectedYield = "CorrectedYieldTrueEff";
         nameEfficiency = "TrueMesonEffiPt";
         nameCorrectedYieldWOSec = "CorrectedYieldWOSecTrueEff";
+        nameAcceptance = "fMCMesonAccepPt";
+        nameRawYield = "histoYieldMesonPerEvent";
+        nameMassCut = "histoMassGaussianMeson";
+        nameWidthCut = "histoFWHMMeson";
+        nameSBCut = "histoSBdefaultMeson";
+        nameClusterE = "ClusterEPerEvent";
+        TString bckfit = "";
         if ( mode == 4 || mode == 5 ){
             nameCorrectedYield = "CorrectedYieldNormEff";
             nameEfficiency = "MesonEffiPt";
             nameCorrectedYieldWOSec = "CorrectedYieldWOSecNormEff";
-        }
+        } else if ( mode == modePCM_Omega || mode == modeEMCAL_Omega || mode == modePHOS_Omega || mode == modePCMEMCAL_Omega || mode == modePCMPHOS_Omega ){
+            if(useEfficiency==1){
+
+                nameCorrectedYield                          = Form("CorrectedYieldNormEff%s",InvMassTypeEnding.Data());
+                 nameEfficiency                              = Form("MesonEffiPtNorm%s",InvMassTypeEnding.Data());
+                if(useBackFitOutput){
+                    cout << "using normal efficiency back fit" << endl;
+                    nameCorrectedYield                          = Form("CorrectedYieldNormEffBackFit%s",InvMassTypeEnding.Data());
+                    nameEfficiency                              = Form("MesonEffiPtNormBackFit%s",InvMassTypeEnding.Data());
+                } else{
+                    cout << "using normal efficiency event mixing" << endl;
+                }
+            } else if(useEfficiency==2){
+                nameCorrectedYield                          = Form("CorrectedYieldTrueEff%s",InvMassTypeEnding.Data());
+                nameEfficiency                              = Form("TrueMesonEffiPt%s",InvMassTypeEnding.Data());
+                if(useBackFitOutput){
+                    cout << "using true efficiency backfit" << endl;
+                    nameCorrectedYield                          = Form("CorrectedYieldTrueEffBackFit%s",InvMassTypeEnding.Data());
+                } else{
+                    cout << "using true efficiency event mixing" << endl;
+                }
+            } else {//case 0
+                nameCorrectedYield                          = Form("CorrectedYieldAveragedEffi%s",InvMassTypeEnding.Data());
+                nameEfficiency                              = Form("MesonEffiPtAveraged%s",InvMassTypeEnding.Data());
+                if(useBackFitOutput){
+                    cout << "using Averaged Effi Back Fit" << endl;
+                    nameCorrectedYield                          = Form("CorrectedYieldAveragedEffiBackFit%s",InvMassTypeEnding.Data());
+                    nameEfficiency                              = Form("MesonEffiPtAveraged%s",InvMassTypeEnding.Data());
+                } else{
+                    cout << "using Averaged Effi event mixing" << endl;
+                }
+                // averaged is for now always done with bck fit
+            } //useEfficiency
+            if (useBackFitOutput){
+                bckfit = "BackFit";
+            } else {
+                bckfit = "";
+            }
+            nameMassCut                                  = Form("histoMassMeson%s%s",bckfit.Data(),InvMassTypeEnding.Data());
+            nameWidthCut                                 = Form("histoFWHMMeson%s%s",bckfit.Data(),InvMassTypeEnding.Data());
+        } //Omega Modes
 
         // Read histograms and rename them from the original files for each cut
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Read histograms and rename them from the original files for each cut" << endl;}
         if(readCorrectedFile[i]){
+          if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoCorrectedYieldCut: " << nameCorrectedYield.Data() << endl;}
           histoCorrectedYieldCut[i]   = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYield.Data());
           histoCorrectedYieldCut[i]->SetName(Form("%s_%s",nameCorrectedYield.Data(),cutStringsName[i].Data()));
-          histoCorrectedYieldWOSecCut[i]   = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYieldWOSec.Data());
-          histoCorrectedYieldWOSecCut[i]->SetName(Form("%s_%s",nameCorrectedYieldWOSec.Data(),cutStringsName[i].Data()));
+          if (doCorrectedYieldWOSecCut){
+              if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; readCorrectedFile histoCorrectedYieldWOSecCut: " << nameCorrectedYieldWOSec.Data() << endl;}
+              histoCorrectedYieldWOSecCut[i]   = (TH1D*)Cutcorrfile[i]->Get(nameCorrectedYieldWOSec.Data());
+              histoCorrectedYieldWOSecCut[i]->SetName(Form("%s_%s",nameCorrectedYieldWOSec.Data(),cutStringsName[i].Data()));
+          } else {
+              histoCorrectedYieldWOSecCut[i]   = NULL;
+          }
+          if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoTrueEffiCut : " << nameEfficiency.Data() << endl;}
           histoTrueEffiCut[i]         = (TH1D*)Cutcorrfile[i]->Get(nameEfficiency.Data());
           histoTrueEffiCut[i]->SetName(Form("%s_%s",nameEfficiency.Data(), cutStringsName[i].Data()));
-          histoAcceptanceCut[i]       =(TH1D*)Cutcorrfile[i]->Get("fMCMesonAccepPt");
+          if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoAcceptanceCut : " << nameAcceptance.Data() << endl;}
+          histoAcceptanceCut[i]       =(TH1D*)Cutcorrfile[i]->Get(nameAcceptance.Data());
           histoAcceptanceCut[i]->SetName(Form("AcceptPt_%s", cutStringsName[i].Data()));
         }
-        histoRawYieldCut[i]         = (TH1D*)Cutuncorrfile[i]->Get("histoYieldMesonPerEvent");
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoRawYieldCut: " << nameRawYield.Data() << endl;}
+        histoRawYieldCut[i]         = (TH1D*)Cutuncorrfile[i]->Get(nameRawYield.Data());
         histoRawYieldCut[i]->SetName(Form("histoYieldMesonPerEvent_%s",cutStringsName[i].Data()));
-        histoMassCut[i]             = (TH1D*)Cutuncorrfile[i]->Get("histoMassGaussianMeson");
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoMassCut: " << nameMassCut.Data() << endl;}
+        histoMassCut[i]             = (TH1D*)Cutuncorrfile[i]->Get(nameMassCut.Data());
         histoMassCut[i]->SetName(Form("histoMassGaussianMeson_%s",cutStringsName[i].Data()));
-        histoWidthCut[i]             = (TH1D*)Cutuncorrfile[i]->Get("histoFWHMMeson");
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoWidthCut: " << nameWidthCut.Data() << endl;}
+        histoWidthCut[i]             = (TH1D*)Cutuncorrfile[i]->Get(nameWidthCut.Data());
         histoWidthCut[i]->SetName(Form("histoWidthGaussianMeson_%s",cutStringsName[i].Data()));
-        histoSBCut[i]               = (TH1D*)Cutuncorrfile[i]->Get("histoSBdefaultMeson");
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoSBCut: " << nameSBCut.Data() << endl;}
+        histoSBCut[i]               = (TH1D*)Cutuncorrfile[i]->Get(nameSBCut.Data());
         histoSBCut[i]->SetName(Form("histoSBdefaultMeson_%s",cutNumber[i].Data()));
-        histoClusterE[i]       =(TH1D*)Cutuncorrfile[i]->Get("ClusterEPerEvent");
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoClusterE: " << nameClusterE.Data() << endl;}
+        histoClusterE[i]       =(TH1D*)Cutuncorrfile[i]->Get(nameClusterE.Data());
+
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
         if(histoClusterE[i]) histoClusterE[i]->SetName(Form("ClusterEPerEvent_%s", cutStringsName[i].Data()));
         else isClusterE = kFALSE;
 
         // Calculate ratios for comparisons
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Calculate ratios for comparisons" << endl;}
         if(readCorrectedFile[i]){
           histoRatioCorrectedYieldCut[i] = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("histoRatioCorrectedYieldCut_%s",cutStringsName[i].Data()));
           histoRatioCorrectedYieldCut[i]->Divide(histoRatioCorrectedYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
           if (i > 0){
               maxPt= histoCorrectedYieldCut[i]->GetBinCenter(histoCorrectedYieldCut[i]->GetNbinsX()) + 0.5* histoCorrectedYieldCut[i]->GetBinWidth(histoCorrectedYieldCut[i]->GetNbinsX());
           }
-          histoRatioCorrectedYieldWOSecCut[i] = (TH1D*) histoCorrectedYieldWOSecCut[i]->Clone(Form("histoRatioCorrectedYieldWOSecCut_%s",cutStringsName[i].Data()));
-          histoRatioCorrectedYieldWOSecCut[i]->Divide(histoRatioCorrectedYieldWOSecCut[i],histoCorrectedYieldWOSecCut[0],1.,1.,"B");
+          if (doCorrectedYieldWOSecCut){
+            histoRatioCorrectedYieldWOSecCut[i] = (TH1D*) histoCorrectedYieldWOSecCut[i]->Clone(Form("histoRatioCorrectedYieldWOSecCut_%s",cutStringsName[i].Data()));
+            histoRatioCorrectedYieldWOSecCut[i]->Divide(histoRatioCorrectedYieldWOSecCut[i],histoCorrectedYieldWOSecCut[0],1.,1.,"B");
+          } else {
+              histoRatioCorrectedYieldWOSecCut[i] = NULL;
+          }
           histoRatioTrueEffiCut[i]    = (TH1D*) histoTrueEffiCut[i]->Clone(Form("histoRatioTrueEffiCut_%s",cutStringsName[i].Data()));
           histoRatioTrueEffiCut[i]->Divide(histoRatioTrueEffiCut[i],histoTrueEffiCut[0],1.,1.,"B");
           histoRatioAcceptanceCut[i]  = (TH1D*) histoAcceptanceCut[i]->Clone(Form("histoRatioAcceptanceCut_%s",cutStringsName[i].Data()));
           histoRatioAcceptanceCut[i]->Divide(histoRatioAcceptanceCut[i],histoAcceptanceCut[0],1.,1.,"B");
         }
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
 
         histoRatioRawYieldCut[i]    = (TH1D*) histoRawYieldCut[i]->Clone(Form("histoRatioRawYieldCut_%s",cutStringsName[i].Data()));
         histoRatioRawYieldCut[i]->Divide(histoRatioRawYieldCut[i],histoRawYieldCut[0],1.,1.,"B");
@@ -262,7 +368,8 @@ void CompareDifferentDirectories(   TString FolderList              = "",
         if(isClusterE){
           histoRatioClusterE[i]       =(TH1D*)histoClusterE[i]->Clone(Form("histoRatioClusterEPerEvent_%s", cutStringsName[i].Data()));
           histoRatioClusterE[i]->Divide(histoRatioClusterE[i],histoClusterE[0],1.,1.,"B");
-        }
+        }  
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
 
     }
     cout<<"=========================="<<endl;
@@ -271,6 +378,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     //**************************************************************************************
     //********************* Plotting RAW-Yield *********************************************
     //**************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Plotting RAW-Yield" << endl;}
 
         // Canvas Definition
         TCanvas* canvasRawYieldMeson = new TCanvas("canvasRawYieldMeson","",1350,1500);
@@ -363,6 +471,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     //*****************************************************************************************
     //******************* Compare Corrected Yields ********************************************
     //*****************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Compare Corrected Yields" << endl;}
     // Define canvas
     if(!plotOnlyUncorrectedOutput){
       TCanvas* canvasCorrectedYieldMeson = new TCanvas("canvasCorrectedYieldMeson","",1350,1500);
@@ -452,8 +561,9 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     //*****************************************************************************************
     //***************** Compare Corrected Yields without Secondary Correction *****************
     //*****************************************************************************************
-    // Define canvas
-    if(!plotOnlyUncorrectedOutput){
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Compare Corrected Yields without Secondary Correction" << endl;}
+    // Define canvas{
+    if((!plotOnlyUncorrectedOutput)&&(doCorrectedYieldWOSecCut)){
       TCanvas* canvasCorrectedYieldWOSecMeson = new TCanvas("canvasCorrectedYieldWOSecMeson","",1350,1500);
       DrawGammaCanvasSettings( canvasCorrectedYieldWOSecMeson,  0.13, 0.02, 0.02, 0.09);
       // Define upper panel
@@ -541,6 +651,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     //**************************************************************************************
     //********************* Plotting Efficiency *********************************************
     //**************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Plotting Efficiency" << endl;}
     TLatex *labelCollisionSystem4 = new TLatex(0.55,0.10,collisionSystem.Data());
     SetStyleTLatex( labelCollisionSystem4, 0.038,4);
     TLatex* labelDetProcess2 = NULL;
@@ -654,6 +765,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     //**************************************************************************************
     //********************* Plotting Acceptance *********************************************
     //**************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Plotting Acceptance" << endl;}
     // Define canvas
     if(!plotOnlyUncorrectedOutput){
       TCanvas* canvasAcceptanceMeson = new TCanvas("canvasAcceptanceMeson","",1350,1500);  // gives the page size
@@ -744,6 +856,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     //**************************************************************************************
     //********************* Plotting Mass **************************************************
     //**************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Plotting Mass" << endl;}
 
     TCanvas* canvasMassMeson = new TCanvas("canvasMassMeson","",1350,1500);  // gives the page size
     DrawGammaCanvasSettings( canvasMassMeson,  0.13, 0.02, 0.02, 0.09);
@@ -775,6 +888,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             if (optionEnergy.CompareTo("8TeV") == 0) histoMassCut[i]->GetYaxis()->SetRangeUser(massMin,0.15);
             if (optionEnergy.CompareTo("8TeV") == 0 && cutVariationName.Contains("Calo") && cutVariationName.Contains("EGA")) histoMassCut[i]->GetYaxis()->SetRangeUser(0.12,0.20);
             if ( !meson.Contains("Pi0") )histoMassCut[i]->GetYaxis()->SetRangeUser(0.4,0.6);
+            if ( meson.Contains("Omega") )histoMassCut[i]->GetYaxis()->SetRangeUser(0.7,0.85);
             histoMassCut[i]->GetYaxis()->SetTitleOffset(1.4);
             histoMassCut[i]->DrawCopy("e1,p");
             legendMass->AddEntry(histoMassCut[i],Form("standard: %s",cutStringsName[i].Data()));
@@ -822,6 +936,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     //**************************************************************************************
     //********************* Plotting Width **************************************************
     //**************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Plotting Width" << endl;}
 
     TCanvas* canvasWidthMeson = new TCanvas("canvasWidthMeson","",1350,1500);  // gives the page size
     DrawGammaCanvasSettings( canvasWidthMeson,  0.13, 0.02, 0.02, 0.09);
@@ -846,7 +961,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             DrawAutoGammaMesonHistos( histoWidthCut[i],
                                     "", "#it{p}_{T} (GeV/#it{c})", Form("#it{#sigma}_{%s} (GeV/c^{2})",textMeson.Data()),
                                     kFALSE, 5., 10e-10,kFALSE,
-                                    kTRUE, 0., 0.05,
+                                    kTRUE, 0., 0.10,
                                     kFALSE, 0., 10.);
             if (optionEnergy.CompareTo("8TeV") == 0 && cutVariationName.Contains("Calo") && cutVariationName.Contains("EGA")) histoWidthCut[i]->GetYaxis()->SetRangeUser(0.,0.10);
             histoWidthCut[i]->GetYaxis()->SetTitleOffset(1.4);
@@ -896,6 +1011,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     //**************************************************************************************
     //************************ Plotting SB  ************************************************
     //**************************************************************************************
+    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Plotting SB" << endl;}
 
         TCanvas* canvasSBMeson = new TCanvas("canvasSBMeson","",1350,1500);
         DrawGammaCanvasSettings( canvasSBMeson,  0.13, 0.02, 0.02, 0.09);
@@ -1050,6 +1166,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
   //*************************************************************************************************
   //******************** Output of the systematic Error due to Signal extraction for Pi0 ************
   //*************************************************************************************************
+  if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Output of the systematic Error due to Signal extraction for Pi0" << endl;}
   if(!plotOnlyUncorrectedOutput){
     // Determine number of bins
     Int_t NBinsPt = histoCorrectedYieldCut[0]->GetNbinsX();
