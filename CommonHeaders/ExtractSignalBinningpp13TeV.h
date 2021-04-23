@@ -1652,51 +1652,52 @@
                                                                                     };//29
     //---------------------------------------------------------------------------------------------------------
     //--------------------------------------------EMCal-EMCal--------------------------------------------------
-    Int_t fBinsOmegaPiPlPiMiPiZero13TevPtEMC_maxBins                                = 24;
+    Int_t fBinsOmegaPiPlPiMiPiZero13TevPtEMC_maxBins                                = 25;
     std::vector<Double_t> fBinsOmegaPiPlPiMiPiZero13TevPtEMC                        = { //EMCal-EMCal Combined
-                                                                                        3.00,  4.00,  5.00,  6.00,  8.00,         10.00, 12.00, 14.00, 16.00, 18.00,
-                                                                                       20.00, 22.00, 24.00, 26.00, 28.00,        30.00, 35.00, 40.00, 45.00, 50.00,
-                                                                                       60.00, 70.00, 80.00, 90.00, 100.0
-                                                                                    }; //25
+                                                                                        3.00,  3.50,  4.00,  5.00,  6.00,          8.00, 10.00, 12.00, 14.00, 16.00,
+                                                                                       18.00, 20.00, 22.00, 24.00, 26.00,         28.00, 30.00, 35.00, 40.00, 45.00,
+                                                                                       50.00, 60.00, 70.00, 80.00, 90.00,         100.0
+                                                                                    }; //26
     std::vector<Int_t> fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMC                      = { //Rebin EMCal-EMCal EG1 (8d)
-                                                                                       10, 10, 10, 10, 10,      4,  4,  4,  4,  4,
-                                                                                       10, 10, 10, 10, 10,     20, 20, 20, 20, 20,
-                                                                                       20, 20, 20, 20
-                                                                                    };//24
+                                                                                       10, 10, 10, 10, 10,     10,  4,  4,  4,  4,
+                                                                                        4, 10, 10, 10, 10,     10, 20, 20, 20, 20,
+                                                                                       20, 20, 20, 20, 20
+                                                                                    };//25
     //--------------------------------------------EMCal-EMCal: EMC7, MB
-    Int_t fBinsOmegaPiPlPiMiPiZero13TevPtEMCEMC7_maxBins                            = 10;
+    Int_t fBinsOmegaPiPlPiMiPiZero13TevPtEMCEMC7_maxBins                            = 11;
     std::vector<Double_t> fBinsOmegaPiPlPiMiPiZero13TevPtEMCEMC7                    = { //EMCal-EMCal EMC7
-                                                                                        3.00,  4.00,  5.00,  6.00,  8.00,         10.00, 12.00, 14.00, 16.00, 20.00,
-                                                                                       24.00
-                                                                                    }; //11
+                                                                                        3.00,  3.50,  4.00,  5.00,  6.00,          8.00, 10.00, 12.00, 14.00, 16.00,
+                                                                                       20.00, 24.00
+                                                                                    }; //12
     std::vector<Int_t> fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEMC7                  = { //Rebin EMCal-EMCal, EMC7 Binning
-                                                                                        10, 10, 10, 10, 10,     10, 10, 10, 10, 10
-                                                                                    };//24
+                                                                                        10, 10, 10, 10, 10,     10, 10, 10, 10, 10,
+                                                                                        10
+                                                                                    };//11
 
     //--------------------------------------------EMCal-EMCal: EG1, 8d 8GeV
-    Int_t fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG1_maxBins                             = 24;
+    Int_t fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG1_maxBins                             = 25;
     std::vector<Double_t> fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG1                     = { //EMCal-EMCal EG1 (8d)
-                                                                                        3.00,  4.00,  5.00,  6.00,  8.00,         10.00, 12.00, 14.00, 16.00, 18.00,
-                                                                                       20.00, 22.00, 24.00, 26.00, 28.00,         30.00, 35.00, 40.00, 45.00, 50.00,
-                                                                                       60.00, 70.00, 80.00, 90.00, 100.0
-                                                                                    }; //25
+                                                                                        3.00,  3.50, 4.00,  5.00,  6.00,           8.00, 10.00, 12.00, 14.00, 16.00,
+                                                                                       18.00, 20.00, 22.00, 24.00, 26.00,         28.00, 30.00, 35.00, 40.00, 45.00,
+                                                                                       50.00, 60.00, 70.00, 80.00, 90.00,         100.0
+                                                                                    }; //26
     std::vector<Int_t> fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG1                   = { //Rebin EMCal-EMCal EG1 (8d)
                                                                                        10, 10, 10, 10, 10,     10, 10, 10, 10, 10,
-                                                                                        5,  5,  5, 10, 10,     10, 10, 10, 20, 20,
-                                                                                       20, 20, 20, 20
-                                                                                    };//24
+                                                                                       10,  5,  5,  5, 10,     10, 10, 10, 10, 20,
+                                                                                       20, 20, 20, 20, 20
+                                                                                    };//25
 
     //--------------------------------------------EMCal-EMCal: EG2, 8e, 4GeV
-    Int_t fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG2_maxBins                             = 22;
+    Int_t fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG2_maxBins                             = 23;
     std::vector<Double_t> fBinsOmegaPiPlPiMiPiZero13TevPtEMCEG2                     = { //EMCal-EMCal EG2 (8e)
-                                                                                        3.00,  4.00,  5.00,  6.00,  8.00,         10.00, 12.00, 14.00, 16.00, 18.00,
-                                                                                       20.00, 22.00, 24.00, 26.00, 30.00,         35.00, 40.00, 50.00, 60.00, 70.00,
-                                                                                       80.00, 90.00, 100.0
-                                                                                    }; //23
+                                                                                        3.00,  3.50,  4.00,  5.00,  6.00,          8.00, 10.00, 12.00, 14.00, 16.00,
+                                                                                       18.00, 20.00, 22.00, 24.00, 26.00,         30.00, 35.00, 40.00, 50.00, 60.00,
+                                                                                       70.00, 80.00, 90.00, 100.0
+                                                                                    }; //24
     std::vector<Int_t> fBinsOmegaPiPlPiMiPiZero13TevPtRebinEMCEG2                   = { //Rebin EMCal-EMCal EG2 (8e)
                                                                                        10, 10, 10, 10, 10,     10, 10, 10, 10, 10,
-                                                                                       10, 10, 10, 10, 10,     20, 20, 20, 20, 20,
-                                                                                       20, 20
-                                                                                    };//22
+                                                                                       10, 10, 10, 10, 10,     10, 20, 20, 20, 20,
+                                                                                       20, 20, 20
+                                                                                    };//23
 
 #endif
