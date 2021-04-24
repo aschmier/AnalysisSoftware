@@ -1804,6 +1804,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fMesonCurIntRange[1][1]                                             = fMesonMass[iPt] + fMesonIntDeltaRangeWide[1];
             fMesonCurIntRange[2][1]                                             = fMesonMass[iPt] + fMesonIntDeltaRangeNarrow[1];
 
+            fMesonCurIntRangeAllPt[0][0][iPt]                                   = fMesonMass[iPt] + fMesonIntDeltaRange[0];
+            fMesonCurIntRangeAllPt[1][0][iPt]                                   = fMesonMass[iPt] + fMesonIntDeltaRangeWide[0];
+            fMesonCurIntRangeAllPt[2][0][iPt]                                   = fMesonMass[iPt] + fMesonIntDeltaRangeNarrow[0];
+            fMesonCurIntRangeAllPt[0][1][iPt]                                   = fMesonMass[iPt] + fMesonIntDeltaRange[1];
+            fMesonCurIntRangeAllPt[1][1][iPt]                                   = fMesonMass[iPt] + fMesonIntDeltaRangeWide[1];
+            fMesonCurIntRangeAllPt[2][1][iPt]                                   = fMesonMass[iPt] + fMesonIntDeltaRangeNarrow[1];
+
             if (fFitSignalInvMassPtBin_SubPiZero !=0x00){
               fMesonMass_SubPiZero[iPt]                                         = fFitSignalInvMassPtBin_SubPiZero[iPt]->GetParameter(1);
               fMesonMassError_SubPiZero[iPt]                                    = fFitSignalInvMassPtBin_SubPiZero[iPt]->GetParError(1);
@@ -1818,6 +1825,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
               fMesonCurIntRange_SubPiZero[0][1]                                 = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRange[1];
               fMesonCurIntRange_SubPiZero[1][1]                                 = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeWide[1];
               fMesonCurIntRange_SubPiZero[2][1]                                 = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
+
+              fMesonCurIntRangeAllPt_SubPiZero[0][0][iPt]                       = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRange[0];
+              fMesonCurIntRangeAllPt_SubPiZero[1][0][iPt]                       = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeWide[0];
+              fMesonCurIntRangeAllPt_SubPiZero[2][0][iPt]                       = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeNarrow[0];
+              fMesonCurIntRangeAllPt_SubPiZero[0][1][iPt]                       = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRange[1];
+              fMesonCurIntRangeAllPt_SubPiZero[1][1][iPt]                       = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeWide[1];
+              fMesonCurIntRangeAllPt_SubPiZero[2][1][iPt]                       = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
             }
 
             if (fFitSignalInvMassPtBin_FixedPzPiZero !=0x00){
@@ -1834,6 +1848,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
               fMesonCurIntRange_FixedPzPiZero[0][1]                             = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRange[1];
               fMesonCurIntRange_FixedPzPiZero[1][1]                             = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeWide[1];
               fMesonCurIntRange_FixedPzPiZero[2][1]                             = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
+
+              fMesonCurIntRangeAllPt_FixedPzPiZero[0][0][iPt]                   = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRange[0];
+              fMesonCurIntRangeAllPt_FixedPzPiZero[1][0][iPt]                   = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeWide[0];
+              fMesonCurIntRangeAllPt_FixedPzPiZero[2][0][iPt]                   = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeNarrow[0];
+              fMesonCurIntRangeAllPt_FixedPzPiZero[0][1][iPt]                   = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRange[1];
+              fMesonCurIntRangeAllPt_FixedPzPiZero[1][1][iPt]                   = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeWide[1];
+              fMesonCurIntRangeAllPt_FixedPzPiZero[2][1][iPt]                   = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
             }
         } else {
 
@@ -1851,6 +1872,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fMesonCurIntRange[1][1]                                             = fMesonMassExpect + fMesonIntDeltaRangeWide[1];
             fMesonCurIntRange[2][1]                                             = fMesonMassExpect + fMesonIntDeltaRangeNarrow[1];
 
+            fMesonCurIntRangeAllPt[0][0][iPt]                                   = fMesonMassExpect + fMesonIntDeltaRange[0];
+            fMesonCurIntRangeAllPt[1][0][iPt]                                   = fMesonMassExpect + fMesonIntDeltaRangeWide[0];
+            fMesonCurIntRangeAllPt[2][0][iPt]                                   = fMesonMassExpect + fMesonIntDeltaRangeNarrow[0];
+            fMesonCurIntRangeAllPt[0][1][iPt]                                   = fMesonMassExpect + fMesonIntDeltaRange[1];
+            fMesonCurIntRangeAllPt[1][1][iPt]                                   = fMesonMassExpect + fMesonIntDeltaRangeWide[1];
+            fMesonCurIntRangeAllPt[2][1][iPt]                                   = fMesonMassExpect + fMesonIntDeltaRangeNarrow[1];
+
             fMesonMass_SubPiZero[iPt]                                           = fMesonMassExpect;
             fMesonMassError_SubPiZero[iPt]                                      = 0.;
             fMesonLambdaTailpar_SubPiZero[iPt]                                  = 0.;
@@ -1864,6 +1892,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fMesonCurIntRange_SubPiZero[1][1]                                   = fMesonMass_SubPiZero[iPt]   + fMesonIntDeltaRangeWide[1];
             fMesonCurIntRange_SubPiZero[2][1]                                   = fMesonMass_SubPiZero[iPt]   + fMesonIntDeltaRangeNarrow[1];
 
+            fMesonCurIntRangeAllPt_SubPiZero[0][0][iPt]                         = fMesonMass_SubPiZero[iPt]   + fMesonIntDeltaRange[0];
+            fMesonCurIntRangeAllPt_SubPiZero[1][0][iPt]                         = fMesonMass_SubPiZero[iPt]   + fMesonIntDeltaRangeWide[0];
+            fMesonCurIntRangeAllPt_SubPiZero[2][0][iPt]                         = fMesonMass_SubPiZero[iPt]   + fMesonIntDeltaRangeNarrow[0];
+            fMesonCurIntRangeAllPt_SubPiZero[0][1][iPt]                         = fMesonMass_SubPiZero[iPt]   + fMesonIntDeltaRange[1];
+            fMesonCurIntRangeAllPt_SubPiZero[1][1][iPt]                         = fMesonMass_SubPiZero[iPt]   + fMesonIntDeltaRangeWide[1];
+            fMesonCurIntRangeAllPt_SubPiZero[2][1][iPt]                         = fMesonMass_SubPiZero[iPt]   + fMesonIntDeltaRangeNarrow[1];
+
             fMesonMass_FixedPzPiZero[iPt]                                       = fMesonMassExpect;
             fMesonMassError_FixedPzPiZero[iPt]                                  = 0.;
             fMesonLambdaTailpar_FixedPzPiZero[iPt]                              = 0.;
@@ -1876,6 +1911,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fMesonCurIntRange_FixedPzPiZero[0][1]                               = fMesonMass_FixedPzPiZero[iPt]   + fMesonIntDeltaRange[1];
             fMesonCurIntRange_FixedPzPiZero[1][1]                               = fMesonMass_FixedPzPiZero[iPt]   + fMesonIntDeltaRangeWide[1];
             fMesonCurIntRange_FixedPzPiZero[2][1]                               = fMesonMass_FixedPzPiZero[iPt]   + fMesonIntDeltaRangeNarrow[1];
+
+            fMesonCurIntRangeAllPt_FixedPzPiZero[0][0][iPt]                     = fMesonMass_FixedPzPiZero[iPt]   + fMesonIntDeltaRange[0];
+            fMesonCurIntRangeAllPt_FixedPzPiZero[1][0][iPt]                     = fMesonMass_FixedPzPiZero[iPt]   + fMesonIntDeltaRangeWide[0];
+            fMesonCurIntRangeAllPt_FixedPzPiZero[2][0][iPt]                     = fMesonMass_FixedPzPiZero[iPt]   + fMesonIntDeltaRangeNarrow[0];
+            fMesonCurIntRangeAllPt_FixedPzPiZero[0][1][iPt]                     = fMesonMass_FixedPzPiZero[iPt]   + fMesonIntDeltaRange[1];
+            fMesonCurIntRangeAllPt_FixedPzPiZero[1][1][iPt]                     = fMesonMass_FixedPzPiZero[iPt]   + fMesonIntDeltaRangeWide[1];
+            fMesonCurIntRangeAllPt_FixedPzPiZero[2][1][iPt]                     = fMesonMass_FixedPzPiZero[iPt]   + fMesonIntDeltaRangeNarrow[1];
 
         }
 
@@ -1897,6 +1939,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fMesonCurIntRangeBackFit[1][1]                                      = fMesonMassBackFit[iPt] + fMesonIntDeltaRangeWide[1];
             fMesonCurIntRangeBackFit[2][1]                                      = fMesonMassBackFit[iPt] + fMesonIntDeltaRangeNarrow[1];
 
+            fMesonCurIntRangeAllPtBackFit[0][0][iPt]                            = fMesonMassBackFit[iPt] + fMesonIntDeltaRange[0];
+            fMesonCurIntRangeAllPtBackFit[1][0][iPt]                            = fMesonMassBackFit[iPt] + fMesonIntDeltaRangeWide[0];
+            fMesonCurIntRangeAllPtBackFit[2][0][iPt]                            = fMesonMassBackFit[iPt] + fMesonIntDeltaRangeNarrow[0];
+            fMesonCurIntRangeAllPtBackFit[0][1][iPt]                            = fMesonMassBackFit[iPt] + fMesonIntDeltaRange[1];
+            fMesonCurIntRangeAllPtBackFit[1][1][iPt]                            = fMesonMassBackFit[iPt] + fMesonIntDeltaRangeWide[1];
+            fMesonCurIntRangeAllPtBackFit[2][1][iPt]                            = fMesonMassBackFit[iPt] + fMesonIntDeltaRangeNarrow[1];
+
             if(fFitSignalInvMassBackFitPtBin_SubPiZero !=0x00){
               fMesonMassBackFit_SubPiZero[iPt]                                  = fFitSignalInvMassBackFitPtBin_SubPiZero[iPt]->GetParameter(1);
               fMesonMassBackFitError_SubPiZero[iPt]                             = fFitSignalInvMassBackFitPtBin_SubPiZero[iPt]->GetParError(1);
@@ -1912,6 +1961,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
               fMesonCurIntRangeBackFit_SubPiZero[0][1]                          = fMesonMassBackFit_SubPiZero[iPt] + fMesonIntDeltaRange[1];
               fMesonCurIntRangeBackFit_SubPiZero[1][1]                          = fMesonMassBackFit_SubPiZero[iPt] + fMesonIntDeltaRangeWide[1];
               fMesonCurIntRangeBackFit_SubPiZero[2][1]                          = fMesonMassBackFit_SubPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
+
+              fMesonCurIntRangeAllPtBackFit_SubPiZero[0][0][iPt]                = fMesonMassBackFit_SubPiZero[iPt] + fMesonIntDeltaRange[0];
+              fMesonCurIntRangeAllPtBackFit_SubPiZero[1][0][iPt]                = fMesonMassBackFit_SubPiZero[iPt] + fMesonIntDeltaRangeWide[0];
+              fMesonCurIntRangeAllPtBackFit_SubPiZero[2][0][iPt]                = fMesonMassBackFit_SubPiZero[iPt] + fMesonIntDeltaRangeNarrow[0];
+              fMesonCurIntRangeAllPtBackFit_SubPiZero[0][1][iPt]                = fMesonMassBackFit_SubPiZero[iPt] + fMesonIntDeltaRange[1];
+              fMesonCurIntRangeAllPtBackFit_SubPiZero[1][1][iPt]                = fMesonMassBackFit_SubPiZero[iPt] + fMesonIntDeltaRangeWide[1];
+              fMesonCurIntRangeAllPtBackFit_SubPiZero[2][1][iPt]                = fMesonMassBackFit_SubPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
             }
 
             if(fFitSignalInvMassBackFitPtBin_FixedPzPiZero !=0x00){
@@ -1929,6 +1985,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
               fMesonCurIntRangeBackFit_FixedPzPiZero[0][1]                      = fMesonMassBackFit_FixedPzPiZero[iPt] + fMesonIntDeltaRange[1];
               fMesonCurIntRangeBackFit_FixedPzPiZero[1][1]                      = fMesonMassBackFit_FixedPzPiZero[iPt] + fMesonIntDeltaRangeWide[1];
               fMesonCurIntRangeBackFit_FixedPzPiZero[2][1]                      = fMesonMassBackFit_FixedPzPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
+
+              fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[0][0][iPt]            = fMesonMassBackFit_FixedPzPiZero[iPt] + fMesonIntDeltaRange[0];
+              fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[1][0][iPt]            = fMesonMassBackFit_FixedPzPiZero[iPt] + fMesonIntDeltaRangeWide[0];
+              fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[2][0][iPt]            = fMesonMassBackFit_FixedPzPiZero[iPt] + fMesonIntDeltaRangeNarrow[0];
+              fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[0][1][iPt]            = fMesonMassBackFit_FixedPzPiZero[iPt] + fMesonIntDeltaRange[1];
+              fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[1][1][iPt]            = fMesonMassBackFit_FixedPzPiZero[iPt] + fMesonIntDeltaRangeWide[1];
+              fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[2][1][iPt]            = fMesonMassBackFit_FixedPzPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
             }
         } else {
             fMesonMassBackFit[iPt]                                              = 0;
@@ -1946,6 +2009,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fMesonCurIntRangeBackFit[1][1]                                      = fMesonMass[iPt] + fMesonIntDeltaRangeWide[1];
             fMesonCurIntRangeBackFit[2][1]                                      = fMesonMass[iPt] + fMesonIntDeltaRangeNarrow[1];
 
+            fMesonCurIntRangeAllPtBackFit[0][0][iPt]                            = fMesonMass[iPt] + fMesonIntDeltaRange[0];
+            fMesonCurIntRangeAllPtBackFit[1][0][iPt]                            = fMesonMass[iPt] + fMesonIntDeltaRangeWide[0];
+            fMesonCurIntRangeAllPtBackFit[2][0][iPt]                            = fMesonMass[iPt] + fMesonIntDeltaRangeNarrow[0];
+            fMesonCurIntRangeAllPtBackFit[0][1][iPt]                            = fMesonMass[iPt] + fMesonIntDeltaRange[1];
+            fMesonCurIntRangeAllPtBackFit[1][1][iPt]                            = fMesonMass[iPt] + fMesonIntDeltaRangeWide[1];
+            fMesonCurIntRangeAllPtBackFit[2][1][iPt]                            = fMesonMass[iPt] + fMesonIntDeltaRangeNarrow[1];
+
             fMesonMassBackFit_SubPiZero[iPt]                                    = 0;
             fMesonMassBackFitError_SubPiZero[iPt]                               = 0;
             fMesonLambdaTailparBackFit_SubPiZero[iPt]                           = 0.;
@@ -1961,6 +2031,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fMesonCurIntRangeBackFit_SubPiZero[1][1]                            = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeWide[1];
             fMesonCurIntRangeBackFit_SubPiZero[2][1]                            = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
 
+            fMesonCurIntRangeAllPtBackFit_SubPiZero[0][0][iPt]                  = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRange[0];
+            fMesonCurIntRangeAllPtBackFit_SubPiZero[1][0][iPt]                  = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeWide[0];
+            fMesonCurIntRangeAllPtBackFit_SubPiZero[2][0][iPt]                  = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeNarrow[0];
+            fMesonCurIntRangeAllPtBackFit_SubPiZero[0][1][iPt]                  = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRange[1];
+            fMesonCurIntRangeAllPtBackFit_SubPiZero[1][1][iPt]                  = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeWide[1];
+            fMesonCurIntRangeAllPtBackFit_SubPiZero[2][1][iPt]                  = fMesonMass_SubPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
+
             fMesonMassBackFit_FixedPzPiZero[iPt]                                = 0;
             fMesonMassBackFitError_FixedPzPiZero[iPt]                           = 0;
             fMesonLambdaTailparBackFit_FixedPzPiZero[iPt]                       = 0.;
@@ -1975,6 +2052,13 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
             fMesonCurIntRangeBackFit_FixedPzPiZero[0][1]                        = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRange[1];
             fMesonCurIntRangeBackFit_FixedPzPiZero[1][1]                        = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeWide[1];
             fMesonCurIntRangeBackFit_FixedPzPiZero[2][1]                        = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
+
+            fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[0][0][iPt]              = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRange[0];
+            fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[1][0][iPt]              = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeWide[0];
+            fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[2][0][iPt]              = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeNarrow[0];
+            fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[0][1][iPt]              = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRange[1];
+            fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[1][1][iPt]              = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeWide[1];
+            fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[2][1][iPt]              = fMesonMass_FixedPzPiZero[iPt] + fMesonIntDeltaRangeNarrow[1];
 
         }
 
@@ -3455,6 +3539,9 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         }
     }
 
+    //---------------------------------------------------------------------------------------
+    //--------------------------------End Analysis over Pt Bins------------------------------
+    //---------------------------------------------------------------------------------------
 
     if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; After Analysis Pt Bin Loop"<<endl;}
     //******************** Data OUTPUTFILE ***************************************************
@@ -3765,32 +3852,32 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         TString nameMesonSub        = Form("%s/%s_%s_MesonSubtracted%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
         TString nameCanvasSub       = "MesonCanvasSubtracted";
         TString namePadSub          = "MesonPadSubtracted";
-        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,NULL,fThesis);
+        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,NULL,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
         // Meson Subtracted minus InvMass pi0
         nameMesonSub        = Form("%s/%s_%s_MesonSubtracted_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
         nameCanvasSub       = "MesonCanvasSubtracted";
         namePadSub          = "MesonPadSubtracted";
-        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_SubPiZero,fThesis);
+        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_SubPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
         // Meson Subtracted with pz of pi0 fixed
         nameMesonSub        = Form("%s/%s_%s_MesonSubtracted_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
         nameCanvasSub       = "MesonCanvasSubtracted";
         namePadSub          = "MesonPadSubtracted";
-        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_FixedPzPiZero,fThesis);
+        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_FixedPzPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
         if(fIsMC){
             // Meson Subtracted with pz of pi0 fixed that shows fit of true signal instead of signal fit
             nameMesonSub        = Form("%s/%s_%s_MesonSubtracted_FixedPzPiZero_TrueFit_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
             nameCanvasSub       = "MesonCanvasSubtracted";
             namePadSub          = "MesonPadSubtracted";
-            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitTrueSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_FixedPzPiZero,fThesis);
+            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitTrueSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_FixedPzPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
             // Meson Subtracted with pz of pi0 fixed that shows fit of true signal instead of signal fit
             nameMesonSub        = Form("%s/%s_%s_MesonSubtracted_SubPiZero_TrueFit_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
             nameCanvasSub       = "MesonCanvasSubtracted";
             namePadSub          = "MesonPadSubtracted";
-            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitTrueSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_SubPiZero);
+            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitTrueSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_SubPiZero, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
         }
 
         // Histos with residual background subtracted. Errors not correct. QA plot only
@@ -3799,32 +3886,32 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
         nameCanvasSub       = "MesonCanvasSubtracted";
         namePadSub          = "MesonPadSubtracted";
-        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,NULL,fThesis);
+        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,NULL,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
         // Meson Subtracted minus InvMass pi0
         nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
         nameCanvasSub       = "MesonCanvasSubtracted";
         namePadSub          = "MesonPadSubtracted";
-        if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_SubPiZero,fThesis);
+        if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_SubPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
         // Meson Subtracted with pz of pi0 fixed
         nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
         nameCanvasSub       = "MesonCanvasSubtracted";
         namePadSub          = "MesonPadSubtracted";
-        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_FixedPzPiZero,fThesis);
+        PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMass_FixedPzPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
         if(fIsMC){
             // Meson Subtracted with pz of pi0 fixed that shows fit of true signal instead of signal fit
             nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly_FixedPzPiZero_TrueFit_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
             nameCanvasSub       = "MesonCanvasSubtracted";
             namePadSub          = "MesonPadSubtracted";
-            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitTrueSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_FixedPzPiZero,fThesis);
+            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitTrueSignalInvMassPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_FixedPzPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
             // Meson Subtracted with pz of pi0 fixed that shows fit of true signal instead of signal fit
             nameMesonSub        = Form("%s/%s_%s_MesonSignalOnly_SubPiZero_TrueFit_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
             nameCanvasSub       = "MesonCanvasSubtracted";
             namePadSub          = "MesonPadSubtracted";
-            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitTrueSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_SubPiZero);
+            if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitTrueSignalInvMassPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"fit of validated signal","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonTrueMass_SubPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
         }
     }
 
@@ -3833,21 +3920,21 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     nameCanvasSub               = "MesonCanvasSubtractedBackFit";
     namePadSub                  = "MesonPadSubtractedBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassBackFitPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","fitted background subtracted",kFALSE,fMesonMassBackFit,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitSignalInvMassBackFitPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","fitted background subtracted",kFALSE,fMesonMassBackFit,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Meson Subtracted backfit (minus pi0 inv mass) (NOTE: isMC is always disabled because no true histos exist for minus pi0 inv mass)
     nameMesonSub                = Form("%s/%s_%s_MesonSubtractedBackFit_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasSubtractedBackFit";
     namePadSub                  = "MesonPadSubtractedBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassBackFitPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement,fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit_SubPiZero,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitSignalInvMassBackFitPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement,fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit_SubPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Comparison of backfit and exent mixing only
     nameMesonSub                = Form("%s/%s_%s_MesonSubtractedComparison_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasSubtractedBackFit";
     namePadSub                  = "MesonPadSubtractedBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_SubPiZero, fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero, fFitSignalInvMassBackFitPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement,kTRUE,fDecayChannel, fDetectionProcess, fCollisionSystem,"event mixing",kTRUE,"Fit","back fit subtracted",kFALSE,fMesonMassBackFit_SubPiZero,fThesis);
+    if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_SubPiZero, fHistoMappingSignalInvMassPtBinResSubtracted_SubPiZero, fFitSignalInvMassBackFitPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement,kTRUE,fDecayChannel, fDetectionProcess, fCollisionSystem,"event mixing",kTRUE,"Fit","back fit subtracted",kFALSE,fMesonMassBackFit_SubPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
 
     // Meson Subtracted backfit (pz of pi0 is fixed) (NOTE: isMC is always disabled because no true histos exist)
@@ -3855,7 +3942,7 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     nameCanvasSub               = "MesonCanvasSubtractedBackFit";
     namePadSub                  = "MesonPadSubtractedBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitSignalInvMassBackFitPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","fitted background subtracted",kFALSE,fMesonMassBackFit_FixedPzPiZero,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitSignalInvMassBackFitPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","fitted background subtracted",kFALSE,fMesonMassBackFit_FixedPzPiZero,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     //loop through Pt slices and plot inv mass around peak (only in DATA, not MC)
 
@@ -3864,42 +3951,42 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     nameCanvasSub               = "MesonCanvasBackFit";
     namePadSub                  = "MesonPadBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fBackgroundFitPol, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fBackgroundFitPol, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
    // Meson Back Fit (minus pi0 inv mass)
     nameMesonSub                = Form("%s/%s_%s_MesonBackFit_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasBackFit";
     namePadSub                  = "MesonPadBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fBackgroundFitPol_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fBackgroundFitPol_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Meson Back Fit (pz of pi0 fixed)
     nameMesonSub                = Form("%s/%s_%s_MesonBackFit_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasBackFit";
     namePadSub                  = "MesonPadBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fBackgroundFitPol_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fBackgroundFitPol_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Meson Back Fit
     nameMesonSub                = Form("%s/%s_%s_MesonBackFitWithGauss%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasBackFit";
     namePadSub                  = "MesonPadBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fBackgroundFitGaussPol, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins, fBackgroundFitGaussPol, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
    // Meson Back Fit (minus pi0 inv mass)
     nameMesonSub                = Form("%s/%s_%s_MesonBackFitWithGauss_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasBackFit";
     namePadSub                  = "MesonPadBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fBackgroundFitGaussPol_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fBackgroundFitGaussPol_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Meson Back Fit (pz of pi0 fixed)
     nameMesonSub                = Form("%s/%s_%s_MesonBackFitWithGauss_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(), fPeriodFlag.Data(), fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasBackFit";
     namePadSub                  = "MesonPadBackFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fBackgroundFitGaussPol_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis);
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fBackgroundFitGaussPol_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}",kFALSE,fMesonMassBackFit,fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     if (iBckSwitch == 5){
         //Signal to Backround Fit
@@ -3978,57 +4065,57 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     nameCanvasSub               = "MesonCanvasWithBGAndFit";
     namePadSub                  = "MesonPadWithBGAndFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins,fFitWithPol2ForBG, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC , fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin, fHistoMappingTrueMesonInvMassPtBins,fFitWithPol2ForBG, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC , fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}", kFALSE, NULL, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Meson with background and fit (minus pi0 mass)
     nameMesonSub                = Form("%s/%s_%s_MesonWithBGAndFit_SubPiZero%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasWithBGAndFit";
     namePadSub                  = "MesonPadWithBGAndFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins,fFitWithPol2ForBG_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE , fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins,fFitWithPol2ForBG_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE , fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}", kFALSE, NULL, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Meson with background and fit (pz of pi0 fixed)
     nameMesonSub                = Form("%s/%s_%s_MesonWithBGAndFit_FixedPzPiZero%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasWithBGAndFit";
     namePadSub                  = "MesonPadWithBGAndFit";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins,fFitWithPol2ForBG_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE , fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");
+    PlotWithFitSubtractedInvMassInPtBins( fHistoMappingGGInvMassPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins,fFitWithPol2ForBG_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE , fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}", kFALSE, NULL, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Meson Subtracted left side
     nameMesonSub                = Form("%s/%s_%s_MesonSubtractedLeft%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasSubtractedLeft";
     namePadSub                  = "MesonPadSubtractedLeft";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassLeftPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitInvMassLeftPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");
+    if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassLeftPtBin, fHistoMappingTrueMesonInvMassPtBins, fFitInvMassLeftPtBin, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}", kFALSE, NULL, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Meson Subtracted left side (pi0 inv mass subtracted)
     nameMesonSub                = Form("%s/%s_%s_MesonSubtractedLeft_SubPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasSubtractedLeft";
     namePadSub                  = "MesonPadSubtractedLeft";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassLeftPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitInvMassLeftPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");
+    if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassLeftPtBin_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitInvMassLeftPtBin_SubPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_SubPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}", kFALSE, NULL, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // Meson Subtracted left side (pz of pi0 fixed)
     nameMesonSub                = Form("%s/%s_%s_MesonSubtractedLeft_FixedPzPiZero_%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
     nameCanvasSub               = "MesonCanvasSubtractedLeft";
     namePadSub                  = "MesonPadSubtractedLeft";
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting nameMesonSub: "<<nameMesonSub<<endl;}
-    if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassLeftPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitInvMassLeftPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");
+    if(backAvailable) PlotWithFitSubtractedInvMassInPtBins( fHistoMappingSignalInvMassLeftPtBin_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitInvMassLeftPtBin_FixedPzPiZero, nameMesonSub, nameCanvasSub, namePadSub, fMesonMassRange_FixedPzPiZero, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, kFALSE, fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}", kFALSE, NULL, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     if(backAvailable) PlotExampleInvMassBinsV2(fHistoMappingGGInvMassPtBin[fExampleBin], fHistoMappingSignalInvMassPtBin[fExampleBin], fHistoMappingBackNormInvMassPtBin[0][fExampleBin],
                         fFitSignalInvMassPtBin[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig,kFALSE);
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig,kFALSE, NULL, -1, 0, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
     // In example bin with pi0 inv mass subtracted
 
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting PlotExampleInvMassBinsV2"<<endl;}
     if(backAvailable) PlotExampleInvMassBinsV2(fHistoMappingGGInvMassPtBin_SubPiZero[fExampleBin], fHistoMappingSignalInvMassPtBin_SubPiZero[fExampleBin], fHistoMappingBackNormInvMassPtBin_SubPiZero[0][fExampleBin],
                         fFitSignalInvMassPtBin_SubPiZero[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange_SubPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig,kFALSE,fBGFitRange_SubPiZero);
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig,kFALSE,fBGFitRange_SubPiZero, -1, 0, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
     // In example bin with pz of pi0 fixed
 
     if(backAvailable) PlotExampleInvMassBinsV2(fHistoMappingGGInvMassPtBin_FixedPzPiZero[fExampleBin], fHistoMappingSignalInvMassPtBin_FixedPzPiZero[fExampleBin], fHistoMappingBackNormInvMassPtBin_FixedPzPiZero[0][fExampleBin],
                         fFitSignalInvMassPtBin_FixedPzPiZero[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMass_FixedPzPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig, kFALSE, fBGFitRange_FixedPzPiZero);
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig, kFALSE, fBGFitRange_FixedPzPiZero, -1, 0, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting PlotExampleInvMassBinsBckFit"<<endl;}
     if (doDebugOutputLevel>=3){
@@ -4037,18 +4124,18 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
     }
     PlotExampleInvMassBinsBckFit(fHistoMappingGGInvMassPtBin[fExampleBin], fHistoMappingGGInvMassBackFitPtBin[fExampleBin], fBackgroundFitPol[fExampleBin],fHistoBckFitConfidence[fExampleBin],
                          fFitSignalInvMassBackFitPtBin[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig );
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig, kFALSE, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
     // In example bin with pi0 inv mass subtracted
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting PlotExampleInvMassBinsBckFit; In example bin with pi0 inv mass subtracted"<<endl;}
     PlotExampleInvMassBinsBckFit(fHistoMappingGGInvMassPtBin_SubPiZero[fExampleBin], fHistoMappingGGInvMassBackFitPtBin_SubPiZero[fExampleBin], fBackgroundFitPol_SubPiZero[fExampleBin],fHistoBckFitConfidence_SubPiZero[fExampleBin],
                          fFitSignalInvMassBackFitPtBin_SubPiZero[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange_SubPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig );
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig, kFALSE, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     // In example bin with pz of pi0 fixed
     if (doDebugOutputLevel>=2){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; Line: "<<__LINE__<<"; Plotting PlotExampleInvMassBinsBckFit; In example bin with pz of pi0 fixed"<<endl;}
     PlotExampleInvMassBinsBckFit(fHistoMappingGGInvMassPtBin_FixedPzPiZero[fExampleBin], fHistoMappingGGInvMassBackFitPtBin_FixedPzPiZero[fExampleBin], fBackgroundFitPol_FixedPzPiZero[fExampleBin],fHistoBckFitConfidence_FixedPzPiZero[fExampleBin],
                          fFitSignalInvMassBackFitPtBin_FixedPzPiZero[fExampleBin], fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMass_FixedPzPiZero, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
-                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig );
+                        fThesis, fCollisionSystem, fBinsPt, fDecayChannel, fDetectionProcess, fTriggerInt, fExampleBinScaleFac, fMode, addSig, kFALSE, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
     if(((TString)fMesonCutSelection(1,1)).CompareTo("a")!=0){ //Do these plots only if LikeSign method was used
         // Background groups individually scaled in example bin
         if(backAvailable) PlotExampleInvMassBinsBckGroups(fHistoMappingGGInvMassPtBin[fExampleBin], fHistoMappingBackNormInvMassPtBin,fExampleBin, outputDir.Data(),Suffix.Data(), fMesonMassRange, pictDrawingCoordinatesFWHM, fNEvents, fdate, fPrefix, fPrefix2,
@@ -4109,17 +4196,17 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
         TString nameMesonTrue   = Form("%s/%s_%s_TrueMesonFitted%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
         TString nameCanvasTrue  = "TrueMesonCanvasFitted";
         TString namePadTrue     = "TrueMesonPadFitted";
-        PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins, fHistoMappingTrueMesonInvMassPtBins, fFitTrueSignalInvMassPtBin, nameMesonTrue, nameCanvasTrue, namePadTrue, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");  
+        PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins, fHistoMappingTrueMesonInvMassPtBins, fFitTrueSignalInvMassPtBin, nameMesonTrue, nameCanvasTrue, namePadTrue, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}", kFALSE, NULL, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
     
         nameMesonTrue   = Form("%s/%s_%s_TrueMesonFitted_SubPiZero%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
         nameCanvasTrue  = "TrueMesonCanvasFitted";
         namePadTrue     = "TrueMesonPadFitted";
-        PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitTrueSignalInvMassPtBin_SubPiZero, nameMesonTrue, nameCanvasTrue, namePadTrue, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");  
+        PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fHistoMappingTrueMesonInvMassPtBins_SubPiZero, fFitTrueSignalInvMassPtBin_SubPiZero, nameMesonTrue, nameCanvasTrue, namePadTrue, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}", kFALSE, NULL, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
         nameMesonTrue   = Form("%s/%s_%s_TrueMesonFitted_FixedPzPiZero%s_%s.%s",outputDir.Data(),fPrefix.Data(),fPrefix2.Data(),fPeriodFlag.Data(),fCutSelection.Data(),Suffix.Data());
         nameCanvasTrue  = "TrueMesonCanvasFitted";
         namePadTrue     = "TrueMesonPadFitted";
-        PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitTrueSignalInvMassPtBin_FixedPzPiZero, nameMesonTrue, nameCanvasTrue, namePadTrue, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}");  
+        PlotWithFitSubtractedInvMassInPtBins(fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fHistoMappingTrueMesonInvMassPtBins_FixedPzPiZero, fFitTrueSignalInvMassPtBin_FixedPzPiZero, nameMesonTrue, nameCanvasTrue, namePadTrue, fMesonMassRange, fdate, fPrefix, fRow, fColumn, fStartPtBin, fNBinsPt, fBinsPt, fTextMeasurement, fIsMC,fDecayChannel, fDetectionProcess, fCollisionSystem,"MC validated signal",kTRUE,"Fit","mixed evt. subtr. #it{M}_{#pi^{+}#pi^{-}#pi^{0}}", kFALSE, NULL, fThesis, useFitIntDeltaRange, fMesonIntDeltaRangeByFit);
 
     }
 
@@ -4990,11 +5077,16 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     DrawGammaSetMarker(fHistoTrueFWHMToSigmaMeson, 24, 1., kRed+2, kRed+2);
                     fHistoTrueFWHMToSigmaMeson->Draw("same,pe");
                 }
+                if (useFitIntDeltaRange){
+                    DrawGammaSetMarker(fHistoWidthFitBinValues, 24, 1., kBlue+2, kBlue+2);
+                    fHistoWidthFitBinValues->Draw("same,pe");
+                }
                 canvasFWHMToSigmaMesonBackFit->Update();
 
-                TLegend* legendFWHMToSigmaMesonBackFit = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                TLegend* legendFWHMToSigmaMesonBackFit = GetAndSetLegend2(0.2,0.12,0.45,0.3, 0.04*1200,1);
                 legendFWHMToSigmaMesonBackFit->AddEntry(fHistoFWHMToSigmaMesonBackFit,Form("%s #sigma as FWHM/2.3548",fPrefix.Data()),"p");
                 if(fIsMC) legendFWHMToSigmaMesonBackFit->AddEntry(fHistoTrueFWHMToSigmaMeson,"True MC","p");
+                if (useFitIntDeltaRange){legendFWHMToSigmaMesonBackFit->AddEntry(fHistoWidthFitBinValues,"Omega Width from external Fit","p");}
                 legendFWHMToSigmaMesonBackFit->Draw();
 
                 if (fIsMC) canvasFWHMToSigmaMesonBackFit->SaveAs(Form("%s/%s_MC_FWHMToSigmaMesonBackFit_%s.%s",outputDirMon_BackFit_Std.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
@@ -5016,11 +5108,17 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     DrawGammaSetMarker(fHistoTrueFWHMToSigmaMeson_FixedPzPiZero, 24, 1., kRed+2, kRed+2);
                     fHistoTrueFWHMToSigmaMeson_FixedPzPiZero->Draw("same,pe");
                 }
+
+                if (useFitIntDeltaRange){
+                    DrawGammaSetMarker(fHistoWidthFitBinValues, 24, 1., kBlue+2, kBlue+2);
+                    fHistoWidthFitBinValues->Draw("same,pe");
+                }
                 canvasFWHMToSigmaMesonBackFit_FixedPzPiZero->Update();
 
-                TLegend* legendFWHMToSigmaMesonBackFit_FixedPzPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                TLegend* legendFWHMToSigmaMesonBackFit_FixedPzPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.3, 0.04*1200,1);
                 legendFWHMToSigmaMesonBackFit_FixedPzPiZero->AddEntry(fHistoFWHMToSigmaMesonBackFit_FixedPzPiZero,Form("%s #sigma as FWHM/2.3548",fPrefix.Data()),"p");
                 if(fIsMC) legendFWHMToSigmaMesonBackFit_FixedPzPiZero->AddEntry(fHistoTrueFWHMToSigmaMeson_FixedPzPiZero,"True MC","p");
+                if (useFitIntDeltaRange){legendFWHMToSigmaMesonBackFit_FixedPzPiZero->AddEntry(fHistoWidthFitBinValues,"Omega Width from external Fit","p");}
                 legendFWHMToSigmaMesonBackFit_FixedPzPiZero->Draw();
 
                 if (fIsMC) canvasFWHMToSigmaMesonBackFit_FixedPzPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMesonBackFit_FixedPzPiZero_%s.%s",outputDirMon_BackFit_FixedPzPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
@@ -5042,11 +5140,17 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     DrawGammaSetMarker(fHistoTrueFWHMToSigmaMeson_SubPiZero, 24, 1., kRed+2, kRed+2);
                     fHistoTrueFWHMToSigmaMeson_SubPiZero->Draw("same,pe");
                 }
+
+                if (useFitIntDeltaRange){
+                    DrawGammaSetMarker(fHistoWidthFitBinValues, 24, 1., kBlue+2, kBlue+2);
+                    fHistoWidthFitBinValues->Draw("same,pe");
+                }
                 canvasFWHMToSigmaMesonBackFit_SubPiZero->Update();
 
-                TLegend* legendFWHMToSigmaMesonBackFit_SubPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.2, 0.04*1200,1);
+                TLegend* legendFWHMToSigmaMesonBackFit_SubPiZero = GetAndSetLegend2(0.2,0.12,0.45,0.3, 0.04*1200,1);
                 legendFWHMToSigmaMesonBackFit_SubPiZero->AddEntry(fHistoFWHMToSigmaMesonBackFit_SubPiZero,Form("%s #sigma as FWHM/2.3548",fPrefix.Data()),"p");
                 if(fIsMC) legendFWHMToSigmaMesonBackFit_SubPiZero->AddEntry(fHistoTrueFWHMToSigmaMeson_SubPiZero,"True MC","p");
+                if (useFitIntDeltaRange){legendFWHMToSigmaMesonBackFit_SubPiZero->AddEntry(fHistoWidthFitBinValues,"Omega Width from external Fit","p");}
                 legendFWHMToSigmaMesonBackFit_SubPiZero->Draw();
 
                 if (fIsMC) canvasFWHMToSigmaMesonBackFit_SubPiZero->SaveAs(Form("%s/%s_MC_FWHMToSigmaMesonBackFit_SubPiZero_%s.%s",outputDirMon_BackFit_SubPiZero.Data(),fPrefix.Data(),fCutSelection.Data(),Suffix.Data()));
@@ -5099,11 +5203,22 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     DrawGammaSetMarker(fHistoTrueMassMeson, 24, 1., kRed+2, kRed+2);
                     fHistoTrueMassMeson->Draw("same,pe");
                 }
+                if (useFitIntDeltaRange){
+                    DrawGammaSetMarker(fHistoIntDeltaRangeBackFitByFitUpper, 24, 1., kBlue+2, kBlue+2);
+                    fHistoIntDeltaRangeBackFitByFitUpper->Draw("same,pe");
+                    DrawGammaSetMarker(fHistoIntDeltaRangeBackFitByFitLower, 24, 1., kBlue-2, kBlue-2);
+                    fHistoIntDeltaRangeBackFitByFitLower->Draw("same,pe");
+                }
                 canvasMesonMassBackFit->Update();
 
-                TLegend* legendMesonMassBackFit = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                TLegend* legendMesonMassBackFit = GetAndSetLegend2(0.15,0.74,0.4,0.94, 0.04*1200,1);
                 legendMesonMassBackFit->AddEntry(fHistoMassMesonBackFit,Form("%s mass",fPrefix.Data()),"p");
                 if(fIsMC) legendMesonMassBackFit->AddEntry(fHistoTrueMassMeson,"True MC","p");
+                if (useFitIntDeltaRange){
+                    legendMesonMassBackFit->AddEntry(fHistoIntDeltaRangeBackFitByFitUpper,"Normal Integration Window from external Fit, Upper","p");
+                    legendMesonMassBackFit->AddEntry(fHistoIntDeltaRangeBackFitByFitLower,"Normal Integration Window from external Fit, Lower","p");
+                }
+
                 legendMesonMassBackFit->Draw();
 
 
@@ -5130,11 +5245,21 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     DrawGammaSetMarker(fHistoTrueMassMeson_FixedPzPiZero, 24, 1., kRed+2, kRed+2);
                     fHistoTrueMassMeson_FixedPzPiZero->Draw("same,pe");
                 }
+                if (useFitIntDeltaRange){
+                    DrawGammaSetMarker(fHistoIntDeltaRangeBackFitByFitUpper_FixedPzPiZero, 24, 1., kBlue+2, kBlue+2);
+                    fHistoIntDeltaRangeBackFitByFitUpper_FixedPzPiZero->Draw("same,pe");
+                    DrawGammaSetMarker(fHistoIntDeltaRangeBackFitByFitLower_FixedPzPiZero, 24, 1., kBlue-2, kBlue-2);
+                    fHistoIntDeltaRangeBackFitByFitLower_FixedPzPiZero->Draw("same,pe");
+                }
                 canvasMesonMassBackFit_FixedPzPiZero->Update();
 
-                TLegend* legendMesonMassBackFit_FixedPzPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                TLegend* legendMesonMassBackFit_FixedPzPiZero = GetAndSetLegend2(0.15,0.74,0.4,0.94, 0.04*1200,1);
                 legendMesonMassBackFit_FixedPzPiZero->AddEntry(fHistoMassMesonBackFit_FixedPzPiZero,Form("%s mass",fPrefix.Data()),"p");
                 if(fIsMC) legendMesonMassBackFit_FixedPzPiZero->AddEntry(fHistoTrueMassMeson_FixedPzPiZero,"True MC","p");
+                if (useFitIntDeltaRange){
+                    legendMesonMassBackFit_FixedPzPiZero->AddEntry(fHistoIntDeltaRangeBackFitByFitUpper_FixedPzPiZero,"Normal Integration Window from external Fit, Upper","p");
+                    legendMesonMassBackFit_FixedPzPiZero->AddEntry(fHistoIntDeltaRangeBackFitByFitLower_FixedPzPiZero,"Normal Integration Window from external Fit, Lower","p");
+                }
                 legendMesonMassBackFit_FixedPzPiZero->Draw();
 
 
@@ -5162,11 +5287,21 @@ void ExtractSignalPiPlPiMiNDM(   TString meson                  = "",
                     DrawGammaSetMarker(fHistoTrueMassMeson_SubPiZero, 24, 1., kRed+2, kRed+2);
                     fHistoTrueMassMeson_SubPiZero->Draw("same,pe");
                 }
+                if (useFitIntDeltaRange){
+                    DrawGammaSetMarker(fHistoIntDeltaRangeBackFitByFitUpper_SubPiZero, 24, 1., kBlue+2, kBlue+2);
+                    fHistoIntDeltaRangeBackFitByFitUpper_SubPiZero->Draw("same,pe");
+                    DrawGammaSetMarker(fHistoIntDeltaRangeBackFitByFitLower_SubPiZero, 24, 1., kBlue-2, kBlue-2);
+                    fHistoIntDeltaRangeBackFitByFitLower_SubPiZero->Draw("same,pe");
+                }
                 canvasMesonMassBackFit_SubPiZero->Update();
 
-                TLegend* legendMesonMassBackFit_SubPiZero = GetAndSetLegend2(0.15,0.84,0.4,0.94, 0.04*1200,1);
+                TLegend* legendMesonMassBackFit_SubPiZero = GetAndSetLegend2(0.15,0.74,0.4,0.94, 0.04*1200,1);
                 legendMesonMassBackFit_SubPiZero->AddEntry(fHistoMassMesonBackFit_SubPiZero,Form("%s mass",fPrefix.Data()),"p");
                 if(fIsMC) legendMesonMassBackFit_SubPiZero->AddEntry(fHistoTrueMassMeson_SubPiZero,"True MC","p");
+                if (useFitIntDeltaRange){
+                    legendMesonMassBackFit_SubPiZero->AddEntry(fHistoIntDeltaRangeBackFitByFitUpper_SubPiZero,"Normal Integration Window from external Fit, Upper","p");
+                    legendMesonMassBackFit_SubPiZero->AddEntry(fHistoIntDeltaRangeBackFitByFitLower_SubPiZero,"Normal Integration Window from external Fit, Lower","p");
+                }
                 legendMesonMassBackFit_SubPiZero->Draw();
 
 
@@ -8447,6 +8582,7 @@ void CreatePtHistos(){
     fHistoWidthMesonBackFit=						new TH1D("fHistoWidthMesonBackFit","",fNBinsPt,fBinsPt);
     fHistoWidthMesonBackFit_SubPiZero=				new TH1D("fHistoWidthMesonBackFit_SubPiZero","",fNBinsPt,fBinsPt);
     fHistoWidthMesonBackFit_FixedPzPiZero=			new TH1D("fHistoWidthMesonBackFit_FixedPzPiZero","",fNBinsPt,fBinsPt);
+    fHistoWidthFitBinValues=                        new TH1D("fHistoWidthFitBinValues","",fNBinsPt,fBinsPt);
 
     fHistoFWHMMeson =                               new TH1D("histoFWHMMeson","",fNBinsPt,fBinsPt);
     fHistoFWHMMeson_SubPiZero =                     new TH1D("histoFWHMMeson_SubPiZero","",fNBinsPt,fBinsPt);
@@ -8461,6 +8597,13 @@ void CreatePtHistos(){
     fHistoFWHMToSigmaMesonBackFit =                 new TH1D("histoFWHMToSigmaMesonBackFit","",fNBinsPt,fBinsPt);
     fHistoFWHMToSigmaMesonBackFit_SubPiZero =       new TH1D("histoFWHMToSigmaMesonBackFit_SubPiZero","",fNBinsPt,fBinsPt);
     fHistoFWHMToSigmaMesonBackFit_FixedPzPiZero =   new TH1D("histoFWHMToSigmaMesonBackFit_FixedPzPiZero","",fNBinsPt,fBinsPt);
+
+    fHistoIntDeltaRangeBackFitByFitUpper =                  new TH1D("fHistoIntDeltaRangeBackFitByFitUpper","",fNBinsPt,fBinsPt);
+    fHistoIntDeltaRangeBackFitByFitLower =                  new TH1D("fHistoIntDeltaRangeBackFitByFitUpper","",fNBinsPt,fBinsPt);
+    fHistoIntDeltaRangeBackFitByFitUpper_SubPiZero =        new TH1D("fHistoIntDeltaRangeBackFitByFitUpper_SubPiZero","",fNBinsPt,fBinsPt);
+    fHistoIntDeltaRangeBackFitByFitLower_SubPiZero =        new TH1D("fHistoIntDeltaRangeBackFitByFitUpper_SubPiZero","",fNBinsPt,fBinsPt);
+    fHistoIntDeltaRangeBackFitByFitUpper_FixedPzPiZero =    new TH1D("fHistoIntDeltaRangeBackFitByFitUpper_FixedPzPiZero","",fNBinsPt,fBinsPt);
+    fHistoIntDeltaRangeBackFitByFitLower_FixedPzPiZero =    new TH1D("fHistoIntDeltaRangeBackFitByFitUpper_FixedPzPiZero","",fNBinsPt,fBinsPt);
 
     fHistoAmplitudeMeson=							new TH1D("fHistoAmplitudeMeson","",fNBinsPt,fBinsPt);
     fHistoAmplitudeMeson_SubPiZero=					new TH1D("fHistoAmplitudeMeson_SubPiZero","",fNBinsPt,fBinsPt);
@@ -8620,6 +8763,9 @@ void FillPtHistos()
         fHistoWidthMesonBackFit_SubPiZero->SetBinError(iPt,fMesonWidthBackFitError_SubPiZero[iPt-1]);
         fHistoWidthMesonBackFit_FixedPzPiZero->SetBinError(iPt,fMesonWidthBackFitError_FixedPzPiZero[iPt-1]);
 
+        fHistoWidthFitBinValues->SetBinContent(iPt,fMesonWidthFitBinValues[iPt-1]);
+        fHistoWidthFitBinValues->SetBinError(iPt, 0.);
+
         // fHistoWidthMeson->SetBinContent(iPt);
 
         //Fit Parameters: FWHM
@@ -8651,6 +8797,21 @@ void FillPtHistos()
         fHistoFWHMToSigmaMesonBackFit->SetBinError(iPt,fMesonFWHMBackFitError[iPt-1]/2.3548);
         fHistoFWHMToSigmaMesonBackFit_SubPiZero->SetBinError(iPt,fMesonFWHMBackFitError_SubPiZero[iPt-1]/2.3548);
         fHistoFWHMToSigmaMesonBackFit_FixedPzPiZero->SetBinError(iPt,fMesonFWHMBackFitError_FixedPzPiZero[iPt-1]/2.3548);
+
+        fHistoIntDeltaRangeBackFitByFitUpper->SetBinContent(iPt, fMesonMassBackFit[iPt-1]+fMesonIntDeltaRangeByFit[0][1][iPt-1]);
+        fHistoIntDeltaRangeBackFitByFitLower->SetBinContent(iPt, fMesonMassBackFit[iPt-1]+fMesonIntDeltaRangeByFit[0][0][iPt-1]);
+        fHistoIntDeltaRangeBackFitByFitUpper->SetBinError(iPt, 0.);
+        fHistoIntDeltaRangeBackFitByFitLower->SetBinError(iPt, 0.);
+
+        fHistoIntDeltaRangeBackFitByFitUpper_SubPiZero->SetBinContent(iPt, fMesonMassBackFit_SubPiZero[iPt-1]+fMesonIntDeltaRangeByFit[0][1][iPt-1]);
+        fHistoIntDeltaRangeBackFitByFitLower_SubPiZero->SetBinContent(iPt, fMesonMassBackFit_SubPiZero[iPt-1]+fMesonIntDeltaRangeByFit[0][0][iPt-1]);
+        fHistoIntDeltaRangeBackFitByFitUpper_SubPiZero->SetBinError(iPt, 0.);
+        fHistoIntDeltaRangeBackFitByFitLower_SubPiZero->SetBinError(iPt, 0.);
+
+        fHistoIntDeltaRangeBackFitByFitUpper_FixedPzPiZero->SetBinContent(iPt, fMesonMassBackFit_FixedPzPiZero[iPt-1]+fMesonIntDeltaRangeByFit[0][1][iPt-1]);
+        fHistoIntDeltaRangeBackFitByFitLower_FixedPzPiZero->SetBinContent(iPt, fMesonMassBackFit_FixedPzPiZero[iPt-1]+fMesonIntDeltaRangeByFit[0][0][iPt-1]);
+        fHistoIntDeltaRangeBackFitByFitUpper_FixedPzPiZero->SetBinError(iPt, 0.);
+        fHistoIntDeltaRangeBackFitByFitLower_FixedPzPiZero->SetBinError(iPt, 0.);
 
         //Fit Parameters: Amplitude
         fHistoAmplitudeMeson->SetBinContent(iPt,fMesonAmplitude[iPt-1]);
@@ -10310,11 +10471,20 @@ void Initialize(TString setPi0, Int_t numberOfBins){
     InitializeBinning(setPi0, numberOfBins, fEnergyFlag, kFALSE, fMode, fEventCutSelection, fClusterCutSelection);
     InitializeWindows(setPi0, fMode, ""); // trigger left empty
 
+    fMesonWidthFitBinValues =                                       new Double_t[fNBinsPt];
     // initialize integration array for integration windows: normal, wide, narrow, left, left wide, left narrow
     for (Int_t k = 0; k < 6; k++){
         fMesonCurIntRange[k]                                        = new Double_t[2];
         fMesonCurIntRange_SubPiZero[k]                              = new Double_t[2];
         fMesonCurIntRange_FixedPzPiZero[k]                          = new Double_t[2];
+        fMesonCurIntRangeAllPt[k]                                   = new Double_t*[2];
+        fMesonCurIntRangeAllPt_SubPiZero[k]                         = new Double_t*[2];
+        fMesonCurIntRangeAllPt_FixedPzPiZero[k]                     = new Double_t*[2];
+        for (Int_t j = 0; j < 2; j++){
+            fMesonCurIntRangeAllPt[k][j]                            = new Double_t[fNBinsPt];
+            fMesonCurIntRangeAllPt_SubPiZero[k][j]                  = new Double_t[fNBinsPt];
+            fMesonCurIntRangeAllPt_FixedPzPiZero[k][j]              = new Double_t[fNBinsPt];
+        }
     }
 
     // initalize chi2
@@ -10450,6 +10620,16 @@ void Initialize(TString setPi0, Int_t numberOfBins){
         fMesonCurIntRangeBackFit_SubPiZero[k] = 					new Double_t[2];
         fMesonCurIntRangeBackFit_FixedPzPiZero[k] = 				new Double_t[2];
 
+        fMesonCurIntRangeAllPtBackFit[k] = 							new Double_t*[2];
+        fMesonCurIntRangeAllPtBackFit_SubPiZero[k] = 				new Double_t*[2];
+        fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[k] = 			new Double_t*[2];
+
+        for (Int_t j = 0; j < 2; j++){
+            fMesonCurIntRangeAllPtBackFit[k][j] =                   new Double_t[fNBinsPt];
+            fMesonCurIntRangeAllPtBackFit_SubPiZero[k][j] =         new Double_t[fNBinsPt];
+            fMesonCurIntRangeAllPtBackFit_FixedPzPiZero[k][j] =     new Double_t[fNBinsPt];
+        }
+
         fMesonYieldsBackFit[k] =									new Double_t[fNBinsPt];
         fMesonYieldsBackFit_SubPiZero[k] =           				new Double_t[fNBinsPt];
         fMesonYieldsBackFit_FixedPzPiZero[k] =						new Double_t[fNBinsPt];
@@ -10514,6 +10694,10 @@ void Initialize(TString setPi0, Int_t numberOfBins){
     fMesonFWHMBackFit = 									new Double_t[fNBinsPt];
     fMesonFWHMBackFit_SubPiZero =							new Double_t[fNBinsPt];
     fMesonFWHMBackFit_FixedPzPiZero =			     		new Double_t[fNBinsPt];
+    for (Int_t iRanges=0; iRanges<3; iRanges++){
+        fMesonIntDeltaRangeByFit[iRanges]=                               new Double_t*[2];
+        for (Int_t j=0; j<2; j++){fMesonIntDeltaRangeByFit[iRanges][j] = new Double_t[fNBinsPt];}
+    }
     fMesonAmplitude=                            			new Double_t[fNBinsPt];
     fMesonAmplitude_SubPiZero=                          	new Double_t[fNBinsPt];
     fMesonAmplitude_FixedPzPiZero=                          new Double_t[fNBinsPt];
@@ -11228,6 +11412,11 @@ void Delete(){
     if (fMesonFWHMBackFit)                      delete fMesonFWHMBackFit;
     if (fMesonFWHMBackFit_SubPiZero)            delete fMesonFWHMBackFit_SubPiZero;
     if (fMesonFWHMBackFit_FixedPzPiZero)        delete fMesonFWHMBackFit_FixedPzPiZero;
+    for (Int_t iRanges=0; iRanges<3; iRanges++){
+        for (Int_t j=0; j<2; j++){
+            if (fMesonIntDeltaRangeByFit[iRanges][j])        delete fMesonIntDeltaRangeByFit[iRanges][j];
+        }
+    }
     if (fMesonMassLeft)                         delete fMesonMassLeft;
     if (fMesonMassLeft_SubPiZero)               delete fMesonMassLeft_SubPiZero;
     if (fMesonMassLeft_FixedPzPiZero)           delete fMesonMassLeft_FixedPzPiZero;
@@ -11469,6 +11658,14 @@ Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t Pa
     fMesonIntDeltaRangeWide[1]                          = IntegrationValueByFit_Wide;
     fMesonIntDeltaRangeNarrow[0]                        = -IntegrationValueByFit_Narrow;
     fMesonIntDeltaRangeNarrow[1]                        = IntegrationValueByFit_Narrow;
+
+    fMesonWidthFitBinValues[ptBinNumber]                = fMesonWidthFitValue;
+    fMesonIntDeltaRangeByFit[0][0][ptBinNumber]         = fMesonIntDeltaRange[0];
+    fMesonIntDeltaRangeByFit[0][1][ptBinNumber]         = fMesonIntDeltaRange[1];
+    fMesonIntDeltaRangeByFit[1][0][ptBinNumber]         = fMesonIntDeltaRangeWide[0];
+    fMesonIntDeltaRangeByFit[1][1][ptBinNumber]         = fMesonIntDeltaRangeWide[1];
+    fMesonIntDeltaRangeByFit[2][0][ptBinNumber]         = fMesonIntDeltaRangeNarrow[0];
+    fMesonIntDeltaRangeByFit[2][1][ptBinNumber]         = fMesonIntDeltaRangeNarrow[1];
 
 
     if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.C; SetMesonIntDeltaRange(); Line: "<<__LINE__<<"; FitValue: "<<FitValue<<"; IntegrationValueByFit_Normal: "<<IntegrationValueByFit_Normal<<"; IntegrationValueByFit_Narrow: "<<IntegrationValueByFit_Narrow<<"; IntegrationValueByFit_Wide: "<<IntegrationValueByFit_Wide<<endl;}

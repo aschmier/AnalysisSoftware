@@ -487,7 +487,9 @@
                                     Bool_t isVsPtConv                       = kFALSE,
                                     Double_t* UsrBckFitRange                = NULL,
                                     Int_t optionOtherResBckAsStd            = -1,
-                                    Int_t optionBackgroundMethod            = 0
+                                    Int_t optionBackgroundMethod            = 0,
+                                    Bool_t doPtDependentIntDeltaRange = kFALSE,
+                                    Double_t*** dArrPtDependentIntDeltaRange = NULL
                                 ){
 
         cout << "Trigger set: " << triggerSet << endl;
@@ -906,6 +908,10 @@
         Double_t mass = fMesonMass[exampleBin];
         Double_t intRangeLow            = mass + fMesonIntDeltaRange[0];
         Double_t intRangeHigh           = mass + fMesonIntDeltaRange[1];
+        if (doPtDependentIntDeltaRange){
+            intRangeLow            = mass + dArrPtDependentIntDeltaRange[0][0][exampleBin];
+            intRangeHigh           = mass + dArrPtDependentIntDeltaRange[0][1][exampleBin];
+        }
         Double_t normalLow              = intRangeLow-(intRangeLow-histoPi0InvMassSigPlusBG->GetXaxis()->GetBinLowEdge(histoPi0InvMassSigPlusBG->GetXaxis()->FindBin(intRangeLow)));
         Double_t normalUp               = intRangeHigh+(histoPi0InvMassSigPlusBG->GetXaxis()->GetBinUpEdge(histoPi0InvMassSigPlusBG->GetXaxis()->FindBin(intRangeHigh))-intRangeHigh);
 
@@ -1774,7 +1780,9 @@
                                     Double_t scaleFacSignal                 = 1.0,
                                     Int_t detMode                           = 0,
                                     Bool_t addSig                           = kFALSE,
-                                    Bool_t isVsPtConv                       = kFALSE
+                                    Bool_t isVsPtConv                       = kFALSE,
+                                    Bool_t doPtDependentIntDeltaRange       = kFALSE,
+                                    Double_t*** dArrPtDependentIntDeltaRange = NULL
                                 ){
 
         Int_t doDebugOutputLevel    =   0;
@@ -2068,6 +2076,10 @@
         Double_t mass = fMesonMass[exampleBin];
         Double_t intRangeLow            = mass + fMesonIntDeltaRange[0];
         Double_t intRangeHigh           = mass + fMesonIntDeltaRange[1];
+        if (doPtDependentIntDeltaRange){
+            intRangeLow            = mass + dArrPtDependentIntDeltaRange[0][0][exampleBin];
+            intRangeHigh           = mass + dArrPtDependentIntDeltaRange[0][1][exampleBin];
+        }
         Double_t normalLow              = intRangeLow-(intRangeLow-histoPi0InvMassSigPlusBG->GetXaxis()->GetBinLowEdge(histoPi0InvMassSigPlusBG->GetXaxis()->FindBin(intRangeLow)));
         Double_t normalUp               = intRangeHigh+(histoPi0InvMassSigPlusBG->GetXaxis()->GetBinUpEdge(histoPi0InvMassSigPlusBG->GetXaxis()->FindBin(intRangeHigh))-intRangeHigh);
 
@@ -2672,7 +2684,9 @@
                                 TString fEnergy,
                                 TString optionBackground        = "mixed evt.",
                                 Bool_t isVsPtConv               = kFALSE,
-                                TString fPlottingType ="performance"
+                                TString fPlottingType ="performance",
+                                Bool_t doPtDependentIntDeltaRange = kFALSE,
+                                Double_t*** dArrPtDependentIntDeltaRange = NULL
                             ){
         TGaxis::SetMaxDigits(3);
 
@@ -2802,6 +2816,15 @@
                     Double_t intRangeHigh           = mass + fMesonIntDeltaRange[1];
                     Double_t intRangeWideHigh       = mass + fMesonIntDeltaRangeWide[1];
                     Double_t intRangeNarrowHigh     = mass + fMesonIntDeltaRangeNarrow[1];
+
+                    if (doPtDependentIntDeltaRange){
+                        intRangeLow            = mass + dArrPtDependentIntDeltaRange[0][0][iPt];
+                        intRangeWideLow        = mass + dArrPtDependentIntDeltaRange[1][0][iPt];
+                        intRangeNarrowLow      = mass + dArrPtDependentIntDeltaRange[2][0][iPt];
+                        intRangeHigh           = mass + dArrPtDependentIntDeltaRange[0][1][iPt];
+                        intRangeWideHigh       = mass + dArrPtDependentIntDeltaRange[1][1][iPt];
+                        intRangeNarrowHigh     = mass + dArrPtDependentIntDeltaRange[2][1][iPt];
+                    }
 
                     Double_t normalLow              = intRangeLow-(intRangeLow-fHistoMappingBackWithRemainNormInvMassPtBinPlot[iPt]->GetXaxis()->GetBinLowEdge(fHistoMappingBackWithRemainNormInvMassPtBinPlot[iPt]->GetXaxis()->FindBin(intRangeLow)));
                     Double_t normalUp               = intRangeHigh+(fHistoMappingBackWithRemainNormInvMassPtBinPlot[iPt]->GetXaxis()->GetBinUpEdge(fHistoMappingBackWithRemainNormInvMassPtBinPlot[iPt]->GetXaxis()->FindBin(intRangeHigh))-intRangeHigh);
@@ -3486,7 +3509,9 @@
                                             TString fTextMGammaGamma     ="mixed evt. subtr. #it{M}_{#gamma#gamma}",
                                             Bool_t isVsPtConv            = kFALSE,
                                             Double_t* MassArray          = NULL,
-                                            TString fPlottingType        = "performance"
+                                            TString fPlottingType        = "performance",
+                                            Bool_t doPtDependentIntDeltaRange = kFALSE,
+                                            Double_t*** dArrPtDependentIntDeltaRange = NULL
                                             ){
 
         TCanvas *canvasDataFit          = new TCanvas(nameCanvas.Data(),"",1400,900);  // gives the page size
@@ -3558,6 +3583,15 @@
                         Double_t intRangeHigh           = mass + fMesonIntDeltaRange[1];
                         Double_t intRangeWideHigh       = mass + fMesonIntDeltaRangeWide[1];
                         Double_t intRangeNarrowHigh     = mass + fMesonIntDeltaRangeNarrow[1];
+
+                        if (doPtDependentIntDeltaRange){
+                            intRangeLow            = mass + dArrPtDependentIntDeltaRange[0][0][iPt];
+                            intRangeWideLow        = mass + dArrPtDependentIntDeltaRange[1][0][iPt];
+                            intRangeNarrowLow      = mass + dArrPtDependentIntDeltaRange[2][0][iPt];
+                            intRangeHigh           = mass + dArrPtDependentIntDeltaRange[0][1][iPt];
+                            intRangeWideHigh       = mass + dArrPtDependentIntDeltaRange[1][1][iPt];
+                            intRangeNarrowHigh     = mass + dArrPtDependentIntDeltaRange[2][1][iPt];
+                        }
 
                         Double_t normalLow              = intRangeLow-(intRangeLow-fHistoMappingSignalInvMassPtBinPlot[iPt]->GetXaxis()->GetBinLowEdge(fHistoMappingSignalInvMassPtBinPlot[iPt]->GetXaxis()->FindBin(intRangeLow)));
                         Double_t normalUp               = intRangeHigh+(fHistoMappingSignalInvMassPtBinPlot[iPt]->GetXaxis()->GetBinUpEdge(fHistoMappingSignalInvMassPtBinPlot[iPt]->GetXaxis()->FindBin(intRangeHigh))-intRangeHigh);
