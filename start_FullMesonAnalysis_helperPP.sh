@@ -346,4 +346,11 @@ function GiveBinning13TeV()
         CORRECTETAPrime=1
         echo -e "--> You have chosen $BINSPTETAPRIME bins\n";
     fi
+    if [ $DOPI0INOMEGABINS -eq 1 ]; then
+        echo "How many p_T bins do you want to use for the Omega meson?"
+        read BINSPTOMEGA
+        CORRECTOMEGA=1
+        echo -e "--> You have chosen $BINSPTOMEGA bins\n";
+
+    fi
 }

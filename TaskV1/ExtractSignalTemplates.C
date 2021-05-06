@@ -248,13 +248,16 @@ void ExtractSignalTemplates(
       Initialize("Pi0",numberOfBins, triggerSet);
       InitializeTemplates("Pi0",numberOfBins, triggerSet);
   } else if (meson.CompareTo("Eta") == 0) {
-    Initialize("Eta",numberOfBins, triggerSet);
+      Initialize("Eta",numberOfBins, triggerSet);
       InitializeTemplates("Eta",numberOfBins, triggerSet);
   } else if (meson.CompareTo("EtaPrime") == 0) {
+      Initialize("EtaPrime",numberOfBins, triggerSet);
       InitializeTemplates("EtaPrime",numberOfBins, triggerSet);
   } else if(meson.CompareTo("Pi0EtaBinning") == 0) {
+      Initialize("Pi0EtaBinning",numberOfBins, triggerSet);
       InitializeTemplates("Pi0EtaBinning",numberOfBins, triggerSet);
   } else if(meson.CompareTo("Pi0OmegaBinning") == 0) {
+      Initialize("Pi0OmegaBinning",numberOfBins, triggerSet);
       InitializeTemplates("Pi0OmegaBinning",numberOfBins, triggerSet);
   } else   {
       cout<<"ERROR: First argument in the ExtractSignal(....) has to be either Pi0 or Eta or Pi0EtaBinning  or EtaPrime"<<endl;

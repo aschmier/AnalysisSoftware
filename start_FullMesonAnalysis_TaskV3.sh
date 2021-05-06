@@ -1548,12 +1548,18 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                     echo -e "EXTRACTING SIGNAL FOR PI0-OMEGA\n"
                     if [ -f $DATAROOTFILE ]; then
                         OPTIONSPI0OMEGADATA=\"Pi0OmegaBinning\"\,\"$DATAROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTOMEGA\,kFALSE
-                        ExtractSignal $OPTIONSPI0OMEGADATA
+                        if [ $UseTemplate -eq 1 ]; then
+                          OPTIONSPI0OMEGADATA=\"Pi0OmegaBinning\"\,\"$DATAROOTFILE\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kFALSE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTOMEGA\,kFALSE
+                        fi
+                        ExtractSignal $OPTIONSPI0OMEGADATA $UseTemplate
                     fi
                     PI0OMEGADATARAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0OmegaBinning_data_GammaConvV1WithoutCorrection_$CUTSELECTION.root`
                     if [ $MCFILE -eq 1 ]; then
                         OPTIONSPI0OMEGAMC=\"Pi0OmegaBinning\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTOMEGA\,kFALSE
-                        ExtractSignal $OPTIONSPI0OMEGAMC
+                        if [ $UseTemplate -eq 1 ]; then
+                          OPTIONSPI0OMEGAMC=\"Pi0OmegaBinning\"\,\"$MCROOTFILE\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTOMEGA\,kFALSE
+                        fi
+                        ExtractSignal $OPTIONSPI0OMEGAMC $UseTemplate
                         PI0OMEGAMCRAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0OmegaBinning_MC_GammaConvV1WithoutCorrection_*$CUTSELECTION.root`
                         PI0OMEGAMCCORRFILE=`ls $CUTSELECTION/$ENERGY/Pi0OmegaBinning_MC_GammaConvV1CorrectionHistos_*$CUTSELECTION.root`
                         if [ $MERGINGMC -eq 1 ]; then
