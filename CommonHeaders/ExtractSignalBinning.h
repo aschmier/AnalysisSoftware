@@ -536,7 +536,7 @@
                     cout<<"Getting PHOS-PHOS("<<mode<<") Example Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<trigger<<", while triggerSet is: "<<triggerSet<<endl;
                     switch (trigger){
                         case 62: case 6:
-                            return 56;
+                            return 35;
                         default:
                             return 6;
                     }
@@ -2481,7 +2481,7 @@
                         startPtBin = 9;
                     //------------------------------------
                     } else {  //-1 MB and also 9b
-                        startPtBin = 3;
+                        startPtBin = 2;
                     //------------------------------------
                     }
             //-------------------------------------------------------------------------------------------------------------
@@ -2492,7 +2492,7 @@
                         startPtBin = 9;
                     //------------------------------------
                     } else { //MB
-                        startPtBin = 3;
+                        startPtBin = 1;
                     //------------------------------------
                     }
                     cout<<"=> startBin:"<<startPtBin<<endl;
@@ -2500,13 +2500,13 @@
             //----------------------------------------------EMCal-EMCal----------------------------------------------------
                 } else if (mode == 44 || mode == 64){ //EMCal-EMCal
                     if (specialTrigg == 2 ){ //7EG1, 7DG1 (8d, 9GeV)
-                        startPtBin = 8;
+                        startPtBin = 12;
                     //------------------------------------
                     } else if (specialTrigg == 3 ){ //7EG2, 7DG2 (8e, 4GeV)
-                        startPtBin = 5;
+                        startPtBin = 9;
                     //------------------------------------
                     } else { //MB and also 9b
-                        startPtBin = 0;
+                        startPtBin = 2;
                     //------------------------------------
                     }
             //-------------------------------------------------------------------------------------------------------------
@@ -2517,7 +2517,7 @@
                         startPtBin = 5;
                     //------------------------------------
                     } else { //MB
-                        startPtBin = 5;
+                        startPtBin = 1;
                     //------------------------------------
                     }
                     cout<<"=> startBin:"<<startPtBin<<endl;
@@ -3065,7 +3065,7 @@
                                 } else {
                                     //------------------------------------Std PHOS-PHOS Binning MB
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => MB; Used Binning: "<<"fBinsPi013TeV_PHOS_CombinedBinning_Reduced_INT7"<<"; Line: "<<__LINE__<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PHOS_CombinedBinning_Reduced_INT7, binning, 84 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PHOS_CombinedBinning_Reduced_INT7, binning, 82 );
                                 }
                                 break;
                             case 6:
@@ -3079,7 +3079,7 @@
                                 } else {
                                     //------------------------------------Std PHOS-PHOS Binning PHI7
                                     cout<<"; Special Trigger: "<<SpecialTrigger<<" => PHI7; Used Binning: "<<"fBinsPi013TeV_PHOS_CombinedBinning_Reduced_PHI7"<<"; Line: "<<__LINE__<<endl;
-                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PHOS_CombinedBinning_Reduced_PHI7, binning, 69 );
+                                    maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeV_PHOS_CombinedBinning_Reduced_PHI7, binning, 56 );
                                 }
                                 break;
                             default:
