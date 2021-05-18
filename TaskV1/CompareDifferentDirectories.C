@@ -81,10 +81,34 @@ void CompareDifferentDirectories(   TString FolderList              = "",
 
     //Enable or Disable certain histograms
     Bool_t doCorrectedYieldWOSecCut;
+    Bool_t doAlternativeEfficiency;
+    Bool_t doAlternativeCorrectedYield;
+    Bool_t doMCInput;
+    Bool_t doCorrectedYieldAverage;
+    Int_t useOmegaEfficiency=2;
     if ( mode == modePCM_Omega || mode == modePCMEMCAL_Omega || mode == modePCMPHOS_Omega || mode == modeEMCAL_Omega || mode == modePHOS_Omega ){
-        doCorrectedYieldWOSecCut = kFALSE;
+        doCorrectedYieldWOSecCut            = kFALSE;
+        if (useOmegaEfficiency==2){
+            doAlternativeCorrectedYield     = kTRUE;
+            doAlternativeEfficiency         = kTRUE;
+            doCorrectedYieldAverage         = kTRUE;
+            doMCInput                       = kTRUE;
+        } else {
+            doAlternativeCorrectedYield     = kFALSE;
+            doAlternativeEfficiency         = kFALSE;
+            doCorrectedYieldAverage         = kFALSE;
+            doMCInput                       = kFALSE;
+        }
     } else {
-        doCorrectedYieldWOSecCut = kTRUE;
+        doCorrectedYieldWOSecCut            = kTRUE;
+        doAlternativeCorrectedYield         = kFALSE;
+        doAlternativeEfficiency             = kFALSE;
+        doCorrectedYieldAverage             = kFALSE;
+        doMCInput                           = kFALSE;
+    }
+
+    if (kIsMC==kFALSE){
+        doMCInput                           = kFALSE;
     }
     // Initialize arrays
     TString fileDirectory[50];
@@ -166,7 +190,22 @@ void CompareDifferentDirectories(   TString FolderList              = "",
 
     TH1D *histoCorrectedYieldCut[ConstNumberOfCuts];
     TH1D *histoCorrectedYieldWOSecCut[ConstNumberOfCuts];
+    TH1D *histoAltCorrectedYieldCut[ConstNumberOfCuts];
+    TH1D *histoMCInputYieldCut[ConstNumberOfCuts];
+    TH1D *histoCorrectedYieldCutAverage;
+    TH1D *histoCorrectedYieldCutAverage_MAD;
+    TH1D *histoCorrectedYieldCutAverage_MAD_NormWStatErr;
+    TH1D *histoCorrectedYieldCutMCInput_MAD;
+    TH1D *histoCorrectedYieldCutMCInput_MAD_NormWStatErr;
+
+    TH1D *histoAltCorrectedYieldCutAverage;
+    TH1D *histoAltCorrectedYieldCutAverage_MAD;
+    TH1D *histoAltCorrectedYieldCutAverage_MAD_NormWStatErr;
+    TH1D *histoAltCorrectedYieldCutMCInput_MAD;
+    TH1D *histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr;
+
     TH1D *histoTrueEffiCut[ConstNumberOfCuts];
+    TH1D *histoAltEffiCut[ConstNumberOfCuts];
     TH1D *histoAcceptanceCut[ConstNumberOfCuts];
     TH1D *histoRawYieldCut[ConstNumberOfCuts];
     TH1D *histoMassCut[ConstNumberOfCuts];
@@ -177,7 +216,16 @@ void CompareDifferentDirectories(   TString FolderList              = "",
 
     TH1D *histoRatioCorrectedYieldCut[ConstNumberOfCuts];
     TH1D *histoRatioCorrectedYieldWOSecCut[ConstNumberOfCuts];
+    TH1D *histoRatioAltCorrectedYieldCut[ConstNumberOfCuts];
+    TH1D *histoRatioMCInputYieldCut[ConstNumberOfCuts];
+    TH1D *histoRatioToCorYieldMCInputYieldCut[ConstNumberOfCuts];
+    TH1D *histoRatioToAltCorYieldMCInputYieldCut[ConstNumberOfCuts];
+    TH1D *histoRatioCorrectedYieldCutAverage;
+    TH1D *histoRatioAltCorrectedYieldCutAverage;
     TH1D *histoRatioTrueEffiCut[ConstNumberOfCuts];
+    TH1D *histoRatioAltEffiCut[ConstNumberOfCuts];
+    TH1D *histoRatioTrueEffDivAltEffiCut[ConstNumberOfCuts];
+    TH1D *histoRatioOfRatioTrueEffDivAltEffiCut[ConstNumberOfCuts];
     TH1D *histoRatioAcceptanceCut[ConstNumberOfCuts];
     TH1D *histoRatioRawYieldCut[ConstNumberOfCuts];
     TH1D *histoRatioMassCut[ConstNumberOfCuts];
@@ -199,6 +247,8 @@ void CompareDifferentDirectories(   TString FolderList              = "",
 
     for (Int_t i=0; i< NumberOfCuts; i++){
 
+        cout << "-----------------------------------------------------------------------------------------" << endl;
+        cout << "Cut Number: " << i << endl;
         // Decode individual cutnumber
         TString fEventCutSelection="";
         TString fGammaCutSelection="";
@@ -235,7 +285,10 @@ void CompareDifferentDirectories(   TString FolderList              = "",
         if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Set correct histogram name for corrected yield and efficiency" << endl;}
         TString nameCorrectedYield;
         TString nameEfficiency;
+        TString nameAlternativeEfficiency;
         TString nameCorrectedYieldWOSec;
+        TString nameAlternativeCorrectedYield;
+        TString nameMCInputYield;
         TString nameAcceptance;
         TString nameRawYield;
         TString nameMassCut;
@@ -244,40 +297,50 @@ void CompareDifferentDirectories(   TString FolderList              = "",
         TString nameClusterE;
 
         TString InvMassTypeEnding = "_SubPiZero";
-        Int_t useEfficiency=2;
         Bool_t useBackFitOutput=kTRUE;
         nameCorrectedYield = "CorrectedYieldTrueEff";
         nameEfficiency = "TrueMesonEffiPt";
+        nameAlternativeEfficiency = "MesonEffiPt";
         nameCorrectedYieldWOSec = "CorrectedYieldWOSecTrueEff";
+        nameAlternativeCorrectedYield="CorrectedYieldNormEff";
         nameAcceptance = "fMCMesonAccepPt";
         nameRawYield = "histoYieldMesonPerEvent";
         nameMassCut = "histoMassGaussianMeson";
         nameWidthCut = "histoFWHMMeson";
         nameSBCut = "histoSBdefaultMeson";
         nameClusterE = "ClusterEPerEvent";
+        nameMCInputYield = "MCYield_Meson";
         TString bckfit = "";
         if ( mode == 4 || mode == 5 ){
             nameCorrectedYield = "CorrectedYieldNormEff";
             nameEfficiency = "MesonEffiPt";
             nameCorrectedYieldWOSec = "CorrectedYieldWOSecNormEff";
+            nameAlternativeEfficiency="TrueMesonEffiPt";
+            nameAlternativeCorrectedYield="CorrectedYieldTrueEff";
         } else if ( mode == modePCM_Omega || mode == modeEMCAL_Omega || mode == modePHOS_Omega || mode == modePCMEMCAL_Omega || mode == modePCMPHOS_Omega ){
-            if(useEfficiency==1){
-
+            if(useOmegaEfficiency==1){
                 nameCorrectedYield                          = Form("CorrectedYieldNormEff%s",InvMassTypeEnding.Data());
-                 nameEfficiency                              = Form("MesonEffiPtNorm%s",InvMassTypeEnding.Data());
+                nameEfficiency                              = Form("MesonEffiPtNorm%s",InvMassTypeEnding.Data());
+                nameAlternativeEfficiency                   = Form("TrueMesonEffiPt%s",InvMassTypeEnding.Data());
+                nameAlternativeCorrectedYield               = Form("CorrectedYieldTrueEff%s",InvMassTypeEnding.Data());
                 if(useBackFitOutput){
                     cout << "using normal efficiency back fit" << endl;
                     nameCorrectedYield                          = Form("CorrectedYieldNormEffBackFit%s",InvMassTypeEnding.Data());
+                    nameAlternativeCorrectedYield               = Form("CorrectedYieldTrueEffBackFit%s",InvMassTypeEnding.Data());
                     nameEfficiency                              = Form("MesonEffiPtNormBackFit%s",InvMassTypeEnding.Data());
                 } else{
                     cout << "using normal efficiency event mixing" << endl;
                 }
-            } else if(useEfficiency==2){
+            } else if(useOmegaEfficiency==2){
                 nameCorrectedYield                          = Form("CorrectedYieldTrueEff%s",InvMassTypeEnding.Data());
                 nameEfficiency                              = Form("TrueMesonEffiPt%s",InvMassTypeEnding.Data());
+                nameAlternativeEfficiency                   = Form("MesonEffiPtNorm%s",InvMassTypeEnding.Data());
+                nameAlternativeCorrectedYield               = Form("CorrectedYieldNormEff%s",InvMassTypeEnding.Data());
                 if(useBackFitOutput){
                     cout << "using true efficiency backfit" << endl;
                     nameCorrectedYield                          = Form("CorrectedYieldTrueEffBackFit%s",InvMassTypeEnding.Data());
+                    nameAlternativeEfficiency                   = Form("MesonEffiPtNormBackFit%s",InvMassTypeEnding.Data());
+                    nameAlternativeCorrectedYield               = Form("CorrectedYieldNormEffBackFit%s",InvMassTypeEnding.Data());
                 } else{
                     cout << "using true efficiency event mixing" << endl;
                 }
@@ -292,7 +355,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                     cout << "using Averaged Effi event mixing" << endl;
                 }
                 // averaged is for now always done with bck fit
-            } //useEfficiency
+            } //useOmegaEfficiency
             if (useBackFitOutput){
                 bckfit = "BackFit";
             } else {
@@ -300,6 +363,8 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             }
             nameMassCut                                  = Form("histoMassMeson%s%s",bckfit.Data(),InvMassTypeEnding.Data());
             nameWidthCut                                 = Form("histoFWHMMeson%s%s",bckfit.Data(),InvMassTypeEnding.Data());
+            nameSBCut                                    = Form("histoSBdefaultMeson%s%s",bckfit.Data(),InvMassTypeEnding.Data());
+            nameRawYield                                 = Form("histoYieldMesonPerEvent%s%s",bckfit.Data(),InvMassTypeEnding.Data());
         } //Omega Modes
 
         // Read histograms and rename them from the original files for each cut
@@ -315,9 +380,28 @@ void CompareDifferentDirectories(   TString FolderList              = "",
           } else {
               histoCorrectedYieldWOSecCut[i]   = NULL;
           }
+          if (doAlternativeCorrectedYield){
+              if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoRatioAltCorrectedYieldCut: " << nameAlternativeCorrectedYield.Data() << endl;}
+              histoAltCorrectedYieldCut[i]   = (TH1D*)Cutcorrfile[i]->Get(nameAlternativeCorrectedYield.Data());
+              histoAltCorrectedYieldCut[i]->SetName(Form("%s_%s",nameAlternativeCorrectedYield.Data(),cutStringsName[i].Data()));
+          } else {
+              histoAltCorrectedYieldCut[i]   = NULL;
+          }
+          if (doMCInput){
+              if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; MCInputYield : " << nameMCInputYield.Data() << endl;}
+              histoMCInputYieldCut[i]         = (TH1D*)Cutcorrfile[i]->Get(nameMCInputYield.Data());
+              histoMCInputYieldCut[i]->SetName(Form("%s_%s",nameMCInputYield.Data(), cutStringsName[i].Data()));
+          } else {
+              histoMCInputYieldCut[i]   = NULL;
+          }
           if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoTrueEffiCut : " << nameEfficiency.Data() << endl;}
           histoTrueEffiCut[i]         = (TH1D*)Cutcorrfile[i]->Get(nameEfficiency.Data());
           histoTrueEffiCut[i]->SetName(Form("%s_%s",nameEfficiency.Data(), cutStringsName[i].Data()));
+          if (doAlternativeEfficiency){
+              if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoAltEffiCut : " << nameAlternativeEfficiency.Data() << endl;}
+              histoAltEffiCut[i]         = (TH1D*)Cutcorrfile[i]->Get(nameAlternativeEfficiency.Data());
+              histoAltEffiCut[i]->SetName(Form("%s_%s",nameAlternativeEfficiency.Data(), cutStringsName[i].Data()));
+          }
           if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; histoAcceptanceCut : " << nameAcceptance.Data() << endl;}
           histoAcceptanceCut[i]       =(TH1D*)Cutcorrfile[i]->Get(nameAcceptance.Data());
           histoAcceptanceCut[i]->SetName(Form("AcceptPt_%s", cutStringsName[i].Data()));
@@ -355,8 +439,40 @@ void CompareDifferentDirectories(   TString FolderList              = "",
           } else {
               histoRatioCorrectedYieldWOSecCut[i] = NULL;
           }
+          if (doAlternativeCorrectedYield){
+              histoRatioAltCorrectedYieldCut[i] = (TH1D*) histoAltCorrectedYieldCut[i]->Clone(Form("histoRatioAltCorrectedYieldCut_%s",cutStringsName[i].Data()));
+              histoRatioAltCorrectedYieldCut[i]->Divide(histoRatioAltCorrectedYieldCut[i],histoAltCorrectedYieldCut[0],1.,1.,"B");
+          } else {
+              histoRatioAltCorrectedYieldCut[i] = NULL;
+          }
+          if (doMCInput){
+              histoRatioMCInputYieldCut[i] = (TH1D*) histoMCInputYieldCut[i]->Clone(Form("histoRatioMCInputYieldCut_%s",cutStringsName[i].Data()));
+              histoRatioMCInputYieldCut[i]->Divide(histoRatioMCInputYieldCut[i],histoMCInputYieldCut[0],1.,1.,"B");
+
+              histoRatioToCorYieldMCInputYieldCut[i] = (TH1D*) histoMCInputYieldCut[i]->Clone(Form("histoRatioToCorYieldMCInputYieldCut%s",cutStringsName[i].Data()));
+              histoRatioToCorYieldMCInputYieldCut[i]->Divide(histoRatioToCorYieldMCInputYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
+              if (doAlternativeCorrectedYield){
+                  histoRatioToAltCorYieldMCInputYieldCut[i] = (TH1D*) histoMCInputYieldCut[i]->Clone(Form("histoRatioToAltCorYieldMCInputYieldCut%s",cutStringsName[i].Data()));
+                  histoRatioToAltCorYieldMCInputYieldCut[i]->Divide(histoRatioToAltCorYieldMCInputYieldCut[i],histoAltCorrectedYieldCut[0],1.,1.,"B");
+              }
+          } else {
+              histoRatioMCInputYieldCut[i] = NULL;
+              histoRatioToCorYieldMCInputYieldCut[i] = NULL;
+              histoRatioToAltCorYieldMCInputYieldCut[i] = NULL;
+
+          }
           histoRatioTrueEffiCut[i]    = (TH1D*) histoTrueEffiCut[i]->Clone(Form("histoRatioTrueEffiCut_%s",cutStringsName[i].Data()));
           histoRatioTrueEffiCut[i]->Divide(histoRatioTrueEffiCut[i],histoTrueEffiCut[0],1.,1.,"B");
+          if (doAlternativeEfficiency){
+              histoRatioAltEffiCut[i]    = (TH1D*) histoAltEffiCut[i]->Clone(Form("histoRatioAltEffiCut_%s",cutStringsName[i].Data()));
+              histoRatioAltEffiCut[i]->Divide(histoRatioAltEffiCut[i],histoAltEffiCut[0],1.,1.,"B");
+
+              histoRatioTrueEffDivAltEffiCut[i]    = (TH1D*) histoTrueEffiCut[i]->Clone(Form("histoRatioTrueEffDivAltEffiCut_%s",cutStringsName[i].Data()));
+              histoRatioTrueEffDivAltEffiCut[i]->Divide(histoRatioTrueEffDivAltEffiCut[i],histoAltEffiCut[i],1.,1.,"B");
+
+              histoRatioOfRatioTrueEffDivAltEffiCut[i]    = (TH1D*) histoRatioTrueEffDivAltEffiCut[i]->Clone(Form("histoRatioTrueEffDivAltEffiCut_%s",cutStringsName[i].Data()));
+              histoRatioOfRatioTrueEffDivAltEffiCut[i]->Divide(histoRatioOfRatioTrueEffDivAltEffiCut[i], histoRatioTrueEffDivAltEffiCut[0],1.,1.,"B");
+          }
           histoRatioAcceptanceCut[i]  = (TH1D*) histoAcceptanceCut[i]->Clone(Form("histoRatioAcceptanceCut_%s",cutStringsName[i].Data()));
           histoRatioAcceptanceCut[i]->Divide(histoRatioAcceptanceCut[i],histoAcceptanceCut[0],1.,1.,"B");
         }
@@ -381,6 +497,197 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     }
     cout<<"=========================="<<endl;
 
+    //**************************************************************************************
+    //****************** Calculate Average Values of Corrected-Yield ***********************
+    //**************************************************************************************
+    histoCorrectedYieldCutAverage = (TH1D*) histoCorrectedYieldCut[0]->Clone(Form("histoCorrectedYieldCutAverage_%s",cutStringsName[0].Data()));
+    histoCorrectedYieldCutAverage_MAD =
+            new TH1D ("histoCorrectedYieldCutAverage_MAD", "histoCorrectedYieldCutAverage_MAD", NumberOfCuts, +0.5, NumberOfCuts+0.5);
+    histoCorrectedYieldCutAverage_MAD_NormWStatErr =
+            new TH1D ("histoCorrectedYieldCutAverage_MAD_NormWStatErr", "histoCorrectedYieldCutAverage_MAD_NormWStatErr", NumberOfCuts, +0.5, NumberOfCuts+0.5);
+    histoCorrectedYieldCutMCInput_MAD =
+            new TH1D ("histoCorrectedYieldCutMCInput_MAD", "histoCorrectedYieldCutMCInput_MAD", NumberOfCuts, +0.5, NumberOfCuts+0.5);
+    histoCorrectedYieldCutMCInput_MAD_NormWStatErr =
+            new TH1D ("histoCorrectedYieldCutMCInput_MAD_NormWStatErr", "histoCorrectedYieldCutMCInput_MAD_NormWStatErr", NumberOfCuts, +0.5, NumberOfCuts+0.5);
+    if (doCorrectedYieldAverage){
+        if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Calculate Average Values of Corrected-Yield" << endl;}
+        Double_t verySmallNumber                            = 0.0000000000000001;
+        Int_t iNBinsCorrectedYieldAverage                   = histoCorrectedYieldCutAverage->GetNbinsX();
+        Int_t iStartBinCorrectedYieldAverage                = 1;
+        Int_t iEndBinCorrectedYieldAverage                  = iNBinsCorrectedYieldAverage;
+        Int_t iLastBinWithContent                           = iEndBinCorrectedYieldAverage;
+        Double_t dBinContentCorrectedYield;
+        Double_t dBinErrorCorrectedYield;
+        Double_t dSumBinContentsCorrectedYield;
+        Double_t dCorrectedYieldAverageValue;
+        Double_t dCorrectedYieldMCInputValue;
+
+        Double_t dBinContentCorrectedYieldMinusAverage;
+        Double_t dBinContentCorrectedYieldMinusAverageSquared;
+        Double_t dSumBinContentsCorrectedYieldMinusAverageSquared;
+        Double_t dCorrectedYieldVarianceValue;
+        Double_t dCorrectedYieldStandardDeviationValue;
+
+        Double_t dDeviationCorrectedYieldAverageValue;
+        Double_t dDeviationCorrectedYieldAverageSquaredValue;
+        Double_t dDeviationCorrectedYieldAverageSquaredValueDivVar;
+        Double_t dSumAbsDeviationCorrectedYieldAverageValue;
+        Double_t dCorrectedYieldAverage_MADValue;
+        Double_t dDeviationCorrectedYieldAverageSquaredValueDivVar_NormWStatErr;
+        Double_t dSumAbsDeviationCorrectedYieldAverageValue_NormWStatErr;
+        Double_t dCorrectedYieldAverage_MADValue_NormWStatErr;
+
+        Double_t dDeviationCorrectedYieldMCInputValue;
+        Double_t dDeviationCorrectedYieldMCInputSquaredValue;
+        Double_t dDeviationCorrectedYieldMCInputSquaredValueDivVar;
+        Double_t dSumAbsDeviationCorrectedYieldMCInputValue;
+        Double_t dCorrectedYieldMCInput_MADValue;
+        Double_t dDeviationCorrectedYieldMCInputSquaredValueDivVar_NormWStatErr;
+        Double_t dSumAbsDeviationCorrectedYieldMCInputValue_NormWStatErr;
+        Double_t dCorrectedYieldMCInput_MADValue_NormWStatErr;
+        for (Int_t iBinCorrectedYieldAverage=iStartBinCorrectedYieldAverage; iBinCorrectedYieldAverage<=iEndBinCorrectedYieldAverage; iBinCorrectedYieldAverage++){
+            if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
+            //For MAD Calculation Remove first points of histogram which are 0
+            dBinContentCorrectedYield                           =
+                    histoCorrectedYieldCut[0]->GetBinContent(iBinCorrectedYieldAverage);
+            if (iBinCorrectedYieldAverage == iStartBinCorrectedYieldAverage){
+                if ((dBinContentCorrectedYield <= 0+verySmallNumber)&&(dBinContentCorrectedYield >= 0-verySmallNumber)){
+                    iStartBinCorrectedYieldAverage++;
+                    continue;
+                }
+            } else {
+                if ((dBinContentCorrectedYield <= 0+verySmallNumber)&&(dBinContentCorrectedYield >= 0-verySmallNumber)){
+                    if (iLastBinWithContent > iBinCorrectedYieldAverage){
+                        iLastBinWithContent = iBinCorrectedYieldAverage;
+                    }
+                    continue;
+                }
+            }
+            iLastBinWithContent                                 = iBinCorrectedYieldAverage; //If content is 0 for one bin but greater than 0 for later bins
+            dSumBinContentsCorrectedYield                       = 0;
+            for (Int_t i=0; i< NumberOfCuts; i++){
+                //BinValues
+                dBinContentCorrectedYield                       =
+                        histoCorrectedYieldCut[i]->GetBinContent(iBinCorrectedYieldAverage);
+                //Calculations wit Bin Value
+                dSumBinContentsCorrectedYield                   += dBinContentCorrectedYield;
+            }
+            dCorrectedYieldAverageValue                         = dSumBinContentsCorrectedYield / NumberOfCuts;
+            //Calculate Variance
+            dSumBinContentsCorrectedYieldMinusAverageSquared=0;
+            for (Int_t i=0; i< NumberOfCuts; i++){
+                //BinValues
+                dBinContentCorrectedYield                       =
+                        histoCorrectedYieldCut[i]->GetBinContent(iBinCorrectedYieldAverage);
+                //Calculations with Bin Values
+                dBinContentCorrectedYieldMinusAverage           = dBinContentCorrectedYield-dCorrectedYieldAverageValue;
+                dBinContentCorrectedYieldMinusAverageSquared    = dBinContentCorrectedYieldMinusAverage*dBinContentCorrectedYieldMinusAverage;
+                dSumBinContentsCorrectedYieldMinusAverageSquared += dBinContentCorrectedYieldMinusAverageSquared;
+            }
+            dCorrectedYieldVarianceValue                        = dSumBinContentsCorrectedYieldMinusAverageSquared / (NumberOfCuts-1);
+            dCorrectedYieldStandardDeviationValue               = TMath::Sqrt(dCorrectedYieldVarianceValue);
+            histoCorrectedYieldCutAverage                       ->SetBinContent(iBinCorrectedYieldAverage, dCorrectedYieldAverageValue);
+            histoCorrectedYieldCutAverage                       ->SetBinError(iBinCorrectedYieldAverage, dCorrectedYieldStandardDeviationValue);
+        }
+
+        //Calculate MAD
+        if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Calculate MAD" << endl;}
+        for (Int_t i=0; i< NumberOfCuts; i++){
+            dSumAbsDeviationCorrectedYieldAverageValue                              = 0;
+            dSumAbsDeviationCorrectedYieldAverageValue_NormWStatErr                 = 0;
+            for (Int_t iBinCorrectedYieldAverage=iStartBinCorrectedYieldAverage; iBinCorrectedYieldAverage<=iLastBinWithContent; iBinCorrectedYieldAverage++){
+                //BinValues
+                dBinContentCorrectedYield                                           =
+                        histoCorrectedYieldCut[i]->GetBinContent(iBinCorrectedYieldAverage);
+                dBinErrorCorrectedYield                                             =
+                        histoCorrectedYieldCut[i]->GetBinError(iBinCorrectedYieldAverage);
+                dCorrectedYieldAverageValue                                         =
+                        histoCorrectedYieldCutAverage->GetBinContent(iBinCorrectedYieldAverage);
+                dCorrectedYieldStandardDeviationValue                               =
+                        histoCorrectedYieldCutAverage->GetBinError(iBinCorrectedYieldAverage);
+                //Calculations with Bin Values
+                dCorrectedYieldVarianceValue                                        =
+                        dCorrectedYieldStandardDeviationValue*dCorrectedYieldStandardDeviationValue;
+                dDeviationCorrectedYieldAverageValue                                =
+                        dBinContentCorrectedYield-dCorrectedYieldAverageValue;
+                dDeviationCorrectedYieldAverageSquaredValue                         =
+                        dDeviationCorrectedYieldAverageValue*dDeviationCorrectedYieldAverageValue;
+                dDeviationCorrectedYieldAverageSquaredValueDivVar                   =
+                        dDeviationCorrectedYieldAverageSquaredValue/dCorrectedYieldVarianceValue;
+                dDeviationCorrectedYieldAverageSquaredValueDivVar_NormWStatErr      =
+                        dDeviationCorrectedYieldAverageSquaredValue/(dCorrectedYieldVarianceValue+(dBinErrorCorrectedYield*dBinErrorCorrectedYield));
+
+                dSumAbsDeviationCorrectedYieldAverageValue                          +=
+                        dDeviationCorrectedYieldAverageSquaredValueDivVar;
+                dSumAbsDeviationCorrectedYieldAverageValue_NormWStatErr             +=
+                        dDeviationCorrectedYieldAverageSquaredValueDivVar_NormWStatErr;
+            }
+            dCorrectedYieldAverage_MADValue                                         =
+                    dSumAbsDeviationCorrectedYieldAverageValue / (iEndBinCorrectedYieldAverage-iStartBinCorrectedYieldAverage+1);
+            dCorrectedYieldAverage_MADValue_NormWStatErr                           =
+                    dSumAbsDeviationCorrectedYieldAverageValue_NormWStatErr / (iEndBinCorrectedYieldAverage-iStartBinCorrectedYieldAverage+1);
+
+            histoCorrectedYieldCutAverage_MAD                                       ->GetXaxis()->SetBinLabel(i+1, cutStringsName[i].Data());
+            histoCorrectedYieldCutAverage_MAD                                       ->SetBinContent(i+1, dCorrectedYieldAverage_MADValue);
+            histoCorrectedYieldCutAverage_MAD_NormWStatErr                          ->GetXaxis()->SetBinLabel(i+1, cutStringsName[i].Data());
+            histoCorrectedYieldCutAverage_MAD_NormWStatErr                          ->SetBinContent(i+1, dCorrectedYieldAverage_MADValue_NormWStatErr);
+        }
+        //Calculate MAD with MCInput
+        for (Int_t i=0; i< NumberOfCuts; i++){
+            if (doMCInput){
+                if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Calculate MAD with MCInput" << endl;}
+                for (Int_t i=0; i< NumberOfCuts; i++){
+                    dSumAbsDeviationCorrectedYieldMCInputValue                              = 0;
+                    dSumAbsDeviationCorrectedYieldMCInputValue_NormWStatErr                 = 0;
+                    for (Int_t iBinCorrectedYieldAverage=iStartBinCorrectedYieldAverage; iBinCorrectedYieldAverage<=iLastBinWithContent; iBinCorrectedYieldAverage++){
+                        //BinValues
+                        dBinContentCorrectedYield                                           =
+                                histoCorrectedYieldCut[i]->GetBinContent(iBinCorrectedYieldAverage);
+                        dBinErrorCorrectedYield                                             =
+                                histoCorrectedYieldCut[i]->GetBinError(iBinCorrectedYieldAverage);
+                        dCorrectedYieldAverageValue                                         =
+                                histoCorrectedYieldCutAverage->GetBinContent(iBinCorrectedYieldAverage);
+                        dCorrectedYieldStandardDeviationValue                               =
+                                histoCorrectedYieldCutAverage->GetBinError(iBinCorrectedYieldAverage);
+                        dCorrectedYieldMCInputValue                                         =
+                                histoMCInputYieldCut[0]->GetBinContent(iBinCorrectedYieldAverage);
+                        dCorrectedYieldMCInputValue                                         =
+                                histoMCInputYieldCut[0]->GetBinContent(iBinCorrectedYieldAverage);
+                        //Calculations with Bin Values
+                        dCorrectedYieldVarianceValue                                        =
+                                dCorrectedYieldStandardDeviationValue*dCorrectedYieldStandardDeviationValue;
+                        dDeviationCorrectedYieldMCInputValue                                =
+                                dBinContentCorrectedYield-dCorrectedYieldMCInputValue;
+                        dDeviationCorrectedYieldMCInputSquaredValue                         =
+                                dDeviationCorrectedYieldMCInputValue*dDeviationCorrectedYieldMCInputValue;
+                        dDeviationCorrectedYieldMCInputSquaredValueDivVar                   =
+                                dDeviationCorrectedYieldMCInputSquaredValue/dCorrectedYieldVarianceValue;
+                        dDeviationCorrectedYieldMCInputSquaredValueDivVar_NormWStatErr      =
+                                dDeviationCorrectedYieldMCInputSquaredValue/(dCorrectedYieldVarianceValue+(dBinErrorCorrectedYield*dBinErrorCorrectedYield));
+
+                        dSumAbsDeviationCorrectedYieldMCInputValue                          +=
+                                dDeviationCorrectedYieldMCInputSquaredValueDivVar;
+                        dSumAbsDeviationCorrectedYieldMCInputValue_NormWStatErr             +=
+                                dDeviationCorrectedYieldMCInputSquaredValueDivVar_NormWStatErr;
+                    }
+                    dCorrectedYieldMCInput_MADValue                                         =
+                            dSumAbsDeviationCorrectedYieldMCInputValue / (iEndBinCorrectedYieldAverage-iStartBinCorrectedYieldAverage+1);
+                    dCorrectedYieldMCInput_MADValue_NormWStatErr                           =
+                            dSumAbsDeviationCorrectedYieldMCInputValue_NormWStatErr / (iEndBinCorrectedYieldAverage-iStartBinCorrectedYieldAverage+1);
+
+                    histoCorrectedYieldCutMCInput_MAD                                       ->GetXaxis()->SetBinLabel(i+1, cutStringsName[i].Data());
+                    histoCorrectedYieldCutMCInput_MAD                                       ->SetBinContent(i+1, dCorrectedYieldMCInput_MADValue);
+                    histoCorrectedYieldCutMCInput_MAD_NormWStatErr                          ->GetXaxis()->SetBinLabel(i+1, cutStringsName[i].Data());
+                    histoCorrectedYieldCutMCInput_MAD_NormWStatErr                          ->SetBinContent(i+1, dCorrectedYieldMCInput_MADValue_NormWStatErr);
+                }
+            }
+        }
+    }
+    histoRatioCorrectedYieldCutAverage                                              =
+            (TH1D*) histoCorrectedYieldCutAverage->Clone(Form("histoRatioCorrectedYieldCutAverage_%s",cutStringsName[0].Data()));
+    if (doCorrectedYieldAverage){
+        histoRatioCorrectedYieldCutAverage                                          ->Divide(histoRatioCorrectedYieldCutAverage, histoCorrectedYieldCut[0],1.,1.,"B");
+    }
 
     //**************************************************************************************
     //********************* Plotting RAW-Yield *********************************************
@@ -507,6 +814,30 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                   DrawGammaSetMarker(histoCorrectedYieldCut[i], 20, 1., color[0], color[0]);
                   histoCorrectedYieldCut[i]->DrawCopy("e1,p");
                   legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
+
+                  if ((doCorrectedYieldAverage)&&(histoCorrectedYieldCutAverage)){
+                      Int_t ColorAndMarkerNumber=NumberOfCuts;
+                      if(NumberOfCuts<20){
+                          DrawGammaSetMarker(histoCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                      } else {
+                          DrawGammaSetMarker(histoCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                      }
+                      histoCorrectedYieldCutAverage->DrawCopy("same,e1,p");
+                      legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCutAverage, "Average Values");
+                  }
+                  if (doMCInput){
+                      Int_t ColorAndMarkerNumber=NumberOfCuts;
+                      if ((doCorrectedYieldAverage)&&(histoRatioCorrectedYieldCutAverage)){
+                        ColorAndMarkerNumber=NumberOfCuts+1;
+                      }
+                      if(NumberOfCuts<20){
+                          DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                      } else {
+                          DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                      }
+                      histoMCInputYieldCut[0]->DrawCopy("same,e1,p");
+                      legendCorrectedYieldMeson->AddEntry(histoMCInputYieldCut[0], "MC Input");
+                  }
               }
               else{
                   if(i<20){
@@ -543,11 +874,36 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                   } else if (cutVariationName.Contains("PHOS_Combined")) {
                       minYRatio = 0.90;
                       maxYRatio = 1.15;
+                  }  else if (meson.Contains("Omega")) {
+                      minYRatio = 0.1;
+                      maxYRatio = 2.55;
                   }
                   SetStyleHistoTH1ForGraphs(histoRatioCorrectedYieldCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
                   DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20, 1.,color[0],color[0]);
                   histoRatioCorrectedYieldCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
                   histoRatioCorrectedYieldCut[i]->DrawCopy("p,e1");
+
+                  if ((doCorrectedYieldAverage)&&(histoRatioCorrectedYieldCutAverage)){
+                      Int_t ColorAndMarkerNumber=NumberOfCuts;
+                      if(ColorAndMarkerNumber<20){
+                          DrawGammaSetMarker(histoRatioCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                      } else {
+                          DrawGammaSetMarker(histoRatioCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                      }
+                      histoRatioCorrectedYieldCutAverage->DrawCopy("same,e1,p");
+                  }
+                  if (doMCInput){
+                      Int_t ColorAndMarkerNumber=NumberOfCuts;
+                      if ((doCorrectedYieldAverage)&&(histoRatioCorrectedYieldCutAverage)){
+                        ColorAndMarkerNumber=NumberOfCuts+1;
+                      }
+                      if(ColorAndMarkerNumber<20){
+                          DrawGammaSetMarker(histoRatioToCorYieldMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                      } else {
+                          DrawGammaSetMarker(histoRatioToCorYieldMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                      }
+                      histoRatioToCorYieldMCInputYieldCut[0]->DrawCopy("same,e1,p");
+                  }
               }
               else{
                   if(i<20){
@@ -563,7 +919,439 @@ void CompareDifferentDirectories(   TString FolderList              = "",
       canvasCorrectedYieldMeson->Update();
       canvasCorrectedYieldMeson->SaveAs(Form("%s/%s_%s_CorrectedYield.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
       delete canvasCorrectedYieldMeson;
+
+
+
     }
+
+    //*****************************************************************************************
+    //******************* Compare Alternative Corrected Yields ********************************
+    //*****************************************************************************************
+    if (doAlternativeCorrectedYield){
+
+        //Calculate Average Values of Alternative Corrected-Yield
+        histoAltCorrectedYieldCutAverage = (TH1D*) histoAltCorrectedYieldCut[0]->Clone(Form("histoAltCorrectedYieldCutAverage_%s",cutStringsName[0].Data()));
+        histoAltCorrectedYieldCutAverage_MAD =
+                new TH1D ("histoAltCorrectedYieldCutAverage_MAD", "histoAltCorrectedYieldCutAverage_MAD", NumberOfCuts, +0.5, NumberOfCuts+0.5);
+        histoAltCorrectedYieldCutAverage_MAD_NormWStatErr =
+                new TH1D ("histoAltCorrectedYieldCutAverage_MAD_NormWStatErr", "histoAltCorrectedYieldCutAverage_MAD_NormWStatErr", NumberOfCuts, +0.5, NumberOfCuts+0.5);
+        histoAltCorrectedYieldCutMCInput_MAD =
+                new TH1D ("histoAltCorrectedYieldCutMCInput_MAD", "histoAltCorrectedYieldCutMCInput_MAD", NumberOfCuts, +0.5, NumberOfCuts+0.5);
+        histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr =
+                new TH1D ("histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr", "histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr", NumberOfCuts, +0.5, NumberOfCuts+0.5);
+        if (doCorrectedYieldAverage){
+            if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Calculate Average Values of Corrected-Yield" << endl;}
+            Double_t verySmallNumber                            = 0.0000000000000001;
+            Int_t iNBinsCorrectedYieldAverage                   = histoAltCorrectedYieldCutAverage->GetNbinsX();
+            Int_t iStartBinCorrectedYieldAverage                = 1;
+            Int_t iEndBinCorrectedYieldAverage                  = iNBinsCorrectedYieldAverage;
+            Int_t iLastBinWithContent                           = iEndBinCorrectedYieldAverage;
+            Double_t dBinContentCorrectedYield;
+            Double_t dBinErrorCorrectedYield;
+            Double_t dSumBinContentsCorrectedYield;
+            Double_t dCorrectedYieldAverageValue;
+            Double_t dCorrectedYieldMCInputValue;
+
+            Double_t dBinContentCorrectedYieldMinusAverage;
+            Double_t dBinContentCorrectedYieldMinusAverageSquared;
+            Double_t dSumBinContentsCorrectedYieldMinusAverageSquared;
+            Double_t dCorrectedYieldVarianceValue;
+            Double_t dCorrectedYieldStandardDeviationValue;
+
+            Double_t dDeviationCorrectedYieldAverageValue;
+            Double_t dDeviationCorrectedYieldAverageSquaredValue;
+            Double_t dDeviationCorrectedYieldAverageSquaredValueDivVar;
+            Double_t dSumAbsDeviationCorrectedYieldAverageValue;
+            Double_t dCorrectedYieldAverage_MADValue;
+            Double_t dDeviationCorrectedYieldAverageSquaredValueDivVar_NormWStatErr;
+            Double_t dSumAbsDeviationCorrectedYieldAverageValue_NormWStatErr;
+            Double_t dCorrectedYieldAverage_MADValue_NormWStatErr;
+
+            Double_t dDeviationCorrectedYieldMCInputValue;
+            Double_t dDeviationCorrectedYieldMCInputSquaredValue;
+            Double_t dDeviationCorrectedYieldMCInputSquaredValueDivVar;
+            Double_t dSumAbsDeviationCorrectedYieldMCInputValue;
+            Double_t dCorrectedYieldMCInput_MADValue;
+            Double_t dDeviationCorrectedYieldMCInputSquaredValueDivVar_NormWStatErr;
+            Double_t dSumAbsDeviationCorrectedYieldMCInputValue_NormWStatErr;
+            Double_t dCorrectedYieldMCInput_MADValue_NormWStatErr;
+            for (Int_t iBinCorrectedYieldAverage=iStartBinCorrectedYieldAverage; iBinCorrectedYieldAverage<=iEndBinCorrectedYieldAverage; iBinCorrectedYieldAverage++){
+                if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
+                //For MAD Calculation Remove first points of histogram which are 0
+                dBinContentCorrectedYield                           =
+                        histoAltCorrectedYieldCut[0]->GetBinContent(iBinCorrectedYieldAverage);
+                if (iBinCorrectedYieldAverage == iStartBinCorrectedYieldAverage){
+                    if ((dBinContentCorrectedYield <= 0+verySmallNumber)&&(dBinContentCorrectedYield >= 0-verySmallNumber)){
+                        iStartBinCorrectedYieldAverage++;
+                        continue;
+                    }
+                } else {
+                    if ((dBinContentCorrectedYield <= 0+verySmallNumber)&&(dBinContentCorrectedYield >= 0-verySmallNumber)){
+                        if (iLastBinWithContent > iBinCorrectedYieldAverage){
+                            iLastBinWithContent = iBinCorrectedYieldAverage;
+                        }
+                        continue;
+                    }
+                }
+                iLastBinWithContent                                 = iBinCorrectedYieldAverage; //If content is 0 for one bin but greater than 0 for later bins
+                dSumBinContentsCorrectedYield                       = 0;
+                for (Int_t i=0; i< NumberOfCuts; i++){
+                    //BinValues
+                    dBinContentCorrectedYield                       =
+                            histoAltCorrectedYieldCut[i]->GetBinContent(iBinCorrectedYieldAverage);
+                    //Calculations wit Bin Value
+                    dSumBinContentsCorrectedYield                   += dBinContentCorrectedYield;
+                }
+                dCorrectedYieldAverageValue                         = dSumBinContentsCorrectedYield / NumberOfCuts;
+                //Calculate Variance
+                dSumBinContentsCorrectedYieldMinusAverageSquared    = 0;
+                for (Int_t i=0; i< NumberOfCuts; i++){
+                    //BinValues
+                    dBinContentCorrectedYield                       =
+                            histoAltCorrectedYieldCut[i]->GetBinContent(iBinCorrectedYieldAverage);
+                    //Calculations with Bin Values
+                    dBinContentCorrectedYieldMinusAverage           = dBinContentCorrectedYield-dCorrectedYieldAverageValue;
+                    dBinContentCorrectedYieldMinusAverageSquared    = dBinContentCorrectedYieldMinusAverage*dBinContentCorrectedYieldMinusAverage;
+                    dSumBinContentsCorrectedYieldMinusAverageSquared += dBinContentCorrectedYieldMinusAverageSquared;
+                }
+                dCorrectedYieldVarianceValue                        = dSumBinContentsCorrectedYieldMinusAverageSquared / (NumberOfCuts-1);
+                dCorrectedYieldStandardDeviationValue               = TMath::Sqrt(dCorrectedYieldVarianceValue);
+                histoAltCorrectedYieldCutAverage                    ->SetBinContent(iBinCorrectedYieldAverage, dCorrectedYieldAverageValue);
+                histoAltCorrectedYieldCutAverage                    ->SetBinError(iBinCorrectedYieldAverage, dCorrectedYieldStandardDeviationValue);
+            }
+
+            //Calculate MAD
+            if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Calculate MAD" << endl;}
+            for (Int_t i=0; i< NumberOfCuts; i++){
+                dSumAbsDeviationCorrectedYieldAverageValue                              = 0;
+                dSumAbsDeviationCorrectedYieldAverageValue_NormWStatErr                 = 0;
+                for (Int_t iBinCorrectedYieldAverage=iStartBinCorrectedYieldAverage; iBinCorrectedYieldAverage<=iLastBinWithContent; iBinCorrectedYieldAverage++){
+                    //BinValues
+                    dBinContentCorrectedYield                                           =
+                            histoAltCorrectedYieldCut[i]->GetBinContent(iBinCorrectedYieldAverage);
+                    dBinErrorCorrectedYield                                             =
+                            histoAltCorrectedYieldCut[i]->GetBinError(iBinCorrectedYieldAverage);
+                    dCorrectedYieldAverageValue                                         =
+                            histoAltCorrectedYieldCutAverage->GetBinContent(iBinCorrectedYieldAverage);
+                    dCorrectedYieldStandardDeviationValue                               =
+                            histoAltCorrectedYieldCutAverage->GetBinError(iBinCorrectedYieldAverage);
+                    //Calculations with Bin Values
+                    dCorrectedYieldVarianceValue                                        =
+                            dCorrectedYieldStandardDeviationValue*dCorrectedYieldStandardDeviationValue;
+                    dDeviationCorrectedYieldAverageValue                                =
+                            dBinContentCorrectedYield-dCorrectedYieldAverageValue;
+                    dDeviationCorrectedYieldAverageSquaredValue                         =
+                            dDeviationCorrectedYieldAverageValue*dDeviationCorrectedYieldAverageValue;
+                    if (dCorrectedYieldVarianceValue>0){
+                        dDeviationCorrectedYieldAverageSquaredValueDivVar                   =
+                                dDeviationCorrectedYieldAverageSquaredValue/dCorrectedYieldVarianceValue;
+                    } else {
+                        dDeviationCorrectedYieldAverageSquaredValueDivVar                   = 0.;
+                    }
+                    dDeviationCorrectedYieldAverageSquaredValueDivVar_NormWStatErr      =
+                            dDeviationCorrectedYieldAverageSquaredValue/(dCorrectedYieldVarianceValue+(dBinErrorCorrectedYield*dBinErrorCorrectedYield));
+
+                    dSumAbsDeviationCorrectedYieldAverageValue                          +=
+                            dDeviationCorrectedYieldAverageSquaredValueDivVar;
+                    dSumAbsDeviationCorrectedYieldAverageValue_NormWStatErr             +=
+                            dDeviationCorrectedYieldAverageSquaredValueDivVar_NormWStatErr;
+                }
+                dCorrectedYieldAverage_MADValue                                         =
+                        dSumAbsDeviationCorrectedYieldAverageValue / (iEndBinCorrectedYieldAverage-iStartBinCorrectedYieldAverage+1);
+                dCorrectedYieldAverage_MADValue_NormWStatErr                           =
+                        dSumAbsDeviationCorrectedYieldAverageValue_NormWStatErr / (iEndBinCorrectedYieldAverage-iStartBinCorrectedYieldAverage+1);
+
+
+                histoAltCorrectedYieldCutAverage_MAD                                       ->GetXaxis()->SetBinLabel(i+1, cutStringsName[i].Data());
+                histoAltCorrectedYieldCutAverage_MAD                                       ->SetBinContent(i+1, dCorrectedYieldAverage_MADValue);
+                histoAltCorrectedYieldCutAverage_MAD_NormWStatErr                          ->GetXaxis()->SetBinLabel(i+1, cutStringsName[i].Data());
+                histoAltCorrectedYieldCutAverage_MAD_NormWStatErr                          ->SetBinContent(i+1, dCorrectedYieldAverage_MADValue_NormWStatErr);
+            }
+            //Calculate MAD with MCInput
+            for (Int_t i=0; i< NumberOfCuts; i++){
+                if (doMCInput){
+                    if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Calculate MAD with MCInput" << endl;}
+                    for (Int_t i=0; i< NumberOfCuts; i++){
+                        dSumAbsDeviationCorrectedYieldMCInputValue                              = 0;
+                        dSumAbsDeviationCorrectedYieldMCInputValue_NormWStatErr                 = 0;
+                        for (Int_t iBinCorrectedYieldAverage=iStartBinCorrectedYieldAverage; iBinCorrectedYieldAverage<=iLastBinWithContent; iBinCorrectedYieldAverage++){
+                            //BinValues
+                            dBinContentCorrectedYield                                           =
+                                    histoAltCorrectedYieldCut[i]->GetBinContent(iBinCorrectedYieldAverage);
+                            dBinErrorCorrectedYield                                             =
+                                    histoAltCorrectedYieldCut[i]->GetBinError(iBinCorrectedYieldAverage);
+                            dCorrectedYieldAverageValue                                         =
+                                    histoAltCorrectedYieldCutAverage->GetBinContent(iBinCorrectedYieldAverage);
+                            dCorrectedYieldStandardDeviationValue                               =
+                                    histoAltCorrectedYieldCutAverage->GetBinError(iBinCorrectedYieldAverage);
+                            dCorrectedYieldMCInputValue                                         =
+                                    histoMCInputYieldCut[0]->GetBinContent(iBinCorrectedYieldAverage);
+                            dCorrectedYieldMCInputValue                                         =
+                                    histoMCInputYieldCut[0]->GetBinContent(iBinCorrectedYieldAverage);
+                            //Calculations with Bin Values
+                            dCorrectedYieldVarianceValue                                        =
+                                    dCorrectedYieldStandardDeviationValue*dCorrectedYieldStandardDeviationValue;
+                            dDeviationCorrectedYieldMCInputValue                                =
+                                    dBinContentCorrectedYield-dCorrectedYieldMCInputValue;
+                            dDeviationCorrectedYieldMCInputSquaredValue                         =
+                                    dDeviationCorrectedYieldMCInputValue*dDeviationCorrectedYieldMCInputValue;
+                            if (dCorrectedYieldVarianceValue>0){
+                                dDeviationCorrectedYieldMCInputSquaredValueDivVar               =
+                                        dDeviationCorrectedYieldMCInputSquaredValue/dCorrectedYieldVarianceValue;
+                            } else {
+                                dDeviationCorrectedYieldMCInputSquaredValueDivVar               = 0.;
+                            }
+                            dDeviationCorrectedYieldMCInputSquaredValueDivVar_NormWStatErr      =
+                                    dDeviationCorrectedYieldMCInputSquaredValue/(dCorrectedYieldVarianceValue+(dBinErrorCorrectedYield*dBinErrorCorrectedYield));
+
+                            dSumAbsDeviationCorrectedYieldMCInputValue                          +=
+                                    dDeviationCorrectedYieldMCInputSquaredValueDivVar;
+                            dSumAbsDeviationCorrectedYieldMCInputValue_NormWStatErr             +=
+                                    dDeviationCorrectedYieldMCInputSquaredValueDivVar_NormWStatErr;
+                        }
+                        dCorrectedYieldMCInput_MADValue                                         =
+                                dSumAbsDeviationCorrectedYieldMCInputValue / (iEndBinCorrectedYieldAverage-iStartBinCorrectedYieldAverage+1);
+                        dCorrectedYieldMCInput_MADValue_NormWStatErr                            =
+                                dSumAbsDeviationCorrectedYieldMCInputValue_NormWStatErr / (iEndBinCorrectedYieldAverage-iStartBinCorrectedYieldAverage+1);
+
+                        histoAltCorrectedYieldCutMCInput_MAD                                    ->GetXaxis()->SetBinLabel(i+1, cutStringsName[i].Data());
+                        histoAltCorrectedYieldCutMCInput_MAD                                    ->SetBinContent(i+1, dCorrectedYieldMCInput_MADValue);
+                        histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr                       ->GetXaxis()->SetBinLabel(i+1, cutStringsName[i].Data());
+                        histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr                       ->SetBinContent(i+1, dCorrectedYieldMCInput_MADValue_NormWStatErr);
+                    }
+                }
+            }
+        }
+        histoRatioAltCorrectedYieldCutAverage                                              =
+                (TH1D*) histoAltCorrectedYieldCutAverage->Clone(Form("histoRatioAltCorrectedYieldCutAverage_%s",cutStringsName[0].Data()));
+        if (doCorrectedYieldAverage){
+            histoRatioAltCorrectedYieldCutAverage                                          ->Divide(histoRatioAltCorrectedYieldCutAverage, histoAltCorrectedYieldCut[0],1.,1.,"B");
+        }
+
+
+
+        if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Compare Alternative Corrected Yields" << endl;}
+        // Define canvas
+        if(!plotOnlyUncorrectedOutput){
+            TCanvas* canvasAltCorrectedYieldMeson = new TCanvas("canvasAltCorrectedYieldMeson","",1350,1500);
+            DrawGammaCanvasSettings( canvasAltCorrectedYieldMeson,  0.13, 0.02, 0.02, 0.09);
+            // Define upper panel
+            TPad* padAltCorrectedYield = new TPad("padAltCorrectedYield", "", 0., 0.33, 1., 1.,-1, -1, -2);
+            DrawGammaPadSettings( padAltCorrectedYield, 0.12, 0.02, 0.02, 0.);
+            padAltCorrectedYield->SetLogy(1);
+            padAltCorrectedYield->Draw();
+            // Define lower panel
+            TPad* padAltCorrectedYieldRatios = new TPad("padAltCorrectedYieldRatios", "", 0., 0., 1., 0.33,-1, -1, -2);
+            DrawGammaPadSettings( padAltCorrectedYieldRatios, 0.12, 0.02, 0.0, 0.2);
+            padAltCorrectedYieldRatios->SetLogy(0);
+            padAltCorrectedYieldRatios->Draw();
+
+            // Plot AltCorrected yield in upper panel
+            padAltCorrectedYield->cd();
+            TLegend* legendAltCorrectedYieldMeson = GetAndSetLegend2(0.15,0.02,0.3,0.02+1.15*0.032*NumberOfCuts, 1500*0.75*0.032);
+            for(Int_t i = 0; i< NumberOfCuts; i++){
+                if(i == 0){
+                    DrawAutoGammaMesonHistos( histoAltCorrectedYieldCut[i],
+                                              "", "#it{p}_{T} (GeV/#it{c})", "#frac{1}{2#pi #it{N}_{ev.}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)",
+                                              kTRUE, 5., 5e-10,kTRUE,
+                                              kFALSE, 0.0, 0.030,
+                                              kFALSE, 0., 10.);
+                    DrawGammaSetMarker(histoAltCorrectedYieldCut[i], 20, 1., color[0], color[0]);
+                    histoAltCorrectedYieldCut[i]->DrawCopy("e1,p");
+                    legendAltCorrectedYieldMeson->AddEntry(histoAltCorrectedYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
+
+                    if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
+                        Int_t ColorAndMarkerNumber=NumberOfCuts;
+                        if(NumberOfCuts<20){
+                            DrawGammaSetMarker(histoAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                        } else {
+                            DrawGammaSetMarker(histoAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                        }
+                        histoAltCorrectedYieldCutAverage->DrawCopy("same,e1,p");
+                        legendAltCorrectedYieldMeson->AddEntry(histoAltCorrectedYieldCutAverage, "Average Values");
+                    }
+                    if (doMCInput){
+                        Int_t ColorAndMarkerNumber=NumberOfCuts;
+                        if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
+                          ColorAndMarkerNumber=NumberOfCuts+1;
+                        }
+                        if(NumberOfCuts<20){
+                            DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                        } else {
+                            DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                        }
+                        histoMCInputYieldCut[0]->DrawCopy("same,e1,p");
+                        legendAltCorrectedYieldMeson->AddEntry(histoMCInputYieldCut[0], "MC Input");
+                    }
+                }
+                else{
+                    if(i<20){
+                        DrawGammaSetMarker(histoAltCorrectedYieldCut[i], 20+i, 1.,color[i],color[i]);
+                    } else {
+                        DrawGammaSetMarker(histoAltCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                    }
+                    histoAltCorrectedYieldCut[i]->DrawCopy("same,e1,p");
+                    legendAltCorrectedYieldMeson->AddEntry(histoAltCorrectedYieldCut[i], cutStringsName[i].Data());
+                }
+
+            }
+            legendAltCorrectedYieldMeson->Draw();
+            // Labeling of plot
+            PutProcessLabelAndEnergyOnPlot( 0.94, 0.95, 0.032, collisionSystem, process, detectionProcess, 42, 0.03, optionPeriod, 1, 1.25, 31);
+
+            // plot ratio of AltCorrected yields in lower panel
+            padAltCorrectedYieldRatios->cd();
+            for(Int_t i = 0; i< NumberOfCuts; i++){
+                if(i==0){
+                    // Set ratio min and max
+                    Double_t minYRatio = 0.75;
+                    Double_t maxYRatio = 1.25;
+                    if (mode != 0 && mode!= 1 ){
+                        minYRatio = 0.75;
+                        maxYRatio = 1.55;
+                    }
+                    if (cutVariationName.Contains("LHC12NL") || cutVariationName.Contains("LHC12-MultWeight")){
+                        minYRatio = 0.81;
+                        maxYRatio = 1.19;
+                    } else if (cutVariationName.Contains("AODvalidation")){
+                        minYRatio = 0.8;
+                        maxYRatio = 1.2;
+                    } else if (cutVariationName.Contains("PHOS_Combined")) {
+                        minYRatio = 0.90;
+                        maxYRatio = 1.15;
+                    }  else if (meson.Contains("Omega")) {
+                        minYRatio = 0.1;
+                        maxYRatio = 2.55;
+                    }
+                    SetStyleHistoTH1ForGraphs(histoRatioAltCorrectedYieldCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
+                    DrawGammaSetMarker(histoRatioAltCorrectedYieldCut[i], 20, 1.,color[0],color[0]);
+                    histoRatioAltCorrectedYieldCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
+                    histoRatioAltCorrectedYieldCut[i]->DrawCopy("p,e1");
+
+                    if ((doCorrectedYieldAverage)&&(histoRatioAltCorrectedYieldCutAverage)){
+                        Int_t ColorAndMarkerNumber=NumberOfCuts;
+                        if(ColorAndMarkerNumber<20){
+                            DrawGammaSetMarker(histoRatioAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                        } else {
+                            DrawGammaSetMarker(histoRatioAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                        }
+                        histoRatioAltCorrectedYieldCutAverage->DrawCopy("same,e1,p");
+                    }
+                    if (doMCInput){
+                        Int_t ColorAndMarkerNumber=NumberOfCuts;
+                        if ((doCorrectedYieldAverage)&&(histoRatioAltCorrectedYieldCutAverage)){
+                          ColorAndMarkerNumber=NumberOfCuts+1;
+                        }
+                        if(ColorAndMarkerNumber<20){
+                            DrawGammaSetMarker(histoRatioToAltCorYieldMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                        } else {
+                            DrawGammaSetMarker(histoRatioToAltCorYieldMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                        }
+                        histoRatioToAltCorYieldMCInputYieldCut[0]->DrawCopy("same,e1,p");
+                    }
+                }
+                else{
+                    if(i<20){
+                        DrawGammaSetMarker(histoRatioAltCorrectedYieldCut[i], 20+i, 1.,color[i],color[i]);
+                    } else {
+                        DrawGammaSetMarker(histoRatioAltCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                    }
+                    histoRatioAltCorrectedYieldCut[i]->DrawCopy("same,e1,p");
+                }
+            }
+            DrawGammaLines(0., maxPt,1., 1.,1);
+
+            canvasAltCorrectedYieldMeson->Update();
+            canvasAltCorrectedYieldMeson->SaveAs(Form("%s/%s_%s_AltCorrectedYield.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+            delete canvasAltCorrectedYieldMeson;
+        }
+    }
+
+    //*****************************************************************************************
+    //******************* Write Corrected Yields Average to File*******************************
+    //*****************************************************************************************
+    if (doCorrectedYieldAverage){
+        TString FileName_CorrectedYieldAverage_MAD    = "CorrectedYieldAverage_MAD";
+        TFile *OutputFile_CorrectedYieldAverage_MAD   = new TFile(Form("%s/%s.root", outputDir.Data(), FileName_CorrectedYieldAverage_MAD.Data()), "RECREATE");
+
+        TCanvas* canvasCorrectedYieldMesonAverage_MAD = new TCanvas("canvasCorrectedYieldMesonAverage_MAD","",1350,1500);
+        histoCorrectedYieldCutAverage_MAD->GetYaxis()->SetTitle("#Sum ((CorrYield - Average)^2 / #sigma^2)");
+        histoCorrectedYieldCutAverage_MAD->Draw();
+        canvasCorrectedYieldMesonAverage_MAD->Update();
+        canvasCorrectedYieldMesonAverage_MAD->SaveAs(Form("%s/%s_%s_CorrectedYieldAverage_MAD.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+        if ( OutputFile_CorrectedYieldAverage_MAD->IsOpen() ){histoCorrectedYieldCutAverage_MAD->Write();}
+        delete canvasCorrectedYieldMesonAverage_MAD;
+
+        TCanvas* canvasCorrectedYieldMesonAverage_MAD_NormWStatErr = new TCanvas("canvasCorrectedYieldMesonAverage_MAD_NormWStatErr","",1350,1500);
+        histoCorrectedYieldCutAverage_MAD_NormWStatErr->GetYaxis()->SetTitle("#Sum ((CorrYield - Average)^2 / (#sigma^2+statErr^2)");
+        histoCorrectedYieldCutAverage_MAD_NormWStatErr->Draw();
+        canvasCorrectedYieldMesonAverage_MAD_NormWStatErr->Update();
+        canvasCorrectedYieldMesonAverage_MAD_NormWStatErr->SaveAs(Form("%s/%s_%s_CorrectedYieldAverage_MAD_NormWStatErr.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+        if ( OutputFile_CorrectedYieldAverage_MAD->IsOpen() ){histoCorrectedYieldCutAverage_MAD_NormWStatErr->Write();}
+        delete canvasCorrectedYieldMesonAverage_MAD_NormWStatErr;
+
+        if (doMCInput){
+            TCanvas* canvasCorrectedYieldMesonMCInput_MAD = new TCanvas("canvasCorrectedYieldMesonMCInput_MAD","",1350,1500);
+            histoCorrectedYieldCutMCInput_MAD->GetYaxis()->SetTitle("#Sum ((CorrYield - MCInput)^2 / #sigma^2)");
+            histoCorrectedYieldCutMCInput_MAD->Draw();
+            canvasCorrectedYieldMesonMCInput_MAD->Update();
+            canvasCorrectedYieldMesonMCInput_MAD->SaveAs(Form("%s/%s_%s_CorrectedYieldMCInput_MAD.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+            if ( OutputFile_CorrectedYieldAverage_MAD->IsOpen() ){histoCorrectedYieldCutMCInput_MAD->Write();}
+            delete canvasCorrectedYieldMesonMCInput_MAD;
+
+            TCanvas* canvasCorrectedYieldMesonMCInput_MAD_NormWStatErr = new TCanvas("canvasCorrectedYieldMesonMCInput_MAD_NormWStatErr","",1350,1500);
+            histoCorrectedYieldCutMCInput_MAD_NormWStatErr->GetYaxis()->SetTitle("#Sum ((CorrYield - MCInput)^2 / (#sigma^2+statErr^2)");
+            histoCorrectedYieldCutMCInput_MAD_NormWStatErr->Draw();
+            canvasCorrectedYieldMesonMCInput_MAD_NormWStatErr->Update();
+            canvasCorrectedYieldMesonMCInput_MAD_NormWStatErr->SaveAs(Form("%s/%s_%s_CorrectedYieldMCInput_MAD_NormWStatErr.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+            if ( OutputFile_CorrectedYieldAverage_MAD->IsOpen() ){histoCorrectedYieldCutMCInput_MAD_NormWStatErr->Write();}
+            delete canvasCorrectedYieldMesonMCInput_MAD_NormWStatErr;
+        }
+
+        if (doAlternativeCorrectedYield){
+            TCanvas* canvasAltCorrectedYieldMesonAverage_MAD = new TCanvas("canvasAltCorrectedYieldMesonAverage_MAD","",1350,1500);
+            histoAltCorrectedYieldCutAverage_MAD->GetYaxis()->SetTitle("#Sum ((CorrYield - Average)^2 / #sigma^2)");
+            histoAltCorrectedYieldCutAverage_MAD->Draw();
+            canvasAltCorrectedYieldMesonAverage_MAD->Update();
+            if (!kIsMC){ //Makes no real sense as Values are set 0, else division through zero; therefore not plotted
+                canvasAltCorrectedYieldMesonAverage_MAD->SaveAs(Form("%s/%s_%s_AltCorrectedYieldAverage_MAD.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+                if ( OutputFile_CorrectedYieldAverage_MAD->IsOpen() ){histoAltCorrectedYieldCutAverage_MAD->Write();}
+            }
+            delete canvasAltCorrectedYieldMesonAverage_MAD;
+
+            TCanvas* canvasAltCorrectedYieldMesonAverage_MAD_NormWStatErr = new TCanvas("canvasAltCorrectedYieldMesonAverage_MAD_NormWStatErr","",1350,1500);
+            histoAltCorrectedYieldCutAverage_MAD_NormWStatErr->GetYaxis()->SetTitle("#Sum ((CorrYield - Average)^2 / (#sigma^2+statErr^2)");
+            histoAltCorrectedYieldCutAverage_MAD_NormWStatErr->Draw();
+            canvasAltCorrectedYieldMesonAverage_MAD_NormWStatErr->Update();
+            canvasAltCorrectedYieldMesonAverage_MAD_NormWStatErr->SaveAs(Form("%s/%s_%s_AltCorrectedYieldAverage_MAD_NormWStatErr.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+            if ( OutputFile_CorrectedYieldAverage_MAD->IsOpen() ){histoAltCorrectedYieldCutAverage_MAD_NormWStatErr->Write();}
+            delete canvasAltCorrectedYieldMesonAverage_MAD_NormWStatErr;
+
+            if (doMCInput){
+                TCanvas* canvasAltCorrectedYieldMesonMCInput_MAD = new TCanvas("canvasAltCorrectedYieldMesonMCInput_MAD","",1350,1500);
+                histoAltCorrectedYieldCutMCInput_MAD->GetYaxis()->SetTitle("#Sum ((CorrYield - MCInput)^2 / #sigma^2)");
+                histoAltCorrectedYieldCutMCInput_MAD->Draw();
+                canvasAltCorrectedYieldMesonMCInput_MAD->Update();
+                if (!kIsMC){ //Makes no real sense as Values are set 0, else division through zero; therefore not plotted
+                    canvasAltCorrectedYieldMesonMCInput_MAD->SaveAs(Form("%s/%s_%s_AltCorrectedYieldMCInput_MAD.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+                    if ( OutputFile_CorrectedYieldAverage_MAD->IsOpen() ){histoAltCorrectedYieldCutMCInput_MAD->Write();}
+                }
+                delete canvasAltCorrectedYieldMesonMCInput_MAD;
+
+                TCanvas* canvasAltCorrectedYieldMesonMCInput_MAD_NormWStatErr = new TCanvas("canvasAltCorrectedYieldMesonMCInput_MAD_NormWStatErr","",1350,1500);
+                histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr->GetYaxis()->SetTitle("#Sum ((CorrYield - MCInput)^2 / (#sigma^2+statErr^2)");
+                histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr->Draw();
+                canvasAltCorrectedYieldMesonMCInput_MAD_NormWStatErr->Update();
+                canvasAltCorrectedYieldMesonMCInput_MAD_NormWStatErr->SaveAs(Form("%s/%s_%s_AltCorrectedYieldMCInput_MAD_NormWStatErr.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+                if ( OutputFile_CorrectedYieldAverage_MAD->IsOpen() ){histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr->Write();}
+                delete canvasAltCorrectedYieldMesonMCInput_MAD_NormWStatErr;
+            }
+
+        }
+
+        if (OutputFile_CorrectedYieldAverage_MAD) delete OutputFile_CorrectedYieldAverage_MAD;
+    }
+
 
     //*****************************************************************************************
     //***************** Compare Corrected Yields without Secondary Correction *****************
@@ -655,6 +1443,100 @@ void CompareDifferentDirectories(   TString FolderList              = "",
       delete canvasCorrectedYieldWOSecMeson;
     }
 
+    //*****************************************************************************************
+    //********************** Compare MC Input Yield *******************************************
+    //*****************************************************************************************
+    if (doMCInput){
+        if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Compare Alternative Corrected Yields" << endl;}
+        // Define canvas
+        if(!plotOnlyUncorrectedOutput){
+            TCanvas* canvasMCInputYieldMeson = new TCanvas("canvasMCInputYieldMeson","",1350,1500);
+            DrawGammaCanvasSettings( canvasMCInputYieldMeson,  0.13, 0.02, 0.02, 0.09);
+            // Define upper panel
+            TPad* padMCInputYield = new TPad("padMCInputYield", "", 0., 0.33, 1., 1.,-1, -1, -2);
+            DrawGammaPadSettings( padMCInputYield, 0.12, 0.02, 0.02, 0.);
+            padMCInputYield->SetLogy(1);
+            padMCInputYield->Draw();
+            // Define lower panel
+            TPad* padMCInputYieldRatios = new TPad("padMCInputYieldRatios", "", 0., 0., 1., 0.33,-1, -1, -2);
+            DrawGammaPadSettings( padMCInputYieldRatios, 0.12, 0.02, 0.0, 0.2);
+            padMCInputYieldRatios->SetLogy(0);
+            padMCInputYieldRatios->Draw();
+
+            // Plot AltCorrected yield in upper panel
+            padMCInputYield->cd();
+            TLegend* legendMCInputYieldMeson = GetAndSetLegend2(0.15,0.02,0.3,0.02+1.15*0.032*NumberOfCuts, 1500*0.75*0.032);
+            for(Int_t i = 0; i< NumberOfCuts; i++){
+                if(i == 0){
+                    DrawAutoGammaMesonHistos( histoMCInputYieldCut[i],
+                                              "", "#it{p}_{T} (GeV/#it{c})", "#frac{1}{2#pi #it{N}_{ev.}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)",
+                                              kTRUE, 5., 5e-10,kTRUE,
+                                              kFALSE, 0.0, 0.030,
+                                              kFALSE, 0., 10.);
+                    DrawGammaSetMarker(histoMCInputYieldCut[i], 20, 1., color[0], color[0]);
+                    histoMCInputYieldCut[i]->DrawCopy("e1,p");
+                    legendMCInputYieldMeson->AddEntry(histoMCInputYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
+                }
+                else{
+                    if(i<20){
+                        DrawGammaSetMarker(histoMCInputYieldCut[i], 20+i, 1.,color[i],color[i]);
+                    } else {
+                        DrawGammaSetMarker(histoMCInputYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                    }
+                    histoMCInputYieldCut[i]->DrawCopy("same,e1,p");
+                    legendMCInputYieldMeson->AddEntry(histoMCInputYieldCut[i], cutStringsName[i].Data());
+                }
+
+            }
+            legendMCInputYieldMeson->Draw();
+            // Labeling of plot
+            PutProcessLabelAndEnergyOnPlot( 0.94, 0.95, 0.032, collisionSystem, process, detectionProcess, 42, 0.03, optionPeriod, 1, 1.25, 31);
+
+            // plot ratio of AltCorrected yields in lower panel
+            padMCInputYieldRatios->cd();
+            for(Int_t i = 0; i< NumberOfCuts; i++){
+                if(i==0){
+                    // Set ratio min and max
+                    Double_t minYRatio = 0.75;
+                    Double_t maxYRatio = 1.25;
+                    if (mode != 0 && mode!= 1 ){
+                        minYRatio = 0.75;
+                        maxYRatio = 1.55;
+                    }
+                    if (cutVariationName.Contains("LHC12NL") || cutVariationName.Contains("LHC12-MultWeight")){
+                        minYRatio = 0.81;
+                        maxYRatio = 1.19;
+                    } else if (cutVariationName.Contains("AODvalidation")){
+                        minYRatio = 0.8;
+                        maxYRatio = 1.2;
+                    } else if (cutVariationName.Contains("PHOS_Combined")) {
+                        minYRatio = 0.90;
+                        maxYRatio = 1.15;
+                    }  else if (meson.Contains("Omega")) {
+                        minYRatio = 0.1;
+                        maxYRatio = 2.55;
+                    }
+                    SetStyleHistoTH1ForGraphs(histoRatioMCInputYieldCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
+                    DrawGammaSetMarker(histoRatioMCInputYieldCut[i], 20, 1.,color[0],color[0]);
+                    histoRatioMCInputYieldCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
+                    histoRatioMCInputYieldCut[i]->DrawCopy("p,e1");
+                }
+                else{
+                    if(i<20){
+                        DrawGammaSetMarker(histoRatioMCInputYieldCut[i], 20+i, 1.,color[i],color[i]);
+                    } else {
+                        DrawGammaSetMarker(histoRatioMCInputYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                    }
+                    histoRatioMCInputYieldCut[i]->DrawCopy("same,e1,p");
+                }
+            }
+            DrawGammaLines(0., maxPt,1., 1.,1);
+
+            canvasMCInputYieldMeson->Update();
+            canvasMCInputYieldMeson->SaveAs(Form("%s/%s_%s_MCInputYield.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
+            delete canvasMCInputYieldMeson;
+        }
+    }
     //**************************************************************************************
     //********************* Plotting Efficiency *********************************************
     //**************************************************************************************
@@ -702,6 +1584,10 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                         histoTrueEffiCut[i]->GetYaxis()->SetRangeUser(0,0.6);
                     else
                         histoTrueEffiCut[i]->GetYaxis()->SetRangeUser(0,0.6);
+                } else if ( mode == modePCM_Omega || mode == modePCMEMCAL_Omega || mode == modePCMPHOS_Omega || mode == modeEMCAL_Omega || mode == modePHOS_Omega ){
+                    if (meson.Contains("Omega") ){
+                        histoTrueEffiCut[i]->GetYaxis()->SetRangeUser(-0.01,0.15);
+                    }
                 }
                 histoTrueEffiCut[i]->DrawCopy("e1,p");
                 legendEffiMeson->AddEntry(histoTrueEffiCut[i],Form("standard: %s",cutStringsName[i].Data()));
@@ -742,6 +1628,9 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 } else if (cutVariationName.Contains("PHOS_Combined")) {
                     minYRatio = 0.90;
                     maxYRatio = 1.15;
+                } else if (meson.Contains("Omega")) {
+                    minYRatio = 0.6;
+                    maxYRatio = 1.4;
                 }
                 SetStyleHistoTH1ForGraphs(histoRatioTrueEffiCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.05, 0.07, 0.05, 0.07, 0.75, 0.5, 510,505);
                 DrawGammaSetMarker(histoRatioTrueEffiCut[i], 20, 1.,color[0],color[0]);
@@ -767,6 +1656,211 @@ void CompareDifferentDirectories(   TString FolderList              = "",
       canvasTrueEffiMeson->Update();
       canvasTrueEffiMeson->SaveAs(Form("%s/%s_%s_Efficiencies.%s",outputDir.Data(),meson.Data(),prefix2.Data(),suffix.Data()));
       delete canvasTrueEffiMeson;
+    }
+
+    //**************************************************************************************
+    //********************* Plotting Alternative Efficiency ********************************
+    //**************************************************************************************
+    if (doAlternativeEfficiency){
+        if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Plotting Alternative Efficiency" << endl;}
+        // Define canvas
+        if(!plotOnlyUncorrectedOutput){
+          TCanvas* canvasAltEffiMeson = new TCanvas("canvasAltEffiMeson","",1350,1500);  // gives the page size
+          DrawGammaCanvasSettings( canvasAltEffiMeson,  0.13, 0.02, 0.02, 0.09);
+          // Define upper panel
+          TPad* padAltEffi = new TPad("padAltEffi", "", 0., 0.4, 1., 1.,-1, -1, -2);
+          DrawGammaPadSettings( padAltEffi, 0.12, 0.02, 0.04, 0.);
+          padAltEffi->Draw();
+          // Define lower panel
+          TPad* padAltEffiRatios = new TPad("padAltEffiRatios", "", 0., 0., 1., 0.4,-1, -1, -2);
+          DrawGammaPadSettings( padAltEffiRatios, 0.12, 0.02, 0.0, 0.2);
+          padAltEffiRatios->Draw();
+
+            // draw efficiency in upper panel
+            padAltEffi->cd();
+      //       if (mode == 2 || mode == 3 ) padAltEffi->SetLogy(1);
+      //       else padAltEffi->SetLogy(0);
+
+            TLegend* legendEffiMeson = GetAndSetLegend2(0.15,0.93-0.03*NumberOfCuts,0.3,0.93, 1500*0.75*0.032);
+            for(Int_t i = 0; i< NumberOfCuts; i++){
+                if(i == 0){
+                    DrawGammaSetMarker(histoAltEffiCut[i], 20, 1., color[0], color[0]);
+                    DrawAutoGammaMesonHistos( histoAltEffiCut[i],
+                                              "", "#it{p}_{T} (GeV/#it{c})", Form("#epsilon_{%s}",textMeson.Data()),
+                                              kTRUE, 5., 10e-10,kFALSE,
+                                              kTRUE, -0.1, 0.00030,
+                                              kFALSE, 0., 10.);
+                    if (mode == 9 || mode == 0 )histoAltEffiCut[i]->GetYaxis()->SetRangeUser(0.0,0.003);
+                    if (mode == 2 || mode == 3 )histoAltEffiCut[i]->GetYaxis()->SetRangeUser(0,0.1);
+                    if (mode == 4 || mode == 5 ){
+                        if (optionEnergy.Contains("PbPb_2") && meson.Contains("Pi0") )
+                            histoAltEffiCut[i]->GetYaxis()->SetRangeUser(0,0.4);
+                        else if (optionEnergy.Contains("PbPb_5") && meson.Contains("Pi0") )
+                            histoAltEffiCut[i]->GetYaxis()->SetRangeUser(-0.05,0.25);
+                        else if (optionEnergy.Contains("pPb") && meson.Contains("Pi0") )
+                            histoAltEffiCut[i]->GetYaxis()->SetRangeUser(0.,0.4);
+                        else if (optionEnergy.Contains("PbPb_2.76TeV") )
+                            histoAltEffiCut[i]->GetYaxis()->SetRangeUser(0,0.6);
+                        else
+                            histoAltEffiCut[i]->GetYaxis()->SetRangeUser(0,0.6);
+                    } else if ( mode == modePCM_Omega || mode == modePCMEMCAL_Omega || mode == modePCMPHOS_Omega || mode == modeEMCAL_Omega || mode == modePHOS_Omega ){
+                        if (meson.Contains("Omega") ){
+                            histoAltEffiCut[i]->GetYaxis()->SetRangeUser(-0.01,0.15);
+                        }
+                    }
+                    histoAltEffiCut[i]->DrawCopy("e1,p");
+                    legendEffiMeson->AddEntry(histoAltEffiCut[i],Form("standard: %s",cutStringsName[i].Data()));
+                } else {
+                    if(i<20){
+                        DrawGammaSetMarker(histoAltEffiCut[i], 20+i, 1.,color[i],color[i]);
+                    } else {
+                        DrawGammaSetMarker(histoAltEffiCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                    }
+                    histoAltEffiCut[i]->DrawCopy("same,e1,p");
+                    legendEffiMeson->AddEntry(histoAltEffiCut[i],cutStringsName[i].Data());
+                }
+            }
+            legendEffiMeson->Draw();
+
+            // Efficiency plot labeling
+            PutProcessLabelAndEnergyOnPlot( 0.94, 0.2, 0.032, collisionSystem, process, detectionProcess, 42, 0.03, optionPeriod, 1, 1.25, 31);
+
+            // Draw ratio of efficiencies in lower panel
+            padAltEffiRatios->cd();
+            if( optionEnergy.Contains("Pb") ) padAltEffiRatios->SetLogy(0);
+            else padAltEffiRatios->SetLogy(0);
+
+            for(Int_t i = 0; i< NumberOfCuts; i++){
+                if(i==0){
+                    Double_t minYRatio = 0.45;
+                    Double_t maxYRatio = 1.55;
+                    if (cutVariationName.Contains("Weighting")){
+                          minYRatio = 0.75;
+                          maxYRatio = 1.25;
+                    }
+                    if (cutVariationName.Contains("LHC12NL") || cutVariationName.Contains("LHC12-MultWeight")){
+                        minYRatio = 0.81;
+                        maxYRatio = 1.19;
+                    }else if (cutVariationName.Contains("AODvalidation")){
+                          minYRatio = 0.9;
+                          maxYRatio = 1.09;
+                    } else if (cutVariationName.Contains("PHOS_Combined")) {
+                        minYRatio = 0.90;
+                        maxYRatio = 1.15;
+                    } else if (meson.Contains("Omega")) {
+                        minYRatio = 0.6;
+                        maxYRatio = 1.4;
+                    }
+                    SetStyleHistoTH1ForGraphs(histoRatioAltEffiCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.05, 0.07, 0.05, 0.07, 0.75, 0.5, 510,505);
+                    DrawGammaSetMarker(histoRatioAltEffiCut[i], 20, 1.,color[0],color[0]);
+                    histoRatioAltEffiCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
+                    histoRatioAltEffiCut[i]->DrawCopy("p,e1");
+                } else{
+                    if(i<20){
+                        DrawGammaSetMarker(histoRatioAltEffiCut[i], 20+i, 1.,color[i],color[i]);
+                    } else {
+                        DrawGammaSetMarker(histoRatioAltEffiCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                    }
+                    histoRatioAltEffiCut[i]->DrawCopy("same,e1,p");
+                }
+                DrawGammaLines(0., maxPt,1., 1.,1);
+                DrawGammaLines(0., maxPt, 1.1, 1.1, 1, kGray+1, 7);
+                DrawGammaLines(0., maxPt, 0.9, 0.9, 1, kGray+1, 7);
+                if (cutVariationName.Contains("Weighting")){
+                  DrawGammaLines(0., maxPt, 1.05, 1.05, 1, kGray+1, 9);
+                  DrawGammaLines(0., maxPt, 0.95, 0.95, 1, kGray+1, 9);
+                }
+            }
+
+          canvasAltEffiMeson->Update();
+          canvasAltEffiMeson->SaveAs(Form("%s/%s_%s_AlternativeEfficiencies.%s",outputDir.Data(),meson.Data(),prefix2.Data(),suffix.Data()));
+          delete canvasAltEffiMeson;
+        }
+    }
+
+    //**************************************************************************************
+    //********************* Plotting Alternative Efficiency Ratio **************************
+    //**************************************************************************************
+    if (doAlternativeEfficiency){
+        if (DebugOutputLevel>=1){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Plotting Alternative Efficiency" << endl;}
+        // Define canvas
+        if(!plotOnlyUncorrectedOutput){
+          TCanvas* canvasRatioTrueEffDivAltEffiMeson = new TCanvas("canvasRatioTrueEffDivAltEffiMeson","",1350,1500);  // gives the page size
+          DrawGammaCanvasSettings( canvasRatioTrueEffDivAltEffiMeson,  0.13, 0.02, 0.02, 0.09);
+          // Define upper panel
+          TPad* padRatioTrueEffDivAltEffi = new TPad("padRatioTrueEffDivAltEffi", "", 0., 0.4, 1., 1.,-1, -1, -2);
+          DrawGammaPadSettings( padRatioTrueEffDivAltEffi, 0.12, 0.02, 0.04, 0.);
+          padRatioTrueEffDivAltEffi->Draw();
+          // Define lower panel
+          TPad* padRatioTrueEffDivAltEffiRatios = new TPad("padRatioTrueEffDivAltEffiRatios", "", 0., 0., 1., 0.4,-1, -1, -2);
+          DrawGammaPadSettings( padRatioTrueEffDivAltEffiRatios, 0.12, 0.02, 0.0, 0.2);
+          padRatioTrueEffDivAltEffiRatios->Draw();
+
+            // draw efficiency in upper panel
+            padRatioTrueEffDivAltEffi->cd();
+      //       if (mode == 2 || mode == 3 ) padRatioTrueEffDivAltEffi->SetLogy(1);
+      //       else padRatioTrueEffDivAltEffi->SetLogy(0);
+
+            TLegend* legendEffiMeson = GetAndSetLegend2(0.15,0.93-0.03*NumberOfCuts,0.3,0.93, 1500*0.75*0.032);
+            for(Int_t i = 0; i< NumberOfCuts; i++){
+                if(i == 0){
+                    DrawGammaSetMarker(histoRatioTrueEffDivAltEffiCut[i], 20, 1., color[0], color[0]);
+                    DrawAutoGammaMesonHistos( histoRatioTrueEffDivAltEffiCut[i],
+                                              "", "#it{p}_{T} (GeV/#it{c})", Form("#epsilon_{%s}",textMeson.Data()),
+                                              kTRUE, 5., 10e-10,kFALSE,
+                                              kTRUE, -0.1, 0.00030,
+                                              kFALSE, 0., 10.);
+                    histoRatioTrueEffDivAltEffiCut[i]->GetYaxis()->SetRangeUser(0.4,2.0);
+                    histoRatioTrueEffDivAltEffiCut[i]->DrawCopy("e1,p");
+                    legendEffiMeson->AddEntry(histoRatioTrueEffDivAltEffiCut[i],Form("standard: %s",cutStringsName[i].Data()));
+                } else {
+                    if(i<20){
+                        DrawGammaSetMarker(histoRatioTrueEffDivAltEffiCut[i], 20+i, 1.,color[i],color[i]);
+                    } else {
+                        DrawGammaSetMarker(histoRatioTrueEffDivAltEffiCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                    }
+                    histoRatioTrueEffDivAltEffiCut[i]->DrawCopy("same,e1,p");
+                    legendEffiMeson->AddEntry(histoRatioTrueEffDivAltEffiCut[i],cutStringsName[i].Data());
+                }
+                DrawGammaLines(0., maxPt,1., 1.,1);
+                DrawGammaLines(0., maxPt, 1.1, 1.1, 1, kGray+1, 7);
+                DrawGammaLines(0., maxPt, 0.9, 0.9, 1, kGray+1, 7);
+            }
+            legendEffiMeson->Draw();
+
+            // Efficiency plot labeling
+            PutProcessLabelAndEnergyOnPlot( 0.94, 0.2, 0.032, collisionSystem, process, detectionProcess, 42, 0.03, optionPeriod, 1, 1.25, 31);
+
+            // Draw ratio of efficiencies in lower panel
+            padRatioTrueEffDivAltEffiRatios->cd();
+            if( optionEnergy.Contains("Pb") ) padRatioTrueEffDivAltEffiRatios->SetLogy(0);
+            else padRatioTrueEffDivAltEffiRatios->SetLogy(0);
+
+            for(Int_t i = 0; i< NumberOfCuts; i++){
+                if(i==0){
+                    Double_t minYRatio = 0.4;
+                    Double_t maxYRatio = 2.0;
+                    SetStyleHistoTH1ForGraphs(histoRatioOfRatioTrueEffDivAltEffiCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.05, 0.07, 0.05, 0.07, 0.75, 0.5, 510,505);
+                    DrawGammaSetMarker(histoRatioOfRatioTrueEffDivAltEffiCut[i], 20, 1.,color[0],color[0]);
+                    histoRatioOfRatioTrueEffDivAltEffiCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
+                    histoRatioOfRatioTrueEffDivAltEffiCut[i]->DrawCopy("p,e1");
+                } else{
+                    if(i<20){
+                        DrawGammaSetMarker(histoRatioOfRatioTrueEffDivAltEffiCut[i], 20+i, 1.,color[i],color[i]);
+                    } else {
+                        DrawGammaSetMarker(histoRatioOfRatioTrueEffDivAltEffiCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                    }
+                    histoRatioOfRatioTrueEffDivAltEffiCut[i]->DrawCopy("same,e1,p");
+                }
+                DrawGammaLines(0., maxPt,1., 1.,1);
+                DrawGammaLines(0., maxPt, 1.1, 1.1, 1, kGray+1, 7);
+                DrawGammaLines(0., maxPt, 0.9, 0.9, 1, kGray+1, 7);
+            }
+
+          canvasRatioTrueEffDivAltEffiMeson->Update();
+          canvasRatioTrueEffDivAltEffiMeson->SaveAs(Form("%s/%s_%s_EfficiencyRatios.%s",outputDir.Data(),meson.Data(),prefix2.Data(),suffix.Data()));
+          delete canvasRatioTrueEffDivAltEffiMeson;
+        }
     }
 
     //**************************************************************************************
