@@ -168,6 +168,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     TString cutName;
     TString cutNr;
     Int_t Number = 0;
+    Int_t ColorAndMarkerNumber;
     while(!in.eof() ){
         in >> folderName >> cutNr >> cutName;
         cutName.ReplaceAll("_"," ");
@@ -428,53 +429,66 @@ void CompareDifferentDirectories(   TString FolderList              = "",
         // Calculate ratios for comparisons
         if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; Calculate ratios for comparisons" << endl;}
         if(readCorrectedFile[i]){
-          histoRatioCorrectedYieldCut[i] = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("histoRatioCorrectedYieldCut_%s",cutStringsName[i].Data()));
-          histoRatioCorrectedYieldCut[i]->Divide(histoRatioCorrectedYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
-          if (i > 0){
-              maxPt= histoCorrectedYieldCut[i]->GetBinCenter(histoCorrectedYieldCut[i]->GetNbinsX()) + 0.5* histoCorrectedYieldCut[i]->GetBinWidth(histoCorrectedYieldCut[i]->GetNbinsX());
-          }
-          if (doCorrectedYieldWOSecCut){
-            histoRatioCorrectedYieldWOSecCut[i] = (TH1D*) histoCorrectedYieldWOSecCut[i]->Clone(Form("histoRatioCorrectedYieldWOSecCut_%s",cutStringsName[i].Data()));
-            histoRatioCorrectedYieldWOSecCut[i]->Divide(histoRatioCorrectedYieldWOSecCut[i],histoCorrectedYieldWOSecCut[0],1.,1.,"B");
-          } else {
-              histoRatioCorrectedYieldWOSecCut[i] = NULL;
-          }
-          if (doAlternativeCorrectedYield){
-              histoRatioAltCorrectedYieldCut[i] = (TH1D*) histoAltCorrectedYieldCut[i]->Clone(Form("histoRatioAltCorrectedYieldCut_%s",cutStringsName[i].Data()));
-              histoRatioAltCorrectedYieldCut[i]->Divide(histoRatioAltCorrectedYieldCut[i],histoAltCorrectedYieldCut[0],1.,1.,"B");
-          } else {
-              histoRatioAltCorrectedYieldCut[i] = NULL;
-          }
-          if (doMCInput){
-              histoRatioMCInputYieldCut[i] = (TH1D*) histoMCInputYieldCut[i]->Clone(Form("histoRatioMCInputYieldCut_%s",cutStringsName[i].Data()));
-              histoRatioMCInputYieldCut[i]->Divide(histoRatioMCInputYieldCut[i],histoMCInputYieldCut[0],1.,1.,"B");
+            if (doMCInput){
+                histoRatioMCInputYieldCut[i] = (TH1D*) histoMCInputYieldCut[i]->Clone(Form("histoRatioMCInputYieldCut_%s",cutStringsName[i].Data()));
+                histoRatioMCInputYieldCut[i]->Divide(histoRatioMCInputYieldCut[i],histoMCInputYieldCut[0],1.,1.,"B");
 
-              histoRatioToCorYieldMCInputYieldCut[i] = (TH1D*) histoMCInputYieldCut[i]->Clone(Form("histoRatioToCorYieldMCInputYieldCut%s",cutStringsName[i].Data()));
-              histoRatioToCorYieldMCInputYieldCut[i]->Divide(histoRatioToCorYieldMCInputYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
-              if (doAlternativeCorrectedYield){
-                  histoRatioToAltCorYieldMCInputYieldCut[i] = (TH1D*) histoMCInputYieldCut[i]->Clone(Form("histoRatioToAltCorYieldMCInputYieldCut%s",cutStringsName[i].Data()));
-                  histoRatioToAltCorYieldMCInputYieldCut[i]->Divide(histoRatioToAltCorYieldMCInputYieldCut[i],histoAltCorrectedYieldCut[0],1.,1.,"B");
-              }
-          } else {
-              histoRatioMCInputYieldCut[i] = NULL;
-              histoRatioToCorYieldMCInputYieldCut[i] = NULL;
-              histoRatioToAltCorYieldMCInputYieldCut[i] = NULL;
+                histoRatioToCorYieldMCInputYieldCut[i] = (TH1D*) histoMCInputYieldCut[i]->Clone(Form("histoRatioToCorYieldMCInputYieldCut%s",cutStringsName[i].Data()));
+                histoRatioToCorYieldMCInputYieldCut[i]->Divide(histoRatioToCorYieldMCInputYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
+                if (doAlternativeCorrectedYield){
+                    histoRatioToAltCorYieldMCInputYieldCut[i] = (TH1D*) histoMCInputYieldCut[i]->Clone(Form("histoRatioToAltCorYieldMCInputYieldCut%s",cutStringsName[i].Data()));
+                    histoRatioToAltCorYieldMCInputYieldCut[i]->Divide(histoRatioToAltCorYieldMCInputYieldCut[i],histoAltCorrectedYieldCut[0],1.,1.,"B");
+                }
+            } else {
+                histoRatioMCInputYieldCut[i] = NULL;
+                histoRatioToCorYieldMCInputYieldCut[i] = NULL;
+                histoRatioToAltCorYieldMCInputYieldCut[i] = NULL;
 
-          }
-          histoRatioTrueEffiCut[i]    = (TH1D*) histoTrueEffiCut[i]->Clone(Form("histoRatioTrueEffiCut_%s",cutStringsName[i].Data()));
-          histoRatioTrueEffiCut[i]->Divide(histoRatioTrueEffiCut[i],histoTrueEffiCut[0],1.,1.,"B");
-          if (doAlternativeEfficiency){
-              histoRatioAltEffiCut[i]    = (TH1D*) histoAltEffiCut[i]->Clone(Form("histoRatioAltEffiCut_%s",cutStringsName[i].Data()));
-              histoRatioAltEffiCut[i]->Divide(histoRatioAltEffiCut[i],histoAltEffiCut[0],1.,1.,"B");
+            }
+            histoRatioCorrectedYieldCut[i] = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("histoRatioCorrectedYieldCut_%s",cutStringsName[i].Data()));
+            if (doMCInput){
+                histoRatioCorrectedYieldCut[i]->Divide(histoRatioCorrectedYieldCut[i],histoMCInputYieldCut[0],1.,1.,"B");
+            } else {
+                histoRatioCorrectedYieldCut[i]->Divide(histoRatioCorrectedYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
+            }
+            if (i > 0){
+                maxPt= histoCorrectedYieldCut[i]->GetBinCenter(histoCorrectedYieldCut[i]->GetNbinsX()) + 0.5* histoCorrectedYieldCut[i]->GetBinWidth(histoCorrectedYieldCut[i]->GetNbinsX());
+            }
+            if (doCorrectedYieldWOSecCut){
+                histoRatioCorrectedYieldWOSecCut[i] = (TH1D*) histoCorrectedYieldWOSecCut[i]->Clone(Form("histoRatioCorrectedYieldWOSecCut_%s",cutStringsName[i].Data()));
+                if (doMCInput){
+                    histoRatioCorrectedYieldWOSecCut[i]->Divide(histoRatioCorrectedYieldWOSecCut[i],histoMCInputYieldCut[0],1.,1.,"B");
+                } else {
+                    histoRatioCorrectedYieldWOSecCut[i]->Divide(histoRatioCorrectedYieldWOSecCut[i],histoCorrectedYieldWOSecCut[0],1.,1.,"B");
+                }
+            } else {
+                histoRatioCorrectedYieldWOSecCut[i] = NULL;
+            }
+            if (doAlternativeCorrectedYield){
+                histoRatioAltCorrectedYieldCut[i] = (TH1D*) histoAltCorrectedYieldCut[i]->Clone(Form("histoRatioAltCorrectedYieldCut_%s",cutStringsName[i].Data()));
+                if (doMCInput){
+                    histoRatioAltCorrectedYieldCut[i]->Divide(histoRatioAltCorrectedYieldCut[i],histoMCInputYieldCut[0],1.,1.,"B");
+                } else {
+                    histoRatioAltCorrectedYieldCut[i]->Divide(histoRatioAltCorrectedYieldCut[i],histoAltCorrectedYieldCut[0],1.,1.,"B");
+                }
+            } else {
+                histoRatioAltCorrectedYieldCut[i] = NULL;
+            }
 
-              histoRatioTrueEffDivAltEffiCut[i]    = (TH1D*) histoTrueEffiCut[i]->Clone(Form("histoRatioTrueEffDivAltEffiCut_%s",cutStringsName[i].Data()));
-              histoRatioTrueEffDivAltEffiCut[i]->Divide(histoRatioTrueEffDivAltEffiCut[i],histoAltEffiCut[i],1.,1.,"B");
+            histoRatioTrueEffiCut[i]    = (TH1D*) histoTrueEffiCut[i]->Clone(Form("histoRatioTrueEffiCut_%s",cutStringsName[i].Data()));
+            histoRatioTrueEffiCut[i]->Divide(histoRatioTrueEffiCut[i],histoTrueEffiCut[0],1.,1.,"B");
+            if (doAlternativeEfficiency){
+                histoRatioAltEffiCut[i]    = (TH1D*) histoAltEffiCut[i]->Clone(Form("histoRatioAltEffiCut_%s",cutStringsName[i].Data()));
+                histoRatioAltEffiCut[i]->Divide(histoRatioAltEffiCut[i],histoAltEffiCut[0],1.,1.,"B");
 
-              histoRatioOfRatioTrueEffDivAltEffiCut[i]    = (TH1D*) histoRatioTrueEffDivAltEffiCut[i]->Clone(Form("histoRatioTrueEffDivAltEffiCut_%s",cutStringsName[i].Data()));
-              histoRatioOfRatioTrueEffDivAltEffiCut[i]->Divide(histoRatioOfRatioTrueEffDivAltEffiCut[i], histoRatioTrueEffDivAltEffiCut[0],1.,1.,"B");
-          }
-          histoRatioAcceptanceCut[i]  = (TH1D*) histoAcceptanceCut[i]->Clone(Form("histoRatioAcceptanceCut_%s",cutStringsName[i].Data()));
-          histoRatioAcceptanceCut[i]->Divide(histoRatioAcceptanceCut[i],histoAcceptanceCut[0],1.,1.,"B");
+                histoRatioTrueEffDivAltEffiCut[i]    = (TH1D*) histoTrueEffiCut[i]->Clone(Form("histoRatioTrueEffDivAltEffiCut_%s",cutStringsName[i].Data()));
+                histoRatioTrueEffDivAltEffiCut[i]->Divide(histoRatioTrueEffDivAltEffiCut[i],histoAltEffiCut[i],1.,1.,"B");
+
+                histoRatioOfRatioTrueEffDivAltEffiCut[i]    = (TH1D*) histoRatioTrueEffDivAltEffiCut[i]->Clone(Form("histoRatioTrueEffDivAltEffiCut_%s",cutStringsName[i].Data()));
+                histoRatioOfRatioTrueEffDivAltEffiCut[i]->Divide(histoRatioOfRatioTrueEffDivAltEffiCut[i], histoRatioTrueEffDivAltEffiCut[0],1.,1.,"B");
+            }
+            histoRatioAcceptanceCut[i]  = (TH1D*) histoAcceptanceCut[i]->Clone(Form("histoRatioAcceptanceCut_%s",cutStringsName[i].Data()));
+            histoRatioAcceptanceCut[i]->Divide(histoRatioAcceptanceCut[i],histoAcceptanceCut[0],1.,1.,"B");
         }
         if (DebugOutputLevel>=2){cout << "Debug; CompareDifferentDirectories.C, line " << __LINE__ << "; " << endl;}
 
@@ -686,7 +700,11 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     histoRatioCorrectedYieldCutAverage                                              =
             (TH1D*) histoCorrectedYieldCutAverage->Clone(Form("histoRatioCorrectedYieldCutAverage_%s",cutStringsName[0].Data()));
     if (doCorrectedYieldAverage){
-        histoRatioCorrectedYieldCutAverage                                          ->Divide(histoRatioCorrectedYieldCutAverage, histoCorrectedYieldCut[0],1.,1.,"B");
+        if (doMCInput){
+            histoRatioCorrectedYieldCutAverage                                          ->Divide(histoRatioCorrectedYieldCutAverage, histoMCInputYieldCut[0],1.,1.,"B");
+        } else {
+            histoRatioCorrectedYieldCutAverage                                          ->Divide(histoRatioCorrectedYieldCutAverage, histoCorrectedYieldCut[0],1.,1.,"B");
+        }
     }
 
     //**************************************************************************************
@@ -803,47 +821,50 @@ void CompareDifferentDirectories(   TString FolderList              = "",
 
       // Plot corrected yield in upper panel
       padCorrectedYield->cd();
-          TLegend* legendCorrectedYieldMeson = GetAndSetLegend2(0.15,0.02,0.3,0.02+1.15*0.032*NumberOfCuts, 1500*0.75*0.032);
+          TLegend* legendCorrectedYieldMeson = GetAndSetLegend2(0.15,0.02,0.3,0.02+1.15*0.032*(NumberOfCuts+2), 1500*0.75*0.032);
           for(Int_t i = 0; i< NumberOfCuts; i++){
+              ColorAndMarkerNumber=i;
+              if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
+                  ColorAndMarkerNumber++;
+              }
+              if (doMCInput){
+                  ColorAndMarkerNumber++;
+              }
               if(i == 0){
                   DrawAutoGammaMesonHistos( histoCorrectedYieldCut[i],
                                           "", "#it{p}_{T} (GeV/#it{c})", "#frac{1}{2#pi #it{N}_{ev.}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)",
                                           kTRUE, 5., 5e-10,kTRUE,
                                           kFALSE, 0.0, 0.030,
                                           kFALSE, 0., 10.);
-                  DrawGammaSetMarker(histoCorrectedYieldCut[i], 20, 1., color[0], color[0]);
+                  DrawGammaSetMarker(histoCorrectedYieldCut[i], 20, 1., color[ColorAndMarkerNumber], color[ColorAndMarkerNumber]);
                   histoCorrectedYieldCut[i]->DrawCopy("e1,p");
-                  legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
 
                   if ((doCorrectedYieldAverage)&&(histoCorrectedYieldCutAverage)){
-                      Int_t ColorAndMarkerNumber=NumberOfCuts;
-                      if(NumberOfCuts<20){
-                          DrawGammaSetMarker(histoCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
-                      } else {
-                          DrawGammaSetMarker(histoCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
-                      }
+                      Int_t ColorAndMarkerNumberExtra=0;
+                      DrawGammaSetMarker(histoCorrectedYieldCutAverage, 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra],color[ColorAndMarkerNumberExtra]);
                       histoCorrectedYieldCutAverage->DrawCopy("same,e1,p");
                       legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCutAverage, "Average Values");
                   }
                   if (doMCInput){
-                      Int_t ColorAndMarkerNumber=NumberOfCuts;
+                      Int_t ColorAndMarkerNumberExtra=0;
                       if ((doCorrectedYieldAverage)&&(histoRatioCorrectedYieldCutAverage)){
-                        ColorAndMarkerNumber=NumberOfCuts+1;
+                        ColorAndMarkerNumberExtra=1;
                       }
-                      if(NumberOfCuts<20){
-                          DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
-                      } else {
-                          DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
-                      }
+                      DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra],color[ColorAndMarkerNumberExtra]);
                       histoMCInputYieldCut[0]->DrawCopy("same,e1,p");
                       legendCorrectedYieldMeson->AddEntry(histoMCInputYieldCut[0], "MC Input");
                   }
+                  if (doMCInput){
+                      legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], Form("%s",cutStringsName[i].Data()));
+                  } else {
+                      legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
+                  }
               }
               else{
-                  if(i<20){
-                      DrawGammaSetMarker(histoCorrectedYieldCut[i], 20+i, 1.,color[i],color[i]);
+                  if(ColorAndMarkerNumber<20){
+                      DrawGammaSetMarker(histoCorrectedYieldCut[i], 20+i, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
                   } else {
-                      DrawGammaSetMarker(histoCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                      DrawGammaSetMarker(histoCorrectedYieldCut[i], 20+i, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
                   }
                   histoCorrectedYieldCut[i]->DrawCopy("same,e1,p");
                   legendCorrectedYieldMeson->AddEntry(histoCorrectedYieldCut[i], cutStringsName[i].Data());
@@ -857,6 +878,13 @@ void CompareDifferentDirectories(   TString FolderList              = "",
           // plot ratio of corrected yields in lower panel
           padCorrectedYieldRatios->cd();
           for(Int_t i = 0; i< NumberOfCuts; i++){
+              ColorAndMarkerNumber=i;
+              if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
+                  ColorAndMarkerNumber++;
+              }
+              if (doMCInput){
+                  ColorAndMarkerNumber++;
+              }
               if(i==0){
                   // Set ratio min and max
                   Double_t minYRatio = 0.75;
@@ -879,37 +907,37 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                       maxYRatio = 2.55;
                   }
                   SetStyleHistoTH1ForGraphs(histoRatioCorrectedYieldCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
-                  DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20, 1.,color[0],color[0]);
+                  DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
                   histoRatioCorrectedYieldCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
                   histoRatioCorrectedYieldCut[i]->DrawCopy("p,e1");
 
                   if ((doCorrectedYieldAverage)&&(histoRatioCorrectedYieldCutAverage)){
-                      Int_t ColorAndMarkerNumber=NumberOfCuts;
-                      if(ColorAndMarkerNumber<20){
-                          DrawGammaSetMarker(histoRatioCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                      Int_t ColorAndMarkerNumberExtra=0;
+                      if(ColorAndMarkerNumberExtra<20){
+                          DrawGammaSetMarker(histoRatioCorrectedYieldCutAverage, 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra],color[ColorAndMarkerNumberExtra]);
                       } else {
-                          DrawGammaSetMarker(histoRatioCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                          DrawGammaSetMarker(histoRatioCorrectedYieldCutAverage, 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra-20],color[ColorAndMarkerNumberExtra-20]);
                       }
                       histoRatioCorrectedYieldCutAverage->DrawCopy("same,e1,p");
                   }
                   if (doMCInput){
-                      Int_t ColorAndMarkerNumber=NumberOfCuts;
+                      Int_t ColorAndMarkerNumberExtra=0;
                       if ((doCorrectedYieldAverage)&&(histoRatioCorrectedYieldCutAverage)){
-                        ColorAndMarkerNumber=NumberOfCuts+1;
+                        ColorAndMarkerNumberExtra=1;
                       }
-                      if(ColorAndMarkerNumber<20){
-                          DrawGammaSetMarker(histoRatioToCorYieldMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                      if(ColorAndMarkerNumberExtra<20){
+                          DrawGammaSetMarker(histoRatioMCInputYieldCut[0], 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra],color[ColorAndMarkerNumberExtra]);
                       } else {
-                          DrawGammaSetMarker(histoRatioToCorYieldMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                          DrawGammaSetMarker(histoRatioMCInputYieldCut[0], 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra-20],color[ColorAndMarkerNumberExtra-20]);
                       }
-                      histoRatioToCorYieldMCInputYieldCut[0]->DrawCopy("same,e1,p");
+                      histoRatioMCInputYieldCut[0]->DrawCopy("same,e1,p");
                   }
               }
               else{
                   if(i<20){
-                      DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20+i, 1.,color[i],color[i]);
+                      DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20+i, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
                   } else {
-                      DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                      DrawGammaSetMarker(histoRatioCorrectedYieldCut[i], 20+i, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
                   }
                   histoRatioCorrectedYieldCut[i]->DrawCopy("same,e1,p");
               }
@@ -1125,7 +1153,11 @@ void CompareDifferentDirectories(   TString FolderList              = "",
         histoRatioAltCorrectedYieldCutAverage                                              =
                 (TH1D*) histoAltCorrectedYieldCutAverage->Clone(Form("histoRatioAltCorrectedYieldCutAverage_%s",cutStringsName[0].Data()));
         if (doCorrectedYieldAverage){
-            histoRatioAltCorrectedYieldCutAverage                                          ->Divide(histoRatioAltCorrectedYieldCutAverage, histoAltCorrectedYieldCut[0],1.,1.,"B");
+            if (doMCInput){
+                histoRatioAltCorrectedYieldCutAverage                                          ->Divide(histoRatioAltCorrectedYieldCutAverage, histoMCInputYieldCut[0],1.,1.,"B");
+            } else {
+                histoRatioAltCorrectedYieldCutAverage                                          ->Divide(histoRatioAltCorrectedYieldCutAverage, histoAltCorrectedYieldCut[0],1.,1.,"B");
+            }
         }
 
 
@@ -1148,47 +1180,50 @@ void CompareDifferentDirectories(   TString FolderList              = "",
 
             // Plot AltCorrected yield in upper panel
             padAltCorrectedYield->cd();
-            TLegend* legendAltCorrectedYieldMeson = GetAndSetLegend2(0.15,0.02,0.3,0.02+1.15*0.032*NumberOfCuts, 1500*0.75*0.032);
+            TLegend* legendAltCorrectedYieldMeson = GetAndSetLegend2(0.15,0.02,0.3,0.02+1.15*0.032*(NumberOfCuts+2), 1500*0.75*0.032);
             for(Int_t i = 0; i< NumberOfCuts; i++){
+                ColorAndMarkerNumber=i;
+                if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
+                    ColorAndMarkerNumber++;
+                }
+                if (doMCInput){
+                    ColorAndMarkerNumber++;
+                }
                 if(i == 0){
                     DrawAutoGammaMesonHistos( histoAltCorrectedYieldCut[i],
                                               "", "#it{p}_{T} (GeV/#it{c})", "#frac{1}{2#pi #it{N}_{ev.}} #frac{d^{2}#it{N}}{#it{p}_{T}d#it{p}_{T}d#it{y}} (#it{c}/GeV)",
                                               kTRUE, 5., 5e-10,kTRUE,
                                               kFALSE, 0.0, 0.030,
                                               kFALSE, 0., 10.);
-                    DrawGammaSetMarker(histoAltCorrectedYieldCut[i], 20, 1., color[0], color[0]);
+                    DrawGammaSetMarker(histoAltCorrectedYieldCut[i], 20, 1., color[ColorAndMarkerNumber], color[ColorAndMarkerNumber]);
                     histoAltCorrectedYieldCut[i]->DrawCopy("e1,p");
-                    legendAltCorrectedYieldMeson->AddEntry(histoAltCorrectedYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
 
                     if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
-                        Int_t ColorAndMarkerNumber=NumberOfCuts;
-                        if(NumberOfCuts<20){
-                            DrawGammaSetMarker(histoAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
-                        } else {
-                            DrawGammaSetMarker(histoAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
-                        }
+                        Int_t ColorAndMarkerNumberExtra=0;
+                        DrawGammaSetMarker(histoAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra],color[ColorAndMarkerNumberExtra]);
                         histoAltCorrectedYieldCutAverage->DrawCopy("same,e1,p");
                         legendAltCorrectedYieldMeson->AddEntry(histoAltCorrectedYieldCutAverage, "Average Values");
                     }
                     if (doMCInput){
-                        Int_t ColorAndMarkerNumber=NumberOfCuts;
+                        Int_t ColorAndMarkerNumberExtra=0;
                         if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
-                          ColorAndMarkerNumber=NumberOfCuts+1;
+                          ColorAndMarkerNumberExtra=1;
                         }
-                        if(NumberOfCuts<20){
-                            DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
-                        } else {
-                            DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
-                        }
+                        DrawGammaSetMarker(histoMCInputYieldCut[0], 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra],color[ColorAndMarkerNumberExtra]);
                         histoMCInputYieldCut[0]->DrawCopy("same,e1,p");
                         legendAltCorrectedYieldMeson->AddEntry(histoMCInputYieldCut[0], "MC Input");
                     }
+                    if (doMCInput){
+                        legendAltCorrectedYieldMeson->AddEntry(histoAltCorrectedYieldCut[i], Form("%s",cutStringsName[i].Data()));
+                    } else {
+                        legendAltCorrectedYieldMeson->AddEntry(histoAltCorrectedYieldCut[i], Form("standard: %s",cutStringsName[i].Data()));
+                    }
                 }
                 else{
-                    if(i<20){
-                        DrawGammaSetMarker(histoAltCorrectedYieldCut[i], 20+i, 1.,color[i],color[i]);
+                    if(ColorAndMarkerNumber<20){
+                        DrawGammaSetMarker(histoAltCorrectedYieldCut[i], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
                     } else {
-                        DrawGammaSetMarker(histoAltCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                        DrawGammaSetMarker(histoAltCorrectedYieldCut[i], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
                     }
                     histoAltCorrectedYieldCut[i]->DrawCopy("same,e1,p");
                     legendAltCorrectedYieldMeson->AddEntry(histoAltCorrectedYieldCut[i], cutStringsName[i].Data());
@@ -1202,6 +1237,13 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             // plot ratio of AltCorrected yields in lower panel
             padAltCorrectedYieldRatios->cd();
             for(Int_t i = 0; i< NumberOfCuts; i++){
+                ColorAndMarkerNumber=i;
+                if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
+                    ColorAndMarkerNumber++;
+                }
+                if (doMCInput){
+                    ColorAndMarkerNumber++;
+                }
                 if(i==0){
                     // Set ratio min and max
                     Double_t minYRatio = 0.75;
@@ -1224,37 +1266,33 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                         maxYRatio = 2.55;
                     }
                     SetStyleHistoTH1ForGraphs(histoRatioAltCorrectedYieldCut[i], "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.08, 0.11, 0.07, 0.1, 0.75, 0.5, 510,505);
-                    DrawGammaSetMarker(histoRatioAltCorrectedYieldCut[i], 20, 1.,color[0],color[0]);
+                    DrawGammaSetMarker(histoRatioAltCorrectedYieldCut[i], 20, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
                     histoRatioAltCorrectedYieldCut[i]->GetYaxis()->SetRangeUser(minYRatio,maxYRatio);
                     histoRatioAltCorrectedYieldCut[i]->DrawCopy("p,e1");
 
                     if ((doCorrectedYieldAverage)&&(histoRatioAltCorrectedYieldCutAverage)){
-                        Int_t ColorAndMarkerNumber=NumberOfCuts;
-                        if(ColorAndMarkerNumber<20){
-                            DrawGammaSetMarker(histoRatioAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
+                        Int_t ColorAndMarkerNumberExtra=0;
+                        if(ColorAndMarkerNumberExtra<20){
+                            DrawGammaSetMarker(histoRatioAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra],color[ColorAndMarkerNumberExtra]);
                         } else {
-                            DrawGammaSetMarker(histoRatioAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
+                            DrawGammaSetMarker(histoRatioAltCorrectedYieldCutAverage, 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra-20],color[ColorAndMarkerNumberExtra-20]);
                         }
                         histoRatioAltCorrectedYieldCutAverage->DrawCopy("same,e1,p");
                     }
                     if (doMCInput){
-                        Int_t ColorAndMarkerNumber=NumberOfCuts;
+                        Int_t ColorAndMarkerNumberExtra=0;
                         if ((doCorrectedYieldAverage)&&(histoRatioAltCorrectedYieldCutAverage)){
-                          ColorAndMarkerNumber=NumberOfCuts+1;
+                          ColorAndMarkerNumberExtra=1;
                         }
-                        if(ColorAndMarkerNumber<20){
-                            DrawGammaSetMarker(histoRatioToAltCorYieldMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
-                        } else {
-                            DrawGammaSetMarker(histoRatioToAltCorYieldMCInputYieldCut[0], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
-                        }
-                        histoRatioToAltCorYieldMCInputYieldCut[0]->DrawCopy("same,e1,p");
+                        DrawGammaSetMarker(histoRatioMCInputYieldCut[0], 20+ColorAndMarkerNumberExtra, 1.,color[ColorAndMarkerNumberExtra],color[ColorAndMarkerNumberExtra]);
+                        histoRatioMCInputYieldCut[0]->DrawCopy("same,e1,p");
                     }
                 }
                 else{
                     if(i<20){
-                        DrawGammaSetMarker(histoRatioAltCorrectedYieldCut[i], 20+i, 1.,color[i],color[i]);
+                        DrawGammaSetMarker(histoRatioAltCorrectedYieldCut[i], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber],color[ColorAndMarkerNumber]);
                     } else {
-                        DrawGammaSetMarker(histoRatioAltCorrectedYieldCut[i], 20+i, 1.,color[i-20],color[i-20]);
+                        DrawGammaSetMarker(histoRatioAltCorrectedYieldCut[i], 20+ColorAndMarkerNumber, 1.,color[ColorAndMarkerNumber-20],color[ColorAndMarkerNumber-20]);
                     }
                     histoRatioAltCorrectedYieldCut[i]->DrawCopy("same,e1,p");
                 }
