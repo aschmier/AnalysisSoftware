@@ -458,6 +458,51 @@ void PrimaryTrackQA(
     Double_t validatedefficiency       = 0.;
     Double_t purity                    = 0.;
     //*****************************************************************************************************
+    //******************************* Dalitz Ranges   *****************************************************
+    //*****************************************************************************************************
+    Double_t HistoDalitzPtRangeMin_LowPt    = 0.;
+    Double_t HistoDalitzPtRangeMax_LowPt    = 0.;
+    Double_t HistoDalitzPtRangeMin_MidPt    = 0.;
+    Double_t HistoDalitzPtRangeMax_MidPt    = 0.;
+    Double_t HistoDalitzPtRangeMin_HighPt   = 0.;
+    Double_t HistoDalitzPtRangeMax_HighPt   = 0.;
+    if (fMode == 60){ //PCM-PCM
+        HistoDalitzPtRangeMin_LowPt                         = 1.6;
+        HistoDalitzPtRangeMax_LowPt                         = 2.0;
+        HistoDalitzPtRangeMin_MidPt                         = 5.0;
+        HistoDalitzPtRangeMax_MidPt                         = 6.0;
+        HistoDalitzPtRangeMin_HighPt                        = 10.0;
+        HistoDalitzPtRangeMax_HighPt                        = 12.0;
+    } else if (fMode == 62) { //PCM-PHOS
+        HistoDalitzPtRangeMin_LowPt                         = 2.5;
+        HistoDalitzPtRangeMax_LowPt                         = 3.0;
+        HistoDalitzPtRangeMin_MidPt                         = 5.0;
+        HistoDalitzPtRangeMax_MidPt                         = 6.0;
+        HistoDalitzPtRangeMin_HighPt                        = 10.0;
+        HistoDalitzPtRangeMax_HighPt                        = 12.0;
+    } else if (fMode == 61) { //PCM-EMC
+        HistoDalitzPtRangeMin_LowPt                         = 2.5;
+        HistoDalitzPtRangeMax_LowPt                         = 3.0;
+        HistoDalitzPtRangeMin_MidPt                         = 5.0;
+        HistoDalitzPtRangeMax_MidPt                         = 6.0;
+        HistoDalitzPtRangeMin_HighPt                        = 10.0;
+        HistoDalitzPtRangeMax_HighPt                        = 12.0;
+    } else if (fMode == 65) { //PHOS-PHOS
+        HistoDalitzPtRangeMin_LowPt                         = 3.5;
+        HistoDalitzPtRangeMax_LowPt                         = 4.0;
+        HistoDalitzPtRangeMin_MidPt                         = 5.0;
+        HistoDalitzPtRangeMax_MidPt                         = 6.0;
+        HistoDalitzPtRangeMin_HighPt                        = 8.0;
+        HistoDalitzPtRangeMax_HighPt                        = 10.0;
+    } else if (fMode == 64) { //EMC-EMC
+        HistoDalitzPtRangeMin_LowPt                         = 3.0;
+        HistoDalitzPtRangeMax_LowPt                         = 4.0;
+        HistoDalitzPtRangeMin_MidPt                         = 8.0;
+        HistoDalitzPtRangeMax_MidPt                         = 10.0;
+        HistoDalitzPtRangeMin_HighPt                        = 16.0;
+        HistoDalitzPtRangeMax_HighPt                        = 20.0;
+    }
+    //*****************************************************************************************************
     //*****************************************************************************************************
     //****************************** Looping over DataSets ************************************************
     //*****************************************************************************************************
@@ -1100,8 +1145,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotPos_Sub_LowPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotPos_Sub_LowPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotPos_Sub_LowPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotPos_Sub_LowPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_LowPt, HistoDalitzPtRangeMax_LowPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_Sub_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotPos_Sub_LowPt | could not be found! Skipping Draw...") << endl;
@@ -1118,8 +1163,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_Sub_LowPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotNeg_Sub_LowPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotNeg_Sub_LowPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotNeg_Sub_LowPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_LowPt, HistoDalitzPtRangeMax_LowPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_Sub_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_Sub_LowPt | could not be found! Skipping Draw...") << endl;
@@ -1136,8 +1181,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotPos_FixedPz_LowPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotPos_FixedPz_LowPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotPos_FixedPz_LowPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotPos_FixedPz_LowPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_LowPt, HistoDalitzPtRangeMax_LowPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_FixedPz_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotPos_FixedPz_LowPt | could not be found! Skipping Draw...") << endl;
@@ -1154,8 +1199,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_FixedPz_LowPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotNeg_FixedPz_LowPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotNeg_FixedPz_LowPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotNeg_FixedPz_LowPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_LowPt, HistoDalitzPtRangeMax_LowPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_FixedPz_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_FixedPz_LowPt | could not be found! Skipping Draw...") << endl;
@@ -1173,8 +1218,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotPos_Sub_MidPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotPos_Sub_MidPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotPos_Sub_MidPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotPos_Sub_MidPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_MidPt, HistoDalitzPtRangeMax_MidPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_Sub_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotPos_Sub_MidPt | could not be found! Skipping Draw...") << endl;
@@ -1191,8 +1236,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_Sub_MidPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotNeg_Sub_MidPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotNeg_Sub_MidPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotNeg_Sub_MidPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_MidPt, HistoDalitzPtRangeMax_MidPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_Sub_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_Sub_MidPt | could not be found! Skipping Draw...") << endl;
@@ -1209,8 +1254,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotPos_FixedPz_MidPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotPos_FixedPz_MidPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotPos_FixedPz_MidPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotPos_FixedPz_MidPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_MidPt, HistoDalitzPtRangeMax_MidPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_FixedPz_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotPos_FixedPz_MidPt | could not be found! Skipping Draw...") << endl;
@@ -1227,8 +1272,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_FixedPz_MidPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotNeg_FixedPz_MidPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotNeg_FixedPz_MidPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotNeg_FixedPz_MidPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_MidPt, HistoDalitzPtRangeMax_MidPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_FixedPz_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_FixedPz_MidPt | could not be found! Skipping Draw...") << endl;
@@ -1246,8 +1291,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotPos_Sub_HighPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotPos_Sub_HighPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotPos_Sub_HighPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotPos_Sub_HighPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_HighPt, HistoDalitzPtRangeMax_HighPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_Sub_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotPos_Sub_HighPt | could not be found! Skipping Draw...") << endl;
@@ -1264,8 +1309,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_Sub_HighPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotNeg_Sub_HighPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotNeg_Sub_HighPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotNeg_Sub_HighPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_HighPt, HistoDalitzPtRangeMax_HighPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_Sub_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_Sub_HighPt | could not be found! Skipping Draw...") << endl;
@@ -1282,8 +1327,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotPos_FixedPz_HighPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotPos_FixedPz_HighPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotPos_FixedPz_HighPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotPos_FixedPz_HighPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_HighPt, HistoDalitzPtRangeMax_HighPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotPos_FixedPz_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotPos_FixedPz_HighPt | could not be found! Skipping Draw...") << endl;
@@ -1300,8 +1345,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_DalitzPlotNeg_FixedPz_HighPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_DalitzPlotNeg_FixedPz_HighPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_DalitzPlotNeg_FixedPz_HighPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_DalitzPlotNeg_FixedPz_HighPt, Form("%.2f (GeV/c) < p_{T} < %.2f (GeV/c)", HistoDalitzPtRangeMin_HighPt, HistoDalitzPtRangeMax_HighPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_DalitzPlotNeg_FixedPz_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_DalitzPlotNeg_FixedPz_HighPt | could not be found! Skipping Draw...") << endl;
@@ -1456,8 +1501,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_LowPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_LowPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_LowPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_LowPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_LowPt, HistoDalitzPtRangeMax_LowPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_LowPt | could not be found! Skipping Draw...") << endl;
@@ -1474,8 +1519,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_LowPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_LowPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_LowPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_LowPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_LowPt, HistoDalitzPtRangeMax_LowPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_LowPt | could not be found! Skipping Draw...") << endl;
@@ -1492,8 +1537,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_LowPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_LowPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_LowPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_LowPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_LowPt, HistoDalitzPtRangeMax_LowPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_LowPt | could not be found! Skipping Draw...") << endl;
@@ -1510,8 +1555,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_LowPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_LowPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_LowPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_LowPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_LowPt, HistoDalitzPtRangeMax_LowPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_LowPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_LowPt | could not be found! Skipping Draw...") << endl;
@@ -1529,8 +1574,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_MidPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_MidPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_MidPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_MidPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_MidPt, HistoDalitzPtRangeMax_MidPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_MidPt | could not be found! Skipping Draw...") << endl;
@@ -1547,8 +1592,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_MidPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_MidPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_MidPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_MidPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_MidPt, HistoDalitzPtRangeMax_MidPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_MidPt | could not be found! Skipping Draw...") << endl;
@@ -1565,8 +1610,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_MidPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_MidPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_MidPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_MidPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_MidPt, HistoDalitzPtRangeMax_MidPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_MidPt | could not be found! Skipping Draw...") << endl;
@@ -1583,8 +1628,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_MidPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_MidPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_MidPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_MidPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_MidPt, HistoDalitzPtRangeMax_MidPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_MidPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_MidPt | could not be found! Skipping Draw...") << endl;
@@ -1602,8 +1647,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_HighPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_HighPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_HighPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_HighPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_HighPt, HistoDalitzPtRangeMax_HighPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Pos_HighPt | could not be found! Skipping Draw...") << endl;
@@ -1620,8 +1665,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_HighPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_HighPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_HighPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_HighPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_HighPt, HistoDalitzPtRangeMax_HighPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_SubNDM_Neg_HighPt | could not be found! Skipping Draw...") << endl;
@@ -1638,8 +1683,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_HighPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_HighPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_HighPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^+#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_HighPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_HighPt, HistoDalitzPtRangeMax_HighPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{+} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Pos_HighPt | could not be found! Skipping Draw...") << endl;
@@ -1656,8 +1701,8 @@ void PrimaryTrackQA(
                 //SetZMinMaxTH2(fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_HighPt,1,maxB+1,minB-1,maxB+1);
                 fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_HighPt->GetXaxis()->SetRangeUser(0.0, 1.0);
                 DrawPeriodQAHistoTH2(cvsQuadratic,0.12,0.12,topMargin,bottomMargin,kFALSE,kFALSE,kFALSE,
-                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_HighPt,"",
-                                     "M_{#pi^+#pi^-} (GeV/#it{c})","M_{#pi^-#pi^0} (GeV/#it{c})",1,1.4,
+                                     fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_HighPt, Form("True Dalitz, %.2f (GeV/c) < p_T < %.2f (GeV/c)", HistoDalitzPtRangeMin_HighPt, HistoDalitzPtRangeMax_HighPt),
+                                     "M_{#pi^{+} #pi^{-}} (GeV/#it{c})","M_{#pi^{-} #pi^{0}} (GeV/#it{c})",1,1.4,
                                      processLabelOffsetX2,0.95,0.03,fCollisionSystem,plotDataSets[i],fTrigger[i]);
                 SaveCanvasAndWriteHistogram(cvsQuadratic, fHistESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_HighPt, Form("%s/%s_%s.%s", outputDir.Data(),StrNameOfHistogram.Data(), DataSets[i].Data(), suffix.Data()));
             } else cout << Form("INFO: Object |ESD_TrueMotherPiPlPiMiNDM_DalitzPlot_FixedPzNDM_Neg_HighPt | could not be found! Skipping Draw...") << endl;
