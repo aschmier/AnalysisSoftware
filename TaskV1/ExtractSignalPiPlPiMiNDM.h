@@ -1189,6 +1189,28 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
                fTotalBackFitMode = 6;
                fFitRangeForMaximumMode = 0; //1 for pure fit
             }
+            if(             mode == 60){        //PCM
+                useFitIntDeltaRange = kTRUE;
+                useFitIntDeltaRange_FunctionNumber      = 1;
+                useFitIntDeltaRange_ParameterNumber     = 2;
+            } else if(      mode == 61){        //PCM-EMCAL
+                useFitIntDeltaRange = kTRUE;
+                useFitIntDeltaRange_FunctionNumber      = 0;
+                useFitIntDeltaRange_ParameterNumber     = 1;
+            } else if(      mode == 62){        //PCM-PHOS
+                useFitIntDeltaRange = kTRUE;
+                useFitIntDeltaRange_FunctionNumber      = 1;
+                useFitIntDeltaRange_ParameterNumber     = 4;
+            } else if(      mode == 64){        //EMCAL
+                useFitIntDeltaRange = kTRUE;
+                useFitIntDeltaRange_FunctionNumber      = 0;
+                useFitIntDeltaRange_ParameterNumber     = 0;
+            } else if(      mode == 65){        //PHOS
+                useFitIntDeltaRange = kTRUE;
+                useFitIntDeltaRange_FunctionNumber      = 1;
+                useFitIntDeltaRange_ParameterNumber     = 3;
+            }
+
         }
 
         // set medium pt range (currently for all modes the same)
@@ -1392,9 +1414,6 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1] * 1.5;
             fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.7;
             fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1] * 0.7;
-            useFitIntDeltaRange = kTRUE;
-            useFitIntDeltaRange_FunctionNumber = 0;
-            useFitIntDeltaRange_ParameterNumber = 1;
         } else if(mode == 42 || mode == 62){ //PCM-PHOS
             fMesonIntDeltaRange[0]      = -0.03;
             fMesonIntDeltaRange[1]      =  0.03;
@@ -1417,10 +1436,6 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
             // fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.6;
             fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0] * 0.7;
             fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1] * 0.7;
-
-            useFitIntDeltaRange = kTRUE;
-            useFitIntDeltaRange_FunctionNumber = 0;
-            useFitIntDeltaRange_ParameterNumber = 0;
         } else if( mode == 45 || mode == 65){ //PHOS
             fMesonIntDeltaRange[0]      = -0.04;
             fMesonIntDeltaRange[1]      =  0.04;

@@ -6025,16 +6025,16 @@ void ProcessBckFitSubtraction(TH1D *fGammaGamma, Int_t i, Double_t * fPeakRangeD
 
     // set ranges for width fitting
     if (useFitIntDeltaRange) {
-        if     (fTotalBackFitMode == 3)  FitPol2Gauss->SetParLimits(5, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
-        else if(fTotalBackFitMode == 2)  FitPol2Gauss->SetParLimits(4, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
-        else if(fTotalBackFitMode == 6)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
-        else if(fTotalBackFitMode == 8)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
-        if(fIsMC){
-            if     (fTotalBackFitMode == 3)  FitPol2Gauss->SetParLimits(5, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
-            else if(fTotalBackFitMode == 2)  FitPol2Gauss->SetParLimits(4, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
-            else if(fTotalBackFitMode == 6)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
-            else if(fTotalBackFitMode == 8)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.);
-        }
+    //if (kFALSE) {
+        if     (fTotalBackFitMode == 3)  FitPol2Gauss->SetParLimits(5, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.1);
+        else if(fTotalBackFitMode == 2)  FitPol2Gauss->SetParLimits(4, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.1);
+        else if(fTotalBackFitMode == 6)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.1);
+        else if(fTotalBackFitMode == 8)  FitPol2Gauss->SetParLimits(6, fMesonWidthFitValue*0.8, fMesonWidthFitValue*1.1);
+
+        /*if     (fTotalBackFitMode == 3)  FitPol2Gauss->FixParameter(5, fMesonWidthFitValue);
+        else if(fTotalBackFitMode == 2)  FitPol2Gauss->FixParameter(4, fMesonWidthFitValue);
+        else if(fTotalBackFitMode == 6)  FitPol2Gauss->FixParameter(6, fMesonWidthFitValue);
+        else if(fTotalBackFitMode == 8)  FitPol2Gauss->FixParameter(6, fMesonWidthFitValue);*/
     } else {
         if     (fTotalBackFitMode == 3)  FitPol2Gauss->SetParLimits(5,0.005,0.030);
         else if(fTotalBackFitMode == 2)  FitPol2Gauss->SetParLimits(4,0.005,0.030);
@@ -11583,6 +11583,9 @@ Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t Pa
     if (FitFunctionNumber == 0){
         TStrDeltaRangeFitFunction                       = "pol2";
         iNumberOfParameters                             = 3;
+    } else if (FitFunctionNumber == 1){
+        TStrDeltaRangeFitFunction                       = "pol0";
+        iNumberOfParameters                             = 1;
     } else {//FitFunctionNumber
         return 0;
     }
@@ -11592,7 +11595,7 @@ Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t Pa
                     ptLowerEdge, ptUpperEdge
                     );
     if (FitFunctionNumber == 0){ //pol2
-        if (ParameterNumber == 0){
+        if (        ParameterNumber == 0){ //EMCAL
             TF1DeltaRangeFitFunction->SetParameter( 0,  0.0185701);
             TF1DeltaRangeFitFunction->SetParError(  0,  8.46012e-05);
 
@@ -11601,15 +11604,34 @@ Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t Pa
 
             TF1DeltaRangeFitFunction->SetParameter( 2,  1.47242e-05);
             TF1DeltaRangeFitFunction->SetParError(  2,  3.42979e-07);
-         } else if (ParameterNumber == 1){
-                TF1DeltaRangeFitFunction->SetParameter( 0,  0.0159211);
-                TF1DeltaRangeFitFunction->SetParError(  0,  0.000218137);
+        } else if ( ParameterNumber == 1){ //PCMEMCAL
+            TF1DeltaRangeFitFunction->SetParameter( 0,  0.0159211);
+            TF1DeltaRangeFitFunction->SetParError(  0,  0.000218137);
 
-                TF1DeltaRangeFitFunction->SetParameter( 1,  -0.000436431);
-                TF1DeltaRangeFitFunction->SetParError(  1,  4.10559e-05);
+            TF1DeltaRangeFitFunction->SetParameter( 1,  -0.000436431);
+            TF1DeltaRangeFitFunction->SetParError(  1,  4.10559e-05);
 
-                TF1DeltaRangeFitFunction->SetParameter( 2,  1.75233e-05);
-                TF1DeltaRangeFitFunction->SetParError(  2,  1.14507e-06);
+            TF1DeltaRangeFitFunction->SetParameter( 2,  1.75233e-05);
+            TF1DeltaRangeFitFunction->SetParError(  2,  1.14507e-06);
+        } else { //ParameterNumber
+            return 0;
+        }
+    } else if (FitFunctionNumber == 1){ //pol0
+        if (        ParameterNumber == 0){ //EMCAL
+            TF1DeltaRangeFitFunction->SetParameter( 0,  0.01852);
+            TF1DeltaRangeFitFunction->SetParError(  0,  5.57514e-05);
+        } else if ( ParameterNumber == 1){ //PCMEMCAL
+            TF1DeltaRangeFitFunction->SetParameter( 0,  0.0145355);
+            TF1DeltaRangeFitFunction->SetParError(  0,  7.53006e-05);
+        } else if ( ParameterNumber == 2){ //PCM
+            TF1DeltaRangeFitFunction->SetParameter( 0,  0.00883713);
+            TF1DeltaRangeFitFunction->SetParError(  0,  0.000193853);
+        } else if ( ParameterNumber == 3){ //PHOS
+            TF1DeltaRangeFitFunction->SetParameter( 0,  0.0111914);
+            TF1DeltaRangeFitFunction->SetParError(  0,  6.14568e-05);
+        } else if ( ParameterNumber == 4){ //PCMPHOS
+            TF1DeltaRangeFitFunction->SetParameter( 0,  0.00932521);
+            TF1DeltaRangeFitFunction->SetParError(  0,  0.000142301);
         } else { //ParameterNumber
             return 0;
         }
@@ -11640,7 +11662,7 @@ Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t Pa
     PeakRangeByFit_Wide[1]                            =
             fMesonMassExpect+IntegrationValueByFit_Wide;
 
-
+    //If Fit Value greater, Normal Range, Both Sides
     if (fPeakRange[0]>PeakRangeByFit_Normal[0]){
         fPeakRange[0]=PeakRangeByFit_Normal[0];
         fPeakRange_SubPiZero[0]=fPeakRange[0];
@@ -11651,6 +11673,36 @@ Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber, Int_t Pa
         fPeakRange_SubPiZero[1]=fPeakRange[1];
         fPeakRange_FixedPzPiZero[1]=fPeakRange[1];
     }
+
+    //If Fit Value greater, Wide Range, Both Sides
+    /*if (fPeakRange[0]>PeakRangeByFit_Wide[0]){
+        fPeakRange[0]=PeakRangeByFit_Wide[0];
+        fPeakRange_SubPiZero[0]=fPeakRange[0];
+        fPeakRange_FixedPzPiZero[0]=fPeakRange[0];
+    }
+    if (fPeakRange[1]<PeakRangeByFit_Wide[1]){
+        fPeakRange[1]=PeakRangeByFit_Wide[1];
+        fPeakRange_SubPiZero[1]=fPeakRange[1];
+        fPeakRange_FixedPzPiZero[1]=fPeakRange[1];
+    }*/
+
+    //Fix to Fit Value, Normal Range, Both Sides
+    /*fPeakRange[0]=PeakRangeByFit_Normal[0];
+    fPeakRange_SubPiZero[0]=fPeakRange[0];
+    fPeakRange_FixedPzPiZero[0]=fPeakRange[0];
+
+    fPeakRange[1]=PeakRangeByFit_Normal[1];
+    fPeakRange_SubPiZero[1]=fPeakRange[1];
+    fPeakRange_FixedPzPiZero[1]=fPeakRange[1];*/
+
+    //Fix to Fit Value, Wide Range, Both Sides
+    /*fPeakRange[0]=PeakRangeByFit_Wide[0];
+    fPeakRange_SubPiZero[0]=fPeakRange[0];
+    fPeakRange_FixedPzPiZero[0]=fPeakRange[0];
+
+    fPeakRange[1]=PeakRangeByFit_Wide[1];
+    fPeakRange_SubPiZero[1]=fPeakRange[1];
+    fPeakRange_FixedPzPiZero[1]=fPeakRange[1];*/
 
     fMesonIntDeltaRange[0]                              = -IntegrationValueByFit_Normal;
     fMesonIntDeltaRange[1]                              = IntegrationValueByFit_Normal;
