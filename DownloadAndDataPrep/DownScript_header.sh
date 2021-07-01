@@ -54,6 +54,7 @@ OptIsJJ=0
 Optfast=1
 OptRunlistNameSet=0
 OptNoRunlist=0
+OptNoRunlistChild=0
 OptAllRunlists=0
 OptSpecificChild=0
 UseMerge=1
@@ -285,30 +286,33 @@ function Init(){
 			echo;echo;
 		fi
 	# fi
+	echo  -e "\e[36m-------   token active   ---------\e[0m" | tee -a $LogFile
 
-	while [[ -f OptRunlistNames_$RunningScripts.txt ]]; do
-		((RunningScripts++))
-	done
-	OptRunlistNamefile=OptRunlistNames_$RunningScripts.txt
-	# useSpecificRunlistfile=useSpecificRunlist_$RunningScripts.txt
-	TrainNumberFile=TrainNumberFile_$RunningScripts.txt
-	Searchfile=Searchfile_$RunningScripts.txt
-	Childsfile=$BASEDIR/Childsfile_$RunningScripts.txt
 
 	for Process in `ls *.lock | grep -v $job` ; do
 		tmpjob=${Process%.lock}
 		status=`ps -efww | grep -w "DownScript.sh" | grep -v grep | grep $tmpjob | awk '{ print $2 }'`
 		if [ -z "$status" ]; then
 			for tmp in `cat $Process` ; do
-				if [[ -f OptRunlistNames_$tmp.txt ]]; then new_rm OptRunlistNames_$tmp.txt; fi
-				if [[ -f TrainNumberFile_$tmp.txt ]]; then new_rm TrainNumberFile_$tmp.txt; fi
-				if [[ -f Searchfile_$tmp.txt ]]; then new_rm Searchfile_$tmp.txt; fi
-				if [[ -f Childsfile_$tmp.txt ]]; then new_rm Childsfile_$tmp.txt; fi
+				new_rm OptRunlistNames_$tmp.txt
+				new_rm TrainNumberFile_$tmp.txt
+				new_rm Searchfile_$tmp.txt
+				new_rm Childsfile_$tmp.txt
 			done
 			new_rm $Process
+		else
+			echo  -e "\e[36m------- $Process running   ---------\e[0m" | tee -a $LogFile
+			((RunningScripts++))
 		fi
 	done
+	echo  -e "\e[36m--- found $RunningScripts running scripts  --\e[0m" | tee -a $LogFile
 	echo "$RunningScripts" > $lockfile | tee -a $LogFile
+
+	OptRunlistNamefile=OptRunlistNames_$RunningScripts.txt
+	# useSpecificRunlistfile=useSpecificRunlist_$RunningScripts.txt
+	TrainNumberFile=TrainNumberFile_$RunningScripts.txt
+	Searchfile=Searchfile_$RunningScripts.txt
+	Childsfile=$BASEDIR/Childsfile_$RunningScripts.txt
 
 	new_rm $TrainNumberFile
 	new_rm $Searchfile
@@ -317,6 +321,7 @@ function Init(){
 
 	LogFile="$BASEDIR/Log_$tmp.txt"
 	new_rm $LogFile
+	echo  -e "\e[36m-------   init done   ---------\e[0m" | tee -a $LogFile
 }
 function Finish(){
 	if [[ $MultiTrains = 0 ]]; then
@@ -691,6 +696,9 @@ function InitilaizeChild(){
 
 	childID=${1##*child_}
 	childID=${childID%/*}
+	if (( `echo -n ${childID} | wc -c` > 2 )); then
+		childID=0
+	fi
 
 	foundperiod=0
 	foundchild=0
@@ -829,6 +837,7 @@ function InitilaizeTrain(){
 	tmphere=0
 	while [[ $Childeone = "" ]]; do
 		GetChilds $List
+		# cat $List
 		if [[ -f $List ]]; then
 			if [[ $Childeone = "" ]]
 			then
@@ -910,6 +919,7 @@ function InitilaizeTrain(){
 function InitilaizeRunlist(){
 	arrypos=$1
 	useSpecificRunlist=0
+	OptNoRunlistChild=0
 	SearchSpecificRunlist=""
 	RLextension=""
 	# RunlistName=""
@@ -969,17 +979,15 @@ function InitilaizeRunlist(){
 		printf "$runName, " | tee -a $LogFile
 		((NumberOfRuns++))
 	done
-	printf "\n $NumberOfRuns Runs found \n" | tee -a $LogFile
-	Dirout=$OUTPUTDIR/$RunlistName/$ChildName
-	if [[ $OptNoRunlist = 0 ]]; then
-		Dirin=$AlienDir$child/merge_runlist_$RunlistID
-	else
-		Dirin=$AlienDir$child/merge
+	if [[ ! $childID = 0 ]]; then
+		printf "\n $NumberOfRuns Runs found \n" | tee -a $LogFile
 	fi
+	Dirout=$OUTPUTDIR/$RunlistName/$ChildName
+	
 	DirMerged=$OUTPUTDIR/$RunlistName
 	mkdir -p $DirMerged
 	mkdir -p $Dirout
-	if [[ $NumberOfRuns = 0 ]] ; then
+	if [[ $NumberOfRuns = 0 ]] && [[ ! $childID = 0 ]]; then
 		echo  -e "\e[33mWARNING:  No runs in Runlist\e[0m: ChildName = $ChildName, childID = $childID, Runlist $RunlistID, Name = $RunlistName" | tee -a $WARNINGLog | tee -a $LogFile
 		return 1
 	fi
@@ -1001,30 +1009,33 @@ function InitilaizeRunlist(){
 			newfilestmp=1
 		fi
 		if [[ $newfilestmp = 1 ]] || [ ! -f $FileList ]; then
+			new_rm "tmp.txt"
 			cmd="alien_ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null > tmp.txt"
 			eval $cmd
 			usecmd $cmd
+			if [[ `grep "no such file" "tmp.txt" | wc -l` > 0 ]]; then
+				cmd="alien_ls $AlienDir$child/merge/ 2> /dev/null > tmp.txt"
+				eval $cmd
+				usecmd $cmd
+				if [[ `cat "tmp.txt" | wc -l`  > 0 ]]; then
+					OptNoRunlistChild=1
+				fi
+			fi
 			for Search in `cat $FilenamesinTrain`
 			do
-				if [[ $OptNoRunlist = 0 ]]; then
-					# if [[ $isjalien = 1 ]]; then
-					# 	cmd="alien.py ls $AlienDir$child/merge_runlist_$RunlistID/ 2> /dev/null | grep "$Search" > $FileList.tmp"
-					# else
-						cmd="cat tmp.txt | grep "$Search" > $FileList.tmp"
-					# fi
-				else
-					# if [[ $isjalien = 1 ]]; then
-					# 	cmd="alien.py ls $AlienDir$child/merge/ 2> /dev/null | grep "$Search" > $FileList.tmp"
-					# else
-						cmd="cat tmp.txt | grep "$Search" > $FileList.tmp"
-					# fi
-				fi
+				cmd="cat tmp.txt | grep "$Search" > $FileList.tmp"
 				eval $cmd
 				usecmd $cmd
 				AddToList $FileList.tmp $FileList
 			done
 			rm tmp.txt
 		fi
+	fi
+
+	if [[ $OptNoRunlistChild = 0 ]]; then
+		Dirin=$AlienDir$child/merge_runlist_$RunlistID
+	else
+		Dirin=$AlienDir$child/merge
 	fi
 
 	mkdir -p $OUTPUTDIR/$RunlistName
@@ -1057,7 +1068,7 @@ function ParseSettings(){
 		elif [[ $setting = "Child_"* ]] || [[ $setting = "child_"* ]]
 		then
 			Searchtmpchild=${setting#*hild_}
-			echo "Child $Searchtmpchild" >> $Childsfile
+			echo "Child $Searchtmpchild|" >> $Childsfile
 			# cat $Childsfile
 			OptSpecificChild=1
 			echo "download child $Searchtmpchild"
@@ -1171,12 +1182,14 @@ function ParseSettings(){
 			OptIsJJ=1
 			Optfast=1
 			OptNoRunlist=1
+			OptNoRunlistChild=1
 			maxpthardbins=20
 		elif [[ $setting = "-IsJJ_"* ]]
 		then
 			OptIsJJ=1
 			Optfast=1
 			OptNoRunlist=1
+			OptNoRunlistChild=1
 			minpthardbins=1
 			maxpthardbins=${setting#*-IsJJ_}
 			echo "selecting pthardbins: 1 - $maxpthardbins"
@@ -1189,6 +1202,7 @@ function ParseSettings(){
 		elif [[ $setting = "-NoRL" ]]
 		then
 			OptNoRunlist=1
+			OptNoRunlistChild=1
 		elif [[ $setting = "-uSR_"* ]]
 		then
 			useSpecificRunlist=1
@@ -1486,7 +1500,7 @@ function Parsehtml(){
 			then
 				if [[ $debug = 2 ]]
 				then
-					echo -e "\e[33m|-> \e[0m found period" | tee -a $LogFile
+					echo -e "\e[33m|-> \e[0m found period ($childID)" | tee -a $LogFile
 				fi
 				if [[ $NCHilds = "'1'" ]] ; then
 					if [[ $debug = 2 ]] || [[ $debug = 1 ]]
@@ -1500,6 +1514,7 @@ function Parsehtml(){
 						RunlistName="default"
 						RunlistID=1
 						foundRunlists=1
+						OptNoRunlistChild=1
 						RunlistOnTrainpage="$FrameworkDir/DownloadAndDataPrep/runlistsOnTrainpage/runNumbers$ChildName-$RunlistName.txt"
 						LIST_RunlistName+=($RunlistName)
 						LIST_RunlistID+=($RunlistID)
@@ -1509,11 +1524,14 @@ function Parsehtml(){
 					fi
 				else
 					found=1
+					if [[ $childID = 0 ]]; then
+						lookchildID=1
+					fi
 				fi
 			fi
 		fi
 		if [[ $found = 1 ]]
-		then
+		then			
 			if [[ $debug = 2 ]]
 			then
 				printf "\e[33m|->\e[0m $line \t " | tee -a $LogFile
@@ -1522,10 +1540,13 @@ function Parsehtml(){
 			then
 				if [[ $debug = 2 ]] || [[ $debug = 1 ]]
 				then
-					echo -e "\e[33m|-> \e[0m lookchildID (childID): $line" | tee -a $LogFile
+					echo -e "\e[33m|-> \e[0m lookchildID ($childID): $line" | tee -a $LogFile
 				fi
 				foundchild=0
-				if [[ $line = "$childID" ]]
+				if [[ $childID = 0 ]] && [[ $line = *"editPeriod"* ]]; then
+					foundchild=1
+				fi
+				if [[ $line = "$childID" ]] 
 				then
 					if [[ $debug = 2 ]] || [[ $debug = 1 ]]
 					then
@@ -1542,6 +1563,7 @@ function Parsehtml(){
 						RunlistName="default"
 						RunlistID=1
 						foundRunlists=1
+						OptNoRunlistChild=1
 						RunlistOnTrainpage="$FrameworkDir/DownloadAndDataPrep/runlistsOnTrainpage/runNumbers$ChildName-$RunlistName.txt"
 						LIST_RunlistName+=($RunlistName)
 						LIST_RunlistID+=($RunlistID)
@@ -1553,7 +1575,7 @@ function Parsehtml(){
 				fi
 				lookchildID=0
 			fi
-			if [[ $line = *"child"* ]]
+			if [[ $line = *"child"* ]] 
 			then
 				lookchildID=1
 			fi
@@ -1604,7 +1626,7 @@ function Parsehtml(){
 						((NumberOfRuns++))
 					fi
 					# printf "$readrun, " | tee -a $LogFile
-					printf "$readrun\n" >> $RunlistOnTrainpage
+					echo "$readrun" >> $RunlistOnTrainpage
 					((NumberOfRuns++))
 				fi
 			fi
@@ -1615,6 +1637,9 @@ function Parsehtml(){
 				if [[ "$RunlistName" = "$RunlistNameToReplace" ]]
 				then
 					RunlistName="$RunlistNameNewName"
+				fi
+				if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+					printf "$RunlistName  ($RunlistID)\n"
 				fi
 				RunlistID=$(( $RunlistID +1))
 				foundRunlists=0
@@ -1671,12 +1696,12 @@ function Parsehtml(){
 				do
 					if [[ "$RunlistName" = "$Searchedrunlist" ]] || [[ "$Searchedrunlist" = *"useSpecificRunlist_"* ]]
 					then
-						if [[ $NumberOfRuns = 0 ]]; then
+						if [[ $NumberOfRuns = 0 ]] && [[ ! $childID = 0 ]]; then
 							echo -e "\e[36m------------------------------------\e[0m" | tee -a $LogFile
 							echo -e "\e[36m|-> Runlist $RunlistID\tName = $Searchedrunlist \e[0m" | tee -a $LogFile
 							echo -e "\e[36m|-> No Runs:   skipped \e[0m" | tee -a $LogFile
 						fi
-						if [[ $OptNoRunlist = 0 ]] && [[ ! $NumberOfRuns = 0 ]]; then
+						if [[ $OptNoRunlist = 0 ]] && ( [[ ! $NumberOfRuns = 0 ]] || [[ $childID = 0 ]] ) ; then
 							LIST_RunlistName+=($Searchedrunlist)
 							LIST_RunlistID+=($RunlistID)
 							LIST_foundRunlists+=($foundRunlists)
@@ -1692,12 +1717,15 @@ function Parsehtml(){
 			if [[ $line = *"Runlist"* ]]
 			then
 				foundRunlists=1
+				if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
+					printf "\e[33m|-> \e[0m found Runlist: $line \t" | tee -a $LogFile
+				fi
 			fi
 			if [[ $line = *"table_row"* ]]
 			then
 				RunlistID=0
 			fi
-			if [[ $debug = 2 ]] &&  [[ ! $NCHilds = "'1'" ]]; then
+			if [[ $lastRun = 0 ]] && [[ $readRuns = 0 ]] && [[ $foundRunlists = 0 ]] && [[ $debug = 2 ]] &&  [[ ! $NCHilds = "'1'" ]]; then
 				echo -e "\e[33m|-> \e[0m found child: $line" | tee -a $LogFile
 			fi
 		fi
@@ -2280,22 +2308,27 @@ function PrepMerge() {
 		fi
 		return
 	fi
-	if [[ ! -f $mergedFile ]]
-	then
-		echo -e "\e[33m|->\e[0m Copy: is first" | tee -a $LogFile
-		echo "Copyed to $mergedFile" > $logFile | tee -a $LogFile
-		cp $2/$1 $mergedFile
-		# touch $alreadyMerged
-		echo $mergedFile >> $alreadyMerged
-		return
-	fi
+	# if [[ ! -f $mergedFile ]]
+	# then
+	# 	echo -e "\e[33m|->\e[0m Copy: is first" | tee -a $LogFile
+	# 	echo "Copyed to $mergedFile" > $logFile | tee -a $LogFile
+	# 	cp $2/$1 $mergedFile
+	# 	# touch $alreadyMerged
+	# 	echo $mergedFile >> $alreadyMerged
+	# 	return
+	# fi
 	if [[ -f $FileForAllMergeProcesses ]]; then
-		if [[ `grep "hadd -k $mergedFile.tmp" $FileForAllMergeProcesses | wc -l` < 1 ]] ; then
+		if [[ `grep "hadd -k $mergedFile" $FileForAllMergeProcesses | wc -l` < 1 ]] ; then
 			printf "\e[33m|-> \e[0m Add file for merging\n" | tee -a $LogFile
 			if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]] || [[ $debug = 4 ]]; then
 				printf "\t\e[33m|-> \e[0m from:$2/$1  to:$4/$1" | tee -a $LogFile
 			fi
-			echo "hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile" >> $FileForAllMergeProcesses
+			printf "hadd -k $mergedFile  " > $FileForAllMergeProcesses
+			if [[ -e $mergedFile ]]; then
+				mv $mergedFile $mergedFile.tmp
+				printf "$mergedFile.tmp  " >> $FileForAllMergeProcesses
+			fi
+			echo "$2/$1  &> $logFile" >> $FileForAllMergeProcesses
 			# cat $FileForAllMergeProcesses
 		else
 			new_rm $FileForAllMergeProcesses.tmp
@@ -2306,7 +2339,7 @@ function PrepMerge() {
 					# printf "\e[33m|-> \e[0m $lineTmp" | tee -a $LogFile
 				# fi
 				# echo "|$lineTmp|"
-				if [[ `echo "$lineTmp" | grep "hadd -k $mergedFile.tmp" | wc -l` < 1 ]]; then
+				if [[ `echo "$lineTmp" | grep "hadd -k $mergedFile" | wc -l` < 1 ]]; then
 					echo "$lineTmp" >> $FileForAllMergeProcesses.tmp
 				else
 					printf "\e[33m|-> \e[0m Add file to list for merging " | tee -a $LogFile
@@ -2328,13 +2361,20 @@ function PrepMerge() {
 		if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]] || [[ $debug = 4 ]]; then
 			printf "\t\e[33m|-> \e[0m from:$2/$1  to:$4/$1" | tee -a $LogFile
 		fi
-		echo "hadd -k $mergedFile.tmp $mergedFile $2/$1  &> $logFile" > $FileForAllMergeProcesses
+		printf "hadd -k $mergedFile  " > $FileForAllMergeProcesses
+		if [[ -e $mergedFile ]]; then
+			mv $mergedFile $mergedFile.tmp
+			printf "$mergedFile.tmp  " >> $FileForAllMergeProcesses
+		fi
+		echo "$2/$1  &> $logFile" >> $FileForAllMergeProcesses
 		# cat $FileForAllMergeProcesses
 	fi
 	# echo;
 }
 
 function StartMergeProcess() {
+	FileForAllMergeProcesses="$1/.FileForAllMergeProcesses.txt"
+	FileForAllMergeProcessesSavedDetails="$1/.FileForAllMergeProcessesSavedDetails.txt"
 	if [[ ! -e $FileForAllMergeProcesses ]]; then
 		# if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
 			printf " \e[33m|->\e[0m no merging needed\n" | tee -a $LogFile
@@ -2344,11 +2384,9 @@ function StartMergeProcess() {
 		return
 	fi
 	printf "\e[33m|->\e[0m StartMergeProcess  " | tee -a $LogFile
-	if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]]; then
-		printf -e "\e[33m|->\e[0m from:$4" | tee -a $LogFile
+	if [[ $debug = 1 ]] || [[ $debug = 2 ]] || [[ $debug = 3 ]] || [[ $debug = 4 ]]; then
+		printf "\e[33m|->\e[0m from:$1| \n" | tee -a $LogFile
 	fi
-	FileForAllMergeProcesses="$1/.FileForAllMergeProcesses.txt"
-	FileForAllMergeProcessesSavedDetails="$1/.FileForAllMergeProcessesSavedDetails.txt"
 	# cat $FileForAllMergeProcesses
 	IFS=$'\n'       # make newlines the only separator
 	for processinline in $(cat $FileForAllMergeProcesses); do
@@ -2357,10 +2395,9 @@ function StartMergeProcess() {
 		fi
 		# echo;
 		# printf "\e[33m|->\e[0m $processinline \n" | tee -a $LogFile
-		eval "$processinline"  | tee -a $LogFile
-
-		tmp=1
+		eval "$processinline" # | tee -a $LogFile
 		exitstatus=$?
+		tmp=1
 		if [[ ! "$exitstatus" = "0" ]]; then
 			printf "  \e[33m|->\e[0m Retry " | tee -a $LogFile
 		fi

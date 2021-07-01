@@ -12,6 +12,145 @@ then
  fi
  gridpath="/media/adrian/Data/grid_data"
 
+# bash DownScript.sh 1380 1379 1378 GA_pp_AOD ?_GammaCaloMix -RL_listDPG  $1
+# bash DownScript.sh 2707 2706 2705 GA_pp_MC_AOD ?_GammaCaloMix -RL_listDPG  $1
+
+
+# 1840 	vAN-20210625_ROOT6-1 	LHC18c_13TeV_LowB_pass1_AOD236 	2021 Jun 28, Train run finished 	request Edgar, Adrian 	
+# 1839 	vAN-20210625_ROOT6-1 	LHC17g_13TeV_LowB_pass1_AOD236 	2021 Jun 28, Train run finished 	request Edgar, Adrian 	
+# 1838 	vAN-20210625_ROOT6-1 	LHC16f_13TeV_LowB_pass1_AOD236 	2021 Jun 28, Train run finished 	request Edgar, Adrian 	
+bash DownScript.sh 1840 1839 1838 GA_pp_AOD ?_zip ?_GammaConvCalo -RL_listDPGTrackIncAccTPCandEMC $1
+bash DownScript.sh 1840 1839 1838 -Name_Data_NewMBW GA_pp_AOD ?_zip ?_GammaConvCalo -mergetrains -RL_listDPGTrackIncAccTPCandEMC -noDown $1
+
+# 1837 	vAN-20210625_ROOT6-1 	LHC18_13TeV_pass1_AOD234 	2021 Jun 29, Train run finished 	request Edgar, Adrian 	
+# 1836 	vAN-20210625_ROOT6-1 	LHC17_13TeV_pass1_AOD234 	2021 Jun 29, Train run: All jobs submitted 	request Edgar, Adrian 	
+# 1835 	vAN-20210625_ROOT6-1 	LHC16_13TeV_pass1_2_AOD234 	2021 Jun 29, Train run finished 	request Adrian, Edgar 	
+# bash DownScript.sh 1837 1836 1835 GA_pp_AOD ?_zip ?_GammaConvCalo_3 ?_GammaConvCalo_9 -RL_listPHOS  $1
+bash DownScript.sh 1837 1835 GA_pp_AOD ?_zip ?_GammaConvCalo_3 ?_GammaConvCalo_9 -RL_listPHOS  $1
+# bash DownScript.sh 1837 1836 1835 GA_pp_AOD ?_zip ?_GammaConvCalo_2 -RL_listPCMEDC $1
+bash DownScript.sh 1837 1835 GA_pp_AOD ?_zip ?_GammaConvCalo_2 -RL_listPCMEDC $1
+# bash DownScript.sh 1837 1836 1835 -Name_Data_NewMBW GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listPCMEDC -RL_listPHOS -noDown $1
+
+
+
+# 3800 	vAN-20210628_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD_extra 	2021 Jun 29, Train run: All jobs submitted 	request Adrian 	
+# 3799 	vAN-20210628_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD235 	2021 Jun 29, Train run finished 	request Adrian 	
+# 3798 	vAN-20210628_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD235 	2021 Jun 29, Train run: All jobs submitted 	request Adrian 	
+# 3797 	vAN-20210628_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235_extra 	2021 Jun 29, Train run finished 	request Adrian 	
+# 3796 	vAN-20210628_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235 	2021 Jun 29, Train run finished 	request Adrian 
+bash DownScript.sh 3800 3799 3798 3797 3796 GA_pp_MC_AOD ?_GammaConvCalo_3 ?_GammaConvCalo_9 -RL_listPHOS  $1
+bash DownScript.sh 3800 3799 3798 3797 3796 GA_pp_MC_AOD ?_GammaConvCalo_2 -RL_listPCMEDC $1
+bash DownScript.sh 3800 3799 3798 3797 3796 -Name_MC_NewMBW GA_pp_MC_AOD ?_Gamma -mergetrains -RL_listPHOS -RL_listPCMEDC -RL_listDPGEDC -RL_listDPGEMC -noDown $1
+
+
+
+
+
+# 3774 	vAN-20210610_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD_extra 	2021 Jun 11, Train run: All jobs submitted 	request Adrian, Joshua 	
+# 3773 	vAN-20210610_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD235 	2021 Jun 11, Train run finished 	request Adrian, Joshua 	
+# 3772 	vAN-20210610_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD235 	2021 Jun 11, Train run finished 	request Adrian, Joshua 	
+# 3771 	vAN-20210610_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235_extra 	2021 Jun 11, Train run finished 	request Adrian, Joshua 	
+# 3770 	vAN-20210610_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235 	2021 Jun 11, Train run finished 	request Adrian, Joshua 
+# bash DownScript.sh 3774 3773 3772 3771 3770 GA_pp_MC_AOD ?_GammaCalo_8 ?_GammaConvCalo_9 -RL_listPHOS  $1
+# bash DownScript.sh 3774 3773 3772 3771 3770 GA_pp_MC_AOD ?_GammaCalo_2062 -RL_listDPGEDC_OR_listDPGEMC $1
+# bash DownScript.sh 3774 3773 3772 3771 3770 GA_pp_MC_AOD ?_GammaConvCalo_2 -RL_listPCMEDC $1
+# bash DownScript.sh 3774 3773 3772 3771 3770 -Name_MC_AdditionTrue GA_pp_MC_AOD ?_Gamma -mergetrains -RL_listPHOS -RL_listPCMEDC -RL_listDPGEDC -RL_listDPGEMC -mergetrains  -noDown $1
+
+# # 3763 	vAN-20210608_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD_extra 	2021 Jun 09, Train run: All jobs submitted 	request Adrian 	
+# # 3762 	vAN-20210608_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD235 	2021 Jun 09, Train run: All jobs submitted 	request Adrian 	
+# # 3761 	vAN-20210608_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD235 	2021 Jun 09, Train run: All jobs submitted 	request Adrian 	
+# # 3760 	vAN-20210608_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235_extra 	2021 Jun 09, Train run finished 	request Adrian 	
+# # 3759 	vAN-20210608_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235 	2021 Jun 09, Train run finished 	request Adrian 
+# bash DownScript.sh 3763 GA_pp_MC_AOD  ?_zip ?_Gamma -RL_listPHOS $1
+# bash DownScript.sh 3763 3762 3761 3760 3759 GA_pp_MC_AOD  ?_zip ?_Gamma -RL_listPHOS $1
+# bash DownScript.sh 3763 3762 3761 3760 3759 -Name_MC_PHOS_var GA_pp_MC_AOD ?_Gamma -mergetrains -RL_listPHOS -mergetrains  -noDown $1
+
+# 1804 	vAN-20210527_ROOT6-1 	LHC18_13TeV_pass1_AOD234 	2021 May 28, Train run finished 	request Adrian, Jens 	
+# 1803 	vAN-20210527_ROOT6-1 	LHC17_13TeV_pass1_AOD234 	2021 May 28, Train run finished 	request Adrian, Jens 	
+# 1802 	vAN-20210527_ROOT6-1 	LHC16_13TeV_pass1_2_AOD234 	2021 May 28, Train run finished 	request Adrian, Jens 
+# bash DownScript.sh 1804 1803 1802 GA_pp_AOD ?_zip ?_Gamma -RL_listPHOS $1
+# bash DownScript.sh 1804 1803 1802 GA_pp_AOD -Name_Data_PHOS_var -mergetrains ?_Gamma -RL_listPHOS -noDown $1
+
+
+# 3693 	vAN-20210527_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD_extra 	2021 May 28, Train run finished 	request Adrian, Jens 	
+# 3692 	vAN-20210527_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD235 	2021 May 28, Train run finished 	request Adrian, Jens 	
+# 3691 	vAN-20210527_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD235 	2021 May 28, Train run finished 	request Adrian, Jens 	
+# 3690 	vAN-20210527_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235_extra 	2021 May 28, Train run finished 	request Adrian, Jens 	
+# 3689 	vAN-20210527_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235 	2021 May 28, Train run finished 	request Adrian 
+# bash DownScript.sh 3693 3692 3691 3690 3689 GA_pp_MC_AOD  ?_zip ?_Gamma -RL_listPHOS $1
+# bash DownScript.sh 3693 3692 3691 3690 3689 -Name_MC_PHOS_var GA_pp_MC_AOD ?_Gamma -mergetrains -RL_listPHOS -mergetrains  -noDown $1
+
+# 3677 	vAN-20210505_ROOT6-1 	LHC19i3c2_JJhigh_13TeV_DCAL_anchLHC18 	2021 May 14, Train run finished 	request Adrian 	
+# 3676 	vAN-20210505_ROOT6-1 	LHC19i3c1_JJhigh_13TeV_EMCal_anchLHC18 	2021 May 14, Train run finished 	request Adrian 	
+# 3675 	vAN-20210505_ROOT6-1 	LHC19i3b2_JJlow_13TeV_DCAL_anchLHC18 	2021 May 14, Train run finished 	request Adrian 	
+# 3674 	vAN-20210505_ROOT6-1 	LHC19i3b1_JJlow_13TeV_EMCal_anchLHC18 	2021 May 14, Train run finished 	request Adrian 
+# bash DownScript.sh 3677 GA_pp_MC_AOD ?_zip ?_GammaConvCalo -IsJJ -RL_list_Trigger -norunwise $1
+# bash DownScript.sh 3676 GA_pp_MC_AOD ?_zip ?_GammaConvCalo -IsJJ -RL_list_Trigger -norunwise $1
+# bash DownScript.sh 3675 GA_pp_MC_AOD ?_zip ?_GammaConvCalo -IsJJ -RL_list_Trigger -norunwise $1
+# bash DownScript.sh 3674 GA_pp_MC_AOD ?_zip ?_GammaConvCalo -IsJJ -RL_list_Trigger -norunwise $1
+
+# 1789 	vAN-20210505_ROOT6-1 	LHC18_13TeV_pass1_AOD234 	2021 May 08, Train run finished 	request Adrian, Hanseo 	
+# 1788 	vAN-20210505_ROOT6-1 	LHC17_13TeV_pass1_AOD234 	2021 May 08, Train run: All jobs submitted 	request Adrian, Hanseo 	
+# 1787 	vAN-20210505_ROOT6-1 	LHC16_13TeV_pass1_2_AOD234 	2021 May 07, Train run finished 	request Adrian, Hanseo 	
+# bash DownScript.sh 1789 1788 1787 GA_pp_AOD ?_zip ?_GammaConvCalo -RL_listPCMEDC $1
+# bash DownScript.sh 1789 1788 1787 -Name_Data_v22 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listPCMEDC -noDown $1
+
+
+# 3652 	vAN-20210505_ROOT6-1 	LHC19i3c2_JJhigh_13TeV_DCAL_anchLHC18 	2021 May 13, Train run: All jobs submitted 	request Adrian 	
+# 3651 	vAN-20210505_ROOT6-1 	LHC19i3c1_JJhigh_13TeV_EMCal_anchLHC18 	2021 May 13, Train run: All jobs submitted 	request Adrian 	
+# 3650 	vAN-20210505_ROOT6-1 	LHC19i3b2_JJlow_13TeV_DCAL_anchLHC18 	2021 May 13, Train run finished 	request Adrian 	
+# 3649 	vAN-20210505_ROOT6-1 	LHC19i3b1_JJlow_13TeV_EMCal_anchLHC18 	2021 May 12, Train run finished 	request Adrian 
+# bash DownScript.sh 3652 GA_pp_MC_AOD ?_zip ?_GammaConvCalo -IsJJ -RL_list_Trigger -norunwise $1
+# bash DownScript.sh 3651 GA_pp_MC_AOD ?_zip ?_GammaConvCalo -IsJJ -RL_list_Trigger -norunwise $1
+# bash DownScript.sh 3650 GA_pp_MC_AOD ?_zip ?_GammaConvCalo -IsJJ -RL_list_Trigger -norunwise $1
+# bash DownScript.sh 3649 GA_pp_MC_AOD ?_zip ?_GammaConvCalo -IsJJ -RL_list_Trigger -norunwise $1
+
+#  3610 	vAN-20210406_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD235 	2021 Apr 07, Train run finished 	request Adrian 
+# bash DownScript.sh 3610 -Name_MC_PCM_calib_v2 GA_pp_MC_AOD ?_GammaConvV1 -RL_listPCM $1
+# bash DownScript.sh 3610 -Name_MC_PCM_calib_v2 GA_pp_MC_AOD ?_GammaConvCalo -RL_listPCMEDC $1
+
+#  1764 	vAN-20210402_ROOT6-1 	LHC18_13TeV_pass1_AOD234 	2021 Apr 04, Train run finished 	request Steven, Marvin 	
+# 1763 	vAN-20210402_ROOT6-1 	LHC17_13TeV_pass1_AOD234 	2021 Apr 03, Train run finished 	request Steven, Marvin 	
+# 1762 	vAN-20210402_ROOT6-1 	LHC16_13TeV_pass1_2_AOD234 	2021 Apr 03, Train run finished 	request Steven, Marvin 	
+# bash DownScript.sh 1764 1763 1762 GA_pp_AOD ?_zip ?_Sigma -RL_listPHOS $1
+# bash DownScript.sh 1764 1763 1762 GA_pp_AOD -Name_SimgaData -mergetrains ?_Sigma -RL_listPHOS -noDown $1
+
+# 3605 	vAN-20210402_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD_extra 	2021 Apr 03, Train run finished 	request Steven 	
+# 3604 	vAN-20210402_ROOT6-1 	PYT8_13TeV_anchLHC18_AOD235 	2021 Apr 03, Train run finished 	request Steven 	
+# 3603 	vAN-20210402_ROOT6-1 	PYT8_13TeV_anchLHC17_AOD235 	2021 Apr 03, Train run finished 	request Steven 	
+# 3602 	vAN-20210402_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235_extra 	2021 Apr 03, Train run finished 	request Steven 	
+# 3601 	vAN-20210402_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235 	2021 Apr 03, Train run finished 	request Steven 
+# bash DownScript.sh 3605 3604 3603 3602 3601 GA_pp_MC_AOD ?_zip ?_Sigma -RL_listPHOS $1
+# bash DownScript.sh 3605 3604 3603 3602 3601 GA_pp_MC_AOD -Name_SigmaMC -mergetrains ?_Sigma -RL_listPHOS -noDown $1
+
+# 3600 	vAN-20210329_ROOT6-1 	LHC19i3b2_JJlow_13TeV_DCAL_anchLHC18 	2021 Apr 01, Train run finished 	request Jens, Adrian 	
+# 3599 	vAN-20210329_ROOT6-1 	LHC18l6b2_JJlow_13TeV_DCal_anchLHC17 	2021 Apr 01, Train run finished 	request Jens, Adrian 	
+# 3598 	vAN-20210329_ROOT6-1 	LHC20b1b2_JJlow_13TeV_DCal_anchLHC16 	2021 Apr 01, Train run finished 	request Jens, Adrian 	
+# bash DownScript.sh 3600 GA_pp_MC_AOD ?_zip ?_Gamma -IsJJ $1
+# bash DownScript.sh 3599 GA_pp_MC_AOD ?_zip ?_Gamma -IsJJ $1
+# bash DownScript.sh 3598 GA_pp_MC_AOD ?_zip ?_Gamma -IsJJ $1
+
+
+# 3597 	vAN-20210329_ROOT6-1 	PYT8JJ_13TeV_anchLHC18_AOD 	2021 Apr 01, Train run: All jobs submitted 	request Jens, Adrian 	
+# 3596 	vAN-20210329_ROOT6-1 	PYT8JJ_13TeV_anchLHC17_AOD 	2021 Apr 01, Train run: All jobs submitted 	request Jens, Adrian 	
+# 3595 	vAN-20210329_ROOT6-1 	PYT8JJ_13TeV_anchLHC16_AOD209 	2021 Apr 01, Train run: All jobs submitted 	request Jens, Adrian 
+# bash DownScript.sh 3597 GA_pp_MC_AOD ?_zip ?_Gamma -IsJJ -RL_list_Joshua_OR_default $1
+# bash DownScript.sh 3596 GA_pp_MC_AOD ?_zip ?_Gamma -IsJJ $1
+# bash DownScript.sh 3595 GA_pp_MC_AOD ?_zip ?_Gamma -IsJJ $1
+# bash DownScript.sh 3597 3596 3595 -Name_JJMC_PHOS_v1 GA_pp_MC_AOD ?_zip ?_Gamma -mergetrains -RL_default -noDown $1
+
+# GA_pp_MC_AOD: 3585-389
+# GA_pp_AOD: 1752-1754
+# bash DownScript.sh 1754 1753 1752 GA_pp_AOD ?_Sigma -RL_listPHOS $1
+# bash DownScript.sh 1754 1753 1752 GA_pp_AOD -Name_SimgaData -mergetrains ?_Sigma -RL_listPHOS -noDown $1
+# bash DownScript.sh 3585 3586 3587 3588 3589 GA_pp_MC_AOD ?_Sigma -RL_listPHOS $1
+# bash DownScript.sh 3585 3586 3587 3588 3589 GA_pp_MC_AOD -Name_SigmaMC -mergetrains ?_Sigma -RL_listPHOS -noDown $1
+
+# 1754 	vAN-20210326_ROOT6-1 	LHC18_13TeV_pass1_AOD234 	2021 Mar 26, Train run: All jobs submitted 	request Steven & Adrian 	
+# 1753 	vAN-20210326_ROOT6-1 	LHC17_13TeV_pass1_AOD234 	2021 Mar 26, Train run finished 	request Steven ,Adrian 	
+# 1752 	vAN-20210326_ROOT6-1 	LHC16_13TeV_pass1_2_AOD234 	2021 Mar 26, Train run finished 	request Steven, Adrian, E... 	
+# bash DownScript.sh 1754 1753 1752 GA_pp_AOD ?_GammaConvCalo -RL_listEDC_trigger_OR_listDPGEDCtrigger $1
+# bash DownScript.sh 1754 1753 1752 GA_pp_AOD -Name_Data_v21 -mergetrains ?_GammaConvCalo -RL_listDPGEDCtrigger -noDown $1
 
 # 1750 	vAN-20210316_ROOT6-1 	LHC18_13TeV_pass1_AOD234 	2021 Mar 19, Train run: All jobs submitted 	request Hanseo, Adrian 	
 # 1749 	vAN-20210316_ROOT6-1 	LHC17_13TeV_pass1_AOD234 	2021 Mar 19, Train run finished 	request Hanseo, Adrian 	
@@ -74,7 +213,10 @@ then
 # 1724 	vAN-20210224_ROOT6-1 	LHC16_13TeV_pass1_2_AOD234 	2021 Feb 25, Train run finished 	request Adrian, Jens 
 # bash DownScript.sh 1726 1725 1724 GA_pp_AOD ?_GammaConvCalo_2 -mergetrains -RL_listPCMEDC $1
 # bash DownScript.sh 1726 1725 1724 GA_pp_AOD ?_zip ?_GammaCalo_8 ?_GammaConvCalo_9 -mergetrains -RL_listPHOS $1
-# bash DownScript.sh 1726 1725 1724 -Name_Data_v20 GA_pp_AOD ?_zip ?_GammaConvCalo  ?_GammaCalo_8 -mergetrains -RL_listPCMEDC -RL_listPHOS -noDown $1
+# bash DownScript.sh 1724 -Name_Data_16_v20 GA_pp_AOD ?_GammaConvCalo  ?_GammaCalo_8 -mergetrains -RL_listPCMEDC -RL_listPHOS -noDown $1
+# bash DownScript.sh 1725 -Name_Data_17_v20 GA_pp_AOD ?_GammaConvCalo  ?_GammaCalo_8 -mergetrains -RL_listPCMEDC -RL_listPHOS -noDown $1
+# bash DownScript.sh 1726 -Name_Data_18_v20 GA_pp_AOD ?_GammaConvCalo  ?_GammaCalo_8 -mergetrains -RL_listPCMEDC -RL_listPHOS -noDown $1
+# bash DownScript.sh 1726 1725 1724 -Name_Data_v20 GA_pp_AOD ?_GammaConvCalo  ?_GammaCalo_8 -mergetrains -RL_listPCMEDC -RL_listPHOS -noDown $1
 
 
 
@@ -85,7 +227,10 @@ then
 # 3500 	vAN-20210224_ROOT6-1 	PYT8_13TeV_anchLHC16_AOD235 	2021 Feb 25, Train run finished 	request Adrian, Jens 	
 # bash DownScript.sh 3504 3503 3502 3501 3500 GA_pp_MC_AOD ?_GammaConvCalo_2  -mergetrains -RL_listPCMEDC $1
 # bash DownScript.sh 3504 3503 3502 3501 3500 GA_pp_MC_AOD ?_zip ?_GammaCalo_8 ?_GammaConvCalo_9  -mergetrains -RL_listPHOS $1
-# bash DownScript.sh 3504 3503 3502 3501 3500 -Name_MC_v20 GA_pp_MC_AOD ?_zip ?_GammaConvCalo  ?_GammaCalo_8 -mergetrains -RL_listPHOS -RL_listPCMEDC -noDown $1
+# bash DownScript.sh 3501 3500 -Name_MC_16_v20 GA_pp_MC_AOD ?_zip ?_GammaCalo_8 ?_GammaConvCalo_9  -mergetrains -RL_listPHOS  -noDown $1
+# bash DownScript.sh 3502 -Name_MC_17_v20 GA_pp_MC_AOD ?_zip ?_GammaCalo_8 ?_GammaConvCalo_9  -mergetrains -RL_listPHOS  -noDown $1
+# bash DownScript.sh 3504 3503 -Name_MC_18_v20 GA_pp_MC_AOD ?_zip ?_GammaCalo_8 ?_GammaConvCalo_9  -mergetrains -RL_listPHOS  -noDown $1
+# bash DownScript.sh 3504 3503 3502 3501 3500 -Name_MC_v20 GA_pp_MC_AOD ?_zip ?_GammaConvCalo  ?_GammaCalo_8 -mergetrains -mergeperiods -RL_listPHOS -RL_listPCMEDC -noDown $1
 
 
 
@@ -299,9 +444,9 @@ then
 #  # 1664 	vAN-20201221_ROOT6-1 	LHC18_13TeV_pass1_AOD208 	2020 Dec 23, Train run finished 	request Adrian & Jens 	
 #  # 1663 	vAN-20201221_ROOT6-1 	LHC17_13TeV_pass1_AOD208 	2020 Dec 23, Train run: All jobs submitted 	request Adrian & Jens 	
 #  # 1662 	vAN-20201221_ROOT6-1 	LHC16_13TeV_pass1_2_AOD208 	2020 Dec 23, Train run: All jobs submitted 	request Adrian & Jens 	
-bash DownScript.sh 1664 1663 1662 GA_pp_AOD ?_zip ?_GammaConvCalo -RL_listPCMEDC -norunwise $1
-bash DownScript.sh 1664 1663 1662 GA_pp_AOD ?_GammaConvCalo_2003 -RL_listEDC_trigger_OR_listDPGEDCtrigger $1
-bash DownScript.sh 1664 1663 1662 -Name_Data_pp13TeV_v18 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listPCMEDC -RL_listDPGEDCtrigger -noDown $1
+# bash DownScript.sh 1664 1663 1662 GA_pp_AOD ?_zip ?_GammaConvCalo -RL_listPCMEDC -norunwise $1
+# bash DownScript.sh 1664 1663 1662 GA_pp_AOD ?_GammaConvCalo_2003 -RL_listEDC_trigger_OR_listDPGEDCtrigger $1
+# bash DownScript.sh 1664 1663 1662 -Name_Data_pp13TeV_v18 GA_pp_AOD ?_GammaConvCalo -mergetrains -RL_listPCMEDC -RL_listDPGEDCtrigger -noDown $1
 
 
 

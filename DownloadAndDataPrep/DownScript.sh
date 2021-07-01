@@ -23,7 +23,7 @@ then
 			InitilaizeChild $child
 			if [[ $OptSpecificChild = 1 ]]; then
 			# cat $Childsfile
-				if [[ `grep  "Child $childID" $Childsfile | wc -l` < 1 ]]; then
+				if [[ `grep  "Child $childID|" $Childsfile | wc -l` < 1 ]]; then
 					printf "\e[33m|-> skipping child $childID" | tee -a $LogFile
 					continue
 				fi
@@ -37,6 +37,7 @@ then
 			arrypos=0
 			for RunlistName in "${LIST_RunlistName[@]}"
 			do
+				# echo "___________HERE________________" | tee -a $LogFile
 				InitilaizeRunlist $arrypos
 				if [[ $? -eq 1 ]]; then
 					# echo "___________HERE________________" | tee -a $LogFile
@@ -47,7 +48,7 @@ then
 				if [[ ! $useSpecificRunlist = 1 ]]; then
 					AvailibleFiles="$Dirout/AvailibleFiles.txt"
 					touch $AvailibleFiles
-					if [[ $OptNoRunlist = 0 ]]; then
+					if [[ $OptNoRunlistChild = 0 ]]; then
 						SeachFilesOnAlienAndAddToList "$AlienDir$child/merge_runlist_${RunlistID}/" $AvailibleFiles
 					else
 						SeachFilesOnAlienAndAddToList "$AlienDir$child/merge/" $AvailibleFiles
@@ -489,8 +490,9 @@ then
 											fi
 											PrepMerge $Search $subrunDir ${subruninFile%%$Search} "$runDir$RLextension"
 										done
-										printf "\t\t\t\e[33m|->\e[0m StartMergeProcess" #| tee -a $WARNINGLog | tee -a $LogFile
-										StartMergeProcess "$runDir$RLextension" &> /dev/null
+										# printf "\t\t\t\e[33m|->\e[0m StartMergeProcess" #| tee -a $WARNINGLog | tee -a $LogFile
+										printf "\t\t\t"
+										StartMergeProcess "$runDir$RLextension" #&> /dev/null
 										if [[ $NorunwiseinTrain = 0 ]]; then
 											# echo -e "\t\t\e[33m|->\e[0m merge from higher stages.. done"  | tee -a $rundownlogFile.tmp #| tee -a $WARNINGLog | tee -a $LogFile
 											if [[ $MergeRuns = 1 ]]
