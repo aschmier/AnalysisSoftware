@@ -2077,7 +2077,32 @@
         Double_t dummyError;
         for (Int_t i = 0; i < numberOfLines; i++){
             dummyValue              = (posError[i] + TMath::Abs(negError[i]))/2;
-            cout << posError[i] << "\t" << negError[i] << "\t" << dummyValue << endl;
+            // cout << posError[i] << "\t" << negError[i] << "\t" << dummyValue << endl;
+            dummyError              = dummyValue*0.001;
+            fillInVector[i]         = dummyValue;
+            fillInVectorError[i]    = dummyError;
+        }
+        return;
+    }
+
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    // ****************************************************************************************************************
+    void CalculateSigmaAproxSysErr( Double_t* fillInVector,
+                                    Double_t* fillInVectorError,
+                                    Double_t* posError,
+                                    Double_t* negError,
+                                    Int_t numberOfLines
+                                ){
+        Double_t dummyValue;
+        Double_t dummyError;
+        for (Int_t i = 0; i < numberOfLines; i++){
+            if (posError[i] > TMath::Abs(negError[i]))
+                dummyValue              = posError[i];
+            else 
+                dummyValue              = TMath::Abs(negError[i]);
+            dummyValue *= 2/TMath::Sqrt(12);
+            // cout << posError[i] << "\t" << negError[i] << "\t" << dummyValue << endl;
             dummyError              = dummyValue*0.001;
             fillInVector[i]         = dummyValue;
             fillInVectorError[i]    = dummyError;
@@ -5982,10 +6007,9 @@
         for (Int_t i = 0; i < numberOfPtBins; i++){
             ErrorVector[i] = hToSmooth->GetBinContent(i+1);
             ErrorVectorError[i] = hToSmooth->GetBinError(i+1);
-            printf("%.4f -> ",newErrorVector[i]);
-            printf("%.4f \t",ErrorVector[i]);
+            // printf("%.4f -> %.4f \t",newErrorVector[i],ErrorVector[i]);
         }
-        printf("\n");
+        // printf("\n");
     }
 
     // ****************************************************************************************************************
