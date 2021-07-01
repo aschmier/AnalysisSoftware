@@ -4571,7 +4571,7 @@
             return kGreen-1;
         if ( variationName.CompareTo("Purity") == 0 )
             return kBlue+2;
-        if ( variationName.CompareTo("CosPoint") == 0 )
+        if ( variationName.CompareTo("CosPoint") == 0 || variationName.CompareTo("cosPA") == 0 )
             return kSpring+2;
         if ( variationName.CompareTo("Eta") == 0 )
             return kTeal-7;
@@ -4583,13 +4583,13 @@
             return kBlue;
         if ( variationName.CompareTo("dEdxE") == 0 )
             return kRed+1;
-        if ( variationName.CompareTo("dEdxPi") == 0 )
+        if ( variationName.CompareTo("dEdxPi") == 0 || variationName.CompareTo("dEdxPivsp") == 0)
             return kOrange+7;
         if ( variationName.CompareTo("TPCCluster") == 0 )
             return kPink+8;
         if ( variationName.CompareTo("SinglePt") == 0 )
             return kGreen+2;
-        if ( variationName.CompareTo("Chi2") == 0 || variationName.CompareTo("Chi2PsiPair") == 0 || variationName.CompareTo("PsiPairChi2") == 0 )
+        if ( variationName.CompareTo("Chi2") == 0 || variationName.CompareTo("Chi2PsiPair") == 0 || variationName.CompareTo("PsiPairChi2") == 0 || variationName.CompareTo("QtChi2PsiPair") == 0)
             return kYellow+2;
         if ( variationName.CompareTo("Qt") == 0 )
             return kOrange+2;
@@ -4677,7 +4677,7 @@
             return 29;
         if ( variationName.CompareTo("Purity") == 0 )
             return 27;
-        if ( variationName.CompareTo("CosPoint") == 0 )
+        if ( variationName.CompareTo("CosPoint") == 0 || variationName.CompareTo("cosPA") == 0)
             return 24;
         if ( variationName.CompareTo("Eta") == 0 )
             return 30;
@@ -4691,13 +4691,13 @@
             return 20;
         if ( variationName.CompareTo("dEdxE") == 0 )
             return 21;
-        if ( variationName.CompareTo("dEdxPi") == 0 )
+        if ( variationName.CompareTo("dEdxPi") == 0 || variationName.CompareTo("dEdxPivsp") == 0 )
             return 22;
         if ( variationName.CompareTo("TPCCluster") == 0 )
             return 23;
         if ( variationName.CompareTo("SinglePt") == 0 )
             return 20;
-        if ( variationName.CompareTo("Chi2") == 0 || variationName.CompareTo("Chi2PsiPair") == 0 || variationName.CompareTo("PsiPairChi2") == 0 )
+        if ( variationName.CompareTo("Chi2") == 0 || variationName.CompareTo("Chi2PsiPair") == 0 || variationName.CompareTo("PsiPairChi2") == 0 || variationName.CompareTo("QtChi2PsiPair") == 0 )
             return 25;
         if ( variationName.CompareTo("Qt") == 0 )
             return 26;
@@ -4791,7 +4791,7 @@
             return "IB pileup";
         if ( variationName.CompareTo("DistanceBadChannel") == 0 )
             return "Dist. BC";
-        if ( variationName.CompareTo("CosPoint") == 0 )
+        if ( variationName.CompareTo("CosPoint") == 0 || variationName.CompareTo("cosPA") == 0)
             return "cos(#Theta_{point})";
         if ( variationName.CompareTo("Eta") == 0 )
             return "#eta_{#gamma, e^{#pm}}";
@@ -4809,6 +4809,8 @@
             return "dE/dx e-line";
         if ( variationName.CompareTo("dEdxPi") == 0 )
             return "dE/dx #pi-line";
+        if ( variationName.CompareTo("dEdxPivsp") == 0 )
+            return "2D dE/dx #pi-line vs p";
         if ( variationName.CompareTo("TPCCluster") == 0 )
             return "TPC cluster";
         if ( variationName.CompareTo("SinglePt") == 0 )
@@ -4817,6 +4819,8 @@
             return "2D #chi^{2} #gamma, #psi_{pair} #gamma";
         if ( variationName.CompareTo("Qt") == 0 )
             return "2D q_{T}";
+        if ( variationName.CompareTo("QtChi2PsiPair") == 0 )
+            return "2D #chi^{2} #gamma, #psi_{pair} #gamma and q_{T}";
         if ( variationName.CompareTo("Alpha") == 0 )
             return "#alpha meson";
         if ( variationName.CompareTo("Asym") == 0 )
