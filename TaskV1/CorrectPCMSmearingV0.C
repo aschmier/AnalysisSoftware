@@ -43,9 +43,9 @@
 #include "../CommonHeaders/ConversionFunctions.h"
 
 TF1* FitRecursiveGaussian (TH1* histo, Double_t precision, Double_t correctRange, Double_t fitRangeMin, Double_t fitRangeMax);
-TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter, Int_t iDataMC);
-TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter, Int_t iDataMC);
-TF1* FitDExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter, Int_t iDataMC);
+TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Bool_t modeEta, Double_t ptcenter, Int_t iDataMC);
+TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Bool_t modeEta, Double_t ptcenter, Int_t iDataMC);
+TF1* FitDExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Bool_t modeEta, Double_t ptcenter, Int_t iDataMC);
 TF1* FitBckg(TH1* fHisto, Double_t minFit, Double_t maxFit);
 TF1* FitDataMC(TH1* fHisto, Double_t minFit, Double_t maxFit, TString selection, Double_t constPar = -1, Int_t mode = 2, Int_t fitmode = 0);
 Float_t    FunctionNL_kSDM(Float_t e, Float_t p0, Float_t p1, Float_t p2);
@@ -115,6 +115,11 @@ Double_t ScalingFactor(Double_t *x, Double_t *par) {
     return ( 1/ ( massPi0*massPi0/x[0]/x[0] ) );
 
 }
+Double_t ScalingFactorEta(Double_t *x, Double_t *par) {
+    Double_t massEta            = 0.547862;
+    return ( 1/ ( massEta*massEta/x[0]/x[0] ) );
+
+}
 //****************************************************************************
 //************** Function to Correct CaloNonLinearity4 ***********************
 //****************************************************************************
@@ -135,7 +140,7 @@ void CorrectPCMSmearingV0(
     // General options
     TString select              = "";
     TString optionEnergy        = "";
-    Int_t mode                  = -1;
+    Int_t mode                  = 0;
     TString FittingFunction    ="";
     TString cfSetting    ="";
     TString cfSettingMC    ="";
@@ -157,9 +162,12 @@ void CorrectPCMSmearingV0(
 
     // pT range for sigma fitting
     Int_t ptBinRange[2]         = {0, 17};
+    Int_t ptBinRangeEta[2]         = {0, 17};
     Int_t firstPtBinSet[6]      = { -1, -1, -1, -1, -1,     -1};
     Double_t ptBinsForRebin[10] = { -1, -1, -1, -1, -1,     -1, -1, -1, -1, -1 };
+    Double_t ptBinsForRebinEta[10] = { -1, -1, -1, -1, -1,     -1, -1, -1, -1, -1 };
     Int_t rebin[10]             = { 1, 1, 1, 1, 1,  1, 1, 1, 1, 1};
+    Int_t rebinEta[10]             = { 1, 1, 1, 1, 1,  1, 1, 1, 1, 1};
     Int_t exampleBin[40]        = { -1, -1, -1, -1, -1,     -1, -1, -1, -1, -1,
                                     -1, -1, -1, -1, -1,     -1, -1, -1, -1, -1,
                                     -1, -1, -1, -1, -1,     -1, -1, -1, -1, -1,
@@ -173,6 +181,11 @@ void CorrectPCMSmearingV0(
     Double_t fBinsPt[301];
     for (Int_t i = 0; i< 301; i++){
         fBinsPt[i]              = -1.;
+    }
+    Int_t fEtaNBinsPt              = 300;
+    Double_t fEtaBinsPt[301];
+    for (Int_t i = 0; i< 301; i++){
+        fEtaBinsPt[i]              = -1.;
     }
     Double_t rangeHighPtFitsigma[4]  = {5, 10, 5, 10};
     Double_t rangeHighPtFitRatio[2] = {3, 10};
@@ -248,6 +261,9 @@ void CorrectPCMSmearingV0(
         // reading maximum number of pt bins
         } else if (tempValue.BeginsWith("maxNPtBins",TString::kIgnoreCase)){
             fNBinsPt        = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
+        // reading maximum number of pt bins
+        } else if (tempValue.BeginsWith("maxEtaNPtBins",TString::kIgnoreCase)){
+            fEtaNBinsPt        = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
         // reading ptBins
         } else if (tempValue.BeginsWith("fBinsPt",TString::kIgnoreCase)){
             if (enableAddCouts) cout << "setting ptBins" << endl;
@@ -258,11 +274,26 @@ void CorrectPCMSmearingV0(
                 else
                     i                   = tempArr->GetEntries();
             }
+        // reading ptBins
+        } else if (tempValue.BeginsWith("fEtaBinsPt",TString::kIgnoreCase)){
+            if (enableAddCouts) cout << "setting ptBins Eta" << endl;
+            for(Int_t i = 1; i<tempArr->GetEntries() && i < 302 ; i++){
+                if (enableAddCouts) cout << i << "\t" <<((TString)((TObjString*)tempArr->At(i))->GetString()).Data() << endl;
+                if (((TString)((TObjString*)tempArr->At(i))->GetString()).CompareTo("stop",TString::kIgnoreCase))
+                    fEtaBinsPt[i-1]        = ((TString)((TObjString*)tempArr->At(i))->GetString()).Atof();
+                else
+                    i                   = tempArr->GetEntries();
+            }
         // reading min and max bin for pt
         } else if (tempValue.BeginsWith("ptRangeBins",TString::kIgnoreCase)){
             if (enableAddCouts) cout << "setting ptBin bin Range" << endl;
             ptBinRange[0]               = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
             ptBinRange[1]               = ((TString)((TObjString*)tempArr->At(2))->GetString()).Atoi();
+        // reading min and max bin for pt
+        } else if (tempValue.BeginsWith("ptEtaRangeBins",TString::kIgnoreCase)){
+            if (enableAddCouts) cout << "setting ptBin bin Range Eta" << endl;
+            ptBinRangeEta[0]               = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
+            ptBinRangeEta[1]               = ((TString)((TObjString*)tempArr->At(2))->GetString()).Atoi();
         // reading range for high pt const fit to ratio
         } else if (tempValue.BeginsWith("rangeHighPtFitRatio",TString::kIgnoreCase)){
             rangeHighPtFitRatio[0]      = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atof();
@@ -354,6 +385,26 @@ void CorrectPCMSmearingV0(
                 else
                     i                       = tempArr->GetEntries();
             }
+        // read rebin pt boundaries
+        } else if (tempValue.BeginsWith("EtarebinPt",TString::kIgnoreCase)){
+            if (enableAddCouts) cout << "setting rebinPt boundaries for rebins for Eta" << endl;
+            for(Int_t i = 1; i<tempArr->GetEntries() && i < 10+1 ; i++){
+                if (enableAddCouts) cout << i << "\t" <<((TString)((TObjString*)tempArr->At(i))->GetString()).Data() << endl;
+                if (((TString)((TObjString*)tempArr->At(i))->GetString()).CompareTo("stop",TString::kIgnoreCase))
+                    ptBinsForRebinEta[i-1]     = (((TString)((TObjString*)tempArr->At(i))->GetString())).Atof();
+                else
+                    i                       = tempArr->GetEntries();
+            }
+        // read rebin values
+        } else if (tempValue.BeginsWith("EtarebinValue",TString::kIgnoreCase)){
+            if (enableAddCouts) cout << "setting value for rebin for Eta" << endl;
+            for(Int_t i = 1; i<tempArr->GetEntries() && i < 10+1 ; i++){
+                if (enableAddCouts) cout << i << "\t" <<((TString)((TObjString*)tempArr->At(i))->GetString()).Data() << endl;
+                if (((TString)((TObjString*)tempArr->At(i))->GetString()).CompareTo("stop",TString::kIgnoreCase))
+                    rebinEta[i-1]              = (((TString)((TObjString*)tempArr->At(i))->GetString())).Atoi();
+                else
+                    i                       = tempArr->GetEntries();
+            }
         // read first bin of every trigger set
         } else if (tempValue.BeginsWith("firstPtBinSet",TString::kIgnoreCase)){
             if (enableAddCouts) cout << "setting value for switches for trigger bins" << endl;
@@ -386,6 +437,11 @@ void CorrectPCMSmearingV0(
     for (Int_t i = 0; i < fNBinsPt+1; i++){
         cout <<  fBinsPt[i] << "\t" ;
     }
+    cout << endl << "fBinsPt Eta:\t" << fEtaNBinsPt << endl;
+    cout << "ptBinning Eta:" << endl;
+    for (Int_t i = 0; i < fEtaNBinsPt+1; i++){
+        cout <<  fEtaBinsPt[i] << "\t" ;
+    }
     cout << endl;
     if (ptBinsForRebin[0] != -1 ){
         cout << "setting rebin values" << endl;
@@ -398,7 +454,19 @@ void CorrectPCMSmearingV0(
             cout << "rebin invsigma: \t" << rebin[i] << endl;
         }
     }
+    if (ptBinsForRebinEta[0] != -1 ){
+        cout << "setting rebin values for Eta" << endl;
+        for (Int_t i = 0; (ptBinsForRebinEta[i] != -1 && i < 10); i++ ){
+            cout << "pt range:\t"<< ptBinsForRebinEta[i] ;
+            if (ptBinsForRebinEta[i+1] != -1)
+                cout << " - " << ptBinsForRebinEta[i+1] << "\t" ;
+            else
+                cout << " - " << fBinsPt[fNBinsPt] << "\t" ;
+            cout << "rebin invsigma: \t" << rebinEta[i] << endl;
+        }
+    }
     cout << "pt bin range set: " << ptBinRange[0] << " - " << ptBinRange[1] << endl;
+    cout << "pt bin range set Eta: " << ptBinRangeEta[0] << " - " << ptBinRangeEta[1] << endl;
 
     cout << "exampleBins:" << endl;
     for (Int_t i = 0; exampleBin[i] != -1; i++){
@@ -507,25 +575,36 @@ void CorrectPCMSmearingV0(
     TH1D* histMCMass         = new TH1D("Mean Mass MC","; #it{E}_{PCM #gamma} (GeV); Sigma",fNBinsPt,fBinsPt);
     TH1D* histDataMass       = new TH1D("Mean Mass Data","; #it{E}_{PCM #gamma} (GeV); Sigma",fNBinsPt,fBinsPt);    
     
-    // TH1D* histMCResultsEta         = new TH1D("Sigma MC","; #it{E}_{PCM #gamma} (GeV); mean sigma MC",fNBinsPt,fBinsPt);
-    // TH1D* histDataResultsEta       = new TH1D("Sigma Data","; #it{E}_{PCM #gamma} (GeV); mean sigma Data",fNBinsPt,fBinsPt);
-    // TH1D* histDataMCResultsEta     = new TH1D("Sigma ratio MC/Data","; #it{E}_{PCM #gamma} (GeV); mean sigma ratio (MC/Data)",fNBinsPt,fBinsPt);
-    // TH1D* histMCAmplitudeEta         = new TH1D("Amplitude","; #it{E}_{PCM #gamma} (GeV); Amplitude",fNBinsPt,fBinsPt);
-    // TH1D* histDataAmplitudeEta       = new TH1D("Amplitude","; #it{E}_{PCM #gamma} (GeV); Amplitude",fNBinsPt,fBinsPt);
-    // TH1D* histMCTailEta         = new TH1D("Tail","; #it{E}_{PCM #gamma} (GeV); Tail",fNBinsPt,fBinsPt);
-    // TH1D* histDataTailEta       = new TH1D("Tail","; #it{E}_{PCM #gamma} (GeV); Tail",fNBinsPt,fBinsPt);
-    // TH1D* histMCMassEta         = new TH1D("Mean Mass MC","; #it{E}_{PCM #gamma} (GeV); Sigma",fNBinsPt,fBinsPt);
-    // TH1D* histDataMassEta       = new TH1D("Mean Mass Data","; #it{E}_{PCM #gamma} (GeV); Sigma",fNBinsPt,fBinsPt);
+    TH1D* histMCResultsEta         = new TH1D("Sigma MC","; #it{E}_{PCM #gamma} (GeV); mean sigma MC",fEtaNBinsPt,fEtaBinsPt);
+    TH1D* histDataResultsEta       = new TH1D("Sigma Data","; #it{E}_{PCM #gamma} (GeV); mean sigma Data",fEtaNBinsPt,fEtaBinsPt);
+    TH1D* histDataMCResultsEta     = new TH1D("Sigma ratio MC/Data","; #it{E}_{PCM #gamma} (GeV); mean sigma ratio (MC/Data)",fEtaNBinsPt,fEtaBinsPt);
+    TH1D* histMCAmplitudeEta         = new TH1D("Amplitude","; #it{E}_{PCM #gamma} (GeV); Amplitude",fEtaNBinsPt,fEtaBinsPt);
+    TH1D* histDataAmplitudeEta       = new TH1D("Amplitude","; #it{E}_{PCM #gamma} (GeV); Amplitude",fEtaNBinsPt,fEtaBinsPt);
+    TH1D* histMCTailEta         = new TH1D("Tail","; #it{E}_{PCM #gamma} (GeV); Tail",fEtaNBinsPt,fEtaBinsPt);
+    TH1D* histDataTailEta       = new TH1D("Tail","; #it{E}_{PCM #gamma} (GeV); Tail",fEtaNBinsPt,fEtaBinsPt);
+    TH1D* histMCMassEta         = new TH1D("Mean Mass MC","; #it{E}_{PCM #gamma} (GeV); Sigma",fEtaNBinsPt,fEtaBinsPt);
+    TH1D* histDataMassEta       = new TH1D("Mean Mass Data","; #it{E}_{PCM #gamma} (GeV); Sigma",fEtaNBinsPt,fEtaBinsPt);
+    TH1D* histMCTailRightEta         = new TH1D("TailRight","; #it{E}_{PCM #gamma} (GeV); Right Tail",fNBinsPt,fBinsPt);
+    TH1D* histDataTailRightEta       = new TH1D("TailRight","; #it{E}_{PCM #gamma} (GeV); Right Tail",fNBinsPt,fBinsPt);
+
     histMCResults->SetDirectory(0);
     histDataResults->SetDirectory(0);
     histMCResults->GetXaxis()->SetRangeUser(fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
     histDataResults->GetXaxis()->SetRangeUser(fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
     histMCResults->GetYaxis()->SetRangeUser(0.12,0.142);
-    histDataResults->GetYaxis()->SetRangeUser(0.12,0.142);
+    histDataResults->GetYaxis()->SetRangeUser(0.12,0.142);    
+    histMCResultsEta->SetDirectory(0);
+    histDataResultsEta->SetDirectory(0);
+    histMCResultsEta->GetXaxis()->SetRangeUser(fEtaBinsPt[ptBinRangeEta[0]],fEtaBinsPt[ptBinRangeEta[1]]);
+    histDataResultsEta->GetXaxis()->SetRangeUser(fEtaBinsPt[ptBinRangeEta[0]],fEtaBinsPt[ptBinRangeEta[1]]);
+    // histMCResultsEta->GetYaxis()->SetRangeUser(0.12,0.142);
+    // histDataResultsEta->GetYaxis()->SetRangeUser(0.12,0.142);
     TF1* fFitReco;
     TF1* fFitsigma;
     TF1* fFitsigma2;
     TF1* fFitsigma3;
+    TF1* fFitsigma4;
+    TF1* fFitsigma5;
     TCanvas *canvas             = new TCanvas("canvas","",200,0,1350,900);  // gives the page size
     DrawGammaCanvasSettings(canvas, 0.1, 0.02, 0.06, 0.1);
 
@@ -619,6 +698,40 @@ void CorrectPCMSmearingV0(
     canvasAllMC2->cd();
     padAllMC2->Draw();
 
+
+    // ####################
+    TCanvas *canvasAllData1Eta          = new TCanvas("canvasAllData1Eta","",1400,900);  // gives the page size
+    DrawGammaCanvasSettings( canvasAllData1Eta, 0, 0, 0, 0);
+    TPad * padAllData1Eta               = new TPad("padAllData1Eta","",-0.0,0.0,1.,1.,0);   // gives the size of the histo areas
+    DrawGammaPadSettings( padAllData1Eta, 0, 0, 0, 0);
+    padAllData1Eta->Divide(NbinsX , NbinsY);
+    canvasAllData1Eta->cd();
+    padAllData1Eta->Draw();
+    
+    TCanvas *canvasAllData2Eta          = new TCanvas("canvasAllData2Eta","",1400,900);  // gives the page size
+    DrawGammaCanvasSettings( canvasAllData2Eta, 0, 0, 0, 0);
+    TPad * padAllData2Eta               = new TPad("padAllData2Eta","",-0.0,0.0,1.,1.,0);   // gives the size of the histo areas
+    DrawGammaPadSettings( padAllData2Eta, 0, 0, 0, 0);
+    padAllData2Eta->Divide(NbinsX , NbinsY);
+    canvasAllData2Eta->cd();
+    padAllData2Eta->Draw();
+    
+    TCanvas *canvasAllMC1Eta          = new TCanvas("canvasAllMC1Eta","",1400,900);  // gives the page size
+    DrawGammaCanvasSettings( canvasAllMC1Eta, 0, 0, 0, 0);
+    TPad * padAllMC1Eta               = new TPad("padAllMC1Eta","",-0.0,0.0,1.,1.,0);   // gives the size of the histo areas
+    DrawGammaPadSettings( padAllMC1Eta, 0, 0, 0, 0);
+    padAllMC1Eta->Divide(NbinsX , NbinsY);
+    canvasAllMC1Eta->cd();
+    padAllMC1Eta->Draw();
+    
+    TCanvas *canvasAllMC2Eta          = new TCanvas("canvasAllMC2Eta","",1400,900);  // gives the page size
+    DrawGammaCanvasSettings( canvasAllMC2Eta, 0, 0, 0, 0);
+    TPad * padAllMC2Eta               = new TPad("padAllMC2Eta","",-0.0,0.0,1.,1.,0);   // gives the size of the histo areas
+    DrawGammaPadSettings( padAllMC2Eta, 0, 0, 0, 0);
+    padAllMC2Eta->Divide(NbinsX , NbinsY);
+    canvasAllMC2Eta->cd();
+    padAllMC2Eta->Draw();
+
     cout << "Nbins: " << Nbins/2 +1 << "  " << Nbins/2  << endl;
     canvas->cd();
 
@@ -704,13 +817,8 @@ void CorrectPCMSmearingV0(
 
             Double_t projectMin;
             Double_t projectMax;
-            if(mode==2||mode==3){
-              projectMin            = Hist2D->GetYaxis()->FindBin(fBinsPt[iClusterPt]+0.001);
-              projectMax            = Hist2D->GetYaxis()->FindBin(fBinsPt[iClusterPt+1]-0.001);
-            }else{
-              projectMin            = Hist2D->GetYaxis()->FindBin((fBinsPt[iClusterPt]*2)+0.001);
-              projectMax            = Hist2D->GetYaxis()->FindBin((fBinsPt[iClusterPt+1]*2)-0.001);
-            }
+            projectMin            = Hist2D->GetYaxis()->FindBin((fBinsPt[iClusterPt]*2)+0.001);
+            projectMax            = Hist2D->GetYaxis()->FindBin((fBinsPt[iClusterPt+1]*2)-0.001);
             TH1D* sliceHist         = (TH1D*) Hist2D->ProjectionX(Form("slice%sAlpha_%f-%f",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]),projectMin,projectMax);
             sliceHist->SetDirectory(0);
             sliceHist->SetTitle(Form("Signal %s - %.02f < #it{E}_{PCM #gamma} < %.02f (GeV)",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
@@ -731,6 +839,7 @@ void CorrectPCMSmearingV0(
                     cout << "changed rebin factor: \t" << rebin[rebinWindow-1] << "\t -> \t" << rebin[rebinWindow] << endl;
                 }
             }
+
             sliceHist->Rebin(rebin[rebinWindow]);
             sliceBGHist->Rebin(rebin[rebinWindow]);
 
@@ -794,33 +903,36 @@ void CorrectPCMSmearingV0(
             sliceHistCopy->GetXaxis()->SetRangeUser(0.0,0.3);
             sliceHistCopy->Write(Form("slice%sAlpha_%f-%f-withWithBG",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             sliceBGHist->SetLineColor(kGreen+2);
+            sliceBGHist->SetMarkerColor(kGreen+2);
             sliceBGHist->GetXaxis()->SetRangeUser(0.0,0.3);
             sliceBGHist->Write(Form("slice%sAlpha_%f-%f-BG",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             fFitBckPol1->SetLineColor(kGreen+2);
             fFitBckPol1->Write(Form("slice%sAlpha_%f-%f-BGFit",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             sliceHist->SetLineColor(kRed+2);
+            sliceHist->SetMarkerColor(kRed+2);
             sliceHist->GetXaxis()->SetRangeUser(0.0,0.3);
             sliceHist->Write(Form("slice%sAlpha_%f-%f-withRemainingBckg",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             if(enablePol1Scaling){
                 sliceHistRatio->SetLineColor(kBlack+2);
+                sliceHistRatio->SetMarkerColor(kBlack+2);
                 sliceHistRatio->GetXaxis()->SetRangeUser(0.0,0.3);
                 sliceHistRatio->Write(Form("slice%sAlpha_%f-%f-sliceHistRatio",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
             }
 
             sliceHistCopy->GetYaxis()->SetRangeUser(sliceHist->GetMinimum(),sliceHistCopy->GetMaximum());
             sliceHistCopy->GetXaxis()->SetRangeUser(0.0,0.3);
-            sliceHistCopy->DrawCopy();
-            // sliceBGHist->DrawCopy("same");
-            fFitBckPol1->DrawCopy("same");
-            sliceHist->DrawCopy("same");
-            DrawGammaLines(0., 0.3, 0, 0, 1, kGray+1, 7);
-            canvas->SetLogx(0); canvas->SetLogy(0); canvas->SetLogz(0); canvas->Update();
+            // sliceHistCopy->DrawCopy();
+            // // sliceBGHist->DrawCopy("same");
+            // fFitBckPol1->DrawCopy("same");
+            // sliceHist->DrawCopy("same");
+            // DrawGammaLines(0., 0.3, 0, 0, 1, kGray+1, 7);
+            // canvas->SetLogx(0); canvas->SetLogy(0); canvas->SetLogz(0); canvas->Update();
 
-            for (Int_t i = 0; i < nExampleBins; i++ ){
-                if(iClusterPt==exampleBin[i] ){
-                    canvas->SaveAs(Form("%s/ExampleBin_%sAlpha_%.02f-%.02f-withBckgAndFit.%s",outputDirSample.Data(),dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1],suffix.Data()));
-                }
-            }
+            // for (Int_t i = 0; i < nExampleBins; i++ ){
+            //     if(iClusterPt==exampleBin[i] ){
+            //         canvas->SaveAs(Form("%s/ExampleBin_%sAlpha_%.02f-%.02f-withBckgAndFit.%s",outputDirSample.Data(),dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1],suffix.Data()));
+            //     }
+            // }
             canvas->Clear();
             if(iDataMC==0) cout << "+++++++++++++  " << iClusterPt-ptBinRange[0]+1 << endl;
             if(iDataMC==0) padAllData1->cd(iClusterPt-ptBinRange[0]+1);
@@ -843,197 +955,28 @@ void CorrectPCMSmearingV0(
             //     }
             //     canvas->Clear();
             // }
-            
-            // //***********************************  Eta   ************************************
-            // TH1D* sliceHistEta         = (TH1D*) Hist2D->ProjectionX(Form("sliceEta%sAlpha_%f-%f",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]),projectMin,projectMax);
-            // sliceHistEta->SetDirectory(0);
-            // sliceHistEta->SetTitle(Form("Signal %s - %.02f < #it{E}_{PCM #gamma} < %.02f (GeV)",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
-            // sliceHistEta->GetYaxis()->SetTitle("#frac{d#it{M}_{inv}}{dN}");
-            // sliceHistEta->Sumw2();
-            // TH1D* sliceBGHistEta       = (TH1D*) HistBG2D->ProjectionX(Form("sliceBGEta%sAlpha_%f-%f",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]),projectMin,projectMax);
-            // sliceBGHistEta->SetDirectory(0);
-            // sliceBGHistEta->SetTitle(Form("BG %s - %.02f < #it{E}_{PCM #gamma} < %.02f (GeV)",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
-            // sliceBGHistEta->GetYaxis()->SetTitle("#frac{d#it{M}_{inv}}{dN}");
-            // sliceBGHistEta->Sumw2();
-            // // Background subtraction ranges
-            // Double_t minMGGBGEta           = 0.3;
-            // Double_t integralSigAndBGEta   = sliceHistEta->Integral(sliceHistEta->FindBin(minMGGBGEta), sliceHistEta->FindBin(1.));
-            // // Double_t integralBG         = sliceBGHist->Integral(sliceBGHist->FindBin(minMGGBG), sliceBGHist->FindBin(0.28));
-            // // cout << "BG scaling: " << integralSigAndBG << "\t" << integralBG << "\t" << integralSigAndBG/ integralBG << endl;
-            // TH1D* sliceHistRatioEta         = (TH1D*)sliceHistEta->Clone("sliceHistRatioEta");
-
-
-            // TF1* fFitBckPol2Eta = new TF1("FitBckPol2Eta",fline2, 0.3, 1., 3);
-            // fFitBckPol2Eta->SetParameter(0, integralSigAndBGEta);
-            // fFitBckPol2Eta->SetParameter(1, 0.);
-            // fFitBckPol2Eta->SetParameter(2, 0.);
-            // sliceHistEta->Fit(fFitBckPol2Eta,"QRME0", "", 0.3, 1.);
-            // fFitBckPol2Eta->SetNpx(100000);
-            // TF1* fFitBckPol1Eta = new TF1("FitBckPol1Eta","[0]+[1]*x+[2]*x*x", 0., 2.);
-            // fFitBckPol1Eta->SetNpx(100000);
-            // fFitBckPol1Eta->SetParameter(0, fFitBckPol2Eta->GetParameter(0));
-            // fFitBckPol1Eta->SetParameter(1, fFitBckPol2Eta->GetParameter(1));
-            // fFitBckPol1Eta->SetParameter(2, fFitBckPol2Eta->GetParameter(2));
-
-            // TH1D* sliceHistCopyEta         = (TH1D*)sliceHistEta->Clone("SliceCopyEta");
-            // sliceHistEta->Add( fFitBckPol1Eta, -1);
-
-            // for (Int_t i = 1; i< sliceHistEta->GetNbinsX()+1; i++){
-            //     if (sliceHistEta->GetBinContent(i) == 0)
-            //         sliceHistEta->SetBinError(i,1.);
-            // }
-
-
-            // sliceHistCopyEta->GetXaxis()->SetRangeUser(0.3,1.);
-            // sliceHistCopyEta->Write(Form("sliceEta%sAlpha_%f-%f-withWithBG",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
-            // sliceBGHistEta->SetLineColor(kGreen+2);
-            // sliceBGHistEta->GetXaxis()->SetRangeUser(0.3,1.);
-            // sliceBGHistEta->Write(Form("sliceEta%sAlpha_%f-%f-BG",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
-            // fFitBckPol1Eta->SetLineColor(kGreen+2);
-            // fFitBckPol1Eta->Write(Form("sliceEta%sAlpha_%f-%f-BGFit",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
-            // sliceHistEta->SetLineColor(kRed+2);
-            // sliceHistEta->GetXaxis()->SetRangeUser(0.3,1.);
-            // sliceHistEta->Write(Form("sliceEta%sAlpha_%f-%f-withRemainingBckg",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
-            // if(enablePol1Scaling){
-            //     sliceHistRatioEta->SetLineColor(kBlack+2);
-            //     sliceHistRatioEta->GetXaxis()->SetRangeUser(0.3,1.);
-            //     sliceHistRatioEta->Write(Form("sliceEta%sAlpha_%f-%f-sliceHistRatio",dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1]));
-            // }
-
-            // sliceHistCopyEta->GetYaxis()->SetRangeUser(sliceHistEta->GetMinimum(),sliceHistCopyEta->GetMaximum());
-            // sliceHistCopyEta->GetXaxis()->SetRangeUser(0.3,1.);
-            // sliceHistCopyEta->DrawCopy();
-            // // sliceBGHist->DrawCopy("same");
-            // fFitBckPol1Eta->DrawCopy("same");
-            // sliceHistEta->DrawCopy("same");
-            // DrawGammaLines(0., 0.3, 0, 0, 1, kGray+1, 7);
-            // canvas->SetLogx(0); canvas->SetLogy(0); canvas->SetLogz(0); canvas->Update();
-
-            // for (Int_t i = 0; i < nExampleBins; i++ ){
-            //     if(iClusterPt==exampleBin[i] ){
-            //         canvas->SaveAs(Form("%s/ExampleBinEta_%sAlpha_%.02f-%.02f-withBckgAndFit.%s",outputDirSample.Data(),dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1],suffix.Data()));
-            //     }
-            // }
-            // canvas->Clear();
-            // sliceHistEta->GetXaxis()->SetRangeUser(0.3,1.);
-
-            // if(enablePol1Scaling){
-            //     sliceHistRatioEta->GetYaxis()->SetRangeUser(sliceHistRatioEta->GetMinimum()-0.2,sliceHistRatioEta->GetMaximum()+0.2);
-            //     sliceHistRatioEta->GetXaxis()->SetRangeUser(0.3,1.);
-            //     sliceHistRatioEta->DrawCopy();
-            //     fFitBckPol1Eta->DrawCopy("same");
-            //     for (Int_t i = 0; i < nExampleBins; i++ ){
-            //         if(iClusterPt==exampleBin[i] ){
-            //             canvas->SaveAs(Form("%s/ExampleBinEta_%sAlpha_%.02f-%.02f-sliceHistRatio.%s",outputDirSample.Data(),dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1],suffix.Data()));
-            //         }
-            //     }
-            //     canvas->Clear();
-            // }
+   
 
             //*******************************************************************************
             // adjust min and max fitting range for inv sigma fits
             //*******************************************************************************
-            Double_t minMax[2]={0.04,0.3};
-            // special setting for PCM-EMC
-            if( mode == 2 || mode == 13 || mode == 14 ){
-                if (optionEnergy.Contains("PbPb") || optionEnergy.Contains("XeXe")){
-                    minMax[1]   = 0.3;
-                } else if (optionEnergy.Contains("pPb_5.023TeVRun2") ){
-                    if (fBinsPt[iClusterPt] < 1.5)
-                        minMax[1]       = 0.18;
-                    else if (fBinsPt[iClusterPt] < 2)
-                        minMax[1]       = 0.20;
-                    else if (fBinsPt[iClusterPt] < 3)
-                        minMax[1]       = 0.25;
-                } else if (optionEnergy.Contains("8TeV") ){
-                        minMax[1]       = 0.29;
-                } else {
-                    if (fBinsPt[iClusterPt] < 1)
-                        minMax[1]       = 0.2;
-                    else if (fBinsPt[iClusterPt] < 2)
-                        minMax[1]       = 0.22;
-                    else if (fBinsPt[iClusterPt] < 3)
-                        minMax[1]       = 0.25;
-                }
-                minMax[0]       = 0.02;
-                Double_t min    = 0.002*fBinsPt[iClusterPt] - 0.001;
-                if (min > minMax[0])
-                    minMax[0]   = min;
-
-            // special setting for PCM-PHOS
-            } else if( mode == 3 ){
-                minMax[0]       = 0.03;
-                if (optionEnergy.Contains("pPb_5.023TeVRun2") ){
-                    if (fBinsPt[iClusterPt] < 1.5)
-                        minMax[1]       = 0.18;
-                    else if (fBinsPt[iClusterPt] < 2)
-                        minMax[1]       = 0.20;
-                    else if (fBinsPt[iClusterPt] < 3)
-                        minMax[1]       = 0.25;
-                } else if (optionEnergy.Contains("13TeV") ){
-                        minMax[0]       = 0.08;
-                        minMax[1]       = 0.18;
-                } else {
-                    if (fBinsPt[iClusterPt] < 1)
-                        minMax[1]       = 0.20;
-                    else
-                        minMax[1]       = 0.25;
-                }
-
-
-            // special setting for EMC
-          } else if( mode == 4 || mode == 12  || mode == 15){
-                minMax[1]       = 0.25;
-                Double_t min    = 0.02*fBinsPt[iClusterPt] - 0.001;
-                if (min > minMax[0])
-                    minMax[0]   = min;
-
-                if (optionEnergy.Contains("PbPb") || optionEnergy.Contains("XeXe")){
-                    minMax[1]   = 0.3;
-                } else if (optionEnergy.Contains("pPb_5.023TeVRun2") ){
-                    if (fBinsPt[iClusterPt] < 1.5)
-                        minMax[1]       = 0.18;
-                    else if (fBinsPt[iClusterPt] < 2)
-                        minMax[1]       = 0.20;
-                    else if (fBinsPt[iClusterPt] < 3)
-                        minMax[1]       = 0.25;
-                    else
-                        minMax[1]       = 0.3;
-                }
-
-            // special setting for PHOS
-            } else if( mode == 5){
-                minMax[0]       = 0.04;
-                minMax[1]       = 0.25;
-                if (optionEnergy.Contains("13TeV") ){
-                    minMax[0]       = 0.07;
-                    minMax[1]       = 0.2;
-                }
-                if (fBinsPt[iClusterPt] < 0.7){
-                    minMax[1]   = 0.2;
-                    if (optionEnergy.Contains("13TeV") ){
-                        minMax[1]       = 0.19;
-                    }
-                }
-                Double_t min    = 0.005*fBinsPt[iClusterPt] - 0.001;
-                if (min > minMax[0])
-                    minMax[0]   = min;
-            }
+            Double_t minMax[2]={0.07,0.2};
+            
             cout << "invsigma fit range: \t" << minMax[0] << "\t" << minMax[1] << endl;
             //*******************************************************************************
             // Fit
             //*******************************************************************************
             if ( switchPeakFunction == 0 ) {
                 cout << "using FitExpPluusGaussian   " << switchPeakFunction << endl;
-                fFitReco = FitExpPlusGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
+                fFitReco = FitExpPlusGaussian (sliceHist, minMax[0], minMax[1], 0, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
             } else if ( switchPeakFunction == 1 ) {
                 cout << "using FitGaussian   " << switchPeakFunction << endl;
-                fFitReco = FitGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
+                fFitReco = FitGaussian (sliceHist, minMax[0], minMax[1], 0, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
             } else if ( switchPeakFunction == 2 ) {
                 cout << "using FitDExpPlusGaussian   " << switchPeakFunction << endl;
-                fFitReco = FitDExpPlusGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC); // possibility to use double exponential fit
+                fFitReco = FitDExpPlusGaussian (sliceHist, minMax[0], minMax[1], 0, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC); // possibility to use double exponential fit
             } else {
-                fFitReco = FitExpPlusGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
+                fFitReco = FitExpPlusGaussian (sliceHist, minMax[0], minMax[1], 0, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
             }
 
             if(iDataMC==0) {
@@ -1072,6 +1015,7 @@ void CorrectPCMSmearingV0(
 
             sliceHist->GetListOfFunctions()->Add(fFitReco);
             sliceHist->GetXaxis()->SetRangeUser(0.0,0.3);
+            sliceHist->GetYaxis()->SetRangeUser(-fFitReco->GetParameter(0)*0.1,fFitReco->GetParameter(0)*1.);
             cout << "mean: " << sliceHist->GetMean() << "\tmaximum: " << sliceHist->GetMaximum() << endl;
             sliceHist->DrawCopy();
             DrawGammaLines(0., 0.3, 0, 0, 1, kGray+1, 7);
@@ -1085,50 +1029,274 @@ void CorrectPCMSmearingV0(
             if(iDataMC==0) padAllData2->cd(iClusterPt-ptBinRange[0]+1);
             else padAllMC2->cd(iClusterPt-ptBinRange[0]+1);
             sliceHist->DrawCopy("p");
-            canvas->cd();
+        }
+    }
+
+         
+            //***********************************  Eta   ************************************
+    for(Int_t iClusterPt=ptBinRangeEta[0]; iClusterPt<ptBinRangeEta[1]; iClusterPt++){
+        if(iClusterPt==firstPtBinSet[triggerSel+1]){
+            // switching to trigger
+            cout << endl;
+            cout << "-----------------------------------------------------" << endl;
+            cout << "\t Closing open files, switching to Trigger!" << endl;
+            cout << "bin: " << firstPtBinSet[triggerSel] << endl;
+            cout << "-----------------------------------------------------" << endl;
+
+            if(!strDataFile[triggerSel+1].IsNull()){
+                dataESDContainer->Clear(); dataTopContainer->Clear(); dataTopDir->Clear(); dataFile->Delete();
+                dataFile            = new TFile(strDataFile[triggerSel+1].Data(),"READ");
+                if(dataFile->IsZombie()) {cout << "Info: ROOT file '" << strDataFile[triggerSel+1].Data() << "' could not be openend, return!" << endl; return;}
+                mainDirNameData     =  AutoDetectMainTList(mode , dataFile, "", cfSetting);
+                dataTopDir          = (TList*) dataFile->Get(mainDirNameData.Data());
+                if(dataTopDir == NULL) {cout << "ERROR: dataTopDir not Found"<<endl; return;}
+                dataTopContainer    = (TList*) dataTopDir->FindObject(Form("Cut Number %s",dataCut[triggerSel+1].Data()));
+                if(dataTopContainer == NULL) {cout << "ERROR: " << Form("Cut Number '%s'",dataCut[triggerSel+1].Data()) << " not found in File" << endl; return;}
+                dataESDContainer    = (TList*) dataTopContainer->FindObject(Form("%s ESD histograms",dataCut[triggerSel+1].Data()));
+                if(dataESDContainer == NULL) {cout << "ERROR: " << Form("'%s' ESD histograms",dataCut[triggerSel+1].Data()) << " not found in File" << endl; return;}
+            }
+            if(!strMCFile[triggerSel+1].IsNull()){
+                mcESDContainer->Clear(); mcTopContainer->Clear(); mcTopDir->Clear(); mcFile->Delete();
+                mcFile              = new TFile(strMCFile[triggerSel+1].Data(),"READ");
+                if(mcFile->IsZombie()) {cout << "Info: ROOT file '" << strMCFile[triggerSel+1].Data() << "' could not be openend, return!" << endl; return;}
+                mainDirNameMC       =  AutoDetectMainTList(mode , mcFile, "", cfSettingMC);
+                mcTopDir            = (TList*) mcFile->Get(mainDirNameMC.Data());
+                if(mcTopDir == NULL) {cout << "ERROR: mcTopDir not Found"<<endl; return;}
+                mcTopContainer      = (TList*) mcTopDir->FindObject(Form("Cut Number %s",mcCut[triggerSel+1].Data()));
+                if(mcTopContainer == NULL) {cout << "ERROR: " << Form("Cut Number '%s'",mcCut[triggerSel+1].Data()) << " not found in File" << endl; return;}
+                mcESDContainer      = (TList*) mcTopContainer->FindObject(Form("%s ESD histograms",mcCut[triggerSel+1].Data()));
+                if(mcESDContainer == NULL) {cout << "ERROR: " << Form("'%s' ESD histograms",mcCut[triggerSel+1].Data()) << " not found in File" << endl; return;}
+            }
+
+            dataInvsigmaPt      = (TH2F*) dataESDContainer->FindObject(nameSignalHisto.Data());
+            dataBGInvsigmaPt    = (TH2F*) dataESDContainer->FindObject(nameBGHisto.Data());
+            mcInvsigmaPt        = (TH2F*) mcESDContainer->FindObject(nameSignalHisto.Data());
+            mcBGInvsigmaPt      = (TH2F*) mcESDContainer->FindObject(nameBGHisto.Data());
+
+            if(!dataInvsigmaPt){
+                cout << "did not find ESD_Mother_InvMass_E_Calib_PCM in data... trying ESD_Mother_Invsigma_vs_Pt_Alpha instead" << endl;
+            }
+            if(!dataBGInvsigmaPt){
+                cout << "did not find ESD_Background_InvMass_E_Calib_PCM in data... trying ESD_Background_Invsigma_vs_Pt_Alpha instead" << endl;
+            }
+            if(!mcInvsigmaPt){
+                cout << "did not find ESD_Mother_InvMass_E_Calib_PCM in MC... trying ESD_Mother_Invsigma_vs_Pt_Alpha instead" << endl;
+            }
+            if(!mcBGInvsigmaPt){
+                cout << "did not find ESD_Background_InvMass_E_Calib_PCM in MC... trying ESD_Background_Invsigma_vs_Pt_Alpha instead" << endl;
+            }
 
 
-            // TF1* fFitRecoEta;
-            // if(optionEnergy.Contains("8TeV") || optionEnergy.Contains("7TeV"))
-            //     fFitRecoEta = FitGaussian (sliceHistEta, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
-            //     // fFitRecoEta = FitDExpPlusGaussian (sliceHist, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC); // possibility to use double exponential fit
-            // else
-            //     fFitRecoEta = FitExpPlusGaussian (sliceHistEta, minMax[0], minMax[1], mode, (fBinsPt[iClusterPt]+fBinsPt[iClusterPt+1])/2, iDataMC);
+            triggerSel++;
+            fOutput->cd();
+        }
 
-            // if(iDataMC==0) {
-            //     histDataMassEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(1));
-            //     histDataMassEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(1));
-            //     histDataAmplitudeEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(0));
-            //     histDataAmplitudeEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(0));
-            //     histDataTailEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(3));
-            //     histDataTailEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(3));
-            //     histDataResultsEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(2));
-            //     histDataResultsEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(2));
-            // }
-            // else if(iDataMC==1) {
-            //     histMCMassEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(1));
-            //     histMCMassEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(1));
-            //     histMCAmplitudeEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(0));
-            //     histMCAmplitudeEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(0));
-            //     histMCTailEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(3));
-            //     histMCTailEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(3));
-            //     histMCResultsEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(2));
-            //     histMCResultsEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(2));
-            // }
-            // fFitRecoEta->SetNpx(100000);
+        cout << endl;
+        cout << "-----------------------------------------------------" << endl;
+        cout << "\t MC/Data Fitting sigma Eta" << endl;
+        cout << "loop: " << iClusterPt << ", " << fEtaBinsPt[iClusterPt] << " - " << fEtaBinsPt[iClusterPt+1] << " GeV" << endl;
+        cout << "-----------------------------------------------------" << endl;
 
-            // sliceHistEta->GetListOfFunctions()->Add(fFitRecoEta);
-            // sliceHistEta->GetXaxis()->SetRangeUser(0.3,1.);
-            // cout << "mean: " << sliceHistEta->GetMean() << "\tmaximum: " << sliceHistEta->GetMaximum() << endl;
-            // sliceHistEta->DrawCopy();
+        TH2* Hist2D;
+        TH2* HistBG2D;
+
+        for(Int_t iDataMC = 0; iDataMC < 2; iDataMC++){
+            if(iDataMC==0) {
+                Hist2D              = dataInvsigmaPt;
+                HistBG2D            = dataBGInvsigmaPt;
+            } else if(iDataMC==1) {
+                Hist2D              = mcInvsigmaPt;
+                HistBG2D            = mcBGInvsigmaPt;
+            } else {
+                cout << "ERROR: data/mc loop, returning..." << endl; return;
+            }
+            Hist2D->Sumw2();
+            HistBG2D->Sumw2();
+            Double_t projectMinEta;
+            Double_t projectMaxEta;
+            projectMinEta            = Hist2D->GetYaxis()->FindBin((fEtaBinsPt[iClusterPt]*2)+0.001);
+            projectMaxEta            = Hist2D->GetYaxis()->FindBin((fEtaBinsPt[iClusterPt+1]*2)-0.001);
+            TH1D* sliceHistEta         = (TH1D*) Hist2D->ProjectionX(Form("sliceEta%sAlpha_%f-%f",dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1]),projectMinEta,projectMaxEta);
+            sliceHistEta->SetDirectory(0);
+            sliceHistEta->SetTitle(Form("Signal %s - %.02f < #it{E}_{PCM #gamma} < %.02f (GeV)",dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1]));
+            sliceHistEta->GetYaxis()->SetTitle("#frac{d#it{M}_{inv}}{dN}");
+            sliceHistEta->Sumw2();
+            TH1D* sliceBGHistEta       = (TH1D*) HistBG2D->ProjectionX(Form("sliceBGEta%sAlpha_%f-%f",dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1]),projectMinEta,projectMaxEta);
+            sliceBGHistEta->SetDirectory(0);
+            sliceBGHistEta->SetTitle(Form("BG %s - %.02f < #it{E}_{PCM #gamma} < %.02f (GeV)",dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1]));
+            sliceBGHistEta->GetYaxis()->SetTitle("#frac{d#it{M}_{inv}}{dN}");
+            sliceBGHistEta->Sumw2();
+
+            // Rebin in sigma hist Eta
+            rebinWindow=0;
+            if (ptBinsForRebinEta[rebinWindow+1] != -1 && rebinWindow < 10){
+                cout << ptBinsForRebinEta[rebinWindow+1] << "\t" << fEtaBinsPt[iClusterPt] << endl;
+                if (ptBinsForRebinEta[rebinWindow+1] < fEtaBinsPt[iClusterPt]){
+                    rebinWindow++;
+                    cout << "changed rebin factor: \t" << rebinEta[rebinWindow-1] << "\t -> \t" << rebinEta[rebinWindow] << endl;
+                }
+            }
+
+
+            sliceHistEta->Rebin(rebinEta[rebinWindow]);
+            sliceBGHistEta->Rebin(rebinEta[rebinWindow]);
+
+
+            // Background subtraction ranges
+            Double_t minMGGBGEta           = 0.3;
+            Double_t integralSigAndBGEta   = sliceHistEta->Integral(sliceHistEta->FindBin(minMGGBGEta), sliceHistEta->FindBin(1.));
+            // Double_t integralBG         = sliceBGHist->Integral(sliceBGHist->FindBin(minMGGBG), sliceBGHist->FindBin(0.28));
+            // cout << "BG scaling: " << integralSigAndBG << "\t" << integralBG << "\t" << integralSigAndBG/ integralBG << endl;
+            TH1D* sliceHistRatioEta         = (TH1D*)sliceHistEta->Clone("sliceHistRatioEta");
+
+
+            TF1* fFitBckPol2Eta = new TF1("FitBckPol2Eta",fline2, 0.3, 1., 3);
+            fFitBckPol2Eta->SetParameter(0, integralSigAndBGEta);
+            fFitBckPol2Eta->SetParameter(1, 0.);
+            fFitBckPol2Eta->SetParameter(2, 0.);
+            fFitBckPol2Eta->SetNpx(100000);
+            sliceHistEta->Fit(fFitBckPol2Eta,"QRME0", "", 0.3, 1.);
+            
+            TF1* fFitBckPol1Eta = new TF1("FitBckPol1Eta","[0]+[1]*x+[2]*x*x", 0., 2.);
+            fFitBckPol1Eta->SetNpx(100000);
+            fFitBckPol1Eta->SetParameter(0, fFitBckPol2Eta->GetParameter(0));
+            fFitBckPol1Eta->SetParameter(1, fFitBckPol2Eta->GetParameter(1));
+            fFitBckPol1Eta->SetParameter(2, fFitBckPol2Eta->GetParameter(2));
+            
+
+            TH1D* sliceHistCopyEta         = (TH1D*)sliceHistEta->Clone("SliceCopyEta");
+            sliceHistEta->Add( fFitBckPol1Eta, -1);
+
+            for (Int_t i = 1; i< sliceHistEta->GetNbinsX()+1; i++){
+                if (sliceHistEta->GetBinContent(i) == 0)
+                    sliceHistEta->SetBinError(i,1.);
+            }
+
+
+            sliceHistCopyEta->GetXaxis()->SetRangeUser(0.3,1.);
+            sliceHistCopyEta->Write(Form("sliceEta%sAlpha_%f-%f-withWithBG",dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1]));
+            sliceBGHistEta->SetLineColor(kGreen+2);
+            sliceBGHistEta->SetMarkerColor(kGreen+2);
+            sliceBGHistEta->GetXaxis()->SetRangeUser(0.3,1.);
+            sliceBGHistEta->Write(Form("sliceEta%sAlpha_%f-%f-BG",dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1]));
+            fFitBckPol1Eta->SetLineColor(kGreen+2);
+            fFitBckPol1Eta->Write(Form("sliceEta%sAlpha_%f-%f-BGFit",dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1]));
+            sliceHistEta->SetLineColor(kRed+2);
+            sliceHistEta->SetMarkerColor(kRed+2);
+            sliceHistEta->GetXaxis()->SetRangeUser(0.3,1.);
+            sliceHistEta->Write(Form("sliceEta%sAlpha_%f-%f-withRemainingBckg",dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1]));
+            if(enablePol1Scaling){
+                sliceHistRatioEta->SetLineColor(kBlack+2);
+                sliceHistRatioEta->SetMarkerColor(kBlack+2);
+                sliceHistRatioEta->GetXaxis()->SetRangeUser(0.3,1.);
+                sliceHistRatioEta->Write(Form("sliceEta%sAlpha_%f-%f-sliceHistRatio",dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1]));
+            }
+
+            // sliceHistCopyEta->DrawCopy();
+            // // sliceBGHist->DrawCopy("same");
+            // fFitBckPol1Eta->DrawCopy("same");
+            // sliceHistEta->DrawCopy("same");
             // DrawGammaLines(0., 0.3, 0, 0, 1, kGray+1, 7);
             // canvas->SetLogx(0); canvas->SetLogy(0); canvas->SetLogz(0); canvas->Update();
+
             // for (Int_t i = 0; i < nExampleBins; i++ ){
             //     if(iClusterPt==exampleBin[i] ){
-            //         canvas->SaveAs(Form("%s/ExampleBinEta_%sAlpha_%.02f-%.02f.%s",outputDirSample.Data(),dataMC[iDataMC].Data(),fBinsPt[iClusterPt],fBinsPt[iClusterPt+1],suffix.Data()));
+            //         canvas->SaveAs(Form("%s/ExampleBinEta_%sAlpha_%.02f-%.02f-withBckgAndFit.%s",outputDirSample.Data(),dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1],suffix.Data()));
             //     }
             // }
-            // canvas->Clear();
+            canvas->Clear();
+
+            // if(enablePol1Scaling){
+            //     sliceHistRatioEta->GetYaxis()->SetRangeUser(sliceHistRatioEta->GetMinimum()-0.2,sliceHistRatioEta->GetMaximum()+0.2);
+            //     sliceHistRatioEta->GetXaxis()->SetRangeUser(0.3,1.);
+            //     sliceHistRatioEta->DrawCopy();
+            //     fFitBckPol1Eta->DrawCopy("same");
+            //     for (Int_t i = 0; i < nExampleBins; i++ ){
+            //         if(iClusterPt==exampleBin[i] ){
+            //             canvas->SaveAs(Form("%s/ExampleBinEta_%sAlpha_%.02f-%.02f-sliceHistRatio.%s",outputDirSample.Data(),dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1],suffix.Data()));
+            //         }
+            //     }
+            //     canvas->Clear();
+            // }
+            
+            Double_t minMax[2]={0.4,0.7};
+
+            TF1* fFitRecoEta;
+            if ( switchPeakFunction == 0 ) {
+                cout << "using FitExpPluusGaussian   " << switchPeakFunction << endl;
+                fFitRecoEta = FitExpPlusGaussian (sliceHistEta, minMax[0], minMax[1], 1, (fEtaBinsPt[iClusterPt]+fEtaBinsPt[iClusterPt+1])/2, iDataMC);
+            } else if ( switchPeakFunction == 1 ) {
+                cout << "using FitGaussian   " << switchPeakFunction << endl;
+                fFitRecoEta = FitGaussian (sliceHistEta, minMax[0], minMax[1], 1, (fEtaBinsPt[iClusterPt]+fEtaBinsPt[iClusterPt+1])/2, iDataMC);
+            } else if ( switchPeakFunction == 2 ) {
+                cout << "using FitDExpPlusGaussian   " << switchPeakFunction << endl;
+                fFitRecoEta = FitDExpPlusGaussian (sliceHistEta, minMax[0], minMax[1], 1, (fEtaBinsPt[iClusterPt]+fEtaBinsPt[iClusterPt+1])/2, iDataMC); // possibility to use double exponential fit
+            } else {
+                fFitRecoEta = FitExpPlusGaussian (sliceHistEta, minMax[0], minMax[1], 1, (fEtaBinsPt[iClusterPt]+fEtaBinsPt[iClusterPt+1])/2, iDataMC);
+            }
+
+            if(iDataMC==0) {
+                histDataMassEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(1));
+                histDataMassEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(1));
+                histDataAmplitudeEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(0));
+                histDataAmplitudeEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(0));
+                histDataTailEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(3));
+                histDataTailEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(3));
+                histDataResultsEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(2));
+                histDataResultsEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(2));
+                if ( switchPeakFunction == 2 ) {
+                    histDataTailRightEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(6));
+                    histDataTailRightEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(6));
+                }
+            }
+            else if(iDataMC==1) {
+                histMCMassEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(1));
+                histMCMassEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(1));
+                histMCAmplitudeEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(0));
+                histMCAmplitudeEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(0));
+                histMCTailEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(3));
+                histMCTailEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(3));
+                if ( switchPeakFunction == 2 ) {
+                    histMCTailRightEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(6));
+                    histMCTailRightEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(6));                    
+                }
+                histMCResultsEta->SetBinContent(iClusterPt+1,fFitRecoEta->GetParameter(2));
+                histMCResultsEta->SetBinError(iClusterPt+1,fFitRecoEta->GetParError(2));
+            }
+            fFitRecoEta->SetNpx(100000);
+
+
+            if(iDataMC==0) cout << "+++++++++++++  " << iClusterPt-ptBinRangeEta[0]+1 << "  Eta" << endl;
+            if(iDataMC==0) padAllData1Eta->cd(iClusterPt-ptBinRangeEta[0]+1);
+            else padAllMC1Eta->cd(iClusterPt-ptBinRangeEta[0]+1);
+            Double_t mesonAmplitude=0;
+            for(Int_t i = sliceHistCopyEta->FindBin(minMax[0]); i < sliceHistCopyEta->FindBin(minMax[1]) ; i++ ){
+                if(sliceHistCopyEta->GetBinContent(i) > mesonAmplitude) mesonAmplitude = sliceHistCopyEta->GetBinContent(i);
+            }
+            sliceHistCopyEta->GetYaxis()->SetRangeUser(-mesonAmplitude*0.1,mesonAmplitude);
+            sliceHistCopyEta->GetXaxis()->SetRangeUser(0.3,1.);
+            sliceHistCopyEta->DrawCopy("p");
+            fFitBckPol1Eta->DrawCopy("same");
+            sliceHistEta->DrawCopy("same");
+            canvas->cd();
+
+            sliceHistEta->GetListOfFunctions()->Add(fFitRecoEta);
+            sliceHistEta->GetYaxis()->SetRangeUser(-fFitRecoEta->GetParameter(0)*0.1,fFitRecoEta->GetParameter(0)*1.);
+            sliceHistEta->GetXaxis()->SetRangeUser(0.3,1.);
+            for (Int_t i = 0; i < nExampleBins; i++ ){
+                if(iClusterPt==exampleBin[i] ){
+                    cout << "mean: " << sliceHistEta->GetMean() << "\tmaximum: " << sliceHistEta->GetMaximum() << endl;
+                    canvas->SetLogx(0); canvas->SetLogy(0); canvas->SetLogz(0); canvas->Update();
+                    sliceHistEta->DrawCopy();
+                    DrawGammaLines(0., 0.3, 0, 0, 1, kGray+1, 7);
+                    canvas->SaveAs(Form("%s/ExampleBinEta_%sAlpha_%.02f-%.02f.%s",outputDirSample.Data(),dataMC[iDataMC].Data(),fEtaBinsPt[iClusterPt],fEtaBinsPt[iClusterPt+1],suffix.Data()));
+                }
+            }
+            canvas->Clear();
+            if(iDataMC==0) padAllData2Eta->cd(iClusterPt-ptBinRangeEta[0]+1);
+            else padAllMC2Eta->cd(iClusterPt-ptBinRangeEta[0]+1);
+            sliceHistEta->DrawCopy("p");
+            canvas->cd();
         }
     }
     delete canvas;
@@ -1143,6 +1311,16 @@ void CorrectPCMSmearingV0(
     canvasAllMC2->Update();
     canvasAllMC2->Print(Form("%s/Monitor_allbinsMC_fits_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
 
+    canvasAllData1Eta->Update();
+    canvasAllData1Eta->Print(Form("%s/Monitor_Eta_allbinsData_withbck_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
+    canvasAllData2Eta->Update();
+    canvasAllData2Eta->Print(Form("%s/Monitor_Eta_allbinsData_fits_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
+
+    canvasAllMC1Eta->Update();
+    canvasAllMC1Eta->Print(Form("%s/Monitor_Eta_allbinsMC_withbck_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
+    canvasAllMC2Eta->Update();
+    canvasAllMC2Eta->Print(Form("%s/Monitor_Eta_allbinsMC_fits_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
+
     cout << endl;
     cout << "-----------------------------------------------------" << endl;
     cout << "-----------------------------------------------------" << endl;
@@ -1156,6 +1334,15 @@ void CorrectPCMSmearingV0(
         histDataMCResults->Add(histDataMCResults,TMPsquare,1,-1);
         histDataMCResults->Multiply(fScalingFactor,1.);
         cout << "fScalingFactor:  " << fScalingFactor->Eval(0.5) << "   " << fScalingFactor->Eval(1.) << "   " << fScalingFactor->Eval(1.5) << "   "  << endl;
+        
+        
+        TF1* fScalingFactorEta          = new TF1("fScalingFactorEta", ScalingFactorEta ,0,100, 0);
+        histDataMCResultsEta         = (TH1D*)histDataResultsEta->Clone("sliceHistRatioEta");
+        histDataMCResultsEta->Multiply(histDataMCResultsEta, histDataMCResultsEta);
+        TH1D* TMPsquareEta = (TH1D*) histMCResultsEta->Clone("TMPsquare");
+        TMPsquareEta->Multiply(TMPsquareEta, TMPsquareEta);
+        histDataMCResultsEta->Add(histDataMCResultsEta,TMPsquareEta,1,-1);
+        histDataMCResultsEta->Multiply(fScalingFactorEta,1.);
     // } else {
     //     histDataMCResults->Add(histDataResults,histMCResults,1,-1);
     //     TF1* fSigmaPCM          = new TF1("fSigmaPCM", "pol1" ,rangeHighPtFitRatio[0],rangeHighPtFitRatio[1]);
@@ -1184,33 +1371,27 @@ void CorrectPCMSmearingV0(
     SetStyleHistoTH1ForGraphs(histDataResults, "#it{E}_{PCM #gamma} (GeV)","#sigma_{m_{inv} (data)} ",0.035,0.043, 0.035,0.043, 1.,1.);
     DrawGammaSetMarker(histDataResults, markerStyle[0], 1, color[0], color[0]);
 
-    // SetStyleHistoTH1ForGraphs(histMCResultsEta, "#it{E}_{PCM #gamma} (GeV)","#sigma_{#eta^{0} (MC)} ",0.035,0.043, 0.035,0.043, 1.,1.);
-    // DrawGammaSetMarker(histMCResultsEta, markerStyle[1], 1, color[1], color[1]);
-    // SetStyleHistoTH1ForGraphs(histDataResultsEta, "#it{E}_{PCM #gamma} (GeV)","#sigma_{#eta^{0} (data)} ",0.035,0.043, 0.035,0.043, 1.,1.);
-    // DrawGammaSetMarker(histDataResultsEta, markerStyle[0], 1, color[0], color[0]);
+    SetStyleHistoTH1ForGraphs(histMCResultsEta, "#it{E}_{PCM #gamma} (GeV)","#sigma_{#eta^{0} (MC)} ",0.035,0.043, 0.035,0.043, 1.,1.);
+    DrawGammaSetMarker(histMCResultsEta, markerStyle[1], 1, color[1], color[1]);
+    SetStyleHistoTH1ForGraphs(histDataResultsEta, "#it{E}_{PCM #gamma} (GeV)","#sigma_{#eta^{0} (data)} ",0.035,0.043, 0.035,0.043, 1.,1.);
+    DrawGammaSetMarker(histDataResultsEta, markerStyle[0], 1, color[0], color[0]);
 
     //*********************************************************************************************************************************
     //*********************************** Plotting Mean sigma for data and MC vs PDG value *********************************************
     //*********************************************************************************************************************************
-    cout<<"Plotting Mean sigma for data and MC vs PDG value"<<endl;
+    cout<<"Plotting sigma for Pi0"<<endl;
     TCanvas *canvassigmaPDG = new TCanvas("canvassigmaPDG","",200,10,1350,900);  // gives the page size
     DrawGammaCanvasSettings(canvassigmaPDG, 0.08, 0.02, 0.055, 0.08);
     canvassigmaPDG->SetLogx(1);
     canvassigmaPDG->SetLogy(0);
 
-    TH2F * histoDummyMeansigmaVsPDG;
-    histoDummyMeansigmaVsPDG = new TH2F("histoDummyMeansigmaVsPDG", "histoDummyMeansigmaVsPDG", 11000, fBinsPt[ptBinRange[0]]/1.5, fBinsPt[ptBinRange[1]]*1.5, 1000, minsigma, maxsigma);
-    SetStyleHistoTH2ForGraphs(histoDummyMeansigmaVsPDG, "#it{E}_{PCM #gamma} (GeV)"," #sigma_{#it{E}_{PCM #gamma} (MC/data)} ", 0.035, 0.043, 0.035, 0.043, 0.82, 0.9);
-    histoDummyMeansigmaVsPDG->GetXaxis()->SetMoreLogLabels();
-    histoDummyMeansigmaVsPDG->GetXaxis()->SetLabelOffset(-0.01);
-    histoDummyMeansigmaVsPDG->DrawCopy("");
+    TH2F * histoDummySigma;
+    histoDummySigma = new TH2F("histoDummySigma", "histoDummySigma", 11000, fBinsPt[ptBinRange[0]]/1.5, fBinsPt[ptBinRange[1]]*1.5, 1000, minsigma, maxsigma);
+    SetStyleHistoTH2ForGraphs(histoDummySigma, "#it{E}_{PCM #gamma} (GeV)"," #sigma_{#it{E}_{PCM #gamma} (MC/data)} ", 0.035, 0.043, 0.035, 0.043, 0.82, 0.9);
+    histoDummySigma->GetXaxis()->SetMoreLogLabels();
+    histoDummySigma->GetXaxis()->SetLabelOffset(-0.01);
+    histoDummySigma->DrawCopy("");
 
-    Double_t standardrangeExponent0 =   -0.5;
-    Double_t standardrangeExponent1 =   -0.08;
-    Double_t rangeMult0             =   -0.2;
-    Double_t rangeMult1             =   -0.001;
-    Double_t rangeExponent[2]       =   {standardrangeExponent0, standardrangeExponent1};
-    Double_t rangeMult[2]           =   {rangeMult0, rangeMult1};
 
     TLegend *legend = GetAndSetLegend2(0.15, 0.95, 0.95, 0.99, 0.043, 2, "", 42);
 
@@ -1229,159 +1410,67 @@ void CorrectPCMSmearingV0(
     }
     DrawGammaSetMarker(histMCResults, markerStyle[1], 1, color[1], color[1]);
 
-    // // fitting data sigma positions
-    // FittingFunction="[0] + [1]*TMath::Power(x,[2])";
-    // if (mode==3) {
-    //     rangeExponent[0]   = 0.08;
-    //     rangeExponent[1]   = 2.5;
-    //     rangeMult[0]       = 0.001;
-    //     rangeMult[1]       = 0.3;
-    // }
-    // TF1* fitsigmaDataVsPDG       = new TF1("fitsigmaDataVsPDG", FittingFunction ,fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
-    // if (mode != 5){
-    //     fitsigmaDataVsPDG->SetParLimits(1, rangeMult[0], rangeMult[1]);
-    //     fitsigmaDataVsPDG->SetParLimits(2, rangeExponent[0], rangeExponent[1]);
-    // }
-    // histDataResults->Fit(fitsigmaDataVsPDG,"QRME0");
-    // cout << WriteParameterToFile(fitsigmaDataVsPDG) << endl;
 
-    // FittingFunction="[0]";
-    // if (mode==3) {
-    //     rangeExponent[0]   = standardrangeExponent0;
-    //     rangeExponent[1]   = standardrangeExponent1;
-    //     rangeMult[0]       = rangeMult0;
-    //     rangeMult[1]       = rangeMult1;
-    // }
-    // TF1* fitsigmaDataVsPDGConst  = new TF1("fitsigmaDataVsPDGConst", FittingFunction ,rangeHighPtFitsigma[0],rangeHighPtFitsigma[1]);
-    // histDataResults->Fit(fitsigmaDataVsPDGConst,"QRME0");
-    // cout << WriteParameterToFile(fitsigmaDataVsPDGConst) << endl;
-
-    // FittingFunction="[0]-[3]*TMath::Exp(-[1]*x+[2])";
-    // if (mode==3) {
-    //     rangeExponent[0]   = standardrangeExponent0;
-    //     rangeExponent[1]   = standardrangeExponent1;
-    //     rangeMult[0]       = rangeMult0;
-    //     rangeMult[1]       = rangeMult1;
-    // }
-    // TF1* fitsigmaDataVsPDG2      = new TF1("fitsigmaDataVsPDG2", FittingFunction ,fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
-    // fitsigmaDataVsPDG2->SetParameter(0, fitsigmaDataVsPDGConst->GetParameter(0));
-    // if ( (mode == 2 || mode == 4 || mode == 12 || mode == 14 || mode == 15) && (optionEnergy.Contains("PbPb") || optionEnergy.Contains("XeXe")  ) ){
-    //     fitsigmaDataVsPDG2->SetParLimits(0, fitsigmaDataVsPDGConst->GetParameter(0)-0.1*fitsigmaDataVsPDGConst->GetParError(0), fitsigmaDataVsPDGConst->GetParameter(0)+0.1*fitsigmaDataVsPDGConst->GetParError(0));
-    // } else if (mode == 2 || mode == 4 || mode == 12 || mode == 14 || mode == 15){
-    //     fitsigmaDataVsPDG2->SetParLimits(0, fitsigmaDataVsPDGConst->GetParameter(0)-3*fitsigmaDataVsPDGConst->GetParError(0), fitsigmaDataVsPDGConst->GetParameter(0)+3*fitsigmaDataVsPDGConst->GetParError(0));
-    // } else {
-    //   fitsigmaDataVsPDG2->SetParLimits(0, fitsigmaDataVsPDGConst->GetParameter(0)-0.5*fitsigmaDataVsPDGConst->GetParError(0), fitsigmaDataVsPDGConst->GetParameter(0)+0.5*fitsigmaDataVsPDGConst->GetParError(0));
-    // }
-    // fitsigmaDataVsPDG2->FixParameter(3,1.);
-    // if (mode == 5) fitsigmaDataVsPDG2->FixParameter(3,-1.);
-
-    // histDataResults->Fit(fitsigmaDataVsPDG2,"QRME0");
-
-    // // fitting MC sigma positions
-    // FittingFunction="[0] + [1]*TMath::Power(x,[2])";
-    // if (mode==3) {
-    //     rangeExponent[0]   = standardrangeExponent0;
-    //     rangeExponent[1]   = standardrangeExponent1;
-    //     //rangeMult[0]       = rangeMult0;
-    //     //rangeMult[1]       = rangeMult1;
-    //     rangeMult[0]       = -rangeMult1;
-    //     rangeMult[1]       = -rangeMult0;
-    // }
-    // if (mode==5){
-    //     rangeExponent[0]  = -3.;
-    //     rangeExponent[1]  = standardrangeExponent1;
-    //     rangeMult[0]      = -rangeMult1;
-    //     rangeMult[1]      = -rangeMult0;
-    // }
-    // TF1* fitsigmaMCVsPDG = new TF1("fitsigmaMCVsPDG", FittingFunction ,fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
-    // if (mode != 5){
-    //     fitsigmaMCVsPDG->SetParLimits(1, rangeMult[0], rangeMult[1]);
-    //     fitsigmaMCVsPDG->SetParLimits(2, rangeExponent[0], rangeExponent[1]);
-    // }
-    // histMCResults->Fit(fitsigmaMCVsPDG,"QRME0");
-    // cout << WriteParameterToFile(fitsigmaMCVsPDG) << endl;
-
-    // FittingFunction="[0]";
-    // if (mode==3) {
-    //     rangeExponent[0]   = standardrangeExponent0;
-    //     rangeExponent[1]   = standardrangeExponent1;
-    //     rangeMult[0]       = rangeMult0;
-    //     rangeMult[1]       = rangeMult1;
-    // }
-    // TF1* fitsigmaMCVsPDGConst  = new TF1("fitsigmaMCVsPDGConst", FittingFunction ,rangeHighPtFitsigma[2],rangeHighPtFitsigma[3]);
-    // histMCResults->Fit(fitsigmaMCVsPDGConst,"QRME0");
-    // cout << WriteParameterToFile(fitsigmaMCVsPDGConst) << endl;
-
-    // FittingFunction="[0]-[3]*TMath::Exp(-[1]*x+[2])";
-    // if (mode==3) {
-    //     rangeExponent[0]   = standardrangeExponent0;
-    //     rangeExponent[1]   = standardrangeExponent1;
-    //     rangeMult[0]       = rangeMult0;
-    //     rangeMult[1]       = rangeMult1;
-    // }
-    // if (mode==5){
-    //     rangeExponent[0]  = -10.;
-    //     rangeExponent[1]  = 10.;
-    //     rangeMult[0]      = -10.;
-    //     rangeMult[1]      = 10.;
-    // }
-    // TF1* fitsigmaMCVsPDG2 = new TF1("fitsigmaMCVsPDG2", FittingFunction ,fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
-    // fitsigmaMCVsPDG2->SetParameter(0, fitsigmaMCVsPDGConst->GetParameter(0));
-    // if ( (mode == 2 || mode == 4 || mode == 12 || mode == 14 || mode == 15) && (optionEnergy.Contains("PbPb") || optionEnergy.Contains("XeXe")  ) ){
-    //     fitsigmaMCVsPDG2->SetParLimits(0, fitsigmaMCVsPDGConst->GetParameter(0)-0.1*fitsigmaMCVsPDGConst->GetParError(0), fitsigmaMCVsPDGConst->GetParameter(0)+0.1*fitsigmaMCVsPDGConst->GetParError(0));
-    // } else if (mode == 2 || mode == 4 || mode == 12 || mode == 14 || mode == 15){
-    //     fitsigmaMCVsPDG2->SetParLimits(0, fitsigmaMCVsPDGConst->GetParameter(0)-2*fitsigmaMCVsPDGConst->GetParError(0), fitsigmaMCVsPDGConst->GetParameter(0)+2*fitsigmaMCVsPDGConst->GetParError(0));
-    // // } else if (mode == 5){
-    // //     fitsigmaMCVsPDG2->SetParLimits(0, fitsigmaMCVsPDGConst->GetParameter(0)-0.5*fitsigmaMCVsPDGConst->GetParError(0), fitsigmaMCVsPDGConst->GetParameter(0)+0.5*fitsigmaMCVsPDGConst->GetParError(0));
-    // //     fitsigmaMCVsPDG2->SetParLimits(1, -10., 10.);
-    // //     fitsigmaMCVsPDG2->SetParLimits(2, -10., 10.);
-    // } else {
-    //     fitsigmaMCVsPDG2->SetParLimits(0, fitsigmaMCVsPDGConst->GetParameter(0)-0.5*fitsigmaMCVsPDGConst->GetParError(0), fitsigmaMCVsPDGConst->GetParameter(0)+0.5*fitsigmaMCVsPDGConst->GetParError(0));
-    //     cout << fitsigmaMCVsPDGConst->GetParameter(0)-0.5*fitsigmaMCVsPDGConst->GetParError(0) << " " << fitsigmaMCVsPDGConst->GetParameter(0)+0.5*fitsigmaMCVsPDGConst->GetParError(0) << endl;
-    // }
-    // fitsigmaMCVsPDG2->FixParameter(3,1.);
-
-
-    // histMCResults->Fit(fitsigmaMCVsPDG2,"QRME0");
-    // cout << WriteParameterToFile(fitsigmaMCVsPDG2) << endl;
-
-
-    // // draw data graphs and fits
-    // DrawGammaSetMarkerTF1( fitsigmaDataVsPDG, 1, 2, kBlack);
-    //  if (!(select.Contains("LHC11cd") && mode == 2))fitsigmaDataVsPDG->Draw("same");
-    // DrawGammaSetMarkerTF1( fitsigmaDataVsPDGConst, 7, 2, kGray);
-    // fitsigmaDataVsPDGConst->Draw("same");
-    // DrawGammaSetMarkerTF1( fitsigmaDataVsPDG2, 7, 2, kGray+1);
-    // fitsigmaDataVsPDG2->Draw("same");
     histDataResults->DrawCopy("same");
     legend->AddEntry(histDataResults,"Data");
 
-    // DrawGammaSetMarkerTF1( fitsigmaMCVsPDG, 1, 2, kRed+2);
-    // DrawGammaSetMarkerTF1( fitsigmaMCVsPDGConst, 7, 2, kRed-8);
-    // fitsigmaMCVsPDGConst->Draw("same");
-    // DrawGammaSetMarkerTF1( fitsigmaMCVsPDG2, 7, 2, kRed-6);
-    // fitsigmaMCVsPDG2->Draw("same");
     histMCResults->DrawCopy("same");
     legend->AddEntry(histMCResults,"MC");
 
     PutProcessLabelAndEnergyOnPlot(0.94, 0.915, 0.03, fCollisionSystem.Data(), fTextMeasurement.Data(), recGamma.Data(), 42, 0.03, "", 1, 1.25, 31);
-    // for (Int_t i = 0; i < nSets; i++){
-    //    PutProcessLabelAndEnergyOnPlot(0.12, 0.915-2*0.03*(i), 0.03, fPlotLabelsRatio[i].Data(),"", "", 42, 0.03, "", 1, 1.25, 11);
-    // }
 
-    // TLegend *legendFits   = GetAndSetLegend2(0.12, 0.12 , 0.37, 0.12 + 3*0.03, 0.03, 2, "", 42, 0.35);
-    // legendFits->AddEntry(fitsigmaDataVsPDG, " ", "l");
-    // legendFits->AddEntry(fitsigmaMCVsPDG, "powerlaw fit","l" );
-    // legendFits->AddEntry(fitsigmaDataVsPDG2, " ", "l");
-    // legendFits->AddEntry(fitsigmaMCVsPDG2, "exponential fit","l" );
-    // legendFits->AddEntry(fitsigmaDataVsPDGConst, " ", "l");
-    // legendFits->AddEntry(fitsigmaMCVsPDGConst, "high #it{p}_{T} const.","l" );
-    // legendFits->Draw("same");
 
     legend->Draw("same");
     canvassigmaPDG->Update();
     canvassigmaPDG->SaveAs(Form("%s/Sigma_Pi0_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
     canvassigmaPDG->Clear();
+
+    cout<<"Plotting sigma for Eta"<<endl;
+
+    Double_t minsigmaEta  = 0.;
+    Double_t maxsigmaEta  = 0.006;
+
+
+    TH2F * histoDummySigmaEta;
+    histoDummySigmaEta = new TH2F("histoDummySigmaEta", "histoDummySigmaEta", 11000, fEtaBinsPt[ptBinRangeEta[0]]/1.5, fEtaBinsPt[ptBinRangeEta[1]]*1.5, 1000, minsigmaEta, maxsigmaEta);
+    SetStyleHistoTH2ForGraphs(histoDummySigmaEta, "#it{E}_{PCM #gamma} (GeV)"," #sigma_{#it{E}_{PCM #gamma} (MC/data)} ", 0.035, 0.043, 0.035, 0.043, 0.82, 0.9);
+    histoDummySigmaEta->GetXaxis()->SetMoreLogLabels();
+    histoDummySigmaEta->GetXaxis()->SetLabelOffset(-0.01);
+    histoDummySigmaEta->DrawCopy("");
+
+
+    TLegend *legendEta = GetAndSetLegend2(0.15, 0.95, 0.95, 0.99, 0.043, 2, "", 42);
+
+    // create scaled sigma vs pt histos
+    SetStyleHistoTH1ForGraphs(histDataResultsEta, "#it{E}_{PCM #gamma} (GeV)","#sigma_{#eta^{0} (data)} ",0.035,0.043, 0.035,0.043, 1.,1.);
+    if(mode == 2 || mode == 3 || mode == 14) {
+      histDataResultsEta->SetXTitle("#it{E}_{PCM #gamma} (GeV)");
+      histDataResultsEta->SetYTitle("#LT #sigma^{2}_{#eta^{0} (data)} #GT / #sigma^{2}_{#eta^{0} (PDG)}");
+    }
+    DrawGammaSetMarker(histDataResultsEta, markerStyle[0], 1, color[0], color[0]);
+
+    SetStyleHistoTH1ForGraphs(histMCResultsEta, "#it{E}_{PCM #gamma} (GeV)","#sigma_{#eta^{0} (MC)} ",0.035,0.043, 0.035,0.043, 1.,1.);
+    if(mode == 2 || mode == 3 || mode == 14) {
+      histMCResultsEta->SetXTitle("#it{E}_{PCM #gamma} (GeV)");
+      histMCResultsEta->SetYTitle("#LT #sigma^{2}_{#eta^{0} (MC)} #GT / #sigma^{2}_{#eta^{0} (PDG)}");
+    }
+    DrawGammaSetMarker(histMCResultsEta, markerStyle[1], 1, color[1], color[1]);
+
+
+    histDataResultsEta->DrawCopy("same");
+    legendEta->AddEntry(histDataResultsEta,"Data");
+
+    histMCResultsEta->DrawCopy("same");
+    legendEta->AddEntry(histMCResultsEta,"MC");
+
+    PutProcessLabelAndEnergyOnPlot(0.94, 0.915, 0.03, fCollisionSystem.Data(), fTextMeasurement.Data(), recGamma.Data(), 42, 0.03, "", 1, 1.25, 31);
+
+
+    legendEta->Draw("same");
+    canvassigmaPDG->Update();
+    canvassigmaPDG->SaveAs(Form("%s/Sigma_Eta_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
+    canvassigmaPDG->Clear();
+
     delete canvassigmaPDG;
 
     Double_t textsize = 0.07;
@@ -1397,10 +1486,81 @@ void CorrectPCMSmearingV0(
     TPad *padmonitorTail;
     TPad *padmonitorTailRight;
 
+    TCanvas *canvasmonitorEta = new TCanvas("canvasmonitorEta","",200,10,1400,1400);  // gives the page size
+    TPad *padmonitorMassEta;
+    TPad *padmonitorSigmaEta;
+    TPad *padmonitorAmplitudeEta;
+    TPad *padmonitorTailEta;
+    TPad *padmonitorTailRightEta;
+    DrawGammaCanvasSettings(canvasmonitorEta, 0.08, 0.02, 0.055, 0.08);
+    canvasmonitorEta->cd();
+
+
     Double_t NPads = 3.;
     if ( switchPeakFunction == 0 ) NPads = 4.;
     if ( switchPeakFunction == 1 ) NPads = 3.;
     if ( switchPeakFunction == 2 ) NPads = 5.;
+
+
+    padmonitorMassEta = new TPad("padmonitorMassEta","",0,2./NPads,1,3./NPads);
+    padmonitorMassEta->SetTopMargin(0.1);
+    padmonitorMassEta->SetBottomMargin(0.1);
+    padmonitorMassEta->SetRightMargin(0.02);
+    padmonitorMassEta->SetLeftMargin(0.07);
+    padmonitorMassEta->SetTickx();
+    padmonitorMassEta->SetTicky();
+    padmonitorMassEta->cd();
+    padmonitorMassEta->SetLogx(1);
+    padmonitorMassEta->SetLogy(0);
+
+    padmonitorSigmaEta = new TPad("padmonitorSigmaEta","",0,1./NPads,1,2./NPads);
+    padmonitorSigmaEta->SetTopMargin(0.1);
+    padmonitorSigmaEta->SetBottomMargin(0.1);
+    padmonitorSigmaEta->SetRightMargin(0.02);
+    padmonitorSigmaEta->SetLeftMargin(0.07);
+    padmonitorSigmaEta->SetTickx();
+    padmonitorSigmaEta->SetTicky();
+    padmonitorSigmaEta->cd();
+    padmonitorSigmaEta->SetLogx(1);
+    padmonitorSigmaEta->SetLogy(0);
+
+    if ( switchPeakFunction == 0 || switchPeakFunction == 2) {
+        padmonitorTailEta = new TPad("padmonitorTailEta","",0,3./NPads,1,4./NPads);
+        padmonitorTailEta->SetTopMargin(0.1);
+        padmonitorTailEta->SetBottomMargin(0.1);
+        padmonitorTailEta->SetRightMargin(0.02);
+        padmonitorTailEta->SetLeftMargin(0.07);
+        padmonitorTailEta->SetTickx();
+        padmonitorTailEta->SetTicky();
+        padmonitorTailEta->cd();
+        padmonitorTailEta->SetLogx(1);
+        padmonitorTailEta->SetLogy(0);
+    }
+
+    if ( switchPeakFunction == 2 ) {
+        padmonitorTailRightEta = new TPad("padmonitorTailRightEta","",0,4./NPads,1,5./NPads);
+        padmonitorTailRightEta->SetTopMargin(0.1);
+        padmonitorTailRightEta->SetBottomMargin(0.1);
+        padmonitorTailRightEta->SetRightMargin(0.02);
+        padmonitorTailRightEta->SetLeftMargin(0.07);
+        padmonitorTailRightEta->SetTickx();
+        padmonitorTailRightEta->SetTicky();
+        padmonitorTailRightEta->cd();
+        padmonitorTailRightEta->SetLogx(1);
+        padmonitorTailRightEta->SetLogy(0);
+    }
+
+    padmonitorAmplitudeEta = new TPad("padmonitorAmplitudeEta","",0,0.,1,1./NPads);
+    padmonitorAmplitudeEta->SetTopMargin(0.1);
+    padmonitorAmplitudeEta->SetBottomMargin(0.1);
+    padmonitorAmplitudeEta->SetRightMargin(0.02);
+    padmonitorAmplitudeEta->SetLeftMargin(0.07);
+    padmonitorAmplitudeEta->SetTickx();
+    padmonitorAmplitudeEta->SetTicky();
+    padmonitorAmplitudeEta->cd();
+    padmonitorAmplitudeEta->SetLogx(1);
+    padmonitorAmplitudeEta->SetLogy(1);
+
 
     DrawGammaCanvasSettings(canvasmonitor, 0.08, 0.02, 0.055, 0.08);
     canvasmonitor->cd();
@@ -1416,7 +1576,7 @@ void CorrectPCMSmearingV0(
     padmonitorMass->SetLogx(1);
     padmonitorMass->SetLogy(0);
 
-    padmonitorSigma = new TPad("padmonitorMass","",0,1./NPads,1,2./NPads);
+    padmonitorSigma = new TPad("padmonitorSigma","",0,1./NPads,1,2./NPads);
     padmonitorSigma->SetTopMargin(0.1);
     padmonitorSigma->SetBottomMargin(0.1);
     padmonitorSigma->SetRightMargin(0.02);
@@ -1427,27 +1587,30 @@ void CorrectPCMSmearingV0(
     padmonitorSigma->SetLogx(1);
     padmonitorSigma->SetLogy(0);
 
-    padmonitorTail = new TPad("padmonitorTail","",0,3./NPads,1,4./NPads);
-    padmonitorTail->SetTopMargin(0.1);
-    padmonitorTail->SetBottomMargin(0.1);
-    padmonitorTail->SetRightMargin(0.02);
-    padmonitorTail->SetLeftMargin(0.07);
-    padmonitorTail->SetTickx();
-    padmonitorTail->SetTicky();
-    padmonitorTail->cd();
-    padmonitorTail->SetLogx(1);
-    padmonitorTail->SetLogy(0);
-    
-    padmonitorTailRight = new TPad("padmonitorTailRight","",0,4./NPads,1,5./NPads);
-    padmonitorTailRight->SetTopMargin(0.1);
-    padmonitorTailRight->SetBottomMargin(0.1);
-    padmonitorTailRight->SetRightMargin(0.02);
-    padmonitorTailRight->SetLeftMargin(0.07);
-    padmonitorTailRight->SetTickx();
-    padmonitorTailRight->SetTicky();
-    padmonitorTailRight->cd();
-    padmonitorTailRight->SetLogx(1);
-    padmonitorTailRight->SetLogy(0);
+    if ( switchPeakFunction == 0 || switchPeakFunction == 2) {
+        padmonitorTail = new TPad("padmonitorTail","",0,3./NPads,1,4./NPads);
+        padmonitorTail->SetTopMargin(0.1);
+        padmonitorTail->SetBottomMargin(0.1);
+        padmonitorTail->SetRightMargin(0.02);
+        padmonitorTail->SetLeftMargin(0.07);
+        padmonitorTail->SetTickx();
+        padmonitorTail->SetTicky();
+        padmonitorTail->cd();
+        padmonitorTail->SetLogx(1);
+        padmonitorTail->SetLogy(0);
+    }
+    if ( switchPeakFunction == 2 ) {
+        padmonitorTailRight = new TPad("padmonitorTailRight","",0,4./NPads,1,5./NPads);
+        padmonitorTailRight->SetTopMargin(0.1);
+        padmonitorTailRight->SetBottomMargin(0.1);
+        padmonitorTailRight->SetRightMargin(0.02);
+        padmonitorTailRight->SetLeftMargin(0.07);
+        padmonitorTailRight->SetTickx();
+        padmonitorTailRight->SetTicky();
+        padmonitorTailRight->cd();
+        padmonitorTailRight->SetLogx(1);
+        padmonitorTailRight->SetLogy(0);
+    }
 
     padmonitorAmplitude = new TPad("padmonitorAmplitude","",0,0.,1,1./NPads);
     padmonitorAmplitude->SetTopMargin(0.1);
@@ -1459,6 +1622,8 @@ void CorrectPCMSmearingV0(
     padmonitorAmplitude->cd();
     padmonitorAmplitude->SetLogx(1);
     padmonitorAmplitude->SetLogy(1);
+
+    cout<<"Plotting Monitor sigma for Pi0"<<endl;
 
     padmonitorAmplitude->cd();
     legendmonitorAmplitude->AddEntry(histDataAmplitude,"Data", "pl");
@@ -1474,6 +1639,8 @@ void CorrectPCMSmearingV0(
     {
         MinAmplitude = histMCAmplitude->GetMinimum();
     }
+    if (MinAmplitude < 1) MinAmplitude = 1;
+    histDataAmplitude->GetXaxis()->SetRangeUser(fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
     histDataAmplitude->GetYaxis()->SetRangeUser(MinAmplitude/10, MaxAmplitude*10);
     histDataAmplitude->DrawCopy("pl");
     legendmonitorAmplitude->AddEntry(histMCAmplitude,"MC", "pl");
@@ -1483,37 +1650,40 @@ void CorrectPCMSmearingV0(
     legendmonitorAmplitude->Draw();
 
     if ( switchPeakFunction == 0 || switchPeakFunction == 2) {
-    padmonitorTail->cd();
-    legendmonitorTail->AddEntry(histDataTail,"Data", "pl");
-    SetStyleHistoTH1ForGraphs(histDataTail, "#it{E}_{PCM #gamma} (GeV)","Tail",textsize,textsize,textsize,textsize,0.5,0.4);
-    DrawGammaSetMarker(histDataTail, markerStyle[0], 2., color[0], color[0]);
-    histDataTail->GetYaxis()->SetRangeUser(0.003, 0.01);
-    histDataTail->DrawCopy("pl");
-    legendmonitorTail->AddEntry(histMCTail,"MC", "pl");
-    SetStyleHistoTH1ForGraphs(histMCTail, "#it{E}_{PCM #gamma} (GeV)","Tail",textsize,textsize,textsize,textsize,0.5,0.4);
-    DrawGammaSetMarker(histMCTail, markerStyle[1], 2., color[1], color[1]);
-    histMCTail->DrawCopy("pl,same");
-    legendmonitorTail->Draw();
+        padmonitorTail->cd();
+        legendmonitorTail->AddEntry(histDataTail,"Data", "pl");
+        SetStyleHistoTH1ForGraphs(histDataTail, "#it{E}_{PCM #gamma} (GeV)","Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+        DrawGammaSetMarker(histDataTail, markerStyle[0], 2., color[0], color[0]);
+        histDataTail->GetXaxis()->SetRangeUser(fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
+        histDataTail->GetYaxis()->SetRangeUser(0.003, 0.01);
+        histDataTail->DrawCopy("pl");
+        legendmonitorTail->AddEntry(histMCTail,"MC", "pl");
+        SetStyleHistoTH1ForGraphs(histMCTail, "#it{E}_{PCM #gamma} (GeV)","Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+        DrawGammaSetMarker(histMCTail, markerStyle[1], 2., color[1], color[1]);
+        histMCTail->DrawCopy("pl,same");
+        legendmonitorTail->Draw();
     }
 
     if ( switchPeakFunction == 2 ) {
-    padmonitorTailRight->cd();
-    legendmonitorTailRight->AddEntry(histDataTailRight,"Data", "pl");
-    SetStyleHistoTH1ForGraphs(histDataTailRight, "#it{E}_{PCM #gamma} (GeV)","Right Tail",textsize,textsize,textsize,textsize,0.5,0.4);
-    DrawGammaSetMarker(histDataTailRight, markerStyle[0], 2., color[0], color[0]);
-    histDataTailRight->GetYaxis()->SetRangeUser(0.00, 0.01);
-    histDataTailRight->DrawCopy("pl");
-    legendmonitorTailRight->AddEntry(histMCTailRight,"MC", "pl");
-    SetStyleHistoTH1ForGraphs(histMCTailRight, "#it{E}_{PCM #gamma} (GeV)","Right Tail",textsize,textsize,textsize,textsize,0.5,0.4);
-    DrawGammaSetMarker(histMCTailRight, markerStyle[1], 2., color[1], color[1]);
-    histMCTailRight->DrawCopy("pl,same");
-    legendmonitorTailRight->Draw();
+        padmonitorTailRight->cd();
+        legendmonitorTailRight->AddEntry(histDataTailRight,"Data", "pl");
+        SetStyleHistoTH1ForGraphs(histDataTailRight, "#it{E}_{PCM #gamma} (GeV)","Right Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+        DrawGammaSetMarker(histDataTailRight, markerStyle[0], 2., color[0], color[0]);
+        histDataTailRight->GetXaxis()->SetRangeUser(fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
+        histDataTailRight->GetYaxis()->SetRangeUser(0.00, 0.01);
+        histDataTailRight->DrawCopy("pl");
+        legendmonitorTailRight->AddEntry(histMCTailRight,"MC", "pl");
+        SetStyleHistoTH1ForGraphs(histMCTailRight, "#it{E}_{PCM #gamma} (GeV)","Right Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+        DrawGammaSetMarker(histMCTailRight, markerStyle[1], 2., color[1], color[1]);
+        histMCTailRight->DrawCopy("pl,same");
+        legendmonitorTailRight->Draw();
     }
 
     padmonitorMass->cd();
     legendmonitorMass->AddEntry(histDataMass,"Data", "pl");
     SetStyleHistoTH1ForGraphs(histDataMass, "#it{E}_{PCM #gamma} (GeV)","Mass",textsize,textsize,textsize,textsize,0.5,0.4);
     DrawGammaSetMarker(histDataMass, markerStyle[0], 2, color[0], color[0]);
+    histDataMass->GetXaxis()->SetRangeUser(fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
     histDataMass->GetYaxis()->SetRangeUser(0.12, 0.15);
     histDataMass->DrawCopy("pl");
     legendmonitorMass->AddEntry(histMCMass,"MC", "pl");
@@ -1526,6 +1696,7 @@ void CorrectPCMSmearingV0(
     legendmonitorSigma->AddEntry(histDataResults,"Data", "pl");
     SetStyleHistoTH1ForGraphs(histDataResults, "#it{E}_{PCM #gamma} (GeV)","Sigma",textsize,textsize,textsize,textsize,0.5,0.4);
     DrawGammaSetMarker(histDataResults, markerStyle[0], 2, color[0], color[0]);
+    histDataResults->GetXaxis()->SetRangeUser(fBinsPt[ptBinRange[0]],fBinsPt[ptBinRange[1]]);
     histDataResults->GetYaxis()->SetRangeUser(0., 0.01);
     histDataResults->DrawCopy("pl");
     legendmonitorSigma->AddEntry(histMCResults,"MC", "pl");
@@ -1544,6 +1715,100 @@ void CorrectPCMSmearingV0(
     canvasmonitor->Update();
     canvasmonitor->SaveAs(Form("%s/Monitor_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
     canvasmonitor->Clear();
+
+//  #############################
+
+    cout<<"Plotting Monitor sigma for Eta"<<endl;
+
+    canvasmonitorEta->cd();
+
+    padmonitorAmplitudeEta->cd();
+    MaxAmplitude = histDataAmplitudeEta->GetMaximum();
+    if (histMCAmplitudeEta->GetMaximum() > MaxAmplitude)
+    {
+        MaxAmplitude = histMCAmplitudeEta->GetMaximum();
+    }
+    MinAmplitude = histDataAmplitudeEta->GetMinimum();
+    if (histMCAmplitudeEta->GetMinimum() < MinAmplitude)
+    {
+        MinAmplitude = histMCAmplitudeEta->GetMinimum();
+    }
+    if (MinAmplitude < 1) MinAmplitude = 1;
+    histDataAmplitudeEta->GetYaxis()->SetRangeUser(MinAmplitude/10, MaxAmplitude*10);
+    SetStyleHistoTH1ForGraphs(histDataAmplitudeEta, "#it{E}_{PCM #gamma} (GeV)","Amplitude",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histDataAmplitudeEta, markerStyle[0], 2., color[0], color[0]);
+    SetStyleHistoTH1ForGraphs(histMCAmplitudeEta, "#it{E}_{PCM #gamma} (GeV)","Amplitude",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histMCAmplitudeEta, markerStyle[1], 2., color[1], color[1]);
+    histDataAmplitudeEta->DrawCopy("pl");
+    histMCAmplitudeEta->DrawCopy("pl,same");
+    legendmonitorAmplitude->Draw();
+
+    if ( switchPeakFunction == 0 || switchPeakFunction == 2) {
+        padmonitorTailEta->cd();
+        // legendmonitorTail->AddEntry(histDataTailEta,"Data", "pl");
+        SetStyleHistoTH1ForGraphs(histDataTailEta, "#it{E}_{PCM #gamma} (GeV)","Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+        DrawGammaSetMarker(histDataTailEta, markerStyle[0], 2., color[0], color[0]);
+        histDataTailEta->GetYaxis()->SetRangeUser(0.00, 0.05);
+        histDataTailEta->DrawCopy("pl");
+        // legendmonitorTail->AddEntry(histMCTailEta,"MC", "pl");
+        SetStyleHistoTH1ForGraphs(histMCTailEta, "#it{E}_{PCM #gamma} (GeV)","Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+        DrawGammaSetMarker(histMCTailEta, markerStyle[1], 2., color[1], color[1]);
+        histMCTailEta->DrawCopy("pl,same");
+        legendmonitorTail->Draw();
+    }
+
+
+    if ( switchPeakFunction == 2 ) {
+        padmonitorTailRightEta->cd();
+        SetStyleHistoTH1ForGraphs(histDataTailRightEta, "#it{E}_{PCM #gamma} (GeV)","Right Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+        DrawGammaSetMarker(histDataTailRightEta, markerStyle[0], 2., color[0], color[0]);
+        histDataTailRightEta->GetXaxis()->SetRangeUser(fEtaBinsPt[ptBinRangeEta[0]],fEtaBinsPt[ptBinRangeEta[1]]);
+        histDataTailRightEta->GetYaxis()->SetRangeUser(0.00, 0.01);
+        histDataTailRightEta->DrawCopy("pl");
+        SetStyleHistoTH1ForGraphs(histMCTailRightEta, "#it{E}_{PCM #gamma} (GeV)","Right Tail",textsize,textsize,textsize,textsize,0.5,0.4);
+        DrawGammaSetMarker(histMCTailRightEta, markerStyle[1], 2., color[1], color[1]);
+        histMCTailRightEta->DrawCopy("pl,same");
+        legendmonitorTailRight->Draw();
+    }
+
+    padmonitorMassEta->cd();
+    // legendmonitorMass->AddEntry(histDataMassEta,"Data", "pl");
+    SetStyleHistoTH1ForGraphs(histDataMassEta, "#it{E}_{PCM #gamma} (GeV)","Mass",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histDataMassEta, markerStyle[0], 2, color[0], color[0]);
+    histDataMassEta->GetYaxis()->SetRangeUser(0.5, 0.6);
+    histDataMassEta->DrawCopy("pl");
+    // legendmonitorMass->AddEntry(histMCMassEta,"MC", "pl");
+    SetStyleHistoTH1ForGraphs(histMCMassEta, "#it{E}_{PCM #gamma} (GeV)","Mass",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histMCMassEta, markerStyle[1], 2, color[1], color[1]);
+    histMCMassEta->DrawCopy("pl,same");
+    legendmonitorMass->Draw();
+
+    padmonitorSigmaEta->cd();
+    // legendmonitorSigma->AddEntry(histDataResultsEta,"Data", "pl");
+    SetStyleHistoTH1ForGraphs(histDataResultsEta, "#it{E}_{PCM #gamma} (GeV)","Sigma",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histDataResultsEta, markerStyle[0], 2, color[0], color[0]);
+    histDataResultsEta->GetYaxis()->SetRangeUser(0., 0.01);
+    histDataResultsEta->DrawCopy("pl");
+    // legendmonitorSigma->AddEntry(histMCResultsEta,"MC", "pl");
+    SetStyleHistoTH1ForGraphs(histMCResultsEta, "#it{E}_{PCM #gamma} (GeV)","Sigma",textsize,textsize,textsize,textsize,0.5,0.4);
+    DrawGammaSetMarker(histMCResultsEta, markerStyle[1], 2, color[1], color[1]);
+    histMCResultsEta->DrawCopy("pl,same");
+    legendmonitorSigma->Draw();
+
+    canvasmonitor->cd();
+    canvasmonitor->Clear();
+    padmonitorAmplitudeEta->Draw();
+    padmonitorMassEta->Draw();
+    padmonitorSigmaEta->Draw();
+    if ( switchPeakFunction == 0 || switchPeakFunction == 2) padmonitorTailEta->Draw();
+    if ( switchPeakFunction == 2 ) padmonitorTailRightEta->Draw();
+
+    canvasmonitor->Update();
+    canvasmonitor->SaveAs(Form("%s/Monitor_Eta_%s.%s", outputDirSampleSummary.Data(), select.Data(), suffix.Data()));
+    canvasmonitor->Clear();
+
+    // ################
+
     delete canvasmonitor;
 
     //*********************************************************************************************************************************
@@ -1555,6 +1820,8 @@ void CorrectPCMSmearingV0(
     fFitsigma = FitDataMC(histDataMCResults, fBinsPt[ptBinRange[0]], fBinsPt[ptBinRange[1]], select,  highPtConst, mode);
     fFitsigma2 = FitDataMC(histDataMCResults, fBinsPt[ptBinRange[0]], fBinsPt[ptBinRange[1]], select,  highPtConst, mode,1);
     fFitsigma3 = FitDataMC(histDataMCResults, fBinsPt[ptBinRange[0]], fBinsPt[ptBinRange[1]], select,  highPtConst, mode,2);
+    fFitsigma4 = FitDataMC(histDataMCResults, fBinsPt[ptBinRange[0]], fBinsPt[ptBinRange[1]], select,  highPtConst, mode,4);
+    fFitsigma5 = FitDataMC(histDataMCResults, fBinsPt[ptBinRange[0]], fBinsPt[ptBinRange[1]], select,  highPtConst, mode,5);
 
 
 
@@ -1573,6 +1840,14 @@ void CorrectPCMSmearingV0(
     fLog << "Pol1 fitted, results:" << endl;
     fLog << "-----------------------------------" << endl;
     for(Int_t i=0;i<=1;i++) fLog << "Par " << i << ": " << fFitsigma3->GetParameter(i) << " +- " << fFitsigma3->GetParError(i) << endl;
+    fLog << "-----------------------------------" << endl;
+    fLog << "exp fitted, results:" << endl;
+    fLog << "-----------------------------------" << endl;
+    for(Int_t i=0;i<=4;i++) fLog << "Par " << i << ": " << fFitsigma4->GetParameter(i) << " +- " << fFitsigma4->GetParError(i) << endl;
+    fLog << "-----------------------------------" << endl;
+    fLog << "pow fitted, results:" << endl;
+    fLog << "-----------------------------------" << endl;
+    for(Int_t i=0;i<=2;i++) fLog << "Par " << i << ": " << fFitsigma5->GetParameter(i) << " +- " << fFitsigma5->GetParError(i) << endl;
     cout << "-----------------------------------" << endl;
     cout << "Pol0 fitted, results:" << endl;
     cout << "-----------------------------------" << endl;
@@ -1586,6 +1861,12 @@ void CorrectPCMSmearingV0(
     cout << "-----------------------------------" << endl;
     for(Int_t i=0;i<=1;i++) cout << "Par " << i << ": " << fFitsigma3->GetParameter(i) << " +- " << fFitsigma3->GetParError(i) << endl;
     cout << "-----------------------------------" << endl;
+    cout << "exp fitted, results:" << endl;
+    cout << "-----------------------------------" << endl;
+    for(Int_t i=0;i<=4;i++) cout << "Par " << i << ": " << fFitsigma4->GetParameter(i) << " +- " << fFitsigma4->GetParError(i) << endl;
+    cout << "pow fitted, results:" << endl;
+    cout << "-----------------------------------" << endl;
+    for(Int_t i=0;i<=2;i++) cout << "Par " << i << ": " << fFitsigma5->GetParameter(i) << " +- " << fFitsigma5->GetParError(i) << endl;
     cout << "-----------------------------------" << endl;
     fLog.close();
 
@@ -1608,21 +1889,29 @@ void CorrectPCMSmearingV0(
     histoDummyDataMCRatio->DrawCopy("");
 
     DrawGammaSetMarker(histDataMCResults, 20, 1, color[0], color[0]);
+    DrawGammaSetMarker(histDataMCResultsEta, 20, 1, color[1], color[1]);
 //     histDataMCResults->Draw("same");
 
 
     fFitsigma->SetRange(fBinsPt[ptBinRange[0]]/1.5, fBinsPt[ptBinRange[1]]*1.5);
     fFitsigma2->SetRange(fBinsPt[ptBinRange[0]]/1.5, fBinsPt[ptBinRange[1]]*1.5);
     fFitsigma3->SetRange(fBinsPt[ptBinRange[0]]/1.5, fBinsPt[ptBinRange[1]]*1.5);
+    fFitsigma4->SetRange(fBinsPt[ptBinRange[0]]/1.5, fBinsPt[ptBinRange[1]]*1.5);
+    fFitsigma5->SetRange(fBinsPt[ptBinRange[0]]/1.5, fBinsPt[ptBinRange[1]]*1.5);
 
     DrawGammaSetMarkerTF1( fFitsigma, 1, 2, kRed+1);
     DrawGammaSetMarkerTF1( fFitsigma2, 7, 2, kGreen+2);
     DrawGammaSetMarkerTF1( fFitsigma3, 8, 2, kBlue+2);
+    DrawGammaSetMarkerTF1( fFitsigma4, 9, 2, kCyan+2);
+    DrawGammaSetMarkerTF1( fFitsigma5, 9, 2, kYellow+2);
 
     fFitsigma->Draw("same");
     fFitsigma2->Draw("same");
     fFitsigma3->Draw("same");
+    fFitsigma4->Draw("same");
+    fFitsigma5->Draw("same");
     histDataMCResults->Draw("same,pe");
+    histDataMCResultsEta->Draw("same,pe");
 
     PutProcessLabelAndEnergyOnPlot(0.94, 0.96, 0.03, fCollisionSystem.Data(), fTextMeasurement.Data(), recGamma.Data(), 42, 0.03, "", 1, 1.25, 31);
     // for (Int_t i = 0; i < nSets; i++){
@@ -1633,6 +1922,8 @@ void CorrectPCMSmearingV0(
     legendCorrectionFunctions->AddEntry(fFitsigma,"constant","l");
     legendCorrectionFunctions->AddEntry(fFitsigma2,"pol2 ","l");
     legendCorrectionFunctions->AddEntry(fFitsigma3,"pol1 ","l");
+    legendCorrectionFunctions->AddEntry(fFitsigma4,"exp ","l");
+    legendCorrectionFunctions->AddEntry(fFitsigma5,"pow ","l");
     legendCorrectionFunctions->Draw();
 
     DrawGammaLines(fBinsPt[ptBinRange[0]]/1.5, fBinsPt[ptBinRange[1]]*1.5, 1.0, 1.0, 1, kGray+2, 2);
@@ -1648,9 +1939,10 @@ void CorrectPCMSmearingV0(
 
     histDataResults->Write("Mean sigma Data");
     histMCResults->Write("Mean sigma MC");
-    histDataResults->Write();
-    histMCResults->Write();
+    // histDataResults->Write();
+    // histMCResults->Write();
     histDataMCResults->Write("MeansigmaRatioMCData");
+    histDataMCResultsEta->Write("MeansigmaRatioMCDataEta");
 
     fOutput->Write();
     fOutput->Close();
@@ -1698,21 +1990,35 @@ TF1* FitDataMC(TH1* fHisto, Double_t minFit, Double_t maxFit, TString selection,
     TF1* fFitReco;
     if (fitmode == 0) {
         fFitReco = new TF1("DataMC", "[0]" ,minFit,maxFit);
-        fFitReco->SetParameter(0, -0.000123638);
-        // fFitReco = new TF1("DataMC", "[0]+[3]*TMath::Exp([1]+([2]*x))" ,minFit,maxFit);
-        // fFitReco->SetParameter(0,-2.43458e-06);
-        // fFitReco->SetParLimits(1,0.,10000000.);
-        // fFitReco->SetParameter(1,0.886265);
-        // fFitReco->SetParameter(2,-24.0344);
-        // fFitReco->SetParameter(3,-0.0405148);
+        fFitReco->SetParameter(0, 0.0001);
     } else if (fitmode == 1) {
         fFitReco = new TF1("DataMC", "[0]+[1]*x*x" ,minFit,maxFit);
         fFitReco->SetParameter(0, 0.03*0.03);
         fFitReco->SetParameter(1, 0.025*0.025);
-    } else {
+    } else if (fitmode == 2) {
         fFitReco = new TF1("DataMC", "[0]+[1]*x" ,minFit,maxFit);
-        fFitReco->SetParameter(0, -0.000123638);
+        fFitReco->SetParameter(0, 0.0001);
         fFitReco->SetParameter(1, 0.000222327);
+    } else if (fitmode == 3) {
+        // TF1* fFitRecotmp = new TF1("DataMCtmp", "[0]" ,minFit,maxFit);
+        // fFitRecotmp->SetParameter(0, 0.0001);
+        // fHisto->Fit(fFitRecotmp,"QRME0");
+        fFitReco = new TF1("DataMC", "[0]+[1]*TMath::Exp([2]*(x+[3])+[4])" ,minFit,maxFit);
+        // fFitReco->FixParameter(0, fFitRecotmp->GetParameter(0));
+        // fFitReco->SetParameter(0,fFitRecotmp->GetParameter(0));
+        fFitReco->SetParameter(0,0.00001);
+        // fFitReco->SetParLimits(0,fFitRecotmp->GetParameter(0)*0.9,fFitRecotmp->GetParameter(0)*1.1);
+        fFitReco->SetParameter(1,0.000000001);
+        fFitReco->SetParLimits(1,0.0000000001,10000000.);
+        fFitReco->SetParameter(2,0.0001);
+        // fFitReco->SetParLimits(2,0.,10000000.);
+        fFitReco->SetParameter(3,0.000);
+        fFitReco->SetParameter(4,0.000);        
+    } else {
+        fFitReco = new TF1("DataMC", "[0]+[1]*TMath::Power(x,[2])" ,minFit,maxFit);
+        fFitReco->SetParameter(0,0.00001);
+        fFitReco->SetParameter(1,0.000000001);
+        fFitReco->SetParameter(2,0.0001);
     }
 
 
@@ -1734,51 +2040,52 @@ TF1* FitDataMC(TH1* fHisto, Double_t minFit, Double_t maxFit, TString selection,
 //*******************************************************************************
 //************** Definition of fitting with pure Gaussian ***********************
 //*******************************************************************************
-TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter , Int_t iDataMC){
+TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Bool_t modeEta, Double_t ptcenter , Int_t iDataMC){
 
     Double_t mesonAmplitude = 0;
-    for(Int_t i = histo->FindBin(0.07); i < histo->FindBin(0.2) ; i++ ){
+    for(Int_t i = histo->FindBin(fitRangeMin); i < histo->FindBin(fitRangeMax) ; i++ ){
       if(histo->GetBinContent(i) > mesonAmplitude) mesonAmplitude = histo->GetBinContent(i);
     }
     cout << "mesonAmplitude = " << mesonAmplitude << endl;
     Double_t mesonAmplitudeMin;
     Double_t mesonAmplitudeMax;
 
-    // special setting for PCM-EMC
-    if(iDataMC==0) mesonAmplitudeMin = mesonAmplitude*90./100.;
-    if(iDataMC>0)  mesonAmplitudeMin = mesonAmplitude*80./100.;
+    mesonAmplitudeMin = mesonAmplitude*80./100.;
 
     mesonAmplitudeMax = mesonAmplitude*110./100.;
 
     cout << "mesonAmplitudeMin = " << mesonAmplitudeMin << endl;
     cout << "mesonAmplitudeMax = " << mesonAmplitudeMax << endl;
 
-    // Double_t rmsScaling = 4.;
-    // Double_t rmsHisto = histo->GetRMS();
-    // if(rmsHisto<0.01) rmsHisto = 0.01;
+    Double_t massEta            = 0.547862;
 
     // necessary to exclude low sigma peak
-    histo->GetXaxis()->SetRangeUser(0.07,0.2);
-
-    // fitRangeMin = histo->GetBinCenter(histo->GetMaximumBin())-rmsScaling*rmsHisto;
-    // fitRangeMax = histo->GetBinCenter(histo->GetMaximumBin())+rmsScaling*rmsHisto;
-    fitRangeMin = 0.05;
-    fitRangeMax = 0.2;
-    histo->GetXaxis()->SetRangeUser(0.00,0.3);
+    // histo->GetXaxis()->SetRangeUser(fitRangeMin, fitRangeMax);
 
     // TF1* fFitReco    = new TF1("fGaussExp","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)+[4]+[5]*x)",
     TF1* fFitReco    = new TF1("fGauss","[0]*TMath::Exp(-0.5*((x-[1])/[2])^2)+[3]+[4]*x", fitRangeMin, fitRangeMax);
-    Double_t fMesonmassExpect = TDatabasePDG::Instance()->GetParticle(111)->Mass();
+    Double_t fMesonmassExpect;
+    if (modeEta){
+        fMesonmassExpect = 0.547862;
+    } else {
+        fMesonmassExpect = TDatabasePDG::Instance()->GetParticle(111)->Mass();
+    }
 
     fFitReco->SetParameter(0, mesonAmplitude);
     fFitReco->SetParameter(1, fMesonmassExpect);
-    fFitReco->SetParameter(2, 0.002);
     fFitReco->SetParameter(3, 0.);
     fFitReco->SetParameter(4, 0.);
 
     fFitReco->SetParLimits(0, mesonAmplitudeMin, mesonAmplitudeMax);
     fFitReco->SetParLimits(1, fMesonmassExpect*0.95, fMesonmassExpect*1.05);
-    fFitReco->SetParLimits(2, 0.0005, 0.005);
+
+    if (modeEta){
+        fFitReco->SetParameter(2, 0.005);
+        fFitReco->SetParLimits(2, 0.002, 0.015);
+    } else {
+        fFitReco->SetParameter(2, 0.002);
+        fFitReco->SetParLimits(2, 0.0005, 0.005);
+    }
 
 
     histo->Fit(fFitReco,"QRME0");
@@ -1789,7 +2096,7 @@ TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t 
     // fFitReco->SetRange(fFitReco->GetParameter(1)-rmsScalingRefit*fFitReco->GetParameter(2),fFitReco->GetParameter(1)+rmsScalingRefit*fFitReco->GetParameter(2));
     // histo->Fit(fFitReco,"QRME0","",fFitReco->GetParameter(1)-rmsScalingRefit*fFitReco->GetParameter(2),fFitReco->GetParameter(1)+rmsScalingRefit*fFitReco->GetParameter(2));
 
-    fFitReco->SetLineColor(kRed+1);
+    fFitReco->SetLineColor(kBlue+1);
     fFitReco->SetLineWidth(1);
     fFitReco->SetLineStyle(1);
 
@@ -1806,10 +2113,10 @@ TF1* FitGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t 
 //*******************************************************************************
 //************** Definition of fitting with pure Gaussian ***********************
 //*******************************************************************************
-TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter , Int_t iDataMC){
+TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Bool_t modeEta, Double_t ptcenter , Int_t iDataMC){
 
     Double_t mesonAmplitude = 0;
-    for(Int_t i = histo->FindBin(0.07); i < histo->FindBin(0.2) ; i++ ){
+    for(Int_t i = histo->FindBin(fitRangeMin); i < histo->FindBin(fitRangeMax) ; i++ ){
       if(histo->GetBinContent(i) > mesonAmplitude) mesonAmplitude = histo->GetBinContent(i);
     }
     cout << "mesonAmplitude = " << mesonAmplitude << endl;
@@ -1817,42 +2124,8 @@ TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax,
     Double_t mesonAmplitudeMax;
 
     // special setting for PCM-EMC
-    if (mode == 2 || mode == 14){
-        if(iDataMC==0) mesonAmplitudeMin = mesonAmplitude*90./100.;
-        if(iDataMC>0) mesonAmplitudeMin = mesonAmplitude*80./100.;
-        // if(iDataMC>0&& ptcenter > 14.5) mesonAmplitudeMin = mesonAmplitude*65./100.;
-        // if (ptcenter > 4.5)
-        //     mesonAmplitudeMin = mesonAmplitude*55./100.;
-        // else
-        //     mesonAmplitudeMin = mesonAmplitude*80./100.;
-        // if(iDataMC>0) mesonAmplitudeMin = mesonAmplitude*95./100.;
-        // if(iDataMC>0&& ptcenter > 14.5) mesonAmplitudeMin = mesonAmplitude*65./100.;
-    // special setting for PCM-PHOS
-    } else if (mode == 3){
-        if (ptcenter > 1.)
-            mesonAmplitudeMin = mesonAmplitude*20./100.;
-        else
-            mesonAmplitudeMin = mesonAmplitude*10./100.;
-
-          fitRangeMin = 0.09;
-          fitRangeMax = 0.19;
-    // special setting for EMC
-    } else if (mode == 4 || mode == 12 || mode == 15){
-        mesonAmplitudeMin = mesonAmplitude*20./100.;
-        fitRangeMin = 0.08;
-    // special setting for PHOS
-    } else if (mode == 5){
-      fitRangeMin = 0.09;
-      fitRangeMax = 0.25;
-        if (ptcenter > 1.)
-            mesonAmplitudeMin = mesonAmplitude*80./100.;
-        else
-            mesonAmplitudeMin = mesonAmplitude*1./100.;
-
-        if(ptcenter < 0.35) fitRangeMax = 0.2;
-    } else {
-        mesonAmplitudeMin = mesonAmplitude*50./100.;
-    }
+    
+    mesonAmplitudeMin = mesonAmplitude*50./100.;    
     mesonAmplitudeMax = mesonAmplitude*110./100.;
 
     cout << "mesonAmplitudeMin = " << mesonAmplitudeMin << endl;
@@ -1860,30 +2133,35 @@ TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax,
 
     TF1* fFitReco    = new TF1("fGaussExp","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*TMath::Exp(-0.5*((x-[1])/[2])^2)+[4]+[5]*x)",
                                fitRangeMin, fitRangeMax);
-    Double_t fMesonmassExpect = TDatabasePDG::Instance()->GetParticle(111)->Mass();
+    Double_t fMesonmassExpect;
+    if (modeEta){
+        fMesonmassExpect = 0.547862;
+    } else {
+        fMesonmassExpect = TDatabasePDG::Instance()->GetParticle(111)->Mass();
+    }
 
     fFitReco->SetParameter(0, mesonAmplitude);
     fFitReco->SetParameter(1, fMesonmassExpect);
-    fFitReco->SetParameter(2, 0.01);
-    fFitReco->SetParameter(3, 0.012);
 
     fFitReco->SetParLimits(0, mesonAmplitudeMin, mesonAmplitudeMax);
-    if (mode == 4 || mode == 12 || mode == 15){
-        fFitReco->SetParLimits(1, fMesonmassExpect*0.65, fMesonmassExpect*1.6);
+    fFitReco->SetParLimits(1, fMesonmassExpect*0.9, fMesonmassExpect*1.1);
+
+    if (modeEta){
+        fFitReco->SetParameter(2, 0.005);
+        fFitReco->SetParLimits(2, 0.002, 0.015);
+        fFitReco->SetParameter(3, 0.001);
+        fFitReco->SetParLimits(3, 0.002, 0.05);
     } else {
-        fFitReco->SetParLimits(1, fMesonmassExpect*0.9, fMesonmassExpect*1.1);
-    }
-    fFitReco->SetParLimits(2, 0.001, 0.1);
-    fFitReco->SetParLimits(3, 0.001, 0.09);
-    if (mode == 5){
-      fFitReco->SetParLimits(1, fMesonmassExpect*0.8, fMesonmassExpect*1.8);
-      fFitReco->SetParLimits(2, 0.001, 0.01);
+        fFitReco->SetParameter(2, 0.002);
+        fFitReco->SetParLimits(2, 0.0005, 0.005);
+        fFitReco->SetParameter(3, 0.012);
+        fFitReco->SetParLimits(3, 0.001, 0.09);
     }
 
     histo->Fit(fFitReco,"QRME0");
     histo->Fit(fFitReco,"QRME0");
 
-    fFitReco->SetLineColor(kRed+1);
+    fFitReco->SetLineColor(kBlue+1);
     fFitReco->SetLineWidth(1);
     fFitReco->SetLineStyle(1);
 
@@ -1901,7 +2179,7 @@ TF1* FitExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax,
 //*******************************************************************************
 //*********** Definition of fitting with double exp Gaussian ********************
 //*******************************************************************************
-TF1* FitDExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Int_t mode, Double_t ptcenter, Int_t iDataMC ){
+TF1* FitDExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax, Bool_t modeEta, Double_t ptcenter, Int_t iDataMC ){
 
 
     Double_t mesonAmplitude = 0;
@@ -1915,28 +2193,40 @@ TF1* FitDExpPlusGaussian(TH1D* histo, Double_t fitRangeMin, Double_t fitRangeMax
     mesonAmplitudeMax = mesonAmplitude*150./100.;
 
     TF1* fFitReco = new TF1("GaussExpLinear","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp(-(x-[1])/[6])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)",fitRangeMin, fitRangeMax);
-    Double_t fMesonmassExpect = TDatabasePDG::Instance()->GetParticle(111)->Mass();
+    Double_t fMesonmassExpect;
+    if (modeEta){
+        fMesonmassExpect = 0.547862;
+    } else {
+        fMesonmassExpect = TDatabasePDG::Instance()->GetParticle(111)->Mass();
+    }
 
     fFitReco->SetParameter(0, mesonAmplitude);
     fFitReco->SetParameter(1, fMesonmassExpect);
-    fFitReco->SetParameter(2, 0.01);
-    fFitReco->SetParameter(3, 0.012);
     fFitReco->SetParameter(4, 0.);
     fFitReco->SetParameter(5, 0.);
-    fFitReco->SetParameter(6, 0.015);
-
 
     // fFitReco->SetParLimits(0, mesonAmplitudeMin, mesonAmplitudeMax);
     fFitReco->SetParLimits(1, fMesonmassExpect*0.95, fMesonmassExpect*1.05);
 
-    fFitReco->SetParLimits(2, 0.001, 0.1);
-    fFitReco->SetParLimits(3, 0.001, 0.18);
-    // if(iDataMC)
-    fFitReco->SetParLimits(6,0.001,0.030);
+    if (modeEta){
+        fFitReco->SetParameter(2, 0.005);
+        fFitReco->SetParLimits(2, 0.002, 0.015);
+        fFitReco->SetParameter(3, 0.001);
+        fFitReco->SetParLimits(3, 0.002, 0.05);
+        fFitReco->SetParameter(6, 0.015);
+        fFitReco->SetParLimits(6, 0.001,0.02);
+    } else {
+        fFitReco->SetParameter(2, 0.002);
+        fFitReco->SetParLimits(2, 0.0005, 0.005);
+        fFitReco->SetParameter(3, 0.012);
+        fFitReco->SetParLimits(3, 0.001, 0.09);
+        fFitReco->SetParameter(6, 0.015);
+        fFitReco->SetParLimits(6,0.001,0.030);
+    }
 
     histo->Fit(fFitReco,"QRME0");
 
-    fFitReco->SetLineColor(kRed+1);
+    fFitReco->SetLineColor(kBlue+1);
     fFitReco->SetLineWidth(1);
     fFitReco->SetLineStyle(1);
 
