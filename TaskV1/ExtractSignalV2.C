@@ -499,7 +499,7 @@ void ExtractSignalV2(
     fDoClustersE_onlyTriggered              = 0;
 
     if (fEnergyFlag.Contains("13TeV")){
-        if (fMode == 5){
+        if (fMode == 5 || fMode == 3 ){
             fDoClustersE_BothBM             = 1;
             fDoClustersE_BothBM_highestE    = 1;
             fDoClustersE_AnaBM_highestE     = 1;
