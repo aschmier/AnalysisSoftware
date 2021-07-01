@@ -1145,7 +1145,7 @@
             return Form("pp #rightarrow %s (#rightarrow #gamma#gamma #rightarrow e^{+}e^{-}e^{+}e^{-}) + X @ 7 TeV ",textProcessOpt.Data());
         } else if(fEnergyFlagOpt.BeginsWith("8TeV")){
             return Form("pp #rightarrow %s (#rightarrow #gamma#gamma #rightarrow e^{+}e^{-}e^{+}e^{-}) + X @ 8 TeV ",textProcessOpt.Data());
-        } else if(fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0){
+        } else if(fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0){
             return Form("pp #rightarrow %s (#rightarrow #gamma#gamma #rightarrow e^{+}e^{-}e^{+}e^{-}) + X @ 13 TeV ",textProcessOpt.Data());
         } else if(fEnergyFlagOpt.BeginsWith("5TeV")){
             return Form("pp #rightarrow %s (#rightarrow #gamma#gamma #rightarrow e^{+}e^{-}e^{+}e^{-}) + X @ 5.02 TeV ",textProcessOpt.Data());
@@ -1205,6 +1205,8 @@
             return  "pp, #sqrt{#it{s}} = 8 TeV";
         } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0) {
             return  "pp, #sqrt{#it{s}} = 13TeV";
+        } else if( fEnergyFlagOpt.CompareTo("13TeVSys") == 0) {
+            return  "pp, #sqrt{#it{s}} = 13TeV";
         } else if( fEnergyFlagOpt.CompareTo("13TeVLowB") == 0) {
             return  "pp, #sqrt{#it{s}} = 13TeV (low B)";
         } else if( fEnergyFlagOpt.CompareTo("13TeVRBins") == 0) {
@@ -1242,7 +1244,7 @@
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return 8000;
         } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || 
-		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0) {
+		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0) {
             return 13000;
         } else if( fEnergyFlagOpt.BeginsWith("5TeV") ) {
             return 5020;
@@ -1277,7 +1279,7 @@
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return  "pp8TeV";
         } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || 
-		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0  ) {
+		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0 ) {
             return  "pp13TeV";
         } else if( fEnergyFlagOpt.CompareTo("2.76TeV") == 0) {
             return  "pp2760GeV";
@@ -1310,7 +1312,7 @@
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return  "8TeV";
         } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || 
-		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 ) {
+		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0 ) {
             return  "13TeV";
         } else if( fEnergyFlagOpt.CompareTo("2.76TeV") == 0) {
             return  "2760GeV";
@@ -2571,7 +2573,7 @@
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return  1./0.75 -1.;
         } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || 
-		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0  ) {
+		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0  ) {
             cout << "Caution: no correct K0 Scaling factor for 13TeV available yet" << endl;
             return  1./1. -1.;
         } else if( fEnergyFlagOpt.BeginsWith("5TeV") ) {
@@ -6530,7 +6532,7 @@
                 cout << "ERROR: V0OR xSection not determined, set to \t" << xSectionInt << endl;
             }
         } else if(energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVLowB") == 0 || 
-		  energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  ){
+		  energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 || energy.CompareTo("13TeVSys") == 0 ){
             if (selTrig == 1){
                 xSectionInt = xSection13TeVV0AND;
                 cout << "V0AND xSection taken: \t" << xSectionInt << endl;
@@ -6755,7 +6757,7 @@
             } else if (!strTrigger.CompareTo("9b")){  // EJ1
                 triggerRejec    = 1;
             }
-        } else  if (energy.BeginsWith("13TeV")){
+        } else  if (energy.BeginsWith("13TeV") || energy.CompareTo("13TeVSys") == 0){
             cout << "Trigger used: " << trigger << endl;
             if (!strTrigger.CompareTo("8e")){  // EG2
                 triggerRejec    = 418.44;
