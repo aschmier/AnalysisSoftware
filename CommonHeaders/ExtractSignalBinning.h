@@ -211,7 +211,7 @@
                     trigger     = 51;
                 if (triggerSet == 5)
                     trigger     = 01;
-            } else if (energy.CompareTo("5TeV") == 0 || energy.CompareTo("7TeV") == 0  || energy.CompareTo("8TeV") == 0 || energy.CompareTo("13TeV") == 0 || energy.CompareTo("pPb_8TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 ){
+            } else if (energy.CompareTo("5TeV") == 0 || energy.CompareTo("7TeV") == 0  || energy.CompareTo("8TeV") == 0 || energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVSys") == 0 || energy.CompareTo("pPb_8TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 ){
                 if (triggerSet == 1)
                     trigger     = 52;
                 if (triggerSet == 2)
@@ -495,7 +495,7 @@
                 } else {                    // other modes
                     return 3;
                 }
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  || energy.CompareTo("13TeVSys") == 0 ) {
                 if (mode == 0){//PCM
                     return 5;
                 } else if ( mode == 1 ){
@@ -1081,7 +1081,7 @@
                 } else {                    // other modes
                     return 6;
                 }
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0   ) {
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0   || energy.CompareTo("13TeVSys") == 0 ) {
                 if (mode == 0){
                     return 4;
                 } else if ( mode == 1 ){
@@ -1623,7 +1623,7 @@
                 } else {
                     startPtBin     = 1;
                 }
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ){
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  || energy.CompareTo("13TeVSys") == 0){
                 if ( mode == 0 ){ //PCM-PCM
                     startPtBin = 1;
                     if (specialTrigg == 1)  startPtBin = 7;
@@ -2177,7 +2177,7 @@
                 } else if (mode == 20){
                     startPtBin     = 1;
                 }
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ){
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  || energy.CompareTo("13TeVSys") == 0  ){
                 if( mode==0){ //PCM-PCM
                     startPtBin = 1;}
                 else if( mode==1 ) startPtBin = 1;
@@ -2415,7 +2415,7 @@
         //*************************************************************************************************
         } else if (meson.EqualTo("EtaPrime") ){
             if(      energy.EqualTo("7TeV")  )        startPtBin = 1;
-            else if( energy.EqualTo("13TeV") )        startPtBin = 1;
+            else if( energy.EqualTo("13TeV")  || energy.CompareTo("13TeVSys") == 0 )        startPtBin = 1;
             else if( energy.EqualTo("pPb_5.023TeV") ) startPtBin = 1;
         //*************************************************************************************************
         //******************** Determine startbin for Omega  **********************************************
@@ -2466,7 +2466,7 @@
                 }
             //=============================================================================================================
             //==============================================13TeV==========================================================
-            } else if(energy.CompareTo("13TeV") == 0){
+            } else if(energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVSys") == 0){
             //-------------------------------------------------------------------------------------------------------------
             //---------------------------------------------------PCM-------------------------------------------------------
                 if (mode == 40 || mode == 60){ //PCM-PCM
@@ -2926,7 +2926,7 @@
                     }
                 }
 
-            } else if (energy.CompareTo("13TeV") == 0  || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0){
+            } else if (energy.CompareTo("13TeV") == 0  || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  || energy.CompareTo("13TeVSys") == 0){
 
                 if (DCAcase==kTRUE) CopyVectorToArray( binningMax, fBinsPi013TeVPCMTrigINT7PtDCA, binning, 27 );
                 // Copy binning according to cases
@@ -2971,14 +2971,26 @@
                       break;
                     case 2:
                     cout<<"13 TeV "<<energy<<" Binning used for mode "<<mode<<" with SpecialTrigger:" << SpecialTrigger << "   fBinsPi013TeVPCMEMCTrig...Pt";
-                        switch(SpecialTrigger) {
-                            case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigINT7Pt, binning, 91 ); break;
-                            case 1:
-                            case 2: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigEG1Pt, binning, 49 ); break;
-                            case 3: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigEG2Pt, binning, 68 ); break;
-                            case 4:
-                            case 5: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigEG1Pt, binning, 49 ); break;
-                            default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCPt_combinedBinning, binning, 94 ); break;
+                        if( energy.Contains("Sys")) {
+                            switch(SpecialTrigger) {
+                                case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCSys, binning, 28 ); break;
+                                case 1:
+                                case 2: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigEG1Pt, binning, 49 ); break;
+                                case 3: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigEG2Pt, binning, 68 ); break;
+                                case 4:
+                                case 5: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigEG1Pt, binning, 49 ); break;
+                                default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCPt_combinedBinning, binning, 94 ); break;
+                            }
+                        } else {
+                            switch(SpecialTrigger) {
+                                case 0: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigINT7Pt, binning, 91 ); break;
+                                case 1:
+                                case 2: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigEG1Pt, binning, 49 ); break;
+                                case 3: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigEG2Pt, binning, 68 ); break;
+                                case 4:
+                                case 5: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCTrigEG1Pt, binning, 49 ); break;
+                                default: maxNBins = CopyVectorToArray( binningMax, fBinsPi013TeVPCMEMCPt_combinedBinning, binning, 94 ); break;
+                        }
                         }
                         break;
                     case 3: //PCM-PHOS
@@ -3814,7 +3826,7 @@
                     }
                 }
 
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  ){
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  || energy.CompareTo("13TeVSys") == 0 ){
 
                 switch(mode) {
                     case 0: //PCM-PCM
@@ -3843,14 +3855,26 @@
                         break;
                     case 1: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVDalitzTrigINT7Pt, binning, 9 ); break;
                     case 2:
-                        switch(SpecialTrigger) {
-                            case 0: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigINT7Pt, binning, 30 ); break;
-                            case 1:
-                            case 2: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigEG1Pt, binning, 17 ); break;
-                            case 3: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigEG2Pt, binning, 24 ); break;
-                            case 4:
-                            case 5: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigEG1Pt, binning, 17 ); break;
-                            default: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCPt_combinedBinning, binning, 33 ); break;
+                        if( energy.Contains("Sys")) {
+                            switch(SpecialTrigger) {
+                                case 0: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCSys, binning, 4 ); break;
+                                case 1:
+                                case 2: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigEG1Pt, binning, 17 ); break;
+                                case 3: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigEG2Pt, binning, 24 ); break;
+                                case 4:
+                                case 5: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigEG1Pt, binning, 17 ); break;
+                                default: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCPt_combinedBinning, binning, 33 ); break;
+                            }
+                        } else {
+                            switch(SpecialTrigger) {
+                                case 0: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigINT7Pt, binning, 30 ); break;
+                                case 1:
+                                case 2: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigEG1Pt, binning, 17 ); break;
+                                case 3: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigEG2Pt, binning, 24 ); break;
+                                case 4:
+                                case 5: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCTrigEG1Pt, binning, 17 ); break;
+                                default: maxNBins = CopyVectorToArray( binningMax, fBinsEta13TeVPCMEMCPt_combinedBinning, binning, 33 ); break;
+                            }
                         }
                         break;
                     // case 13:
@@ -4643,7 +4667,7 @@
                         binning[i]  = fBinsDirGamma8TeVPt[i];
                     }
                 }
-            } else if (energy.CompareTo("13TeVLowB") == 0 || energy.CompareTo("13TeV") == 0){
+            } else if (energy.CompareTo("13TeVLowB") == 0 || energy.CompareTo("13TeV") == 0  || energy.CompareTo("13TeVSys") == 0){
                 if (mode == 0){
                     if (DCAcase == kTRUE)
                         maxNBins = CopyVectorToArray(binningMax,fBinsDirGamma13TeVLowBPt,binning, 24);
@@ -4869,7 +4893,7 @@
                 }
             }
 
-        } else if( energy.EqualTo("13TeV") || energy.EqualTo("13TeVLowB") || energy.EqualTo("13TeVRBins") || energy.EqualTo("13TeVRBinsLowB")   ) {
+        } else if( energy.EqualTo("13TeV") || energy.EqualTo("13TeVLowB") || energy.EqualTo("13TeVRBins") || energy.EqualTo("13TeVRBinsLowB")   || energy.CompareTo("13TeVSys") == 0 ) {
             if( modi!=0 && modeHeavy<100 ) {
 
                 if ( (modi == 60 ) || (modi == 62 ) || (modi == 65) || (modi == 61) || (modi == 64)){
@@ -5007,7 +5031,7 @@
             } else {
                 triggerSetTemp = 0; // MB
             }
-        } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0  || energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+        } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0  || energy.CompareTo("13TeVRBinsLowB") == 0  || energy.CompareTo("13TeVSys") == 0 ) {
             if     ( trigger.EqualTo("10") ) triggerSetTemp = 0; // MinBias
             else if( trigger.EqualTo("52") ) triggerSetTemp = 1; // L0 EMC7 3GeV
             else if( trigger.EqualTo("83") || trigger.EqualTo("89") ) triggerSetTemp = 2; // EG1 8GeV (EMC || DMC)
@@ -5685,10 +5709,13 @@ TString rBin = photonCutSelection(2,1);
             //*********************************************************************************************
             //********************************** Pi0 for pp 13TeV******************************************
             //*********************************************************************************************
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 ) {
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  || energy.CompareTo("13TeVSys") == 0 ) {
                 if (directPhoton.CompareTo("directPhoton") == 0){
                     if (modi == 0) {
                         GetBinning( fBinsPt, maxPtBinAvail, "Gamma", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis);
+                    }
+                    if (modi == 2) {
+                        GetBinning( fBinsPt, maxPtBinAvail, "Pi0", energy, modi, specialTrigg, isDCA, centrality, DoJetAnalysis);
                     }
 
                     fStartPtBin                 = GetStartBin("Pi0", energy, modi, specialTrigg, centrality);
@@ -5712,6 +5739,18 @@ TString rBin = photonCutSelection(2,1);
                             fNRebin[i]      = fBinsGamma13TeVEMCTrigINT7PtRebin[i];
                         }
                       }
+                    } else if(modi == 2){ 
+                        for (Int_t i = 0; i < fNBinsPt+1; i++) {
+                            if( energy.Contains("Sys")) fNRebin[i]      = fBinsPi013TeVPCMEMCSysRebin[i];
+                            if (specialTrigg == 0 || specialTrigg == 4 ){
+                                // fNRebin[i]      = fBinsPi013TeVPCMTrigINT7PtRebin[i];
+                                fNRebin[i]      = fBinsPi013TeVPCMEMCTrigINT7PtRebin[i];
+                            } else if (specialTrigg==3){
+                                fNRebin[i]      = fBinsPi013TeVPCMEMCTrigEG2PtRebin[i];
+                            } else if (specialTrigg==2 || specialTrigg == 5){
+                                fNRebin[i]      = fBinsPi013TeVPCMEMCTrigEG1PtRebin[i];
+                            }
+                        }
                     } else {
                       for (Int_t i = 0; i < fNBinsPt+1; i++) {
                           fBinsPt[i]         = fBinsDirGamma13TeVPt[i];
@@ -7146,7 +7185,7 @@ TString rBin = photonCutSelection(2,1);
             //*********************************************************************************************
             //********************************** Eta for pp 13TeV******************************************
             //*********************************************************************************************
-            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  ) {
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0  || energy.CompareTo("13TeVSys") == 0 ) {
                 fStartPtBin                 = GetStartBin("Eta", energy, modi, specialTrigg);
                 Int_t maxPtBinTheo          = GetBinning( fBinsPt, maxPtBinAvail, "Eta", energy, modi, specialTrigg, isDCA, centrality,DoJetAnalysis );
                 if (fNBinsPt > maxPtBinTheo) {
