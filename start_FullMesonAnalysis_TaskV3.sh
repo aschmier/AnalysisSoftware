@@ -1496,7 +1496,7 @@ if [ $MODE -lt 10 ]  || [ $MODE = 12 ] ||  [ $MODE = 13 ] || [ $MODE -ge 100 ]  
                         if [ $UseTemplate -eq 1 ]; then
                           OPTIONSPI0ETAMC=\"Pi0EtaBinning\"\,\"$MCROOTFILE\"\,\"$MCROOTFILE\"\,\"$CUTSELECTION\"\,\"$SUFFIX\"\,\"kTRUE\"\,\"$ENERGY\"\,\"$crystal\"\,\"$DIRECTPHOTON\"\,\"$OPTMINBIASEFF\"\,\"\"\,\"$ADVMESONQA\"\,$BINSPTETA\,kFALSE
                         fi
-                        ExtractSignal $OPTIONSPI0ETADATA $UseTemplate
+                        ExtractSignal $OPTIONSPI0ETAMC $UseTemplate
                         PI0ETAMCRAWFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaConvV1WithoutCorrection_*$CUTSELECTION.root`
                         PI0ETAMCCORRFILE=`ls $CUTSELECTION/$ENERGY/Pi0EtaBinning_MC_GammaConvV1CorrectionHistos_*$CUTSELECTION.root`
                         if [ $MERGINGMC -eq 1 ]; then
