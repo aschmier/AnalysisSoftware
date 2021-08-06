@@ -4397,6 +4397,8 @@
     Color_t GetDefaultTriggerColorName (TString triggerName, Bool_t isShade, TString opt = ""){
         if ( (triggerName.Contains("MB") || triggerName.Contains("INT1") || (opt.BeginsWith("8TeV") && triggerName.Contains("INT7"))) && !isShade)     return kBlack;
         else if ((triggerName.Contains("MB") || triggerName.Contains("INT1") || (opt.BeginsWith("8TeV") && triggerName.Contains("INT7"))) && isShade)  return kGray+1;
+        else if ((triggerName.Contains("INT71") || triggerName.Contains("INT7B")) && !isShade) return kOrange-7;
+        else if ((triggerName.Contains("INT71") || triggerName.Contains("INT7B")) && isShade) return kOrange-9;
         else if (triggerName.Contains("INT7") && !isShade) return kGray+1;
         else if (triggerName.Contains("INT7") && isShade)  return kGray;
         else if (triggerName.Contains("EMC1") && !isShade) return kRed+2;
@@ -4423,11 +4425,11 @@
     Marker_t GetDefaultTriggerMarkerStyleName (TString triggerName, Bool_t isShade ){
         if ((triggerName.Contains("MB_NLM1") || triggerName.Contains("INT1_NLM1") )&& !isShade)  return 33;
         else if ((triggerName.Contains("MB") || triggerName.Contains("INT1") )&& !isShade)       return 20;
-        else if ((triggerName.Contains("MB_NLM1") || triggerName.Contains("INT1_NLM1") )&& isShade)        return 27;
+        else if ((triggerName.Contains("MB_NLM1") || triggerName.Contains("INT1_NLM1") || triggerName.Contains("INT71") )&& isShade)        return 27;
         else if ((triggerName.Contains("MB") || triggerName.Contains("INT1") )&& isShade)        return 24;
-        else if ((triggerName.Contains("INT7_NLM1") || triggerName.Contains("INT7_CF")) && !isShade) return 27;
+        else if ((triggerName.Contains("INT7_NLM1") || triggerName.Contains("INT7_CF") || triggerName.Contains("INT71") || triggerName.Contains("INT7B")) && !isShade) return 27;
         else if (triggerName.Contains("INT7") && !isShade)      return 20;
-        else if ((triggerName.Contains("INT7_NLM1") || triggerName.Contains("INT7_CF")) && isShade)  return 33;
+        else if ((triggerName.Contains("INT7_NLM1") || triggerName.Contains("INT7_CF")  || triggerName.Contains("INT7B")) && isShade)  return 33;
         else if (triggerName.Contains("INT7") && isShade)       return 24;
         else if (triggerName.Contains("EMC1_NLM1") && !isShade) return 25;
         else if (triggerName.Contains("EMC1") && !isShade) return 21;
@@ -4457,9 +4459,9 @@
         else if ((triggerName.Contains("MB") || triggerName.Contains("INT1") )&& !isShade)       return (Size_t)1.5;
         else if ((triggerName.Contains("MB_NLM1") || triggerName.Contains("INT1_NLM1") )&& isShade) return (Size_t)2;
         else if ((triggerName.Contains("MB") || triggerName.Contains("INT1") )&& isShade)        return (Size_t)1.5;
-        else if ((triggerName.Contains("INT7_NLM1") || triggerName.Contains("INT7_CF"))&& !isShade) return (Size_t)2;
+        else if ((triggerName.Contains("INT7_NLM1") || triggerName.Contains("INT7B") || triggerName.Contains("INT7_CF"))&& !isShade) return (Size_t)2;
         else if (triggerName.Contains("INT7") && !isShade)      return (Size_t)1.5;
-        else if ((triggerName.Contains("INT7_NLM1") || triggerName.Contains("INT7_CF")) && isShade)  return (Size_t)2;
+        else if ((triggerName.Contains("INT7_NLM1") || triggerName.Contains("INT7B") || triggerName.Contains("INT7_CF")) && isShade)  return (Size_t)2;
         else if (triggerName.Contains("INT7") && isShade)       return (Size_t)1.5;
         else if (triggerName.Contains("EMC1_NLM1") && !isShade) return (Size_t)1.5;
         else if (triggerName.Contains("EMC1") && !isShade) return (Size_t)1.5;

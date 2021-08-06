@@ -106,6 +106,8 @@ Int_t GetOrderedTrigger(TString triggerNameDummy){
         return 11;
     } else if (triggerNameDummy.CompareTo("PHI7") == 0){
         return 12;
+    } else if (triggerNameDummy.CompareTo("INT7B") == 0){ // lowB field with INT7 trigger
+        return 13;
     } else
      return -1;
 }
@@ -199,7 +201,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
     Size_t textSizeSpectra          = 0.04;
     Int_t textSizePixelSpectra      = textSizeSpectra*1000;
-    const Int_t MaxNumberOfFiles    = 13;
+    const Int_t MaxNumberOfFiles    = 14;
 
     Color_t colorTrigg      [MaxNumberOfFiles];
         for(Int_t set=0;set<MaxNumberOfFiles;set++) colorTrigg[set]= kBlack;
@@ -218,12 +220,19 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TString strINT7NLM1 = "INT7_NLM1";
     if (optionEnergy.Contains("5TeV2017"))
         strINT7NLM1 = "INT7_CF";
+
     TString nameTriggerWeighted[MaxNumberOfFiles]  = {  "INT1", "INT7", "EMC1", "EMC7", strEG2_A.Data(), "EG1",
-                                                        "INT1_NLM1", strINT7NLM1, "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1", "PHI7"};
+                                                        "INT1_NLM1", strINT7NLM1, "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1", "PHI7", "INT7B"};
     if(optionEnergy.CompareTo("2.76TeV")!=0){
         nameTriggerWeighted[10] = "EJ2";
         nameTriggerWeighted[11] = "EJ1";
     }
+
+    //list of triggers that should only be taken into account for the corrected yield but not for efficiency etc.
+    // (example is lowB field in pp 13 TeV)
+    std::vector<Int_t> vecRejectTriggerComb = {};
+    if(optionEnergy.CompareTo("13TeV") == 0) vecRejectTriggerComb = {13};
+
     TString system              = "PCM";
     if (mode == 2) system       = "PCM-EMCAL";
     if (mode == 3) system       = "PCM-PHOS";
@@ -349,6 +358,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TString sysFileEtaToPi0     [MaxNumberOfFiles];
     TString cutNumberBaseEff    [MaxNumberOfFiles];
     TString cutNumberMergedExt  [MaxNumberOfFiles];
+    Bool_t isTriggerDrawSeperate [MaxNumberOfFiles];
     //***************************************************************************************************************
     //*************************** read setting from configuration file **********************************************
     //***************************************************************************************************************
@@ -400,6 +410,14 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             maskedFullyEta[i]       = kTRUE;
         } else {
             maskedFullyEta[i]       = kFALSE;
+        }
+
+        isTriggerDrawSeperate[i] = kFALSE;
+        for(const auto & trNr : vecRejectTriggerComb){
+          if(nameTriggerWeighted[trNr].CompareTo(triggerName[i]) == 0){
+            isTriggerDrawSeperate[i] = kTRUE;
+            break;
+          }
         }
     }
 
@@ -627,7 +645,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     if (( optionEnergy.CompareTo("pPb_5.023TeV") == 0 || optionEnergy.CompareTo("5TeVRefpPb") == 0 )&& numberOfTrigg == 1 && mode == 2) // need to make exception for RpA as pp only has MB
       combTriggerSet              = 0;
 
-    if ( optionEnergy.Contains("13TeV") &&  mode == 0) 
+    if ( optionEnergy.Contains("13TeV") &&  mode == 0)
       combTriggerSet              = 0;
 
 
@@ -1092,7 +1110,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             histoCorrectedYieldPi0[i]->Scale(0.8613) ;
             histoRawYieldPi0[i]->Scale(0.8613) ;
         }
-        if (triggerName[i].CompareTo("INT7") != 0 && triggerName[i].CompareTo("MB") != 0 && triggerName[i].CompareTo("INT1") != 0){
+        if (triggerName[i].CompareTo("INT7") != 0 && triggerName[i].CompareTo("MB") != 0 && triggerName[i].CompareTo("INT1") != 0 && triggerName[i].CompareTo("INT7B") != 0){
             nRealTriggers++;
         }
 
@@ -1504,7 +1522,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         TCanvas* canvasTriggerRejectLinear = new TCanvas("canvasTriggerReject","",0,0,1500,1100);// gives the page size
         DrawGammaCanvasSettings( canvasTriggerRejectLinear, 0.076, 0.015, textSizeSpectra2, 0.08);
         canvasTriggerRejectLinear->SetLogy(0);
-        if (mode == 2 && optionEnergy.BeginsWith("13TeV") ) canvasTriggerRejectLinear->SetLogx(1);
+        if ((mode == 2 || mode == 4) && optionEnergy.BeginsWith("13TeV") ) canvasTriggerRejectLinear->SetLogx(1);
 
         Double_t minTriggRejectLin = 0;
         Double_t maxTriggRejectLin = 2000;
@@ -1945,7 +1963,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         TCanvas* canvasClusterYield = new TCanvas("canvasClusterYield","",0,0,1000,1350);// gives the page size
         DrawGammaCanvasSettings( canvasClusterYield, 0.16, 0.02, 0.015, 0.07);
         canvasClusterYield->SetLogy(1);
-        if (mode == 2 && optionEnergy.BeginsWith("13TeV") ) canvasClusterYield->SetLogx(1);
+        if ((mode == 2 || mode == 4) && optionEnergy.BeginsWith("13TeV") ) canvasClusterYield->SetLogx(1);
 
         Double_t minClusYieldUnscaled    = 7e-9;
         Double_t maxClusYieldUnscaled    = 5;
@@ -2256,6 +2274,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
         Double_t minEffiTrigPi0         = 0;
         Double_t maxEffiTrigPi0         = 1.1;
+        if(optionEnergy.Contains("13TeV")) minEffiTrigPi0 = 0.8;
         //if(optionEnergy.BeginsWith("8TeV") && mode == 2) maxEffiTrigPi0 = 1.5;
 
         TH2F * histo2DTriggerEffiPi0;
@@ -2673,7 +2692,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TCanvas* canvasRawUnscaled = new TCanvas("canvasRawUnscaled","",0,0,1000,1350);// gives the page size
     DrawGammaCanvasSettings( canvasRawUnscaled, 0.16, 0.02, 0.015, 0.07);
     canvasRawUnscaled->SetLogy(1);
-    if (mode == 2 && optionEnergy.BeginsWith("13TeV") ) canvasRawUnscaled->SetLogx(1);
+    if ((mode == 2 || mode == 4) && optionEnergy.BeginsWith("13TeV") ) canvasRawUnscaled->SetLogx(1);
 
     Double_t minCorrYieldRawUnscaled    = 7e-8;
     Double_t maxCorrYieldRawUnscaled    = 4e-2;
@@ -2976,6 +2995,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsPi0[5] = 52; //EG1
         } else if(mode == 4){
             offSetsPi0[1] = 0; //INT7
+            offSetsPi0[13] = 1; //INT7B
             offSetsPi0[4] = 30; //EG2
             offSetsPi0[5] = 50; //EG1
         }else if(mode == 10){
@@ -3401,13 +3421,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         }
     }
 
-    if (optionEnergy.CompareTo("13TeV")==0){
-        if(mode == 2){
-            // offSetsPi0Sys[1]= offSetsPi0Sys[1] ; //INT7
-            offSetsPi0Sys[4]= 58; //EG2
-            offSetsPi0Sys[5]= 72; //EG1
-        }
-    } else if (optionEnergy.CompareTo("7TeV")==0){
+    if (optionEnergy.CompareTo("7TeV")==0){
         if(mode == 2){
             offSetsPi0Sys[3]+=27;
         } else if (mode == 4 ){
@@ -3478,6 +3492,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             offSetsPi0Sys[1]+=4;
             offSetsPi0Sys[3]=58;
             offSetsPi0Sys[12]=offSetsPi0Sys[3];
+        } else if(mode == 2){
+            // offSetsPi0Sys[1]= offSetsPi0Sys[1] ; //INT7
+            offSetsPi0Sys[4]= 58; //EG2
+            offSetsPi0Sys[5]= 72; //EG1
         }
     }
 
@@ -3823,7 +3841,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphMassPi0DataWeighted                    = CalculateWeightedQuantity(    graphOrderedMassPi0Data,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                    );
             if (!graphMassPi0DataWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -3833,7 +3852,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphMassPi0MCWeighted                      = CalculateWeightedQuantity(    graphOrderedMassPi0MC,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                    );
             if (!graphMassPi0MCWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -3844,7 +3864,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphWidthPi0DataWeighted                   = CalculateWeightedQuantity(    graphOrderedWidthPi0Data,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                    );
             if (!graphWidthPi0DataWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -3855,7 +3876,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphWidthPi0MCWeighted                     = CalculateWeightedQuantity(    graphOrderedWidthPi0MC,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                    );
             if (!graphWidthPi0MCWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -3868,7 +3890,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         graphAcceptancePi0Weighted                      = CalculateWeightedQuantity(    graphOrderedAcceptancePi0,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                     );
         if (!graphAcceptancePi0Weighted){
             cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -3882,7 +3905,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 graphEffectSecCorrPi0Weighted[k]        = CalculateWeightedQuantity(    graphOrderedEffectSecCorrPi0[k],
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                     );
                 if (!graphEffectSecCorrPi0Weighted[k]){
                     cout << "Aborted in CalculateWeightedQuantity for effective sec cor " << k << endl;
@@ -3895,7 +3919,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 graphEfficiencySecPi0Weighted[k]        = CalculateWeightedQuantity(    graphOrderedEfficiencySecPi0[k],
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                     );
                 if (!graphEffectSecCorrPi0Weighted[k]){
                     cout << "Aborted in CalculateWeightedQuantity for sec effi " << k << endl;
@@ -3910,7 +3935,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         graphEfficiencyPi0Weighted                      = CalculateWeightedQuantity(    graphOrderedEfficiencyPi0,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                     );
         if (!graphEfficiencyPi0Weighted){
             cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -3921,7 +3947,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         graphEffTimesAccPi0Weighted                     = CalculateWeightedQuantity(    graphOrderedEffTimesAccPi0,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                     );
 
         if (!graphEffTimesAccPi0Weighted){
@@ -3933,7 +3960,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphPurityPi0Weighted                      = CalculateWeightedQuantity(    graphOrderedPurityPi0,
                                                                                         graphWeightsPi0,
                                                                                         binningPi0,  maxNAllowedPi0,
-                                                                                        MaxNumberOfFiles
+                                                                                        MaxNumberOfFiles,
+                                                                                        vecRejectTriggerComb
                                                                                     );
             if (!graphPurityPi0Weighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -4246,6 +4274,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             canvasMass->cd();
             histo2DMassPi0->DrawCopy();
             TLegend* legendMassPi0Weighted = GetAndSetLegend2(0.52, 0.88, 0.75, 0.88+(1.05*2*0.85*textSizeSpectra),28);
+            TLegend* legendMassPi0WeightedAdd = GetAndSetLegend2(0.7, 0.88, 0.9, 0.88+(1.05*2*0.85*textSizeSpectra),28);
             if (graphMassPi0DataWeighted){
                 DrawGammaSetMarkerTGraphAsym(graphMassPi0DataWeighted, 20, 1, kBlack, kBlack);
                 graphMassPi0DataWeighted->Draw("p,e1,same");
@@ -4256,7 +4285,25 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 graphMassPi0MCWeighted->Draw("p,e1,same");
                 legendMassPi0Weighted->AddEntry(graphMassPi0MCWeighted, "MC", "p");
             }
+            if(vecRejectTriggerComb.size() > 0){
+              cout<<"adding trigger which did not enter calculation\n";
+              for(int i = 0; i < nrOfTrigToBeComb; ++i){
+                if(isTriggerDrawSeperate[i]){
+                  if(graphMassPi0Data[i]){
+                    DrawGammaSetMarkerTGraphAsym(graphMassPi0Data[i], markerTrigg[i], sizeTrigg[i]*0.7, colorTrigg[i], colorTrigg[i]);
+                    graphMassPi0Data[i]->Draw("p,e1,same");
+                    legendMassPi0WeightedAdd->AddEntry(graphMassPi0Data[i], Form("%s Data", triggerNameLabel[i].Data()), "p");
+                  }
+                  if(graphMassPi0MC[i]){
+                    DrawGammaSetMarkerTGraphAsym(graphMassPi0MC[i], markerTriggMC[i], sizeTrigg[i]*0.7, colorTriggShade[i], colorTriggShade[i]);
+                    graphMassPi0MC[i]->Draw("p,e1,same");
+                    legendMassPi0WeightedAdd->AddEntry(graphMassPi0MC[i], Form("%s MC", triggerNameLabel[i].Data()), "p");
+                  }
+                }
+              }
+            }
             legendMassPi0Weighted->Draw();
+            legendMassPi0WeightedAdd->Draw();
             labelEnergyMass->Draw();
             labelPi0Mass->Draw();
             labelDetProcMass->Draw();
@@ -4372,6 +4419,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         canvasWidth->cd();
         histo2DWidthPi0->DrawCopy();
         TLegend* legendWidthPi0Weighted = GetAndSetLegend2(0.52, 0.86, 0.75, 0.86+(1.05*2*0.85*textSizeSpectra),28);
+        TLegend* legendWidthPi0WeightedAdd = GetAndSetLegend2(0.7, 0.86, 0.9, 0.86+(1.05*2*0.85*textSizeSpectra),28);
         if (graphWidthPi0DataWeighted){
             DrawGammaSetMarkerTGraphAsym(graphWidthPi0DataWeighted, 20, 1, kBlack, kBlack);
             graphWidthPi0DataWeighted->Draw("p,e1,same");
@@ -4382,7 +4430,25 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphWidthPi0MCWeighted->Draw("p,e1,same");
             legendWidthPi0Weighted->AddEntry(graphWidthPi0MCWeighted, "MC", "p");
         }
+        if(vecRejectTriggerComb.size() > 0){
+          cout<<"adding trigger which did not enter calculation\n";
+          for(int i = 0; i < nrOfTrigToBeComb; ++i){
+            if(isTriggerDrawSeperate[i]){
+              if(graphWidthPi0Data[i]){
+                DrawGammaSetMarkerTGraphAsym(graphWidthPi0Data[i], markerTrigg[i], sizeTrigg[i]*0.7, colorTrigg[i], colorTrigg[i]);
+                graphWidthPi0Data[i]->Draw("p,e1,same");
+                legendWidthPi0WeightedAdd->AddEntry(graphWidthPi0Data[i], Form("%s Data", triggerNameLabel[i].Data()), "p");
+              }
+              if(graphWidthPi0MC[i]){
+                DrawGammaSetMarkerTGraphAsym(graphWidthPi0MC[i], markerTriggMC[i], sizeTrigg[i]*0.7, colorTriggShade[i], colorTriggShade[i]);
+                graphWidthPi0MC[i]->Draw("p,e1,same");
+                legendWidthPi0WeightedAdd->AddEntry(graphWidthPi0MC[i], Form("%s MC", triggerNameLabel[i].Data()), "p");
+              }
+            }
+          }
+        }
         legendWidthPi0Weighted->Draw();
+        legendWidthPi0WeightedAdd->Draw();
         labelEnergyWidth->Draw();
         labelPi0Width->Draw();
         labelDetProcWidth->Draw();
@@ -4399,14 +4465,30 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     //***************************************************************************************************************
     if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (graphEfficiencyPi0Weighted){
+        TLegend* legendEffiPi0Weighted = GetAndSetLegend2(0.7, 0.86, 0.9, 0.86+(1.05*2*0.85*textSizeSpectra),28);
         DrawGammaCanvasSettings( canvasEffi, 0.09, 0.017, 0.015, 0.08);
         canvasEffi->SetLogy(1);
-        if (mode == 2 && optionEnergy.BeginsWith("13TeV") ) canvasEffi->SetLogx(1);
+        if ((mode == 2 || mode == 4) && optionEnergy.BeginsWith("13TeV") ) canvasEffi->SetLogx(1);
         canvasEffi->cd();
         histo2DEffiPi0->DrawCopy();
 
+
         DrawGammaSetMarkerTGraphAsym(graphEfficiencyPi0Weighted, 20, 1, kGray+2, kGray+2);
         graphEfficiencyPi0Weighted->Draw("p,e1,same");
+        legendEffiPi0Weighted->AddEntry(graphEfficiencyPi0Weighted, "weighted", "p");
+
+        if(vecRejectTriggerComb.size() > 0){
+          cout<<"adding trigger which did not enter calculation\n";
+          for(int i = 0; i < nrOfTrigToBeComb; ++i){
+            if(isTriggerDrawSeperate[i]){
+              if(graphEfficiencyPi0[i]){
+                DrawGammaSetMarkerTGraphAsym(graphEfficiencyPi0[i], markerTrigg[i], sizeTrigg[i]*0.7, colorTrigg[i], colorTrigg[i]);
+                graphEfficiencyPi0[i]->Draw("p,e1,same");
+                legendEffiPi0Weighted->AddEntry(graphEfficiencyPi0[i], Form("%s", triggerNameLabel[i].Data()), "p");
+              }
+            }
+          }
+        }
 
         TLatex *labelEnergyEffiWOTrigg = new TLatex(0.95, 0.15+(1.02*2*textSizeSpectra*0.85),collisionSystem.Data());
         SetStyleTLatex( labelEnergyEffiWOTrigg, 0.85*textSizeSpectra,4,1,42,kTRUE, 31);
@@ -4425,10 +4507,11 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     }
 
     //***************************************************************************************************************
-    //************************************* Efficiency weighted *****************************************************
+    //************************************* Efficiency x Acceptance weighted ****************************************
     //***************************************************************************************************************
     if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     if (graphEffTimesAccPi0Weighted){
+      TLegend* legendEffiAccPi0Weighted = GetAndSetLegend2(0.2, 0.86, 0.4, 0.86+(1.05*2*0.85*textSizeSpectra),28);
       DrawGammaCanvasSettings( canvasEffi, 0.09, 0.017, 0.015, 0.08);
       canvasEffi->SetLogy(1);
       canvasEffi->SetLogx(1);
@@ -4444,6 +4527,20 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
       DrawGammaSetMarkerTGraphAsym(graphEffTimesAccPi0Weighted, 20, 1, kGray+2, kGray+2);
       graphEffTimesAccPi0Weighted->Draw("p,e1,same");
+      legendEffiAccPi0Weighted->AddEntry(graphEffTimesAccPi0Weighted, "weighted", "p");
+
+      if(vecRejectTriggerComb.size() > 0){
+        cout<<"adding trigger which did not enter calculation\n";
+        for(int i = 0; i < nrOfTrigToBeComb; ++i){
+          if(isTriggerDrawSeperate[i]){
+            if(graphEffTimesAccPi0[i]){
+              DrawGammaSetMarkerTGraphAsym(graphEffTimesAccPi0[i], markerTrigg[i], sizeTrigg[i]*0.7, colorTrigg[i], colorTrigg[i]);
+              graphEffTimesAccPi0[i]->Draw("p,e1,same");
+              legendEffiAccPi0Weighted->AddEntry(graphEffTimesAccPi0[i], Form("%s", triggerNameLabel[i].Data()), "p");
+            }
+          }
+        }
+      }
 
       TLatex *labelEnergyEffiWOTrigg = new TLatex(0.95, 0.15+(1.02*2*textSizeSpectra*0.85),collisionSystem.Data());
       SetStyleTLatex( labelEnergyEffiWOTrigg, 0.85*textSizeSpectra,4,1,42,kTRUE, 31);
@@ -4457,6 +4554,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
       SetStyleTLatex( labelDetProcEffiWOTrigg, 0.85*textSizeSpectra,4,1,42,kTRUE, 31);
       labelDetProcEffiWOTrigg->Draw();
 
+      legendEffiAccPi0Weighted->Draw();
+
       canvasEffi->Update();
       canvasEffi->SaveAs(Form("%s/Pi0_EfficiencyTimesAcceptanceW0TriggEff_Weighted.%s",outputDir.Data(),suffix.Data()));
       canvasEffi->SetLogx(0);
@@ -4468,12 +4567,29 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     if (DebugOutputLevel>=1){cout << "Debug; ProduceFinalResultsPatchedTriggers.C, line " << __LINE__ <<"; "<<endl;}
     for (Int_t k = 0; k< 4; k++ ){
         if (graphEfficiencySecPi0Weighted[k]){
+            TLegend* legendSecEffiAccPi0Weighted = GetAndSetLegend2(0.5, 0.86, 0.7, 0.86+(1.05*2*0.85*textSizeSpectra),28);
             canvasEffi->cd();
             histo2DEffiSecPi0[k]->DrawCopy();
 
             DrawGammaSetMarkerTGraphAsym(graphEfficiencySecPi0Weighted[k], 20, 1, kGray+2, kGray+2);
             graphEfficiencySecPi0Weighted[k]->Draw("p,e1,same");
+            legendSecEffiAccPi0Weighted->AddEntry(legendSecEffiAccPi0Weighted, "weighted", "p");
 
+            if(vecRejectTriggerComb.size() > 0){
+              cout<<"adding trigger which did not enter calculation\n";
+              for(int i = 0; i < nrOfTrigToBeComb; ++i){
+                if(isTriggerDrawSeperate[i]){
+                  if(graphEfficiencySecPi0[k][i]){
+                    DrawGammaSetMarkerTGraphAsym(graphEfficiencySecPi0[k][i], markerTrigg[i], sizeTrigg[i]*0.7, colorTrigg[i], colorTrigg[i]);
+                    graphEfficiencySecPi0[k][i]->Draw("p,e1,same");
+                    legendSecEffiAccPi0Weighted->AddEntry(graphEfficiencySecPi0[k][i], Form("%s", triggerNameLabel[i].Data()), "p");
+                    cout<<"printing"<<endl;
+                  }
+                }
+              }
+            }
+
+            legendSecEffiAccPi0Weighted->Draw();
 
             TLatex* labelEnergySecEff    = new TLatex(0.14, 0.84+(1.02*2*textSizeSpectra*0.85),collisionSystem.Data());
             SetStyleTLatex( labelEnergySecEff, 0.85*textSizeSpectra,4);
@@ -4495,8 +4611,10 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             delete labelEnergySecEff;
             delete labelPi0SecEff;
             delete labelDetProcSecEff;
+            // delete legendSecEffiAccPi0Weighted;
         }
         if (graphEffectSecCorrPi0Weighted[k]){
+          TLegend* legendSecEffiAccPi0Weighted = GetAndSetLegend2(0.5, 0.86, 0.7, 0.86+(1.05*2*0.85*textSizeSpectra),28);
             canvasEffi->cd();
             canvasEffi->SetLogy(0);
             canvasEffi->SetLeftMargin(0.1);
@@ -4505,6 +4623,22 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
             DrawGammaSetMarkerTGraphAsym(graphEffectSecCorrPi0Weighted[k], 20, 1, kGray+2, kGray+2);
             graphEffectSecCorrPi0Weighted[k]->Draw("p,e1,same");
+            legendSecEffiAccPi0Weighted->AddEntry(graphEffectSecCorrPi0Weighted[k], "weighted", "p");
+
+            if(vecRejectTriggerComb.size() > 0){
+              cout<<"adding trigger which did not enter calculation\n";
+              for(int i = 0; i < nrOfTrigToBeComb; ++i){
+                if(isTriggerDrawSeperate[i]){
+                  if(graphEffectSecCorrPi0[k][i]){
+                    DrawGammaSetMarkerTGraphAsym(graphEffectSecCorrPi0[k][i], markerTrigg[i], sizeTrigg[i]*0.7, colorTrigg[i], colorTrigg[i]);
+                    graphEffectSecCorrPi0[k][i]->Draw("p,e1,same");
+                    legendSecEffiAccPi0Weighted->AddEntry(graphEffectSecCorrPi0[k][i], Form("%s", triggerNameLabel[i].Data()), "p");
+                  }
+                }
+              }
+            }
+
+            legendSecEffiAccPi0Weighted->Draw();
 
             TLatex *labelEnergyEffSec = new TLatex(0.95, 0.93-(0.98*textSizeSpectra*0.85),collisionSystem.Data());
             SetStyleTLatex( labelEnergyEffSec, 0.85*textSizeSpectra,4,1, 42, kTRUE, 31);
@@ -4689,7 +4823,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TCanvas* canvasCorrScaled = new TCanvas("canvasCorrScaled","",0,0,1000,1350);// gives the page size
     DrawGammaCanvasSettings( canvasCorrScaled, 0.15, 0.017, 0.015, 0.07);
     canvasCorrScaled->SetLogy(1);
-    if (mode == 2 && optionEnergy.BeginsWith("13TeV") ) canvasCorrScaled->SetLogx(1);
+    if ((mode == 2 || mode == 4)&& optionEnergy.BeginsWith("13TeV") ) canvasCorrScaled->SetLogx(1);
 //     canvasCorrScaled->SetGridx();
 
     Double_t minCorrYield       = 2e-10;
@@ -4849,7 +4983,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
     TCanvas* canvasRatioSpec = new TCanvas("canvasRatioSpec","",0,0,1000,900);// gives the page size
     DrawGammaCanvasSettings( canvasRatioSpec, 0.09, 0.017, 0.015, 0.08);
     canvasRatioSpec->SetLogy(0);
-    if (mode == 2 && optionEnergy.BeginsWith("13TeV") ) canvasRatioSpec->SetLogx(1);
+    if ((mode == 2 || mode == 4) && optionEnergy.BeginsWith("13TeV") ) canvasRatioSpec->SetLogx(1);
 
     TH2F * histo2DRatioToFitPi0;
     histo2DRatioToFitPi0 = new TH2F("histo2DRatioToFitPi0","histo2DRatioToFitPi0",1000,minPtGlobalPi0-0.2, maxPtGlobalPi0+30,1000,0.55, 1.85);
@@ -5379,7 +5513,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
           canvasEffi->Update();
           canvasEffi->SaveAs(Form("%s/Eta_%s_BinShiftCorrection.%s",outputDir.Data(),isMC.Data(),suffix.Data()));
 
-          histoBinShift->GetXaxis()->SetRangeUser(minPtGlobalEta-0.2, maxPtGlobalEta+30);
+          histoBinShift->GetXaxis()->SetRangeUser(minPtGlobalEta-0.2, maxPtGlobalEta);
           if(optionEnergy.BeginsWith("8TeV") && mode==4)
               histoBinShift->GetXaxis()->SetRangeUser(minPtGlobalEta,20.);
           histoBinShift->GetYaxis()->SetRangeUser(0.95,1.05);
@@ -5518,7 +5652,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
 
             Double_t minEffiTrigEta         = 0;
             Double_t maxEffiTrigEta         = 1.1;
-            //if(optionEnergy.BeginsWith("8TeV") && mode == 2) maxEffiTrigEta = 1.5;
+            // if(optionEnergy.BeginsWith("8TeV") && mode == 2) maxEffiTrigEta = 1.5;
+            if(optionEnergy.Contains("13TeV") && mode == 4) minEffiTrigEta = 0.8;
 
             TH2F * histo2DTriggerEffiEta;
             histo2DTriggerEffiEta = new TH2F("histo2DTriggerEffiEta","histo2DTriggerEffiEta",1000,minPtGlobalEta-0.2, maxPtGlobalEta,10000,minEffiTrigEta, maxEffiTrigEta);
@@ -6022,6 +6157,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 offSetsEta[5] = 16; //EG1
             } else if(mode == 4){
                 offSetsEta[1] = 1; //INT7
+                offSetsEta[13]= 2; //INT7 lowB
                 offSetsEta[4] = 9; //EG2
                 offSetsEta[5] = 14; //EG1
             } else if(mode == 3){
@@ -6372,6 +6508,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         } else if(optionEnergy.Contains("13TeV")){
             if(mode == 4){
                 offSetsEtaSys[1]= offSetsEta[1] + 1; //INT7
+                offSetsEtaSys[13]= offSetsEta[13] + 1; //INT7 lowB
                 offSetsEtaSys[4]=offSetsEta[4] + 4; //EG2
                 offSetsEtaSys[5]=offSetsEta[5] + 3; //EG1
             } else if(mode == 3){
@@ -6536,7 +6673,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
               SysErrDatAverSingleCheck << endl;
               SysErrDatAverSingleCheck.close();
             }
-
             // plot sys relative errors for individual triggers
             TCanvas* canvasRelSysErr            = new TCanvas("canvasRelSysErr","",200,10,1350,900);  // gives the page size
             DrawGammaCanvasSettings( canvasRelSysErr, 0.08, 0.02, 0.035, 0.09);
@@ -6659,7 +6795,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphMassEtaDataWeighted                        = CalculateWeightedQuantity(    graphOrderedMassEtaData,
                                                                                             graphWeightsEta,
                                                                                             binningEta,  maxNAllowedEta,
-                                                                                            MaxNumberOfFiles
+                                                                                            MaxNumberOfFiles,
+                                                                                            vecRejectTriggerComb
                                                                                         );
 
             if (!graphMassEtaDataWeighted){
@@ -6669,7 +6806,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphMassEtaMCWeighted                          = CalculateWeightedQuantity(    graphOrderedMassEtaMC,
                                                                                             graphWeightsEta,
                                                                                             binningEta,  maxNAllowedEta,
-                                                                                            MaxNumberOfFiles
+                                                                                            MaxNumberOfFiles,
+                                                                                            vecRejectTriggerComb
                                                                                         );
             if (!graphMassEtaMCWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -6678,7 +6816,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphWidthEtaDataWeighted                       = CalculateWeightedQuantity(    graphOrderedWidthEtaData,
                                                                                             graphWeightsEta,
                                                                                             binningEta,  maxNAllowedEta,
-                                                                                            MaxNumberOfFiles
+                                                                                            MaxNumberOfFiles,
+                                                                                            vecRejectTriggerComb
                                                                                         );
             if (!graphWidthEtaDataWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -6687,7 +6826,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphWidthEtaMCWeighted                         = CalculateWeightedQuantity(    graphOrderedWidthEtaMC,
                                                                                             graphWeightsEta,
                                                                                             binningEta,  maxNAllowedEta,
-                                                                                            MaxNumberOfFiles
+                                                                                            MaxNumberOfFiles,
+                                                                                            vecRejectTriggerComb
                                                                                         );
             if (!graphWidthEtaMCWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -6696,7 +6836,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphAcceptanceEtaWeighted                      = CalculateWeightedQuantity(    graphOrderedAcceptanceEta,
                                                                                             graphWeightsEta,
                                                                                             binningEta,  maxNAllowedEta,
-                                                                                            MaxNumberOfFiles
+                                                                                            MaxNumberOfFiles,
+                                                                                            vecRejectTriggerComb
                                                                                         );
             if (!graphAcceptanceEtaWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -6705,7 +6846,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphEfficiencyEtaWeighted                      = CalculateWeightedQuantity(    graphOrderedEfficiencyEta,
                                                                                             graphWeightsEta,
                                                                                             binningEta,  maxNAllowedEta,
-                                                                                            MaxNumberOfFiles
+                                                                                            MaxNumberOfFiles,
+                                                                                            vecRejectTriggerComb
                                                                                         );
             if (!graphEfficiencyEtaWeighted){
                 cout << "Aborted in CalculateWeightedQuantity" << endl;
@@ -6715,7 +6857,8 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             graphEffTimesAccEtaWeighted                     = CalculateWeightedQuantity(    graphOrderedEffTimesAccEta,
                                                                                             graphWeightsEta,
                                                                                             binningEta,  maxNAllowedEta,
-                                                                                            MaxNumberOfFiles
+                                                                                            MaxNumberOfFiles,
+                                                                                            vecRejectTriggerComb
                                                                                         );
 
             if (!graphEffTimesAccEtaWeighted){
@@ -6974,6 +7117,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             canvasMass->cd();
             histo2DMassEta->DrawCopy();
             TLegend* legendMassEtaWeighted = GetAndSetLegend2(0.52, 0.88, 0.75, 0.88+(1.05*2*0.85*textSizeSpectra),28);
+            TLegend* legendMassEtaWeightedAdd = GetAndSetLegend2(0.7, 0.88, 0.9, 0.88+(1.05*2*0.85*textSizeSpectra),28);
             if (graphMassEtaDataWeighted){
                 DrawGammaSetMarkerTGraphAsym(graphMassEtaDataWeighted, 20, 1, kBlack, kBlack);
                 graphMassEtaDataWeighted->Draw("p,e1,same");
@@ -6984,10 +7128,30 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                 graphMassEtaMCWeighted->Draw("p,e1,same");
                 legendMassEtaWeighted->AddEntry(graphMassEtaMCWeighted, "MC", "p");
             }
+            // add triggers which did not enter the combined calculation for some quantaties (needed for lowB 13TeV)
+            if(vecRejectTriggerComb.size() > 0){
+              cout<<"adding trigger which did not enter calculation\n";
+              for(int i = 0; i < nrOfTrigToBeComb; ++i){
+                if(isTriggerDrawSeperate[i]){
+                  if(graphMassEtaData[i]){
+                    DrawGammaSetMarkerTGraphAsym(graphMassEtaData[i], markerTrigg[i], sizeTrigg[i]*0.7, colorTrigg[i], colorTrigg[i]);
+                    graphMassEtaData[i]->Draw("p,e1,same");
+                    legendMassEtaWeightedAdd->AddEntry(graphMassEtaData[i], Form("%s Data", triggerNameLabel[i].Data()), "p");
+                    cout<<"printing"<<endl;
+                  }
+                  if(graphMassEtaMC[i]){
+                    DrawGammaSetMarkerTGraphAsym(graphMassEtaMC[i], markerTriggMC[i], sizeTrigg[i]*0.7, colorTriggShade[i], colorTriggShade[i]);
+                    graphMassEtaMC[i]->Draw("p,e1,same");
+                    legendMassEtaWeightedAdd->AddEntry(graphMassEtaMC[i], Form("%s MC", triggerNameLabel[i].Data()), "p");
+                  }
+                }
+              }
+            }
             legendMassEtaWeighted->Draw();
             labelEnergyMass->Draw();
             labelEtaMass->Draw();
             labelDetProcMass->Draw();
+            legendMassEtaWeightedAdd->Draw();
 
             canvasMass->Update();
             canvasMass->SaveAs(Form("%s/Eta_%s_Mass_Weighted.%s",outputDir.Data(),isMC.Data(),suffix.Data()));
@@ -7040,8 +7204,26 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             canvasEffi->cd();
             histo2DEffiEta->DrawCopy();
 
+            TLegend* legendEffiEtaWeightedA = GetAndSetLegend2(0.7, 0.88, 0.9, 0.88+(1.05*2*0.85*textSizeSpectra),28);
+
             DrawGammaSetMarkerTGraphAsym(graphEfficiencyEtaWeighted, 20, 1, kGray+2, kGray+2);
             graphEfficiencyEtaWeighted->Draw("p,e1,same");
+            legendEffiEtaWeightedA->AddEntry(graphEfficiencyEtaWeighted, "weighted", "p");
+
+            if(vecRejectTriggerComb.size() > 0){
+              cout<<"adding trigger which did not enter calculation\n";
+              for(int i = 0; i < nrOfTrigToBeComb; ++i){
+                if(isTriggerDrawSeperate[i]){
+                  if(graphEfficiencyEta[i]){
+                    DrawGammaSetMarkerTGraphAsym(graphEfficiencyEta[i], markerTrigg[i], sizeTrigg[i]*0.7, colorTrigg[i], colorTrigg[i]);
+                    graphEfficiencyEta[i]->Draw("p,e1,same");
+                    legendEffiEtaWeightedA->AddEntry(graphEfficiencyEta[i], Form("%s", triggerNameLabel[i].Data()), "p");
+                  }
+                }
+              }
+            }
+
+            legendEffiEtaWeightedA->Draw();
 
             TLatex *labelEnergyEffiWOTrigg = new TLatex(0.95, 0.15+(1.02*2*textSizeSpectra*0.85),collisionSystem.Data());
             SetStyleTLatex( labelEnergyEffiWOTrigg, 0.85*textSizeSpectra,4,1,42,kTRUE, 31);
@@ -7160,17 +7342,37 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
         canvasWidth->cd();
         histo2DWidthEta->DrawCopy();
         TLegend* legendWidthEtaWeighted = GetAndSetLegend2(0.52, 0.86, 0.75, 0.86+(1.05*2*0.85*textSizeSpectra),28);
+        TLegend* legendWidthEtaWeightedAdd = GetAndSetLegend2(0.7, 0.86, 0.9, 0.86+(1.05*2*0.85*textSizeSpectra),28);
         if (graphWidthEtaDataWeighted){
             DrawGammaSetMarkerTGraphAsym(graphWidthEtaDataWeighted, 20, 1, kBlack, kBlack);
             graphWidthEtaDataWeighted->Draw("p,e1,same");
             legendWidthEtaWeighted->AddEntry(graphWidthEtaDataWeighted, "Data", "p");
         }
-        if (graphWidthEtaDataWeighted){
+        if (graphWidthEtaMCWeighted){
             DrawGammaSetMarkerTGraphAsym(graphWidthEtaMCWeighted, 24, 1, kGray+2, kGray+2);
             graphWidthEtaMCWeighted->Draw("p,e1,same");
             legendWidthEtaWeighted->AddEntry(graphWidthEtaMCWeighted, "MC", "p");
         }
+        if(vecRejectTriggerComb.size() > 0){
+          cout<<"adding trigger which did not enter calculation\n";
+          for(int i = 0; i < nrOfTrigToBeComb; ++i){
+            if(isTriggerDrawSeperate[i]){
+              if(graphWidthEtaData[i]){
+                DrawGammaSetMarkerTGraphAsym(graphWidthEtaData[i], markerTrigg[i], sizeTrigg[i]*0.7, colorTrigg[i], colorTrigg[i]);
+                graphWidthEtaData[i]->Draw("p,e1,same");
+                legendWidthEtaWeightedAdd->AddEntry(graphWidthEtaData[i], Form("%s Data", triggerNameLabel[i].Data()), "p");
+                cout<<"printing"<<endl;
+              }
+              if(graphWidthEtaMC[i]){
+                DrawGammaSetMarkerTGraphAsym(graphWidthEtaMC[i], markerTriggMC[i], sizeTrigg[i]*0.7, colorTriggShade[i], colorTriggShade[i]);
+                graphWidthEtaMC[i]->Draw("p,e1,same");
+                legendWidthEtaWeightedAdd->AddEntry(graphWidthEtaMC[i], Form("%s MC", triggerNameLabel[i].Data()), "p");
+              }
+            }
+          }
+        }
         legendWidthEtaWeighted->Draw();
+        legendWidthEtaWeightedAdd->Draw();
         labelEnergyWidth->Draw();
         labelEtaWidth->Draw();
         labelDetProcWidth->Draw();
@@ -7453,17 +7655,6 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     offSetsEtaToPi0[3] = -2; //EMC7
                     offSetsEtaToPi0[4] = -2; //EGA
                 }
-            } else if(optionEnergy.CompareTo("13TeV")==0){
-                if(mode == 2){
-                    offSetsEtaToPi0[1] = 0; //INT7
-                    offSetsEtaToPi0[4] = 10; //EG2
-                    offSetsEtaToPi0[5] = 16; //EG1
-                }
-                if(mode == 4){
-                  offSetsEtaToPi0[1] = 1; //INT7
-                  offSetsEtaToPi0[4] = 9; //EG2
-                  offSetsEtaToPi0[5] = 14; //EG1
-               }
             } else if(optionEnergy.CompareTo("pPb_5.023TeV")==0 || optionEnergy.CompareTo("5TeVRefpPb")==0 ){
                 if(mode == 2){
                     offSetsEtaToPi0[1] = 0; //INT7
@@ -7491,10 +7682,17 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
                     offSetsEtaToPi0[5] = -2; //EGA
                 }
             } else if(optionEnergy.CompareTo("13TeV")==0){
-                if(mode == 4){
-                    offSetsEtaToPi0[1] = 11; //INT7
-                    offSetsEtaToPi0[4] = 19; //EG2
-                    offSetsEtaToPi0[5] = 29; //EG1
+                  if(mode == 2){
+                      offSetsEtaToPi0[1] = 0; //INT7
+                      offSetsEtaToPi0[4] = 10; //EG2
+                      offSetsEtaToPi0[5] = 16; //EG1
+                  }
+                  else if(mode == 4){
+                    offSetsEtaToPi0[1] = 1; //INT7
+                    offSetsEtaToPi0[13]= 2; //INT7 lowB
+                    offSetsEtaToPi0[4] = 9; //EG2
+                    offSetsEtaToPi0[5] = 14; //EG1
+
                 } else if(mode == 3){
                     offSetsEtaToPi0[1] = 3; //INT7
                     offSetsEtaToPi0[3] = 15; //EMC7
@@ -7802,6 +8000,7 @@ void  ProduceFinalResultsPatchedTriggers(   TString fileListNamePi0     = "trigg
             } else  if (optionEnergy.CompareTo("13TeV")==0){
                 if(mode == 4){
                     offSetsEtaToPi0Sys[1]= offSetsEtaToPi0[1] + 1; //INT7
+                    offSetsEtaToPi0Sys[13]= offSetsEtaToPi0[13] + 1; //INT7 lowB
                     offSetsEtaToPi0Sys[4]= offSetsEtaToPi0[4] + 4; //EG2
                     offSetsEtaToPi0Sys[5]= offSetsEtaToPi0[5] + 3; //EG1
                 }

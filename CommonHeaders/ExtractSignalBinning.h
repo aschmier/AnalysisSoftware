@@ -210,7 +210,7 @@
                     trigger     = 51;
                 if (triggerSet == 5)
                     trigger     = 01;
-
+            } else if (energy.CompareTo("5TeV") == 0 || energy.CompareTo("7TeV") == 0  || energy.CompareTo("8TeV") == 0 || energy.CompareTo("13TeV") == 0 || energy.CompareTo("pPb_8TeV") == 0 || energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVMult") == 0 ){
                 if (triggerSet == 1)
                     trigger     = 52;
                 if (triggerSet == 2)

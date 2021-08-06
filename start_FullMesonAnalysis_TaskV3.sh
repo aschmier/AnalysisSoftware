@@ -825,9 +825,9 @@ do
         CORRECT=1
     elif [ $answer = "4" ] || [ $answer = "104" ]; then
         echo -e "--> You are analysing EMCAL-EMCAL output\n";
-        NEVTSTOY=1e6
-        MINPTTOY=0.1
-        MAXPTTOY=100
+        # NEVTSTOY=1e6
+        # MINPTTOY=0.1
+        # MAXPTTOY=100
         MODE=$answer
         ADVMESONQA="AdvancedMesonQA"
         CORRECT=1
@@ -962,6 +962,17 @@ do
     elif [ $answer = "13TeVLowB" ]; then
         ENERGY="13TeVLowB";
         EXTINPUTFILE="ExternalInput/IdentifiedCharged/ChargedIdentifiedSpectraPP_2016_08_14.root";
+    elif [ $answer = "13TeVMult" ]; then
+        ENERGY="13TeVMult";
+        EXTINPUTFILE="ExternalInput/IdentifiedCharged/ChargedIdentifiedSpectraPP_2016_08_14.root";
+        if [ $MODE = 10 ]; then
+          echo "Do you want to run in eta binning with merged? Yes/No?";
+          read answer
+          if [ $answer = "Yes" ] || [ $answer = "yes" ] || [ $answer = "Y" ]; then
+            DOPI0INETABINS=1;
+            DOPI0=0;
+          fi
+        fi
     elif [ $answer = "PbPb_2.76TeV" ] || [ $answer = "PbPb_2.76" ] || [ $answer = "PbPb2" ] || [ $answer = "Pb2" ]; then
         ENERGY="PbPb_2.76TeV";
         EXTINPUTFILE="";
@@ -1137,7 +1148,7 @@ do
             fi
         elif [ $ENERGY = "8TeV" ] || [ $ENERGY = "8TeVRef" ]; then
             GiveBinning8TeV
-        elif [ $ENERGY = "13TeV" ] || [ $ENERGY = "13TeVLowB" ]|| [ $ENERGY = "13TeVRBins" ]  || [ $ENERGY = "13TeVRBinsLowB" ]; then
+        elif [ $ENERGY = "13TeV" ] || [ $ENERGY = "13TeVLowB" ]|| [ $ENERGY = "13TeVRBins" ]  || [ $ENERGY = "13TeVRBinsLowB" ] || [ $ENERGY = "13TeVMult" ]; then
             GiveBinning13TeV
             if [ $MODE -lt 10 ] || [ $MODE -gt 11 ] ; then
                 AskForTHnSparseOption

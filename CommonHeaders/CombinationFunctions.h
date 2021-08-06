@@ -1317,15 +1317,15 @@
         TString nameMeas[11]                        = {"PCM", "PHOS", "EMCal", "PCM-PHOS", "PCM-EMCal", "PCM-Dalitz", "PHOS-Dalitz", "EMCal-Dalitz", "spare", "EMCAL merged", "PCMOtherDataset"};
         Bool_t isPresentGeneral[11]                 = {kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE};
         Bool_t isPresentForPt[11]                   = {kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE};
-        Double_t yValueFinal[120];
-        Double_t yErrStatFinal[120];
-        Double_t yErrTotFinal[120];
-        Double_t yErrSysFinal[120];
-        Double_t xValue[120];
-        Double_t xErr[120];
-        Double_t finalWeights[11][120];
+        Double_t yValueFinal[180];
+        Double_t yErrStatFinal[180];
+        Double_t yErrTotFinal[180];
+        Double_t yErrSysFinal[180];
+        Double_t xValue[180];
+        Double_t xErr[180];
+        Double_t finalWeights[11][180];
 
-        for (Int_t i = 0; i < 120; i++){
+        for (Int_t i = 0; i < 180; i++){
             yValueFinal[i]              = 0;
             yErrStatFinal[i]            = 0;
             yErrTotFinal[i]             = 0;
@@ -1365,10 +1365,12 @@
             TString nameMeasPtBin[11]               = {"", "", "", "", "", "", "", "", "", "", ""};
             Int_t numberOfMeasInPtBin               = 0;
             for (Int_t meas = 0; meas < maxNMeasurements; meas++){
+
                 binCounters[meas]                   = binCounters[meas]+1;
+                if (!isPresentGeneral[meas]) continue;
                 cout << "Current pt boarders: " << xPtLimits[ptBin] <<" - "<< xPtLimits[ptBin+1] <<endl;
-                xValue[ptBin]                       = xPtLimits[ptBin] + (xPtLimits[ptBin+1]-xPtLimits[ptBin])/2;
-                xErr[ptBin]                         = (xPtLimits[ptBin+1]-xPtLimits[ptBin])/2;
+                xValue[ptBin]                       = xPtLimits[ptBin] + (xPtLimits[ptBin+1]-xPtLimits[ptBin])/2.;
+                xErr[ptBin]                         = (xPtLimits[ptBin+1]-xPtLimits[ptBin])/2.;
                 cout << xValue[ptBin] << "\t" << xErr[ptBin] << endl;
                 if (isPresentGeneral[meas]){
                     cout << "current pt bin: " << binCounters[meas] << "\t offset: " << startOffsets[meas]  << "\t offset sys: " << sysOffsets[meas]  <<endl;
@@ -1480,6 +1482,11 @@
             Double_t corrFracEMC_EMCm_EMCm[2]          = {0};
             Double_t corrFracPCMEMC_EMCm_PCMEMC[2]     = {0};
             Double_t corrFracPCMEMC_EMCm_EMCm[2]       = {0};
+
+            Double_t corrFracEMCm_EMCm_PCMPHOS[2]      = {0};
+            Double_t corrFracPCMPHOS_EMCm_PCMPHOS[2]   = {0};
+            Double_t corrFracPHOS_PHOS_EMCm[2]         = {0};
+            Double_t corrFracEMCm_EMCm_PHOS[2]         = {0};
 
             if (energy.CompareTo("2.76TeV") == 0 && mesonType.CompareTo("Pi0") == 0){
                 if (GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Pi0", "PCM_PCM-PCMEMC") != -10)
@@ -1609,8 +1616,8 @@
                 corrFracPCM_PCM_PCMEMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCM_PCM-PCMEMC");
                 corrFracPCM_PCM_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCM_PCM-PCMPHOS");
                 corrFracPCM_PCM_PHOS[0]                = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCM_PCM-PHOS");
-                if(corrFracPCM_PCM_PHOS[0]==0.) corrFracPCM_PCM_PHOS[0]= 0.4; 
-                
+                if(corrFracPCM_PCM_PHOS[0]==0.) corrFracPCM_PCM_PHOS[0]= 0.4;
+
                 corrFracPCM_PCM_EMC[0]                 = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCM_PCM-EMC");
 
                 corrFracPCMEMC_PCM_PCMEMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCMEMC_PCM-PCMEMC");
@@ -1618,7 +1625,7 @@
                 corrFracPCMEMC_PCMEMC_PCMPHOS[0]       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCMEMC_PCMEMC-PCMPHOS");
                 corrFracPCMEMC_PCMEMC_PHOS[0]          = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PCMEMC_PCMEMC-PHOS");
                 if(corrFracPCMEMC_PCMEMC_PHOS[0]==0.) corrFracPCMEMC_PCMEMC_PHOS[0]= 0.4; // maximum correlated
-                
+
                 corrFracEMC_PCM_EMC[0]                 = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "EMC_PCM-EMC");
                 corrFracEMC_PCMEMC_EMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "EMC_PCMEMC-EMC");
                 corrFracEMC_EMC_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "EMC_EMC-PCMPHOS");
@@ -1635,9 +1642,9 @@
                 corrFracPHOS_EMC_PHOS[0]               = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PHOS_EMC-PHOS");
                 corrFracPHOS_PCMPHOS_PHOS[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Omega", "PHOS_PCMPHOS-PHOS");
 
-                if(corrFracPHOS_PCM_PHOS[0] == 0)       corrFracPHOS_PCM_PHOS[0] = 0.4;             
-                if(corrFracPHOS_PCMEMC_PHOS[0] == 0)    corrFracPHOS_PCMEMC_PHOS[0] = 0.4;        
-                if(corrFracPHOS_EMC_PHOS[0] == 0)       corrFracPHOS_EMC_PHOS[0] = 0.4;    
+                if(corrFracPHOS_PCM_PHOS[0] == 0)       corrFracPHOS_PCM_PHOS[0] = 0.4;
+                if(corrFracPHOS_PCMEMC_PHOS[0] == 0)    corrFracPHOS_PCMEMC_PHOS[0] = 0.4;
+                if(corrFracPHOS_EMC_PHOS[0] == 0)       corrFracPHOS_EMC_PHOS[0] = 0.4;
             } else if (energy.CompareTo("7TeV") == 0 && mesonType.CompareTo("OmegaToPi0") == 0){
                 corrFracPCM_PCM_PCMEMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCM_PCM-PCMEMC");
                 corrFracPCM_PCM_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "OmegaToPi0", "PCM_PCM-PCMPHOS");
@@ -1755,6 +1762,70 @@
                 corrFracPCMEMC_PCMEMC_PHOS[0]          = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Pi0", "PCMEMC_PCMEMC-PHOS");
                 corrFracPCMEMC_PCMEMC_EMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Pi0", "PCMEMC_PCMEMC-EMC");
                 corrFracPCMEMC_PCMEMC_PCMDal[0]        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", "Pi0", "PCMEMC_PCMDalitz-PCMEMC");
+            } else if ( energy.CompareTo("PbPb_5.02TeV") == 0 && ( mesonType.CompareTo("Pi0") == 0 || mesonType.CompareTo("EtaToPi0") == 0 || mesonType.CompareTo("Eta") == 0 || mesonType.CompareTo("Pi0RAA") == 0 || mesonType.CompareTo("EtaRAA") == 0)){
+                corrFracPCM_PCM_PCMEMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCM_PCM-PCMEMC", folderName);
+                corrFracPCMEMC_PCM_PCMEMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMEMC_PCM-PCMEMC", folderName);
+                corrFracPCMEMC_PCMEMC_EMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMEMC_PCMEMC-EMC", folderName);
+                corrFracEMC_PCMEMC_EMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMC_PCMEMC-EMC", folderName);
+                corrFracPCMEMC_PCMEMC_PCMPHOS[0]       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMEMC_PCMEMC-PCMPHOS", folderName);
+                corrFracPCMPHOS_PCMEMC_PCMPHOS[0]      = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMPHOS_PCMEMC-PCMPHOS", folderName);
+                corrFracPCM_PCM_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCM_PCM-PCMPHOS", folderName);
+                corrFracPCMPHOS_PCM_PCMPHOS[0]         = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMPHOS_PCM-PCMPHOS", folderName);
+                corrFracPHOS_PCMPHOS_PHOS[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PHOS_PCMPHOS-PHOS", folderName);
+                corrFracPCMPHOS_PCMPHOS_PHOS[0]        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMPHOS_PCMPHOS-PHOS", folderName);
+            } else if ( energy.CompareTo("13TeV") == 0 ){
+
+              corrFracPCM_PCM_PCMEMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCM_PCM-PCMEMC");
+              corrFracPCM_PCM_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCM_PCM-PCMPHOS");
+              corrFracPCM_PCM_PHOS[0]                = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCM_PCM-PHOS");
+              corrFracPCM_PCM_EMC[0]                 = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCM_PCM-EMC");
+              corrFracPCM_PCM_PCMDal[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCM_PCM-PCMDalitz");
+              // if(mesonType.CompareTo("Pi0")==0)
+              //   corrFracPCM_EMCm_PCM[0]                = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCM_PCM-EMCm");
+
+              corrFracPCMEMC_PCM_PCMEMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMEMC_PCM-PCMEMC");
+              corrFracPCMEMC_PCMEMC_EMC[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMEMC_PCMEMC-EMC");
+              corrFracPCMEMC_PCMEMC_PCMPHOS[0]       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMEMC_PCMEMC-PCMPHOS");
+              corrFracPCMEMC_PCMEMC_PHOS[0]          = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMEMC_PCMEMC-PHOS");
+              corrFracPCMEMC_PCMEMC_PCMDal[0]        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMEMC_PCMEMC-PCMDalitz");
+              if(mesonType.CompareTo("Pi0")==0)
+                corrFracPCMEMC_EMCm_PCMEMC[0]          = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMEMC_PCMEMC-EMCm");
+
+              corrFracEMC_PCM_EMC[0]                 = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMC_PCM-EMC");
+              corrFracEMC_PCMEMC_EMC[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMC_PCMEMC-EMC");
+              corrFracEMC_EMC_PCMPHOS[0]             = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMC_EMC-PCMPHOS");
+              corrFracEMC_EMC_PHOS[0]                = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMC_EMC-PHOS");
+              if(mesonType.CompareTo("Pi0")==0)
+                corrFracEMC_EMCm_EMC[0]                = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMC_EMC-EMCm");
+
+              corrFracPCMPHOS_PCM_PCMPHOS[0]         = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMPHOS_PCM-PCMPHOS");
+              corrFracPCMPHOS_PCMEMC_PCMPHOS[0]      = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMPHOS_PCMEMC-PCMPHOS");
+              corrFracPCMPHOS_PCMPHOS_EMC[0]         = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMPHOS_EMC-PCMPHOS");
+              corrFracPCMPHOS_PCMPHOS_PHOS[0]        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMPHOS_PCMPHOS-PHOS");
+              if(mesonType.CompareTo("Pi0")==0)
+                corrFracPCMPHOS_EMCm_PCMPHOS[0]        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMPHOS_PCMPHOS-EMCm");
+
+              corrFracPHOS_PCM_PHOS[0]               = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PHOS_PCM-PHOS");
+              corrFracPHOS_PCMEMC_PHOS[0]            = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PHOS_PCMEMC-PHOS");
+              corrFracPHOS_EMC_PHOS[0]               = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PHOS_EMC-PHOS");
+              corrFracPHOS_PCMPHOS_PHOS[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PHOS_PCMPHOS-PHOS");
+              corrFracPCMPHOS_PCMDal_PCMPHOS[0]      = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMPHOS_PCMPHOS-PCMDalitz");
+              if(mesonType.CompareTo("Pi0")==0)
+                corrFracPHOS_PHOS_EMCm[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PHOS_PHOS-EMCm");
+
+              corrFracPCMDal_PCM_PCMDal[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMDalitz_PCM-PCMDalitz");
+              corrFracPCMDal_PCMEMC_PCMDal[0]        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMDalitz_PCMEMC-PCMDalitz");
+              corrFracPCMDal_PCMDal_PCMPHOS[0]       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "PCMDalitz_PCMPHOS-PCMDalitz");
+
+              if(mesonType.CompareTo("Pi0")==0){
+                // corrFracEMCm_EMCm_PCM[0]               = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMCm_EMCm-PCM");
+                corrFracPCMEMC_EMCm_EMCm[0]            = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMCm_PCMEMC-EMCm");
+                corrFracEMC_EMCm_EMCm[0]               = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMCm_EMC-EMCm");
+                corrFracEMCm_EMCm_PCMPHOS[0]           = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMCm_PCMPHOS-EMCm");
+                corrFracEMCm_EMCm_PHOS[0]              = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin], "Systems", mesonType, "EMCm_PHOS-EMCm");
+              }
+
+
             }
 
             // currently arbitrary numbers
@@ -1763,7 +1834,7 @@
                 corrFracEMC_EMCm_EMCm[0]                   = 0.296+0.0685*xValue[ptBin]-0.00167*xValue[ptBin]*xValue[ptBin];
                 corrFracPCMEMC_EMCm_PCMEMC[0]              = 0.61;
                 corrFracPCMEMC_EMCm_EMCm[0]                = 0.68;
-            } else if ( mesonType.CompareTo("Pi0") == 0  ){
+            } else if ( mesonType.CompareTo("Pi0") == 0 && energy.CompareTo("13TeV") != 0 ){
                 corrFracEMC_EMCm_EMC[0]                    = 1;
                 corrFracEMC_EMCm_EMCm[0]                   = 0.9;
                 corrFracPCMEMC_EMCm_PCMEMC[0]              = 0.6;
@@ -1949,17 +2020,41 @@
                 cout << nameMeas[4] <<  " sys error : "  << ySysErr[4] << "\t, total err: " <<  yTotErr[4] << endl;
                 cout << cvEMC_PCMPHOS << endl;
             }
+
+            Double_t cvPCMPHOS_EMCm = 0;
+            if (yValue[4]>0 && yValue[10]>0 ){
+                cvEMC_PCMPHOS        = ( corrFracPCMPHOS_EMCm_PCMPHOS[0]*ySysErr[4]*corrFracEMCm_EMCm_PCMPHOS[0]*ySysErr[10] +
+                                        corrFracPCMPHOS_EMCm_PCMPHOS[1]*yStatErr[4]*corrFracEMCm_EMCm_PCMPHOS[1]*yStatErr[10])
+                                        / (yTotErr[4]*yTotErr[10]);
+                if (cvPCMPHOS_EMCm > 1) cvPCMPHOS_EMCm = 0.98;
+                cout << nameMeas[4] <<  " sys error : "  << ySysErr[4] << "\t, total err: " <<  yTotErr[4] << endl;
+                cout << nameMeas[10] <<  " sys error : "  << ySysErr[10] << "\t, total err: " <<  yTotErr[10] << endl;
+                cout << cvPCMPHOS_EMCm << endl;
+            }
+
+            Double_t cvPHOS_EMCm = 0;
+            if (yValue[2]>0 && yValue[10]>0 ){
+                cvPHOS_EMCm        = ( corrFracPHOS_PHOS_EMCm[0]*ySysErr[2]*corrFracEMCm_EMCm_PHOS[0]*ySysErr[10] +
+                                        corrFracPHOS_PHOS_EMCm[1]*yStatErr[2]*corrFracEMCm_EMCm_PHOS[1]*yStatErr[10])
+                                        / (yTotErr[2]*yTotErr[10]);
+                if (cvPHOS_EMCm > 1) cvPHOS_EMCm = 0.98;
+                cout << nameMeas[2] <<  " sys error : "  << ySysErr[2] << "\t, total err: " <<  yTotErr[2] << endl;
+                cout << nameMeas[10] <<  " sys error : "  << ySysErr[10] << "\t, total err: " <<  yTotErr[10] << endl;
+                cout << cvPHOS_EMCm << endl;
+            }
+
+
                                             //PCM           PHOS                 EMCal           PCM-PHOS            PCM-EMCal           PCM-Dalitz          PHOS-Dalitz         EMCal-Dalitz        spare   EMCAL merged    PCMOtherDataset
             Double_t cvMatrix[11][11] = {   { 1,            cvPCM_PHOS,      cvEMC_PCM,      cvPCM_PCMPHO,       cvPCM_PCMEMC,       cvPCM_PCMDal,       0,                  0,                  0,      0,              1,              },
-                                            { cvPCM_PHOS,    1,              cvEMC_PHOS,     cvPHO_PCMPHO,       cvPHO_PCMEMC,       0,                  cvPHO_PHODal,       0,                  0,      0,              0,              },
-                                            { cvEMC_PCM,    cvEMC_PHOS,     1,               cvEMC_PCMPHOS,      cvEMC_PCMEMC,       cvEMC_PCMDal,       0,                  cvEMC_EMCDal,       0,      cvEMC_EMCm,     0,              },
-                                            { cvPCM_PCMPHO, cvPHO_PCMPHO,   cvEMC_PCMPHOS,              1,      cvPCMPHO_PCMEMC,    cvPCMPHO_PCMDal,    cvPCMPHO_PHODal,    0,                  0,      0,              0,              },
+                                            { cvPCM_PHOS,    1,              cvEMC_PHOS,     cvPHO_PCMPHO,       cvPHO_PCMEMC,       0,                  cvPHO_PHODal,       0,                  0,     cvPHOS_EMCm,    0,              },
+                                            { cvEMC_PCM,    cvEMC_PHOS,     1,               cvEMC_PCMPHOS,      cvEMC_PCMEMC,       cvEMC_PCMDal,       0,                  cvEMC_EMCDal,       0,     cvEMC_EMCm,     0,              },
+                                            { cvPCM_PCMPHO, cvPHO_PCMPHO,   cvEMC_PCMPHOS,              1,      cvPCMPHO_PCMEMC,    cvPCMPHO_PCMDal,    cvPCMPHO_PHODal,    0,                  0,      cvPCMPHOS_EMCm,  0,              },
                                             { cvPCM_PCMEMC, cvPHO_PCMEMC,   cvEMC_PCMEMC,   cvPCMPHO_PCMEMC,    1,                  cvPCMEMC_PCMDal,    0,                  cvPCMEMC_EMCDal,    0,      cvPCMEMC_EMCm,  0,              },
                                             { cvPCM_PCMDal, 0,              cvEMC_PCMDal,   cvPCMPHO_PCMDal,    cvPCMEMC_PCMDal,    1,                  cvPCMDal_PHODal,    cvPCMDal_EMCDal,    0,      0,              cvPCM_PCMDal,   },
                                             { 0,            cvPHO_PHODal,   0,              cvPCMPHO_PHODal,    0,                  cvPCMDal_PHODal,    1,                  cvPHODal_EMCDal,    0,      0,              cvPCM_PCMEMC,   },
                                             { 0,            0,              cvEMC_EMCDal,   0,                  cvPCMEMC_EMCDal,    cvPCMDal_EMCDal,    cvPHODal_EMCDal,    1,                  0,      cvEMCDal_EMCm,  cvPCM_PCMPHO,   },
                                             { 0,            0,              0.,             0,                  0,                  0,                  0,                  0,                  1,      0,              0,              },
-                                            { 0,            0,              cvEMC_EMCm,     0,                  cvPCMEMC_EMCm,      0,                  0,                  cvEMCDal_EMCm,      0,      1,              0,              },
+                                            { 0,            cvPHOS_EMCm,    cvEMC_EMCm,     cvPCMPHOS_EMCm,     cvPCMEMC_EMCm,      0,                  0,                  cvEMCDal_EMCm,      0,      1,              0,              },
                                             { 1,            0,              0,              0,                  0,                  cvPCM_PCMDal,       cvPCM_PCMEMC,       cvPCM_PCMPHO,       0,      0,              1,              } };
 
             Double_t cvMatrixCurrPtBin[11][11]      = { {     1,    0,    0,    0,    0,    0,    0,    0,    0,    0,    1},
@@ -2106,16 +2201,16 @@
         TFile* fCorrFactors = 0x0;
         if (debugOutput>=1){cout<<"DebugOutput, CombinationFunctions.h, CombinePtPointsSpectraTriggerCorrMat(), Line: "<<__LINE__<<"; fileCorrFactors.Data(): "<<fileCorrFactors.Data()<<endl;}
         if(!fileCorrFactors.IsNull()) fCorrFactors = new TFile(fileCorrFactors.Data(),"READ");
-        Int_t maxNMeasurements                  = 13;
+        const Int_t maxNMeasurements              = 14;
         TString strEG2_A = "EG2";
-        if(energy.BeginsWith("8TeV")) strEG2_A = "EGA";
-        TString nameMeas[13]                    = { "INT1", "INT7", "EMC1", "EMC7", strEG2_A.Data(), "EG1",
-                                                    "INT1_NLM1", "INT7_NLM1", "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1", "PHI7"};
+        if(energy.BeginsWith("8TeV")) strEG2_A    = "EGA";
+        TString nameMeas[maxNMeasurements]        = { "INT1", "INT7", "EMC1", "EMC7", strEG2_A.Data(), "EG1",
+                                                      "INT1_NLM1", "INT7_NLM1", "EMC1_NLM1", "EMC7_NLM1", "EG2_NLM1", "EG1_NLM1", "PHI7", "INT7B"};
 
-        Bool_t isPresentGeneral[13]             = { kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE,
+        Bool_t isPresentGeneral[maxNMeasurements] = { kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE,
                                                     kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE,
                                                     kFALSE};
-        Bool_t isPresentForPt[13]               = { kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE,
+        Bool_t isPresentForPt[maxNMeasurements]   = { kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE,
                                                     kFALSE, kFALSE, kFALSE, kFALSE, kFALSE, kFALSE,
                                                     kFALSE};
         Double_t yValueFinal[120];
@@ -2133,12 +2228,12 @@
             yErrSysFinal[i]             = 0;
             xValue[i]                   = 0;
             xErr[i]                     = 0;
-            for (Int_t j = 0; j < 13; j++){
+            for (Int_t j = 0; j < maxNMeasurements; j++){
                 finalWeights[j][i]      = 0;
             }
         }
 
-        Int_t binCounters[13]                   = { -1, -1, -1, -1, -1, -1,
+        Int_t binCounters[maxNMeasurements]     = { -1, -1, -1, -1, -1, -1,
                                                     -1, -1, -1, -1, -1, -1, -1};
 
         for (Int_t i = 0; i< maxNMeasurements; i++){
@@ -2158,21 +2253,21 @@
         }
 
         for (Int_t ptBin = 0; ptBin < nPtLimits; ptBin++){
-            Double_t yValue[13]                 = { -1, -1, -1, -1, -1, -1,
-                                                    -1, -1, -1, -1, -1, -1,
-                                                    -1};
-            Double_t yStatErr[13]               = { -1, -1, -1, -1, -1, -1,
-                                                    -1, -1, -1, -1, -1, -1,
-                                                    -1};
-            Double_t ySysErr[13]                = { -1, -1, -1, -1, -1, -1,
-                                                    -1, -1, -1, -1, -1, -1,
-                                                    -1};
-            Double_t yTotErr[13]                = { -1, -1, -1, -1, -1, -1,
-                                                    -1, -1, -1, -1, -1, -1,
-                                                    -1};
-            Int_t identCurr[2][13]              = { {   0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12},
-                                                    {  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
-            TString nameMeasPtBin[13]           = {"", "", "", "", "", "", "", "", "", "", "", "", ""};
+            Double_t yValue[maxNMeasurements]        = {  -1, -1, -1, -1, -1, -1,
+                                                          -1, -1, -1, -1, -1, -1,
+                                                          -1, -1};
+            Double_t yStatErr[maxNMeasurements]      = {  -1, -1, -1, -1, -1, -1,
+                                                          -1, -1, -1, -1, -1, -1,
+                                                          -1, -1};
+            Double_t ySysErr[maxNMeasurements]       = {  -1, -1, -1, -1, -1, -1,
+                                                          -1, -1, -1, -1, -1, -1,
+                                                          -1, -1};
+            Double_t yTotErr[maxNMeasurements]       = {  -1, -1, -1, -1, -1, -1,
+                                                          -1, -1, -1, -1, -1, -1,
+                                                          -1, -1};
+            Int_t identCurr[2][maxNMeasurements]     = { {   0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13},
+                                                         {  -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}};
+            TString nameMeasPtBin[maxNMeasurements]  = {"", "", "", "", "", "", "", "", "", "", "", "", "", ""};
             Int_t numberOfMeasInPtBin           = 0;
             for (Int_t meas = 0; meas < maxNMeasurements; meas++){
                 binCounters[meas]               = binCounters[meas]+1;
@@ -2236,6 +2331,8 @@
             Double_t corrFracINT1_INT1_EG21     = 0;
             Double_t corrFracINT1_INT1_EG11     = 0;
             Double_t corrFracINT1_INT1_PHI7     = 0;
+            Double_t corrFracINT1_INT1_INT7B    = 0;
+
             Double_t corrFracINT7_INT1_INT7     = 0;
             Double_t corrFracEMC1_INT1_EMC1     = 0;
             Double_t corrFracEMC7_INT1_EMC7     = 0;
@@ -2248,6 +2345,7 @@
             Double_t corrFracEG21_INT1_EG21     = 0;
             Double_t corrFracEG11_INT1_EG11     = 0;
             Double_t corrFracPHI7_INT1_PHI7     = 0;
+            Double_t corrFracINT7B_INT1_INT7B   = 0;
 
             Double_t corrFracINT7_INT7_EMC1     = 0;
             Double_t corrFracINT7_INT7_EMC7     = 0;
@@ -2260,6 +2358,8 @@
             Double_t corrFracINT7_INT7_EG21     = 0;
             Double_t corrFracINT7_INT7_EG11     = 0;
             Double_t corrFracINT7_INT7_PHI7     = 0;
+            Double_t corrFracINT7_INT7_INT7B    = 0;
+
             Double_t corrFracEMC1_INT7_EMC1     = 0;
             Double_t corrFracEMC7_INT7_EMC7     = 0;
             Double_t corrFracEG2_INT7_EG2       = 0;
@@ -2271,6 +2371,7 @@
             Double_t corrFracEG21_INT7_EG21     = 0;
             Double_t corrFracEG11_INT7_EG11     = 0;
             Double_t corrFracPHI7_INT7_PHI7     = 0;
+            Double_t corrFracINT7B_INT7_INT7B   = 0;
 
             Double_t corrFracEMC1_EMC1_EMC7     = 0;
             Double_t corrFracEMC1_EMC1_EG2      = 0;
@@ -2282,6 +2383,8 @@
             Double_t corrFracEMC1_EMC1_EG21     = 0;
             Double_t corrFracEMC1_EMC1_EG11     = 0;
             Double_t corrFracEMC1_EMC1_PHI7     = 0;
+            Double_t corrFracEMC1_EMC1_INT7B    = 0;
+
             Double_t corrFracEMC7_EMC1_EMC7     = 0;
             Double_t corrFracEG2_EMC1_EG2       = 0;
             Double_t corrFracEG1_EMC1_EG1       = 0;
@@ -2292,6 +2395,7 @@
             Double_t corrFracEG21_EMC1_EG21     = 0;
             Double_t corrFracEG11_EMC1_EG11     = 0;
             Double_t corrFracPHI7_EMC1_PHI7     = 0;
+            Double_t corrFracINT7B_EMC1_INT7B   = 0;
 
             Double_t corrFracEMC7_EMC7_EG2      = 0;
             Double_t corrFracEMC7_EMC7_EG1      = 0;
@@ -2302,6 +2406,8 @@
             Double_t corrFracEMC7_EMC7_EG21     = 0;
             Double_t corrFracEMC7_EMC7_EG11     = 0;
             Double_t corrFracEMC7_EMC7_PHI7     = 0;
+            Double_t corrFracEMC7_EMC7_INT7B    = 0;
+
             Double_t corrFracEG2_EMC7_EG2       = 0;
             Double_t corrFracEG1_EMC7_EG1       = 0;
             Double_t corrFracINT11_EMC7_INT11   = 0;
@@ -2311,6 +2417,7 @@
             Double_t corrFracEG21_EMC7_EG21     = 0;
             Double_t corrFracEG11_EMC7_EG11     = 0;
             Double_t corrFracPHI7_EMC7_PHI7     = 0;
+            Double_t corrFracINT7B_EMC7_INT7B   = 0;
 
             Double_t corrFracEG2_EG2_EG1        = 0;
             Double_t corrFracEG2_EG2_INT11      = 0;
@@ -2320,6 +2427,8 @@
             Double_t corrFracEG2_EG2_EG21       = 0;
             Double_t corrFracEG2_EG2_EG11       = 0;
             Double_t corrFracEG2_EG2_PHI7       = 0;
+            Double_t corrFracEG2_EG2_INT7B      = 0;
+
             Double_t corrFracEG1_EG2_EG1        = 0;
             Double_t corrFracINT11_EG2_INT11    = 0;
             Double_t corrFracINT71_EG2_INT71    = 0;
@@ -2328,6 +2437,7 @@
             Double_t corrFracEG21_EG2_EG21      = 0;
             Double_t corrFracEG11_EG2_EG11      = 0;
             Double_t corrFracPHI7_EG2_PHI7      = 0;
+            Double_t corrFracINT7B_EG2_INT7B    = 0;
 
             Double_t corrFracEG1_EG1_INT11      = 0;
             Double_t corrFracEG1_EG1_INT71      = 0;
@@ -2336,6 +2446,8 @@
             Double_t corrFracEG1_EG1_EG21       = 0;
             Double_t corrFracEG1_EG1_EG11       = 0;
             Double_t corrFracEG1_EG1_PHI7       = 0;
+            Double_t corrFracEG1_EG1_INT7B      = 0;
+
             Double_t corrFracINT11_EG1_INT11    = 0;
             Double_t corrFracINT71_EG1_INT71    = 0;
             Double_t corrFracEMC11_EG1_EMC11    = 0;
@@ -2343,6 +2455,7 @@
             Double_t corrFracEG21_EG1_EG21      = 0;
             Double_t corrFracEG11_EG1_EG11      = 0;
             Double_t corrFracPHI7_EG1_PHI7      = 0;
+            Double_t corrFracINT7B_EG1_INT7B    = 0;
 
             Double_t corrFracINT11_INT11_INT71  = 0;
             Double_t corrFracINT11_INT11_EMC11  = 0;
@@ -2350,47 +2463,68 @@
             Double_t corrFracINT11_INT11_EG21   = 0;
             Double_t corrFracINT11_INT11_EG11   = 0;
             Double_t corrFracINT11_INT11_PHI7   = 0;
+            Double_t corrFracINT11_INT11_INT7B  = 0;
+
             Double_t corrFracINT71_INT11_INT71  = 0;
             Double_t corrFracEMC11_INT11_EMC11  = 0;
             Double_t corrFracEMC71_INT11_EMC71  = 0;
             Double_t corrFracEG21_INT11_EG21    = 0;
             Double_t corrFracEG11_INT11_EG11    = 0;
             Double_t corrFracPHI7_INT11_PHI7    = 0;
+            Double_t corrFracINT7B_INT11_INT7B  = 0;
 
             Double_t corrFracINT71_INT71_EMC11  = 0;
             Double_t corrFracINT71_INT71_EMC71  = 0;
             Double_t corrFracINT71_INT71_EG21   = 0;
+            // Double_t corrFracINT71_INT71_EG2    = 0;
             Double_t corrFracINT71_INT71_EG11   = 0;
             Double_t corrFracINT71_INT71_PHI7   = 0;
+            Double_t corrFracINT71_INT71_INT7B  = 0;
+
             Double_t corrFracEMC11_INT71_EMC11  = 0;
             Double_t corrFracEMC71_INT71_EMC71  = 0;
             Double_t corrFracEG21_INT71_EG21    = 0;
             Double_t corrFracEG11_INT71_EG11    = 0;
             Double_t corrFracPHI7_INT71_PHI7    = 0;
+            Double_t corrFracINT7B_INT71_INT7B  = 0;
 
             Double_t corrFracEMC11_EMC11_EMC71  = 0;
             Double_t corrFracEMC11_EMC11_EG21   = 0;
             Double_t corrFracEMC11_EMC11_EG11   = 0;
             Double_t corrFracEMC11_EMC11_PHI7   = 0;
+            Double_t corrFracEMC11_EMC11_INT7B  = 0;
+
             Double_t corrFracEMC71_EMC11_EMC71  = 0;
             Double_t corrFracEG21_EMC11_EG21    = 0;
             Double_t corrFracEG11_EMC11_EG11    = 0;
             Double_t corrFracPHI7_EMC11_PHI7    = 0;
+            Double_t corrFracINT7B_EMC11_INT7B  = 0;
 
             Double_t corrFracEMC71_EMC71_EG21   = 0;
             Double_t corrFracEMC71_EMC71_EG11   = 0;
             Double_t corrFracEMC71_EMC71_PHI7   = 0;
+            Double_t corrFracEMC71_EMC71_INT7B  = 0;
+
             Double_t corrFracEG21_EMC71_EG21    = 0;
             Double_t corrFracEG11_EMC71_EG11    = 0;
             Double_t corrFracPHI7_EMC71_PHI7    = 0;
+            Double_t corrFracINT7B_EMC71_INT7B  = 0;
 
             Double_t corrFracEG21_EG21_EG11     = 0;
             Double_t corrFracEG21_EG21_PHI7     = 0;
+            Double_t corrFracEG21_EG21_INT7B    = 0;
+
             Double_t corrFracEG11_EG21_EG11     = 0;
             Double_t corrFracPHI7_EG21_PHI7     = 0;
+            Double_t corrFracINT7B_EG21_INT7B   = 0;
 
             Double_t corrFracEG11_EG11_PHI7     = 0;
+            Double_t corrFracEG11_EG11_INT7B    = 0;
             Double_t corrFracPHI7_EG11_PHI7     = 0;
+            Double_t corrFracINT7B_EG11_INT7B   = 0;
+
+            Double_t corrFracPHI7_PHI7_INT7B    = 0;
+            Double_t corrFracINT7B_PHI7_INT7B   = 0;
 
             // Definition of correlations coefficients between triggered spectra for 2.76TeV PCM-EMC, EMC-EMC
             if ( (mode == 2 || mode == 4) && energy.CompareTo("2.76TeV") == 0 ){
@@ -2538,7 +2672,27 @@
                 corrFracEG2_INT7_EG2        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"10", meson, "EG1_INT7-EG1");
                 corrFracEMC7_EMC7_EG2       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"10", meson, "EG2_EG2-EG1");
                 corrFracEG2_EMC7_EG2        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"10", meson, "EG1_EG2-EG1");
-            }
+            } else if (mode == 4 && energy.Contains("13TeV") ){
+                corrFracINT7_INT7_INT7B     = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "INT7_INT7-INT7_lowB");
+                corrFracINT7_INT7_EG2       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "INT7_INT7-EG2");
+                corrFracINT7_INT7_EG1       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "INT7_INT7-EG1");
+                corrFracINT7B_INT7_INT7B    = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "INT7_lowB_INT7-INT7_lowB");
+                corrFracINT7B_EG2_INT7B     = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "INT7_lowB_INT7_lowB-EG2");
+                corrFracINT7B_EG1_INT7B     = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "INT7_lowB_INT7_lowB-EG1");
+                corrFracEG2_INT7_EG2        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "EG2_INT7-EG2");
+                corrFracEG2_EG2_INT7B       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "EG2_INT7_lowB-EG2");
+                corrFracEG2_EG2_EG1         = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "EG2_EG2-EG1");
+                corrFracEG1_INT7_EG1        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "EG1_INT7-EG1");
+                corrFracEG1_EG1_INT7B       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "EG1_INT7_lowB-EG1");
+                corrFracEG1_EG2_EG1         = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"4", meson, "EG1_EG2-EG1");
+            } else if (mode == 10 && energy.Contains("13TeV") ){
+                corrFracINT7_INT7_EMC7      = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"10", meson, "INT7_INT7-EG2");
+                corrFracEMC7_INT7_EMC7      = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"10", meson, "EG2_INT7-EG2");
+                corrFracINT7_INT7_EG2       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"10", meson, "INT7_INT7-EG1");
+                corrFracEG2_INT7_EG2        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"10", meson, "EG1_INT7-EG1");
+                corrFracEMC7_EMC7_EG2       = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"10", meson, "EG2_EG2-EG1");
+                corrFracEG2_EMC7_EG2        = GetCorrFactorFromFile(fCorrFactors,xValue[ptBin],"10", meson, "EG1_EG2-EG1");
+           }
 
             // correlation factors for INT1 triggers
             Double_t cvINT1_INT7              = 0.;
@@ -2613,6 +2767,12 @@
                 cout << nameMeas[0] <<  ":\t sys error : "  << ySysErr[0] << "\t, total err: " <<  yTotErr[0] << endl;
                 cout << nameMeas[12] <<  ":\t sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvINT1_INT7B           = 0.;
+            if (yValue[0]>0 && yValue[13]>0 ){
+                cvINT1_INT7B = (corrFracINT1_INT1_INT7B*ySysErr[0]*corrFracINT7B_INT1_INT7B*ySysErr[13])/(yTotErr[0]*yTotErr[13]);
+                cout << nameMeas[0] <<  ":\t sys error : "  << ySysErr[0] << "\t, total err: " <<  yTotErr[0] << endl;
+                cout << nameMeas[13] <<  ":\t sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for INT7
             Double_t cvINT7_EMC1            = 0.;
@@ -2681,6 +2841,12 @@
                 cout << nameMeas[1] <<  ":\t sys error : "  << ySysErr[1] << "\t, total err: " <<  yTotErr[1] << endl;
                 cout << nameMeas[12] <<  ":\t sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvINT7_INT7B           = 0.;
+            if (yValue[1]>0 && yValue[13]>0 ){
+                cvINT7_INT7B = (corrFracINT7_INT7_INT7B*ySysErr[1]*corrFracINT7B_INT7_INT7B*ySysErr[13])/(yTotErr[1]*yTotErr[13]);
+                cout << nameMeas[1] <<  ":\t sys error : "  << ySysErr[1] << "\t, total err: " <<  yTotErr[1] << endl;
+                cout << nameMeas[13] <<  ":\t sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for EMC1
             Double_t cvEMC1_EMC7            = 0.;
@@ -2743,6 +2909,12 @@
                 cout << nameMeas[2] <<  " sys error : "  << ySysErr[2] << "\t, total err: " <<  yTotErr[2] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvEMC1_INT7B           = 0.;
+            if (yValue[2]>0 && yValue[13]>0 ){
+                cvEMC1_INT7B = (corrFracEMC1_EMC1_INT7B*ySysErr[2]*corrFracINT7B_EMC1_INT7B*ySysErr[13])/(yTotErr[2]*yTotErr[13]);
+                cout << nameMeas[2] <<  " sys error : "  << ySysErr[2] << "\t, total err: " <<  yTotErr[2] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for EMC7
             Double_t cvEMC7_EG2             = 0.;
@@ -2799,6 +2971,12 @@
                 cout << nameMeas[3] <<  " sys error : "  << ySysErr[3] << "\t, total err: " <<  yTotErr[3] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvEMC7_INT7B             = 0.;
+            if (yValue[3]>0 && yValue[13]>0 ){
+                cvEMC7_INT7B = (corrFracEMC7_EMC7_INT7B*ySysErr[3]*corrFracINT7B_EMC7_INT7B*ySysErr[13])/(yTotErr[3]*yTotErr[13]);
+                cout << nameMeas[3] <<  " sys error : "  << ySysErr[3] << "\t, total err: " <<  yTotErr[3] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for EG2
             Double_t cvEG2_EG1              = 0.;
@@ -2849,6 +3027,12 @@
                 cout << nameMeas[4] <<  " sys error : "  << ySysErr[4] << "\t, total err: " <<  yTotErr[4] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvEG2_INT7B              = 0.;
+            if (yValue[4]>0 && yValue[13]>0 ){
+                cvEG2_INT7B = (corrFracEG2_EG2_INT7B*ySysErr[4]*corrFracINT7B_EG2_INT7B*ySysErr[13])/(yTotErr[4]*yTotErr[13]);
+                cout << nameMeas[4] <<  " sys error : "  << ySysErr[4] << "\t, total err: " <<  yTotErr[4] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for EG1
             Double_t cvEG1_INT11              = 0.;
@@ -2893,6 +3077,12 @@
                 cout << nameMeas[5] <<  " sys error : "  << ySysErr[5] << "\t, total err: " <<  yTotErr[5] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvEG1_INT7B              = 0.;
+            if (yValue[5]>0 && yValue[13]>0 ){
+                cvEG1_INT7B = (corrFracEG1_EG1_INT7B*ySysErr[5]*corrFracINT7B_EG1_INT7B*ySysErr[13])/(yTotErr[5]*yTotErr[13]);
+                cout << nameMeas[5] <<  " sys error : "  << ySysErr[5] << "\t, total err: " <<  yTotErr[5] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for INT1_NLM1
             Double_t cvINT11_INT71              = 0.;
@@ -2931,6 +3121,12 @@
                 cout << nameMeas[6] <<  " sys error : "  << ySysErr[6] << "\t, total err: " <<  yTotErr[6] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvINT11_INT7B              = 0.;
+            if (yValue[6]>0 && yValue[13]>0 ){
+                cvINT11_INT7B = (corrFracINT11_INT11_INT7B*ySysErr[6]*corrFracINT7B_INT11_INT7B*ySysErr[13])/(yTotErr[6]*yTotErr[13]);
+                cout << nameMeas[6] <<  " sys error : "  << ySysErr[6] << "\t, total err: " <<  yTotErr[6] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for INT7_NLM1
             Double_t cvINT71_EMC11              = 0.;
@@ -2963,6 +3159,12 @@
                 cout << nameMeas[7] <<  " sys error : "  << ySysErr[7] << "\t, total err: " <<  yTotErr[7] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvINT71_INT7B              = 0.;
+            if (yValue[7]>0 && yValue[13]>0 ){
+                cvINT71_INT7B = (corrFracINT71_INT71_INT7B*ySysErr[7]*corrFracINT7B_INT71_INT7B*ySysErr[13])/(yTotErr[7]*yTotErr[13]);
+                cout << nameMeas[7] <<  " sys error : "  << ySysErr[7] << "\t, total err: " <<  yTotErr[7] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for EMC1_NLM1
             Double_t cvEMC11_EMC71              = 0.;
@@ -2989,6 +3191,12 @@
                 cout << nameMeas[8] <<  " sys error : "  << ySysErr[8] << "\t, total err: " <<  yTotErr[8] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvEMC11_INT7B              = 0.;
+            if (yValue[8]>0 && yValue[13]>0 ){
+                cvEMC11_INT7B = (corrFracEMC11_EMC11_INT7B*ySysErr[8]*corrFracINT7B_EMC11_INT7B*ySysErr[13])/(yTotErr[8]*yTotErr[13]);
+                cout << nameMeas[8] <<  " sys error : "  << ySysErr[8] << "\t, total err: " <<  yTotErr[8] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for EMC7_NLM1
             Double_t cvEMC71_EG21              = 0.;
@@ -3009,6 +3217,12 @@
                 cout << nameMeas[9] <<  " sys error : "  << ySysErr[9] << "\t, total err: " <<  yTotErr[9] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvEMC71_INT7B              = 0.;
+            if (yValue[9]>0 && yValue[13]>0 ){
+                cvEMC71_INT7B = (corrFracEMC71_EMC71_INT7B*ySysErr[9]*corrFracINT7B_EMC71_INT7B*ySysErr[13])/(yTotErr[9]*yTotErr[13]);
+                cout << nameMeas[9] <<  " sys error : "  << ySysErr[9] << "\t, total err: " <<  yTotErr[9] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for EG2_NLM1
             Double_t cvEG21_EG11              = 0.;
@@ -3023,6 +3237,12 @@
                 cout << nameMeas[10] <<  " sys error : "  << ySysErr[10] << "\t, total err: " <<  yTotErr[10] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvEG21_INT7B              = 0.;
+            if (yValue[10]>0 && yValue[13]>0 ){
+                cvEG21_INT7B = (corrFracEG21_EG21_INT7B*ySysErr[10]*corrFracINT7B_EG21_INT7B*ySysErr[13])/(yTotErr[10]*yTotErr[13]);
+                cout << nameMeas[10] <<  " sys error : "  << ySysErr[10] << "\t, total err: " <<  yTotErr[10] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
             // correlation factors for EG1_NLM1
             Double_t cvEG11_PHI7              = 0.;
@@ -3031,40 +3251,57 @@
                 cout << nameMeas[11] <<  " sys error : "  << ySysErr[11] << "\t, total err: " <<  yTotErr[11] << endl;
                 cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
             }
+            Double_t cvEG11_INT7B              = 0.;
+            if (yValue[11]>0 && yValue[13]>0 ){
+                cvEG11_INT7B = (corrFracEG11_EG11_INT7B*ySysErr[11]*corrFracINT7B_EG11_INT7B*ySysErr[13])/(yTotErr[11]*yTotErr[13]);
+                cout << nameMeas[11] <<  " sys error : "  << ySysErr[11] << "\t, total err: " <<  yTotErr[11] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
+
+
+            // correlation factors for PHI7
+            Double_t cvPHI7_INT7B              = 0.;
+            if (yValue[12]>0 && yValue[13]>0 ){
+                cvPHI7_INT7B = (corrFracPHI7_PHI7_INT7B*ySysErr[12]*corrFracINT7B_PHI7_INT7B*ySysErr[13])/(yTotErr[12]*yTotErr[13]);
+                cout << nameMeas[12] <<  " sys error : "  << ySysErr[12] << "\t, total err: " <<  yTotErr[12] << endl;
+                cout << nameMeas[13] <<  " sys error : "  << ySysErr[13] << "\t, total err: " <<  yTotErr[13] << endl;
+            }
 
                                             //INT1      INT7          EMC1          EMC7          EG2          EG1          INT1_NLM1      INT7_NLM1      EMC1_NLM1      EMC7_NLM1      EG2_NLM1      EG1_NLM1      PHI7
-            Double_t cvMatrix[13][13] = { { 1,          cvINT1_INT7,  cvINT1_EMC1,  cvINT1_EMC7,  cvINT1_EG2,  cvINT1_EG1,  cvINT1_INT11,  cvINT1_INT71,  cvINT1_EMC11,  cvINT1_EMC71,  cvINT1_EG21,  cvINT1_EG11,  cvINT1_PHI7  },
-                                        { cvINT1_INT7,  1,            cvINT7_EMC1,  cvINT7_EMC7,  cvINT7_EG2,  cvINT7_EG1,  cvINT7_INT11,  cvINT7_INT71,  cvINT7_EMC11,  cvINT7_EMC71,  cvINT7_EG21,  cvINT7_EG11,  cvINT7_PHI7  },
-                                        { cvINT1_EMC1,  cvINT7_EMC1,  1,            cvEMC1_EMC7,  cvEMC1_EG2,  cvEMC1_EG1,  cvEMC1_INT11,  cvEMC1_INT71,  cvEMC1_EMC11,  cvEMC1_EMC71,  cvEMC1_EG21,  cvEMC1_EG11,  cvEMC1_PHI7  },
-                                        { cvINT1_EMC7,  cvINT7_EMC7,  cvEMC1_EMC7,  1,            cvEMC7_EG2,  cvEMC7_EG1,  cvEMC7_INT11,  cvEMC7_INT71,  cvEMC7_EMC11,  cvEMC7_EMC71,  cvEMC7_EG21,  cvEMC7_EG11,  cvEMC7_PHI7  },
-                                        { cvINT1_EG2,   cvINT7_EG2,   cvEMC1_EG2,   cvEMC7_EG2,   1,           cvEG2_EG1,   cvEG2_INT11,   cvEG2_INT71,   cvEG2_EMC11,   cvEG2_EMC71,   cvEG2_EG21,   cvEG2_EG11,   cvEG2_PHI7   },
-                                        { cvINT1_EG1,   cvINT7_EG1,   cvEMC1_EG1,   cvEMC7_EG1,   cvEG2_EG1,   1,           cvEG1_INT11,   cvEG1_INT71,   cvEG1_EMC11,   cvEG1_EMC71,   cvEG1_EG21,   cvEG1_EG11,   cvEG1_PHI7   },
-                                        { cvINT1_INT11, cvINT7_INT11, cvEMC1_INT11, cvEMC7_INT11, cvEG2_INT11, cvEG1_INT11, 1,             cvINT11_INT71, cvINT11_EMC11, cvINT11_EMC71, cvINT11_EG21, cvINT11_EG11, cvINT11_PHI7 },
-                                        { cvINT1_INT71, cvINT7_INT71, cvEMC1_INT71, cvEMC7_INT71, cvEG2_INT71, cvEG1_INT71, cvINT11_INT71, 1,             cvINT71_EMC11, cvINT71_EMC71, cvINT71_EG21, cvINT71_EG11, cvINT71_PHI7 },
-                                        { cvINT1_EMC11, cvINT7_EMC11, cvEMC1_EMC11, cvEMC7_EMC11, cvEG2_EMC11, cvEG1_EMC11, cvINT11_EMC11, cvINT71_EMC11, 1,             cvEMC11_EMC71, cvEMC11_EG21, cvEMC11_EG11, cvEMC11_PHI7 },
-                                        { cvINT1_EMC71, cvINT7_EMC71, cvEMC1_EMC71, cvEMC7_EMC71, cvEG2_EMC71, cvEG1_EMC71, cvINT11_EMC71, cvINT71_EMC71, cvEMC11_EMC71, 1,             cvEMC71_EG21, cvEMC71_EG11, cvEMC71_PHI7 },
-                                        { cvINT1_EG21,  cvINT7_EG21,  cvEMC1_EG21,  cvEMC7_EG21,  cvEG2_EG21,  cvEG1_EG21,  cvINT11_EG21,  cvINT71_EG21,  cvEMC11_EG21,  cvEMC71_EG21,  1,            cvEG21_EG11,  cvEG21_PHI7  },
-                                        { cvINT1_EG11,  cvINT7_EG11,  cvEMC1_EG11,  cvEMC7_EG11,  cvEG2_EG11,  cvEG1_EG11,  cvINT11_EG11,  cvINT71_EG11,  cvEMC11_EG11,  cvEMC71_EG11,  cvEG21_EG11,  1,            cvEG11_PHI7  },
-                                        { cvINT1_PHI7,  cvINT7_PHI7,  cvEMC1_PHI7,  cvEMC7_PHI7,  cvEG2_PHI7,  cvEG1_PHI7,  cvINT11_PHI7,  cvINT71_PHI7,  cvEMC11_PHI7,  cvEMC71_PHI7,  cvEG21_PHI7,  cvEG11_PHI7,  1            }
+            Double_t cvMatrix[14][14] = { { 1,          cvINT1_INT7,  cvINT1_EMC1,  cvINT1_EMC7,  cvINT1_EG2,  cvINT1_EG1,  cvINT1_INT11,  cvINT1_INT71,  cvINT1_EMC11,  cvINT1_EMC71,  cvINT1_EG21,  cvINT1_EG11,  cvINT1_PHI7,  cvINT1_INT7B  },
+                                        { cvINT1_INT7,  1,            cvINT7_EMC1,  cvINT7_EMC7,  cvINT7_EG2,  cvINT7_EG1,  cvINT7_INT11,  cvINT7_INT71,  cvINT7_EMC11,  cvINT7_EMC71,  cvINT7_EG21,  cvINT7_EG11,  cvINT7_PHI7,  cvINT7_INT7B  },
+                                        { cvINT1_EMC1,  cvINT7_EMC1,  1,            cvEMC1_EMC7,  cvEMC1_EG2,  cvEMC1_EG1,  cvEMC1_INT11,  cvEMC1_INT71,  cvEMC1_EMC11,  cvEMC1_EMC71,  cvEMC1_EG21,  cvEMC1_EG11,  cvEMC1_PHI7,  cvEMC1_INT7B  },
+                                        { cvINT1_EMC7,  cvINT7_EMC7,  cvEMC1_EMC7,  1,            cvEMC7_EG2,  cvEMC7_EG1,  cvEMC7_INT11,  cvEMC7_INT71,  cvEMC7_EMC11,  cvEMC7_EMC71,  cvEMC7_EG21,  cvEMC7_EG11,  cvEMC7_PHI7,  cvEMC7_INT7B  },
+                                        { cvINT1_EG2,   cvINT7_EG2,   cvEMC1_EG2,   cvEMC7_EG2,   1,           cvEG2_EG1,   cvEG2_INT11,   cvEG2_INT71,   cvEG2_EMC11,   cvEG2_EMC71,   cvEG2_EG21,   cvEG2_EG11,   cvEG2_PHI7,   cvEG2_INT7B   },
+                                        { cvINT1_EG1,   cvINT7_EG1,   cvEMC1_EG1,   cvEMC7_EG1,   cvEG2_EG1,   1,           cvEG1_INT11,   cvEG1_INT71,   cvEG1_EMC11,   cvEG1_EMC71,   cvEG1_EG21,   cvEG1_EG11,   cvEG1_PHI7,   cvEG1_INT7B   },
+                                        { cvINT1_INT11, cvINT7_INT11, cvEMC1_INT11, cvEMC7_INT11, cvEG2_INT11, cvEG1_INT11, 1,             cvINT11_INT71, cvINT11_EMC11, cvINT11_EMC71, cvINT11_EG21, cvINT11_EG11, cvINT11_PHI7, cvINT11_INT7B },
+                                        { cvINT1_INT71, cvINT7_INT71, cvEMC1_INT71, cvEMC7_INT71, cvEG2_INT71, cvEG1_INT71, cvINT11_INT71, 1,             cvINT71_EMC11, cvINT71_EMC71, cvINT71_EG21, cvINT71_EG11, cvINT71_PHI7, cvINT71_INT7B },
+                                        { cvINT1_EMC11, cvINT7_EMC11, cvEMC1_EMC11, cvEMC7_EMC11, cvEG2_EMC11, cvEG1_EMC11, cvINT11_EMC11, cvINT71_EMC11, 1,             cvEMC11_EMC71, cvEMC11_EG21, cvEMC11_EG11, cvEMC11_PHI7, cvEMC11_INT7B },
+                                        { cvINT1_EMC71, cvINT7_EMC71, cvEMC1_EMC71, cvEMC7_EMC71, cvEG2_EMC71, cvEG1_EMC71, cvINT11_EMC71, cvINT71_EMC71, cvEMC11_EMC71, 1,             cvEMC71_EG21, cvEMC71_EG11, cvEMC71_PHI7, cvEMC71_INT7B },
+                                        { cvINT1_EG21,  cvINT7_EG21,  cvEMC1_EG21,  cvEMC7_EG21,  cvEG2_EG21,  cvEG1_EG21,  cvINT11_EG21,  cvINT71_EG21,  cvEMC11_EG21,  cvEMC71_EG21,  1,            cvEG21_EG11,  cvEG21_PHI7,  cvEG21_INT7B  },
+                                        { cvINT1_EG11,  cvINT7_EG11,  cvEMC1_EG11,  cvEMC7_EG11,  cvEG2_EG11,  cvEG1_EG11,  cvINT11_EG11,  cvINT71_EG11,  cvEMC11_EG11,  cvEMC71_EG11,  cvEG21_EG11,  1,            cvEG11_PHI7,  cvEG11_INT7B  },
+                                        { cvINT1_PHI7,  cvINT7_PHI7,  cvEMC1_PHI7,  cvEMC7_PHI7,  cvEG2_PHI7,  cvEG1_PHI7,  cvINT11_PHI7,  cvINT71_PHI7,  cvEMC11_PHI7,  cvEMC71_PHI7,  cvEG21_PHI7,  cvEG11_PHI7,  1,            cvPHI7_INT7B  },
+                                        { cvINT1_INT7B, cvINT7_INT7B, cvEMC1_INT7B, cvEMC7_INT7B, cvEG2_INT7B, cvEG1_INT7B, cvINT11_INT7B, cvINT71_INT7B, cvEMC11_INT7B, cvEMC71_INT7B, cvEG21_INT7B, cvEG11_INT7B, cvPHI7_INT7B, 1             }
                                         };
 
-            Double_t cvMatrixCurrPtBin[13][13] = {  {   1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
-                                                    {   0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
-                                                    {   0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
-                                                    {   0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
-                                                    {   0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0 },
-                                                    {   0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0 },
-                                                    {   0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0 },
-                                                    {   0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0 },
-                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0 },
-                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0 },
-                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0 },
-                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0 },
-                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1 } };
+            Double_t cvMatrixCurrPtBin[14][14] = {  {   1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
+                                                    {   0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
+                                                    {   0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
+                                                    {   0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
+                                                    {   0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0 },
+                                                    {   0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0,  0 },
+                                                    {   0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0,  0 },
+                                                    {   0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0,  0 },
+                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0,  0 },
+                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0,  0 },
+                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0,  0 },
+                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0,  0 },
+                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  0 },
+                                                    {   0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  1 } };
 
-            Double_t weightArray[13]        = { 0, 0, 0, 0, 0, 0,
+            Double_t weightArray[14]        = { 0, 0, 0, 0, 0, 0,
                                                 0, 0, 0, 0, 0, 0,
-                                              0};
+                                                0, 0};
             Double_t fullSumOfWeights       = 0;
             for (Int_t meas = 0; meas < maxNMeasurements; meas++){
                 cout << "identity: " << identCurr[0][meas] << " <- " << identCurr[1][meas] << endl;
@@ -3080,7 +3317,7 @@
                     if (debugOutput>=2){cout<<"DebugOutput, CombinationFunctions.h, CombinePtPointsSpectraTriggerCorrMat(), Line: "<<__LINE__<<endl<<"\t nCurrMeas: "<<nCurrMeas<<"; numberOfMeasInPtBin: "<<numberOfMeasInPtBin<<endl;}
                     for (Int_t nCurrMeas2 = 0; nCurrMeas2 < numberOfMeasInPtBin; nCurrMeas2++){
                         if (debugOutput>=3){cout<<"DebugOutput, CombinationFunctions.h, CombinePtPointsSpectraTriggerCorrMat(), Line: "<<__LINE__<<endl<<"\t identCurr[1]["<<nCurrMeas<<"]: "<<identCurr[1][nCurrMeas]<<"; identCurr[1]["<<nCurrMeas2<<"]: "<<identCurr[1][nCurrMeas2]<<endl;}
-                        cout << cvMatrix[identCurr[1][nCurrMeas]][identCurr[1][nCurrMeas2]] << "*" << yTotErr[identCurr[1][nCurrMeas]] << "*"<<yTotErr[identCurr[1][nCurrMeas2]] << "\t" ;
+                        cout << cvMatrix[identCurr[1][nCurrMeas]][identCurr[1][nCurrMeas2]] << "*" << yTotErr[identCurr[1][nCurrMeas]] << "*"<<yTotErr[identCurr[1][nCurrMeas2]] << "\n" ;
                     }
                     cout << endl;
                 }
@@ -3112,7 +3349,7 @@
                         partSumOfWeights    = partSumOfWeights+ weightingMatrix[nCurrMeas][nCurrMeas2];
                     }
                     weightArray[nCurrMeas]  = partSumOfWeights/fullSumOfWeights;
-                    cout << weightArray[nCurrMeas] << endl;
+                    cout << "weightArray["<<nCurrMeas<<"] = "<<weightArray[nCurrMeas] << endl;
                 }
                 for (Int_t nCurrMeas = 0; nCurrMeas < numberOfMeasInPtBin; nCurrMeas++){
                     yValueFinal[ptBin]      = yValueFinal[ptBin]+ weightArray[nCurrMeas]* yValue[identCurr[1][nCurrMeas]];
@@ -3185,7 +3422,8 @@
     TGraphAsymmErrors* CalculateWeightedQuantity(   TGraphAsymmErrors** graphs,
                                                     TGraph** weights,
                                                     Double_t* xPtLimits,  Int_t nPtLimits,
-                                                    Int_t maxNMeasurements
+                                                    Int_t maxNMeasurements,
+                                                    std::vector<Int_t> rejectTriggers = {}
                                                 ){
         Int_t DebugOutputLevel=0;
         Double_t xValue[nPtLimits];
@@ -3201,6 +3439,7 @@
 
         if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
         for (Int_t meas = 0; meas < maxNMeasurements; meas++){
+
             available[meas]         = kFALSE;
             cout << "\n" << endl;
             cout << meas         << endl;
@@ -3244,13 +3483,33 @@
             xValue[ptBin]   = (xPtLimits[ptBin]+xPtLimits[ptBin+1])/2;
             xErr[ptBin]     = xValue[ptBin]- xPtLimits[ptBin];
             Int_t nMeas     = 0;
+            // calculate new effective weight in case one ore more triggers should not be merged into combined (for example mass pos for low/nom B field)
+            // weight has to be corrected with "weightCorrection = 1 - weight(not used method)"
+            Double_t weightCorrection = 1;
+            for(Int_t meas = 0; meas < maxNMeasurements; meas++){
+              if(graphs[meas] && weights[meas]){
+                // check if measurment should not enter calculation of weighted quantity
+                if(std::find(rejectTriggers.begin(), rejectTriggers.end(), meas) != rejectTriggers.end()){
+                if((ptBin - offsets[meas]) < 0) continue;
+                  // cout<<"weight correction X: "<<weights[meas]->GetX()[ptBin - offsets[meas] - offset]<<endl;
+                  // cout<<"weight correction Y: "<<weights[meas]->GetY()[ptBin - offsets[meas] - offset]<<endl;
+                  weightCorrection-=weights[meas]->GetY()[ptBin - offsets[meas]];
+                }
+              }
+            }
+            // safty check to not devide by 0 later
+            if(fabs(weightCorrection) < 1e-12) weightCorrection = 1e-12;
+            cout<<"weightCorrection: "<<weightCorrection<<endl;
+
             for (Int_t meas = 0; meas < maxNMeasurements; meas++){
+              // continue if sepcified trigger should not enter combination (for example lowB field in mass positions etc.)
+              if(std::find(rejectTriggers.begin(), rejectTriggers.end(), meas) != rejectTriggers.end()) continue;
+
                 if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
                 if (graphs[meas] && weights[meas] && !(ptBin < offsets[meas]) && !stopped[meas] ){
                     cout << meas<< " meas " << endl;
-                    cout << "pt bin meas " <<": " << binCounters[meas][0] << "\t weight: " << binCounters[meas][1] << endl;
-                    cout << "pt expected: " <<  xValue[ptBin] << "\t meas: " << graphs[meas]->GetX()[binCounters[meas][0]] <<  "\t weight: " << weights[meas]->GetX()[binCounters[meas][1]] << endl;
-
+                    cout << "binCounters[meas][0] " <<": " << binCounters[meas][0] << "\t binCounters[meas][1]: " << binCounters[meas][1] << endl;
+                    cout << "pt expected: " <<  xValue[ptBin] << "\t meas: " << graphs[meas]->GetX()[binCounters[meas][0]] << "\t binCounters[meas][1]: " << binCounters[meas][1] <<  "\t weight: " << weights[meas]->GetX()[binCounters[meas][1]] << endl;
                     if (TMath::Abs(graphs[meas]->GetX()[binCounters[meas][0]] - weights[meas]->GetX()[binCounters[meas][1]]) > 0.00001 ){
                         if (DebugOutputLevel>=1){cout << "failed at "<< meas << ":\t" << graphs[meas]->GetX()[binCounters[meas][0]] << "\t" << weights[meas]->GetX()[binCounters[meas][1]] << endl;}
                         cout << "something went wrong with the offsets" << endl;
@@ -3268,10 +3527,10 @@
                         if (DebugOutputLevel>=1){cout << "Debug; CalculateWeightedQuantity.C, line " << __LINE__ <<"; "<<endl;}
                         cout << meas << " entered" << endl;
                         // increase weight graph bin counter
-                        cout << "measured: " << graphs[meas]->GetY()[binCounters[meas][0]] <<  "\t weight: " << weights[meas]->GetY()[binCounters[meas][1]] << endl;
+                        cout << "measured: " << graphs[meas]->GetY()[binCounters[meas][0]] <<  "\t weight: " << weights[meas]->GetY()[binCounters[meas][1]] << "\t weight correction: "<< weightCorrection << endl;
                         if (TMath::Abs(weights[meas]->GetY()[binCounters[meas][1]]) > 1e-5){
-                            values[ptBin] += graphs[meas]->GetY()[binCounters[meas][0]]*weights[meas]->GetY()[binCounters[meas][1]];
-                            errors[ptBin] += graphs[meas]->GetErrorYhigh(binCounters[meas][0])*weights[meas]->GetY()[binCounters[meas][1]];
+                            values[ptBin] += graphs[meas]->GetY()[binCounters[meas][0]]*weights[meas]->GetY()[binCounters[meas][1]]/weightCorrection;
+                            errors[ptBin] += graphs[meas]->GetErrorYhigh(binCounters[meas][0])*weights[meas]->GetY()[binCounters[meas][1]]/weightCorrection;
                             nMeas++;
                         } else {
                             cout << "weight put to 0" << endl;

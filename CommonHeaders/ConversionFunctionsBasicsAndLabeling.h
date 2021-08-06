@@ -1022,6 +1022,8 @@
                 return "#pi^{0} rec w/ DCAL, DALITZ";
             case 90:
                 return "EDC";
+            case 91:
+                return "PCMEDC";
             default:
                 return "not known";
 
@@ -1207,6 +1209,8 @@
             return  "pp, #sqrt{#it{s}} = 13TeV";
         } else if( fEnergyFlagOpt.CompareTo("13TeVSys") == 0) {
             return  "pp, #sqrt{#it{s}} = 13TeV";
+        } else if( fEnergyFlagOpt.CompareTo("13TeVMult") == 0) {
+          return  "pp, #sqrt{#it{s}} = 13TeV";
         } else if( fEnergyFlagOpt.CompareTo("13TeVLowB") == 0) {
             return  "pp, #sqrt{#it{s}} = 13TeV (low B)";
         } else if( fEnergyFlagOpt.CompareTo("13TeVRBins") == 0) {
@@ -1243,8 +1247,8 @@
             return  7000;
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return 8000;
-        } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || 
-		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0) {
+        } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 ||
+		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0 || fEnergyFlagOpt.CompareTo("13TeVMult") == 0) {
             return 13000;
         } else if( fEnergyFlagOpt.BeginsWith("5TeV") ) {
             return 5020;
@@ -1278,8 +1282,8 @@
             return  "pp5020GeV";
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return  "pp8TeV";
-        } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || 
-		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0 ) {
+        } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 ||
+		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0) {
             return  "pp13TeV";
         } else if( fEnergyFlagOpt.CompareTo("2.76TeV") == 0) {
             return  "pp2760GeV";
@@ -1311,8 +1315,8 @@
             return  "5TeV";
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return  "8TeV";
-        } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || 
-		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0 ) {
+        } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 ||
+		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0 || fEnergyFlagOpt.CompareTo("13TeVMult") == 0) {
             return  "13TeV";
         } else if( fEnergyFlagOpt.CompareTo("2.76TeV") == 0) {
             return  "2760GeV";
@@ -2572,8 +2576,8 @@
             return 1./0.75 -1.;
         } else if( fEnergyFlagOpt.BeginsWith("8TeV")) {
             return  1./0.75 -1.;
-        } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 || 
-		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0  ) {
+        } else if( fEnergyFlagOpt.CompareTo("13TeV") == 0 || fEnergyFlagOpt.CompareTo("13TeVLowB") == 0 ||
+		   fEnergyFlagOpt.CompareTo("13TeVRBins") == 0 || fEnergyFlagOpt.CompareTo("13TeVRBinsLowB") == 0 || fEnergyFlagOpt.CompareTo("13TeVSys") == 0 || fEnergyFlagOpt.CompareTo("13TeVMult") == 0 ) {
             cout << "Caution: no correct K0 Scaling factor for 13TeV available yet" << endl;
             return  1./1. -1.;
         } else if( fEnergyFlagOpt.BeginsWith("5TeV") ) {
@@ -6531,8 +6535,8 @@
                 xSectionInt = 0.;
                 cout << "ERROR: V0OR xSection not determined, set to \t" << xSectionInt << endl;
             }
-        } else if(energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVLowB") == 0 || 
-		  energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 || energy.CompareTo("13TeVSys") == 0 ){
+        } else if(energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVLowB") == 0 ||
+		  energy.CompareTo("13TeVRBins") == 0 || energy.CompareTo("13TeVRBinsLowB") == 0 || energy.CompareTo("13TeVSys") == 0 || energy.CompareTo("13TeVMult") == 0){
             if (selTrig == 1){
                 xSectionInt = xSection13TeVV0AND;
                 cout << "V0AND xSection taken: \t" << xSectionInt << endl;
@@ -6566,11 +6570,11 @@
                     return "#gamma's rec. with PCM";
                 case 1: case 47: case 67:
                     return "#gamma's rec. with PCM, Dalitz";
-                case 2: case 41: case 61:
+                case 2: case 41: case 61: case 91:
                     return "#gamma's rec. with PCM, EMCal";
                 case 3: case 42: case 62:
                     return "#gamma's rec. with PCM, PHOS";
-                case 4: case 44: case 64:
+                case 4: case 44: case 64: case 90:
                     return "#gamma's rec. with EMCal";
                 case 5: case 45: case -5: case 65:
                     return "#gamma's rec. with PHOS";
@@ -6950,6 +6954,19 @@
         Int_t icut = ReturnSingleAlphaNumericCutAsInt(cut);
         if(icut >= 27 && icut <= 33) return kTRUE;
         return kFALSE;
+    }
+
+    //************************************************************************************
+    // Return mode of Jet analysis
+    //************************************************************************************
+    Int_t GetIsJetAnalysis (TString cut){
+        char tmpChar = cut(0);
+        Int_t icut = ReturnSingleAlphaNumericCutAsInt(cut);
+        if(icut == 2 || icut == 3) return 1; // in Jet
+        else if(icut == 6) return 2; // out of Jet
+        else if(icut == 7) return 3; // opposite to Jet
+        else if(icut == 8) return 4; // around Jet
+        else return 0;
     }
 
 
