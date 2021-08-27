@@ -1356,9 +1356,9 @@
                     cout<<"Getting PCM-PHOS("<<mode<<") Example Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<trigger<<", while triggerSet is: "<<triggerSet<<endl;
                     switch (trigger){
                         case 6: case 62:
-                            return 20; //25
+                            return 17;
                         default:
-                            return 6; //19
+                            return 6;
                     }
             //-------------------------------------------------------------------------------------------------------------
             //----------------------------------------------PHOS-PHOS------------------------------------------------------
@@ -1367,7 +1367,7 @@
                     cout<<"Getting PHOS-PHOS("<<mode<<") Example Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<trigger<<endl;
                     switch (trigger){
                         case 62:
-                            return 44;
+                            return 25;
                         default:
                             return 6;
                     }
@@ -1378,10 +1378,10 @@
                     cout<<"Getting PCM-EMC("<<mode<<") Example Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<trigger<<endl;
                     switch (trigger){
                         case 8: case 82: case 85: case 53:
-                            return 20; //25
+                            return 12;
                         default:
                             //scaleFac        = 2.;
-                            return 15; //19
+                            return 15;
                     }
             //-------------------------------------------------------------------------------------------------------------
             //------------------------------------------------EMC-EMC------------------------------------------------------
@@ -1390,7 +1390,6 @@
                     cout<<"Getting EMC-EMC("<<mode<<") Example Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<trigger<<", while triggerSet is: "<<triggerSet<<endl;
                     switch (triggerSet){
                         case 2: case 3:
-                            //return 25;
                             return 12;
                         default:
                             return 6;
@@ -2514,7 +2513,7 @@
                 } else if (mode == 45 || mode == 65){ //PHOS-PHOS
                     cout<<"Getting PHOS-PHOS("<<mode<<") Start Bin for "<<meson.Data()<<" in "<<energy<<"; The chosen Trigger is "<<specialTrigg<<endl;
                     if (specialTrigg == 6 ){ //PHI7 (62, 4GeV)
-                        startPtBin = 5;
+                        startPtBin = 10;
                     //------------------------------------
                     } else { //MB
                         startPtBin = 1;
