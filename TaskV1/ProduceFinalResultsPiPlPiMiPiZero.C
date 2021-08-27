@@ -224,7 +224,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
       }
     }else if (optionEnergy.CompareTo("13TeV")==0){
       if (mode == 60 || mode == 61 || mode == 62 || mode == 64 || mode == 65){
-        maxPtGlobalCluster          = 80;
+        maxPtGlobalCluster          = 100;
       }
     }
 
@@ -1139,7 +1139,7 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
                         mode == 64 ||   //EMCAL
                         mode == 65)     //PHOS
             {
-                maxTriggRejectLin = 700;
+                maxTriggRejectLin = 1000;
             }
         } else if( optionEnergy.CompareTo("pPb_8TeV")==0 ){
             if (mode == 2 || mode == 4 || mode == 10 )
