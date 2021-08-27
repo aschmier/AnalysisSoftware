@@ -85,6 +85,8 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     Bool_t doAlternativeCorrectedYield;
     Bool_t doMCInput;
     Bool_t doCorrectedYieldAverage;
+
+    Bool_t doLinesRatio;
     Int_t useOmegaEfficiency=2;
     if ( mode == modePCM_Omega || mode == modePCMEMCAL_Omega || mode == modePCMPHOS_Omega || mode == modeEMCAL_Omega || mode == modePHOS_Omega ){
         doCorrectedYieldWOSecCut            = kFALSE;
@@ -93,11 +95,13 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             doAlternativeEfficiency         = kTRUE;
             doCorrectedYieldAverage         = kTRUE;
             doMCInput                       = kTRUE;
+            doLinesRatio                    = kTRUE;
         } else {
             doAlternativeCorrectedYield     = kFALSE;
             doAlternativeEfficiency         = kFALSE;
             doCorrectedYieldAverage         = kFALSE;
             doMCInput                       = kFALSE;
+            doLinesRatio                    = kTRUE;
         }
     } else {
         doCorrectedYieldWOSecCut            = kTRUE;
@@ -105,11 +109,13 @@ void CompareDifferentDirectories(   TString FolderList              = "",
         doAlternativeEfficiency             = kFALSE;
         doCorrectedYieldAverage             = kFALSE;
         doMCInput                           = kFALSE;
+        doLinesRatio                        = kFALSE;
     }
 
     if (kIsMC==kFALSE){
         doMCInput                           = kFALSE;
     }
+    Double_t LineRatioValue;
     // Initialize arrays
     TString fileDirectory[50];
     TString cutNumber[50];
@@ -193,17 +199,17 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     TH1D *histoCorrectedYieldWOSecCut[ConstNumberOfCuts];
     TH1D *histoAltCorrectedYieldCut[ConstNumberOfCuts];
     TH1D *histoMCInputYieldCut[ConstNumberOfCuts];
-    TH1D *histoCorrectedYieldCutAverage;
-    TH1D *histoCorrectedYieldCutAverage_MAD;
-    TH1D *histoCorrectedYieldCutAverage_MAD_NormWStatErr;
-    TH1D *histoCorrectedYieldCutMCInput_MAD;
-    TH1D *histoCorrectedYieldCutMCInput_MAD_NormWStatErr;
+    TH1D *histoCorrectedYieldCutAverage                         = NULL;
+    TH1D *histoCorrectedYieldCutAverage_MAD                     = NULL;
+    TH1D *histoCorrectedYieldCutAverage_MAD_NormWStatErr        = NULL;
+    TH1D *histoCorrectedYieldCutMCInput_MAD                     = NULL;
+    TH1D *histoCorrectedYieldCutMCInput_MAD_NormWStatErr        = NULL;
 
-    TH1D *histoAltCorrectedYieldCutAverage;
-    TH1D *histoAltCorrectedYieldCutAverage_MAD;
-    TH1D *histoAltCorrectedYieldCutAverage_MAD_NormWStatErr;
-    TH1D *histoAltCorrectedYieldCutMCInput_MAD;
-    TH1D *histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr;
+    TH1D *histoAltCorrectedYieldCutAverage                      = NULL;
+    TH1D *histoAltCorrectedYieldCutAverage_MAD                  = NULL;
+    TH1D *histoAltCorrectedYieldCutAverage_MAD_NormWStatErr     = NULL;
+    TH1D *histoAltCorrectedYieldCutMCInput_MAD                  = NULL;
+    TH1D *histoAltCorrectedYieldCutMCInput_MAD_NormWStatErr     = NULL;
 
     TH1D *histoTrueEffiCut[ConstNumberOfCuts];
     TH1D *histoAltEffiCut[ConstNumberOfCuts];
@@ -221,8 +227,8 @@ void CompareDifferentDirectories(   TString FolderList              = "",
     TH1D *histoRatioMCInputYieldCut[ConstNumberOfCuts];
     TH1D *histoRatioToCorYieldMCInputYieldCut[ConstNumberOfCuts];
     TH1D *histoRatioToAltCorYieldMCInputYieldCut[ConstNumberOfCuts];
-    TH1D *histoRatioCorrectedYieldCutAverage;
-    TH1D *histoRatioAltCorrectedYieldCutAverage;
+    TH1D *histoRatioCorrectedYieldCutAverage                    = NULL;
+    TH1D *histoRatioAltCorrectedYieldCutAverage                 = NULL;
     TH1D *histoRatioTrueEffiCut[ConstNumberOfCuts];
     TH1D *histoRatioAltEffiCut[ConstNumberOfCuts];
     TH1D *histoRatioTrueEffDivAltEffiCut[ConstNumberOfCuts];
@@ -451,7 +457,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             } else {
                 histoRatioCorrectedYieldCut[i]->Divide(histoRatioCorrectedYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
             }
-            if (i > 0){
+            if ((i > 0)||( NumberOfCuts == 1 )){
                 maxPt= histoCorrectedYieldCut[i]->GetBinCenter(histoCorrectedYieldCut[i]->GetNbinsX()) + 0.5* histoCorrectedYieldCut[i]->GetBinWidth(histoCorrectedYieldCut[i]->GetNbinsX());
             }
             if (doCorrectedYieldWOSecCut){
@@ -794,6 +800,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             }
         }
         DrawGammaLines(0., maxPt,1., 1.,1);
+        if (doLinesRatio){
+            LineRatioValue = 0.5;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 0.75;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 0.90;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+            LineRatioValue = 1.10;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.25;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.50;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 2.0;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 2.5;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+        }
 
         canvasRawYieldMeson->Update();
         canvasRawYieldMeson->SaveAs(Form("%s/%s_%s_RAWYield.%s",outputDir.Data(),meson.Data(),prefix2.Data(),suffix.Data()));
@@ -824,7 +849,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
           TLegend* legendCorrectedYieldMeson = GetAndSetLegend2(0.15,0.02,0.3,0.02+1.15*0.032*(NumberOfCuts+2), 1500*0.75*0.032);
           for(Int_t i = 0; i< NumberOfCuts; i++){
               ColorAndMarkerNumber=i;
-              if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
+              if ((doCorrectedYieldAverage)){
                   ColorAndMarkerNumber++;
               }
               if (doMCInput){
@@ -879,7 +904,7 @@ void CompareDifferentDirectories(   TString FolderList              = "",
           padCorrectedYieldRatios->cd();
           for(Int_t i = 0; i< NumberOfCuts; i++){
               ColorAndMarkerNumber=i;
-              if ((doCorrectedYieldAverage)&&(histoAltCorrectedYieldCutAverage)){
+              if ((doCorrectedYieldAverage)){
                   ColorAndMarkerNumber++;
               }
               if (doMCInput){
@@ -943,6 +968,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
               }
           }
           DrawGammaLines(0., maxPt,1., 1.,1);
+          if (doLinesRatio){
+              LineRatioValue = 0.5;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 0.75;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 0.90;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+              LineRatioValue = 1.10;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 1.25;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 1.50;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 2.0;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 2.5;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+          }
 
       canvasCorrectedYieldMeson->Update();
       canvasCorrectedYieldMeson->SaveAs(Form("%s/%s_%s_CorrectedYield.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
@@ -1298,6 +1342,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 }
             }
             DrawGammaLines(0., maxPt,1., 1.,1);
+            if (doLinesRatio){
+                LineRatioValue = 0.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.75;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.90;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+                LineRatioValue = 1.10;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.25;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.50;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.0;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            }
 
             canvasAltCorrectedYieldMeson->Update();
             canvasAltCorrectedYieldMeson->SaveAs(Form("%s/%s_%s_AltCorrectedYield.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
@@ -1475,6 +1538,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
               }
           }
           DrawGammaLines(0., maxPt,1., 1.,1);
+          if (doLinesRatio){
+              LineRatioValue = 0.5;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 0.75;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 0.90;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+              LineRatioValue = 1.10;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 1.25;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 1.50;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 2.0;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+              LineRatioValue = 2.5;
+              DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+          }
 
       canvasCorrectedYieldWOSecMeson->Update();
       canvasCorrectedYieldWOSecMeson->SaveAs(Form("%s/%s_%s_CorrectedYieldWOSec.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
@@ -1569,6 +1651,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 }
             }
             DrawGammaLines(0., maxPt,1., 1.,1);
+            if (doLinesRatio){
+                LineRatioValue = 0.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.75;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.90;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+                LineRatioValue = 1.10;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.25;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.50;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.0;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            }
 
             canvasMCInputYieldMeson->Update();
             canvasMCInputYieldMeson->SaveAs(Form("%s/%s_%s_MCInputYield.%s",outputDir.Data(), meson.Data(),prefix2.Data(),suffix.Data()));
@@ -1683,6 +1784,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 histoRatioTrueEffiCut[i]->DrawCopy("same,e1,p");
             }
             DrawGammaLines(0., maxPt,1., 1.,1);
+            if (doLinesRatio){
+                LineRatioValue = 0.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.75;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.90;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+                LineRatioValue = 1.10;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.25;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.50;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.0;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            }
             DrawGammaLines(0., maxPt, 1.1, 1.1, 1, kGray+1, 7);
             DrawGammaLines(0., maxPt, 0.9, 0.9, 1, kGray+1, 7);
             if (cutVariationName.Contains("Weighting")){
@@ -1802,6 +1922,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                     histoRatioAltEffiCut[i]->DrawCopy("same,e1,p");
                 }
                 DrawGammaLines(0., maxPt,1., 1.,1);
+                if (doLinesRatio){
+                    LineRatioValue = 0.5;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 0.75;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 0.90;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+                    LineRatioValue = 1.10;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 1.25;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 1.50;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 2.0;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 2.5;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                }
                 DrawGammaLines(0., maxPt, 1.1, 1.1, 1, kGray+1, 7);
                 DrawGammaLines(0., maxPt, 0.9, 0.9, 1, kGray+1, 7);
                 if (cutVariationName.Contains("Weighting")){
@@ -1861,6 +2000,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                     legendEffiMeson->AddEntry(histoRatioTrueEffDivAltEffiCut[i],cutStringsName[i].Data());
                 }
                 DrawGammaLines(0., maxPt,1., 1.,1);
+                if (doLinesRatio){
+                    LineRatioValue = 0.5;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 0.75;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 0.90;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+                    LineRatioValue = 1.10;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 1.25;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 1.50;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 2.0;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 2.5;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                }
                 DrawGammaLines(0., maxPt, 1.1, 1.1, 1, kGray+1, 7);
                 DrawGammaLines(0., maxPt, 0.9, 0.9, 1, kGray+1, 7);
             }
@@ -1891,6 +2049,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                     histoRatioOfRatioTrueEffDivAltEffiCut[i]->DrawCopy("same,e1,p");
                 }
                 DrawGammaLines(0., maxPt,1., 1.,1);
+                if (doLinesRatio){
+                    LineRatioValue = 0.5;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 0.75;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 0.90;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+                    LineRatioValue = 1.10;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 1.25;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 1.50;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 2.0;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                    LineRatioValue = 2.5;
+                    DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                }
                 DrawGammaLines(0., maxPt, 1.1, 1.1, 1, kGray+1, 7);
                 DrawGammaLines(0., maxPt, 0.9, 0.9, 1, kGray+1, 7);
             }
@@ -1985,6 +2162,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 histoRatioAcceptanceCut[i]->DrawCopy("same,e1,p");
             }
             DrawGammaLines(0., maxPt,1., 1.,1);
+            if (doLinesRatio){
+                LineRatioValue = 0.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.75;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.90;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+                LineRatioValue = 1.10;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.25;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.50;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.0;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            }
         }
 
       canvasAcceptanceMeson->Update();
@@ -2066,6 +2262,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             histoRatioMassCut[i]->DrawCopy("same,e1,p");
         }
         DrawGammaLines(0., maxPt,1., 1.,1);
+        if (doLinesRatio){
+            LineRatioValue = 0.5;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 0.75;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 0.90;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+            LineRatioValue = 1.10;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.25;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.50;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 2.0;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 2.5;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+        }
     }
 
     canvasMassMeson->Update();
@@ -2141,6 +2356,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
             histoRatioWidthCut[i]->DrawCopy("same,e1,p");
         }
         DrawGammaLines(0., maxPt,1., 1.,1);
+        if (doLinesRatio){
+            LineRatioValue = 0.5;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 0.75;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 0.90;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+            LineRatioValue = 1.10;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.25;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.50;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 2.0;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 2.5;
+            DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+        }
     }
 
     canvasWidthMeson->Update();
@@ -2219,6 +2453,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
                 histoRatioSBCut[i]->DrawCopy("same,e1,p");
             }
             DrawGammaLines(0., maxPt,1., 1.,1);
+            if (doLinesRatio){
+                LineRatioValue = 0.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.75;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.90;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+                LineRatioValue = 1.10;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.25;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.50;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.0;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            }
         }
 
         canvasSBMeson->Update();
@@ -2294,6 +2547,25 @@ void CompareDifferentDirectories(   TString FolderList              = "",
               histoRatioClusterE[i]->DrawCopy("same,e1,p");
             }
             DrawGammaLines(0., maxPt,1., 1.,1);
+            if (doLinesRatio){
+                LineRatioValue = 0.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.75;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 0.90;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+
+                LineRatioValue = 1.10;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.25;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 1.50;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.0;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+                LineRatioValue = 2.5;
+                DrawGammaLines(0., maxPt,LineRatioValue, LineRatioValue, 1, kGray);
+            }
           }
 
           canvasClusEMeson->Update();
