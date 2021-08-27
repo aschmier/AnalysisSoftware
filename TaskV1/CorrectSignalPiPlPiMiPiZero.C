@@ -2122,7 +2122,7 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
 
         TH2F* histo2DDummyPtSanity;
         histo2DDummyPtSanity               = new TH2F("histo2DDummyPt","histo2DDummyPt",
-                                                      1000, 0, histoCorrectedYieldTrue->GetXaxis()->GetBinUpEdge(histoCorrectedYieldTrue->GetNbinsX()),
+                                                      1000, histoCorrectedYieldTrue->GetXaxis()->GetBinLowEdge(1), histoCorrectedYieldTrue->GetXaxis()->GetBinUpEdge(histoCorrectedYieldTrue->GetNbinsX()),
                                                       10000, 0.01*FindSmallestBin1DHist(histoCorrectedYieldTrue,1e6 ), 3*histoCorrectedYieldTrue->GetMaximum());
         SetStyleHistoTH2ForGraphs(histo2DDummyPtSanity,
                                   "#it{p}_{T} (GeV/#it{c})",
@@ -2161,10 +2161,10 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
         padCorrectedYieldRatiosSanity->SetTicky();
         padCorrectedYieldRatiosSanity->SetLogy(0);
 
-        Double_t rangeRatioPtSanity[2]    = {0.8, 1.23};
+        Double_t rangeRatioPtSanity[2]    = {0.3, 2.5};
         TH2F* histo2DDummyRatioPtSanity;
         histo2DDummyRatioPtSanity         = new TH2F("histo2DDummyRatioPtSanity","histo2DDummyRatioPtSanity",
-                                                     1000, 0, histoCorrectedYieldTrue->GetXaxis()->GetBinUpEdge(histoCorrectedYieldTrue->GetNbinsX()),
+                                                     histoCorrectedYieldTrue->GetNbinsX(), histoCorrectedYieldTrue->GetXaxis()->GetBinLowEdge(1), histoCorrectedYieldTrue->GetXaxis()->GetBinUpEdge(histoCorrectedYieldTrue->GetNbinsX()),
                                                      1000, rangeRatioPtSanity[0], rangeRatioPtSanity[1]);
 
         SetStyleHistoTH2ForGraphs(histo2DDummyRatioPtSanity, "#it{p}_{T} (GeV/#it{c})", "#frac{modified}{standard}", 0.07,0.1, 0.07,0.1, 0.8,0.55, 510, 505);
@@ -2182,12 +2182,42 @@ void  CorrectSignalPiPlPiMiPiZero(TString fileNameUnCorrectedFile = "myOutput",
         RatioNormalMCInput->GetXaxis()->SetTitleSize(0.11);
         RatioNormalMCInput->GetXaxis()->SetLabelSize(0.08);
         RatioNormalMCInput->GetXaxis()->SetTitle("p_{T} (GeV/c)");
-        RatioNormalMCInput->GetXaxis()->SetRange(0.,12.);
-        RatioNormalMCInput->DrawCopy("p,e1"); // normal/ MC
+        //RatioNormalMCInput->GetXaxis()->SetRange(0.,12.);
+        RatioNormalMCInput->GetXaxis()->SetRange(histoCorrectedYieldTrue->GetXaxis()->GetBinLowEdge(1), histoCorrectedYieldTrue->GetXaxis()->GetBinUpEdge(histoCorrectedYieldTrue->GetNbinsX()));
+        RatioNormalMCInput->DrawCopy("e1,same"); // normal/ MC
         DrawGammaSetMarker(RatioNormal, 24, 1., kGreen+2, kGreen+2);
         RatioNormal->DrawCopy("e1,same"); // True / Norm
         DrawGammaSetMarker(RatioTrueMCInput, 24, 1., kRed+2, kRed+2);
         RatioTrueMCInput->DrawCopy("e1,same"); // true/ mc
+
+        Bool_t doLinesRatio_Sanity=kFALSE;
+        if (optionEnergy.Contains("13TeV")) {
+            doLinesRatio_Sanity=kTRUE;
+        }
+        Double_t minPt_LinesRatio = histoCorrectedYieldTrue->GetXaxis()->GetBinLowEdge(1);
+        Double_t maxPt_LinesRatio = histoCorrectedYieldTrue->GetXaxis()->GetBinUpEdge(histoCorrectedYieldTrue->GetNbinsX());
+        Double_t LineRatioValue = 1.;
+        DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, 1);
+        if (doLinesRatio_Sanity){
+            LineRatioValue = 0.95;
+            DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.05;
+            DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 0.9;
+            DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.10;
+            DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 0.75;
+            DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.25;
+            DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 0.50;
+            DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 1.50;
+            DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, kGray);
+            LineRatioValue = 2.0;
+            DrawGammaLines(minPt_LinesRatio, maxPt_LinesRatio, LineRatioValue, LineRatioValue, 1, kGray);
+        }
 
 
         canvasCorrectedYield->Update();
