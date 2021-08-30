@@ -798,6 +798,11 @@ if [ $ONLYRESULTS = 0 ] ; then
                     fi
                     #root -x -l -b -q TaskV1/CompareMesonQuantities.C\+\(\"$OmegadataRAWFILE\"\,\"$OmegaMCRAWFILE\"\,\"$cutSelection\"\,\"Omega\"\,\"$Suffix\"\,\"$energy\"\,$BinsPtOmega\,$mode\)
                 fi
+                if [ $MCFILE -eq 1 ]&&[ -f $DataRootFile ]; then
+                    echo -e "\n________________________"
+                    echo -e "COMPARE MESON QUANTITIES\n"
+                    root -x -l -b -q TaskV1/CompareMesonQuantitiesOmega.C\+\(\"$OmegadataRAWFILE\"\,\"$OmegaMCRAWFILE\"\,\"$cutSelection\"\,\"Omega\"\,\"$Suffix\"\,\"$energy\"\,\"\"\,$BinsPtOmega\,$mode\)
+                fi
             fi
 
             OmegaMCcorrectionFullFILE=`ls $cutSelection/$energy/Omega_MC_GammaConvV1CorrectionHistos_$cutSelection.root`
