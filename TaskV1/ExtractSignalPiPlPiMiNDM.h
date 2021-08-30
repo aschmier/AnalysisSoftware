@@ -19,6 +19,8 @@ Int_t fIsMC                                                 = 0;
 Int_t fMesonId                                              = 0;
 Float_t fBackgroundMultNumber;
 Int_t fTotalBackFitMode                                     = 1; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3; 7: exp only; 8: gauss+exp
+Int_t fTotalTrueFitMode                                     = 0; // 0: GaussExp; 1: GausExpBothSides
+Int_t fTotalMesonSubtractedFitMode                          = 0; // 0: GaussExp; 1: GausExpBothSides
 Int_t fFitRangeForMaximumMode                               = 0; // MesonRange for Maximum extraction for Fit: 0==Meson, 1==Peak, 2==Fit
 
 Double_t fYMaxMeson                                         = 0.9;
@@ -29,6 +31,9 @@ Double_t fNorm                                              = 1;   // used in Pr
 Double_t *fPeakRange;
 Double_t *fPeakRange_SubPiZero;
 Double_t *fPeakRange_FixedPzPiZero;
+Double_t *fPeakRange_Start;
+Double_t *fPeakRange_SubPiZero_Start;
+Double_t *fPeakRange_FixedPzPiZero_Start;
 Double_t *fIntFixedRange;
 Double_t *fFitRange;
 Double_t *fFitRange_SubPiZero;
@@ -49,6 +54,107 @@ Bool_t  DoMonitoring_Amplitude                              = kTRUE;
 Bool_t  DoMonitoring_BackFitParameters                      = kTRUE;
 Bool_t  DoMonitoring_BackFitSignalToBG                      = kTRUE;
 Bool_t  DoMonitoring_BackFitSignificance                    = kTRUE;
+
+//Subtract Additionals
+Bool_t  fDoSubtractAdditionals                                  = kFALSE;
+
+//FitIntDeltaRange
+Bool_t      useFitIntDeltaRange                                 = kFALSE;
+
+//Do Start Parameters by Fit
+Bool_t  fDoMesonMass_Start_ByFit                                = kFALSE;
+Bool_t  fDoMesonWidth_Start_ByFit                               = kFALSE;
+Bool_t  fDoMesonLambdaTailpar_Start_ByFit                       = kFALSE;
+Bool_t  fDoMesonLambdaRightTailpar_Start_ByFit                  = kFALSE;
+
+//Do Limit Parameters by Fit
+Bool_t  fDoMesonMass_Limit_ByFit                                = kFALSE;
+Bool_t  fDoMesonWidth_Limit_ByFit                               = kFALSE;
+Bool_t  fDoMesonLambdaTailpar_Limit_ByFit                       = kFALSE;
+Bool_t  fDoMesonLambdaRightTailpar_Limit_ByFit                  = kFALSE;
+
+Bool_t fDoTrueStartParametersAndLimits_ByFit                    = kFALSE;
+Bool_t fDoPeakRange_ByWidth_ByFit                               = kFALSE;
+
+//Set Start Parameters by last Fit
+Bool_t fDoSetStartParameters_LastFit_True_Lambda                = kFALSE;
+Bool_t fDoSetStartParameters_LastFit_True_LambdaRight           = kFALSE;
+
+//Turn Off Parameters by last Fit
+Bool_t fDoTurnOffPar_Pol3_ifLow_LastFit_BG                      = kFALSE;
+Bool_t fDoTurnOffPar_Pol4_ifLow_LastFit_BG                      = kFALSE;
+//Turn Off Parameters by Pt
+Bool_t fDoTurnOffPar_Pol4_ByPt                                  = kFALSE;
+
+//Do Start Parameters by Fit
+Int_t   fMesonMass_Start_ByFit_FunctionNumber                   = 0;
+Int_t   fMesonMass_Start_ByFit_ParameterNumber                  = 0;
+
+//Do Limit Parameters by Fit
+Int_t   fMesonWidth_Start_ByFit_FunctionNumber                  = 0;
+Int_t   fMesonWidth_Start_ByFit_ParameterNumber                 = 0;
+
+//FitIntDeltaRange
+Int_t   fMesonLambdaTailpar_Start_ByFit_FunctionNumber          = 0;
+Int_t   fMesonLambdaTailpar_Start_ByFit_ParameterNumber         = 0;
+
+//FitIntDeltaRange
+Int_t   fMesonLambdaRightTailpar_Start_ByFit_FunctionNumber     = 0;
+Int_t   fMesonLambdaRightTailpar_Start_ByFit_ParameterNumber    = 0;
+
+//Fit Parameter Numbers
+Int_t Pol0Number_BGFit=-1;
+Int_t Pol1Number_BGFit=-1;
+Int_t Pol2Number_BGFit=-1;
+Int_t Pol3Number_BGFit=-1;
+Int_t Pol4Number_BGFit=-1;
+Int_t LambdaTailNumberLeft_BGFit=-1;
+Int_t LambdaTailNumberRight_BGFit=-1;
+Int_t MassPositionNumber_BGFit=-1;
+Int_t AmplitudeNumber_BGFit=-1;
+Int_t WidthNumber_BGFit=-1;
+//-
+Int_t LambdaTailNumberLeft_True=-1;
+Int_t LambdaTailNumberRight_True=-1;
+Int_t MassPositionNumber_True=-1;
+Int_t AmplitudeNumber_True=-1;
+Int_t WidthNumber_True=-1;
+
+//Factors For Width: Peak range for exclusion in pol fit, Integration Ranges for Bincounting
+Double_t PeakRange_WidthFactor;
+Double_t IntRange_WidthFactor_Narrow;
+Double_t IntRange_WidthFactor_Normal;
+Double_t IntRange_WidthFactor_Wide;
+
+//Previous Fit Parameters
+Int_t       fNofFitParams_LastFit_BG;
+Int_t       fNofFitParams_LastFit_Signal;
+Int_t       fNofFitParams_LastFit_True;
+//-
+Int_t       fTurnOffPar_Pol3_TurnOffPtBin                   = -1;
+Int_t       fTurnOffPar_Pol4_TurnOffPtBin                   = -1;
+Int_t       fTurnOffPar_Pol3_TurnOffPtBin_SubPiZero         = -1;
+Int_t       fTurnOffPar_Pol4_TurnOffPtBin_SubPiZero         = -1;
+Int_t       fTurnOffPar_Pol3_TurnOffPtBin_FixedPzPiZero     = -1;
+Int_t       fTurnOffPar_Pol4_TurnOffPtBin_FixedPzPiZero     = -1;
+//-
+Double_t    *fFitParams_LastFit_BG;
+Double_t    *fFitParams_LastFit_Signal;
+Double_t    *fFitParams_LastFit_True;
+Double_t    *fFitParams_LastFit_BG_SubPiZero;
+Double_t    *fFitParams_LastFit_Signal_SubPiZero;
+Double_t    *fFitParams_LastFit_BG_FixedPzPiZero;
+Double_t    *fFitParams_LastFit_Signal_FixedPzPiZero;
+//-
+Double_t    fTurnOffPar_Pol3_ifLow_LastFit_BG_Pol2FactorLimit;
+Double_t    fTurnOffPar_Pol4_ifLow_LastFit_BG_Pol3FactorLimit;
+Double_t    fTurnOffPar_Pol4_ByPt_Limit;
+
+//Colors
+Color_t colorsForPlotting[20] = {kBlack, kAzure, kGreen+2,kOrange+2,kRed, kViolet,  kBlue-9, kSpring+10,
+                    kCyan+3, kCyan-10, kCyan, kGreen+4, kGreen-9,
+                    kGreen,  kYellow+4, kYellow+3, kMagenta+4,
+                    kMagenta-8, kGray, kGray+3};
 
 // TSring
 TString fTextCent;
@@ -199,6 +305,13 @@ TH1D*   fHistoLambdaMesonBackFit=							NULL;
 TH1D*   fHistoLambdaMesonBackFit_SubPiZero=					NULL;
 TH1D*   fHistoLambdaMesonBackFit_FixedPzPiZero=				NULL;
 
+TH1D*   fHistoLambdaRightMeson=								NULL;
+TH1D*   fHistoLambdaRightMeson_SubPiZero=					NULL;
+TH1D*   fHistoLambdaRightMeson_FixedPzPiZero=				NULL;
+TH1D*   fHistoLambdaRightMesonBackFit=						NULL;
+TH1D*   fHistoLambdaRightMesonBackFit_SubPiZero=			NULL;
+TH1D*   fHistoLambdaRightMesonBackFit_FixedPzPiZero=		NULL;
+
 TH1D*   fHistoWidthMeson=									NULL;
 TH1D*   fHistoWidthMeson_SubPiZero=							NULL;
 TH1D*   fHistoWidthMeson_FixedPzPiZero=						NULL;
@@ -243,6 +356,10 @@ TH1D*   fHistoLambdaMesonLeft=								NULL;
 TH1D*   fHistoLambdaMesonLeft_SubPiZero=					NULL;
 TH1D*   fHistoLambdaMesonLeft_FixedPzPiZero=				NULL;
 
+TH1D*   fHistoLambdaRightMesonLeft=							NULL;
+TH1D*   fHistoLambdaRightMesonLeft_SubPiZero=				NULL;
+TH1D*   fHistoLambdaRightMesonLeft_FixedPzPiZero=			NULL;
+
 TH1D*   fHistoWidthMesonLeft=								NULL;
 TH1D*   fHistoWidthMesonLeft_SubPiZero=						NULL;
 TH1D*   fHistoWidthMesonLeft_FixedPzPiZero=					NULL;
@@ -272,6 +389,13 @@ TH1D*   fHistoTrueLambdaMeson_FixedPzPiZero=				NULL;
 TH1D*   fHistoTrueLambdaMesonReweighted=					NULL;
 TH1D*   fHistoTrueLambdaMesonReweighted_SubPiZero=			NULL;
 TH1D*   fHistoTrueLambdaMesonReweighted_FixedPzPiZero=		NULL;
+
+TH1D*   fHistoTrueLambdaRightMeson=							NULL;
+TH1D*   fHistoTrueLambdaRightMeson_SubPiZero=				NULL;
+TH1D*   fHistoTrueLambdaRightMeson_FixedPzPiZero=			NULL;
+TH1D*   fHistoTrueLambdaRightMesonReweighted=				NULL;
+TH1D*   fHistoTrueLambdaRightMesonReweighted_SubPiZero=		NULL;
+TH1D*   fHistoTrueLambdaRightMesonReweighted_FixedPzPiZero=	NULL;
 
 TH1D*   fHistoTrueWidthMeson=								NULL;
 TH1D*   fHistoTrueWidthMeson_SubPiZero=						NULL;
@@ -316,13 +440,20 @@ TH1D*   fHistoYieldTrueMesonReweighted_SubPiZero[3]         = {NULL, NULL, NULL}
 TH1D*   fHistoYieldTrueMesonReweighted_FixedPzPiZero[3]     = {NULL, NULL, NULL};
 
 //BackFit
-const Int_t     fMaxPossibleNumOfBackgroundFits=            5;
+const Int_t     fMaxPossibleNumOfBackgroundFits=            7;
 Int_t           fMaxNumOfBackgroundFits=                    fMaxPossibleNumOfBackgroundFits;
 TH1D*           fHistoBackgroundFitPolParameter[fMaxPossibleNumOfBackgroundFits]=
                         {NULL, NULL, NULL, NULL, NULL};
 TH1D*           fHistoBackgroundFitPolParameter_SubPiZero[fMaxPossibleNumOfBackgroundFits]=
                         {NULL, NULL, NULL, NULL, NULL};
 TH1D*           fHistoBackgroundFitPolParameter_FixedPzPiZero[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+//Absolute Values
+TH1D*           fHistoBackgroundFitPolParameter_Absolute[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+TH1D*           fHistoBackgroundFitPolParameter_SubPiZero_Absolute[fMaxPossibleNumOfBackgroundFits]=
+                        {NULL, NULL, NULL, NULL, NULL};
+TH1D*           fHistoBackgroundFitPolParameter_FixedPzPiZero_Absolute[fMaxPossibleNumOfBackgroundFits]=
                         {NULL, NULL, NULL, NULL, NULL};
 
 TH1D*   fHistoMCMesonAcceptPt                               = NULL;
@@ -494,9 +625,6 @@ TString     nameIntBckResult[3]                                         = {"pol2
 
 
 // Added because of change of how integration ranges are stored
-Bool_t      useFitIntDeltaRange =                           kFALSE;
-Int_t       useFitIntDeltaRange_FunctionNumber =            0;
-Int_t       useFitIntDeltaRange_ParameterNumber =           0;
 Double_t    *fMesonIntDeltaRange =                          NULL;
 Double_t    *fMesonIntDeltaRangeWide =                      NULL;
 Double_t    *fMesonIntDeltaRangeNarrow =                    NULL;
@@ -540,15 +668,20 @@ Double_t 	fMesonWidthExpectMC=							0;
 Double_t 	fMesonLambdaTail=								0;
 Double_t 	fMesonLambdaTailTrue=   						0;
 Double_t 	fMesonLambdaTailMC=								0;
+Double_t 	fMesonLambdaRightTail=							0;
+Double_t 	fMesonLambdaRightTailTrue=   					0;
+Double_t 	fMesonLambdaRightTailMC=						0;
 Double_t 	*fMesonWidthRange = 							NULL;
 Double_t 	*fMesonWidthRangeTrue = 						NULL; // with range used for fitting of true
 Double_t 	*fMesonWidthRangeMC = 							NULL;
 Double_t 	*fMesonLambdaTailRange = 						NULL;
 Double_t 	*fMesonLambdaTailRangeTrue =					NULL;
+Double_t 	*fMesonLambdaRightTailRange = 					NULL;
+Double_t 	*fMesonLambdaRightTailRangeTrue =				NULL;
 Double_t 	*fMidPt = 										NULL;
 Double_t 	*fFullPt = 										NULL;
-Double_t FitRangeSigBckRatioOption =                        0;
-Double_t usePolNForBackgroundScaling =                      0;
+Int_t    FitRangeSigBckRatioOption =                        0;
+Int_t    usePolNForBackgroundScaling =                      0;
 
 // end common meson analysis variables
 
@@ -664,6 +797,12 @@ Double_t* fMesonLambdaTailpar_FixedPzPiZero=				NULL;
 Double_t* fMesonLambdaTailparBackFit= 						NULL;
 Double_t* fMesonLambdaTailparBackFit_SubPiZero= 			NULL;
 Double_t* fMesonLambdaTailparBackFit_FixedPzPiZero=			NULL;
+Double_t* fMesonLambdaRightTailpar= 						NULL;
+Double_t* fMesonLambdaRightTailpar_SubPiZero= 				NULL;
+Double_t* fMesonLambdaRightTailpar_FixedPzPiZero=			NULL;
+Double_t* fMesonLambdaRightTailparBackFit= 					NULL;
+Double_t* fMesonLambdaRightTailparBackFit_SubPiZero= 		NULL;
+Double_t* fMesonLambdaRightTailparBackFit_FixedPzPiZero=	NULL;
 Double_t* fMesonWidth= 										NULL;
 Double_t* fMesonWidth_SubPiZero=							NULL;
 Double_t* fMesonWidth_FixedPzPiZero=						NULL;
@@ -708,13 +847,30 @@ Double_t* fMesonFWHM_FixedPzPiZero= 						NULL;
 Double_t* fMesonFWHMBackFit= 								NULL;
 Double_t* fMesonFWHMBackFit_SubPiZero=						NULL;
 Double_t* fMesonFWHMBackFit_FixedPzPiZero=					NULL;
-Double_t** fMesonIntDeltaRangeByFit[3]=                     {NULL};
 Double_t* fMesonAmplitude= 									NULL;
 Double_t* fMesonAmplitude_SubPiZero= 						NULL;
 Double_t* fMesonAmplitude_FixedPzPiZero= 					NULL;
 Double_t* fMesonAmplitudeBackFit= 							NULL;
 Double_t* fMesonAmplitudeBackFit_SubPiZero=					NULL;
 Double_t* fMesonAmplitudeBackFit_FixedPzPiZero=				NULL;
+
+//Ranges By Fit
+Double_t**  fMesonIntDeltaRange_ByFit[3]                    = {NULL};
+//-
+Double_t*   fMesonMass_ByFit                                = NULL;
+Double_t*   fMesonWidth_ByFit                               = NULL;
+Double_t*   fMesonLambdaTailpar_ByFit                       = NULL;
+Double_t*   fMesonLambdaRightTailpar_ByFit                  = NULL;
+//-
+Double_t*   fMesonMass_RangeFactor_ByFit                    = NULL;
+Double_t*   fMesonWidth_RangeFactor_ByFit                   = NULL;
+Double_t*   fMesonLambdaTailpar_RangeFactor_ByFit           = NULL;
+Double_t*   fMesonLambdaRightTailpar_RangeFactor_ByFit      = NULL;
+//-
+Double_t**  fMesonMass_Range_ByFit                          = NULL;
+Double_t**  fMesonWidth_Range_ByFit                         = NULL;
+Double_t**  fMesonLambdaTailpar_Range_ByFit                 = NULL;
+Double_t**  fMesonLambdaRightTailpar_Range_ByFit            = NULL;
 
 //Left Fit Parameters
 Double_t* fMesonMassLeft=									NULL;
@@ -723,6 +879,9 @@ Double_t* fMesonMassLeft_FixedPzPiZero=						NULL;
 Double_t* fMesonLambdaTailparLeft= 							NULL;
 Double_t* fMesonLambdaTailparLeft_SubPiZero= 				NULL;
 Double_t* fMesonLambdaTailparLeft_FixedPzPiZero=			NULL;
+Double_t* fMesonLambdaRightTailparLeft= 					NULL;
+Double_t* fMesonLambdaRightTailparLeft_SubPiZero= 			NULL;
+Double_t* fMesonLambdaRightTailparLeft_FixedPzPiZero=		NULL;
 Double_t* fMesonWidthLeft=									NULL;
 Double_t* fMesonWidthLeft_SubPiZero=						NULL;
 Double_t* fMesonWidthLeft_FixedPzPiZero=					NULL;
@@ -758,6 +917,15 @@ Double_t* fMesonTrueLambdaTailparBackFit_FixedPzPiZero=		NULL;
 Double_t* fMesonTrueLambdaTailparReweighted=				NULL;
 Double_t* fMesonTrueLambdaTailparReweighted_SubPiZero=		NULL;
 Double_t* fMesonTrueLambdaTailparReweighted_FixedPzPiZero=	NULL;
+Double_t* fMesonTrueLambdaRightTailpar= 							NULL;
+Double_t* fMesonTrueLambdaRightTailpar_SubPiZero= 				NULL;
+Double_t* fMesonTrueLambdaRightTailpar_FixedPzPiZero=			NULL;
+Double_t* fMesonTrueLambdaRightTailparBackFit= 					NULL;
+Double_t* fMesonTrueLambdaRightTailparBackFit_SubPiZero= 		NULL;
+Double_t* fMesonTrueLambdaRightTailparBackFit_FixedPzPiZero=		NULL;
+Double_t* fMesonTrueLambdaRightTailparReweighted=				NULL;
+Double_t* fMesonTrueLambdaRightTailparReweighted_SubPiZero=		NULL;
+Double_t* fMesonTrueLambdaRightTailparReweighted_FixedPzPiZero=	NULL;
 Double_t* fMesonTrueWidth= 									NULL;
 Double_t* fMesonTrueWidth_SubPiZero=						NULL;
 Double_t* fMesonTrueWidth_FixedPzPiZero=					NULL;
@@ -875,6 +1043,12 @@ Double_t* fMesonLambdaTailparError_FixedPzPiZero=        	NULL;
 Double_t* fMesonLambdaTailparBackFitError=					NULL;
 Double_t* fMesonLambdaTailparBackFitError_SubPiZero=		NULL;
 Double_t* fMesonLambdaTailparBackFitError_FixedPzPiZero=	NULL;
+Double_t* fMesonLambdaRightTailparError=						NULL;
+Double_t* fMesonLambdaRightTailparError_SubPiZero=				NULL;
+Double_t* fMesonLambdaRightTailparError_FixedPzPiZero=        	NULL;
+Double_t* fMesonLambdaRightTailparBackFitError=					NULL;
+Double_t* fMesonLambdaRightTailparBackFitError_SubPiZero=		NULL;
+Double_t* fMesonLambdaRightTailparBackFitError_FixedPzPiZero=	NULL;
 Double_t* fMesonWidthError=									NULL;
 Double_t* fMesonWidthError_SubPiZero=						NULL;
 Double_t* fMesonWidthError_FixedPzPiZero=					NULL;
@@ -901,6 +1075,9 @@ Double_t* fMesonMassLeftError_FixedPzPiZero=                NULL;
 Double_t* fMesonLambdaTailparLeftError=						NULL;
 Double_t* fMesonLambdaTailparLeftError_SubPiZero= 			NULL;
 Double_t* fMesonLambdaTailparLeftError_FixedPzPiZero=		NULL;
+Double_t* fMesonLambdaRightTailparLeftError=					NULL;
+Double_t* fMesonLambdaRightTailparLeftError_SubPiZero= 			NULL;
+Double_t* fMesonLambdaRightTailparLeftError_FixedPzPiZero=		NULL;
 Double_t* fMesonWidthLeftError=								NULL;
 Double_t* fMesonWidthLeftError_SubPiZero=					NULL;
 Double_t* fMesonWidthLeftError_FixedPzPiZero=				NULL;
@@ -929,7 +1106,16 @@ Double_t* fMesonTrueLambdaTailparBackFitError_SubPiZero=	NULL;
 Double_t* fMesonTrueLambdaTailparBackFitError_FixedPzPiZero= NULL;
 Double_t* fMesonTrueLambdaTailparReweightedError=			NULL;
 Double_t* fMesonTrueLambdaTailparReweightedError_SubPiZero=	NULL;
-Double_t* fMesonTrueLambdaTailparReweightedError_FixedPzPiZero=	NULL;
+Double_t* fMesonTrueLambdaTailparReweightedError_FixedPzPiZero=     NULL;
+Double_t* fMesonTrueLambdaRightTailparError=                            NULL;
+Double_t* fMesonTrueLambdaRightTailparError_SubPiZero=                  NULL;
+Double_t* fMesonTrueLambdaRightTailparError_FixedPzPiZero=              NULL;
+Double_t* fMesonTrueLambdaRightTailparBackFitError=                     NULL;
+Double_t* fMesonTrueLambdaRightTailparBackFitError_SubPiZero=           NULL;
+Double_t* fMesonTrueLambdaRightTailparBackFitError_FixedPzPiZero=       NULL;
+Double_t* fMesonTrueLambdaRightTailparReweightedError=                  NULL;
+Double_t* fMesonTrueLambdaRightTailparReweightedError_SubPiZero=        NULL;
+Double_t* fMesonTrueLambdaRightTailparReweightedError_FixedPzPiZero=	NULL;
 Double_t* fMesonTrueWidthError=								NULL;
 Double_t* fMesonTrueWidthError_SubPiZero=					NULL;
 Double_t* fMesonTrueWidthError_FixedPzPiZero=				NULL;
@@ -1031,6 +1217,7 @@ TH2D*   hist_bck_Signal=                                    NULL;
 TH2D*   hist_bck_True=                                      NULL;
 TH2D*   hist_bck_SubPiZero_Signal=                          NULL;
 TH2D*   hist_bck_SubPiZero_True=                            NULL;
+TH2D*   hist_bck_SubPiZero_True_Additional=                 NULL;
 TH2D*   hist_bck_FixedPzPiZero_Signal=                      NULL;
 TH2D*   hist_bck_FixedPzPiZero_True=                        NULL;
 TH2D*   hist_bck_Combinatorical=                            NULL;
@@ -1124,16 +1311,34 @@ Double_t Pol2BGExclusion(Double_t *,Double_t *);                                
 Double_t CrystalBallBck(Double_t *,Double_t *);
 Double_t CrystalBall(Double_t *,Double_t *);
 void SetCorrectMCHistogrammNames();
-Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t FitFunctionNumber=0, Int_t ParameterNumber=0, Int_t iDebugLevel=0);
+Int_t SetMesonMass_ByFit(Int_t ptBinNumber, Int_t FitFunctionNumber=0, Int_t ParameterNumber=0, Int_t iDebugLevel=0);
+Int_t SetMesonWidth_ByFit(Int_t ptBinNumber, Int_t FitFunctionNumber=0, Int_t ParameterNumber=0, Int_t iDebugLevel=0);
+Int_t SetMesonLambdaTailpar_ByFit(Int_t ptBinNumber, Int_t FitFunctionNumber=0, Int_t ParameterNumber=0, Int_t iDebugLevel=0);
+Int_t SetMesonLambdaRightTailpar_ByFit(Int_t ptBinNumber, Int_t FitFunctionNumber=0, Int_t ParameterNumber=0, Int_t iDebugLevel=0);
+Int_t SetStartParametersAndLimits_ByFit(Int_t ptBinNumber, Int_t iDebugLevel=0);
+Int_t SetMesonIntDeltaRange(Int_t ptBinNumber, Int_t iDebugLevel=0);
+Int_t SetPeakRange_ByWidth_ByFit(Int_t ptBinNumber, Int_t iDebugLevel=0);
 void Delete();
 
 TString centralityString = 										"";
 
-void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t triggerSet = -1){
+void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t triggerSet = -1){   
+
+    Int_t doDebugOutputLevel           =   1;
+    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.h; InitializeWindows(); Line: "<<__LINE__<<"; setPi0: "<<setPi0.Data()<<"; trigger: " << trigger.Data() << "; triggerSet: " << triggerSet << endl;}
+    if (doDebugOutputLevel>=1){cout<<"Debug Text Output; ExtractSignalPiPlPiMiNDM.h; InitializeWindows(); Line: "<<__LINE__<<"; fTriggerInt: "<<fTriggerInt << endl;}
+
+    //Safety sizes; Parameters used for array initializaion, can be reduced later in this function
+    fNofFitParams_LastFit_BG=15;
+    fNofFitParams_LastFit_Signal=10;
+    fNofFitParams_LastFit_True=10;
 
     fPeakRange                         = new Double_t[2];
     fPeakRange_SubPiZero               = new Double_t[2];
     fPeakRange_FixedPzPiZero           = new Double_t[2];
+    fPeakRange_Start                   = new Double_t[2];
+    fPeakRange_SubPiZero_Start         = new Double_t[2];
+    fPeakRange_FixedPzPiZero_Start     = new Double_t[2];
     fIntFixedRange                     = new Double_t[2]; // not yet implemented
     fFitRange                          = new Double_t[2];
     fFitRange_SubPiZero                = new Double_t[2];
@@ -1165,9 +1370,16 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
     fMesonWidthRangeTrue               = new Double_t[2];
     fMesonLambdaTailRange              = new Double_t[2];
     fMesonLambdaTailRangeTrue          = new Double_t[2];
+    fMesonLambdaRightTailRange         = new Double_t[2];
+    fMesonLambdaRightTailRangeTrue     = new Double_t[2];
     fMidPt                             = new Double_t[2];
     fMesonWidthRangeMC                 = new Double_t[2];
     fFullPt                            = new Double_t[2];
+    //-
+    fMesonMass_RangeFactor_ByFit                            = new Double_t[2];
+    fMesonWidth_RangeFactor_ByFit                           = new Double_t[2];
+    fMesonLambdaTailpar_RangeFactor_ByFit                   = new Double_t[2];
+    fMesonLambdaRightTailpar_RangeFactor_ByFit              = new Double_t[2];
     //****************************************************************************************************
     // Initialization for Omega meson
     //****************************************************************************************************
@@ -1177,7 +1389,9 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
         fMesonId                  = 223;
 
         // what function is used to fit total background (alternative to event mixing)
-        fTotalBackFitMode = 3; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3; 7: exp only; 8: gauss+exp
+        fTotalBackFitMode = 1; // 0: pol1 only; 1: pol2 only; 2: gauss+pol1; 3: gauss+pol2; 4: RooFit; 5: pol3; 6: gauss+pol3; 7: exp only; 8: gauss+exp; 9: pol4; 10: gauss+pol4 11: pol5; 12: gauss+pol5; 13: gaussexpexp+pol2; 14: gaussexpexp+pol3;
+        fTotalTrueFitMode = 0; // 0: GaussExp; 1: GausExpBothSides
+        fTotalMesonSubtractedFitMode = 0; // 0: GaussExp; 1: GausExpBothSides
         fFitRangeForMaximumMode = 0; //Meson Range
         if (fEnergyFlag.Contains("13TeV")){
             if(     mode == 60 ||   //PCM
@@ -1186,32 +1400,296 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
                     mode == 64 ||   //EMCAL
                     mode == 65)     //PHOS
             {
-               fTotalBackFitMode = 6;
-               fFitRangeForMaximumMode = 0; //1 for pure fit
+               fTotalBackFitMode                = 5;
+               fTotalTrueFitMode                = 1; // 0: GaussExp; 1: GausExpBothSides
+               fTotalMesonSubtractedFitMode     = 1; // 0: GaussExp; 1: GausExpBothSides
+               fFitRangeForMaximumMode          = 1; //1 for pure fit
+               //-
+               fDoSetStartParameters_LastFit_True_Lambda                    = kTRUE;
+               fDoSetStartParameters_LastFit_True_LambdaRight               = kTRUE;
+
+               fTurnOffPar_Pol3_ifLow_LastFit_BG_Pol2FactorLimit            = 0.01;
+               fTurnOffPar_Pol4_ifLow_LastFit_BG_Pol3FactorLimit            = 0.01;
+               //-
+               fMesonMass_RangeFactor_ByFit[0]                              = 0.98;
+               fMesonMass_RangeFactor_ByFit[1]                              = 1.02;
+               fMesonWidth_RangeFactor_ByFit[0]                             = 0.98;
+               fMesonWidth_RangeFactor_ByFit[1]                             = 1.02;
+               fMesonLambdaTailpar_RangeFactor_ByFit[0]                     = 1.00;
+               fMesonLambdaTailpar_RangeFactor_ByFit[1]                     = 1.00;
+               fMesonLambdaRightTailpar_RangeFactor_ByFit[0]                = 1.00;
+               fMesonLambdaRightTailpar_RangeFactor_ByFit[1]                = 1.00;
             }
             if(             mode == 60){        //PCM
-                useFitIntDeltaRange = kTRUE;
-                useFitIntDeltaRange_FunctionNumber      = 1;
-                useFitIntDeltaRange_ParameterNumber     = 2;
+                useFitIntDeltaRange                                     = kTRUE;
+                fDoPeakRange_ByWidth_ByFit                              = kTRUE;
+                //-
+                fDoMesonWidth_Start_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Start_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Start_ByFit                  = kTRUE;
+                //-
+                fDoMesonWidth_Limit_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Limit_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Limit_ByFit                  = kTRUE;
+                //-
+                fDoTrueStartParametersAndLimits_ByFit                   = kTRUE;
+                //-
+                fMesonMass_Start_ByFit_FunctionNumber                   = 0;
+                fMesonMass_Start_ByFit_ParameterNumber                  = 2;
+                //-
+                fMesonWidth_Start_ByFit_FunctionNumber                  = 0;
+                fMesonWidth_Start_ByFit_ParameterNumber                 = 2;
+                //-
+                fMesonLambdaTailpar_Start_ByFit_FunctionNumber          = 0;
+                fMesonLambdaTailpar_Start_ByFit_ParameterNumber         = 2;
+                //-
+                fMesonLambdaRightTailpar_Start_ByFit_FunctionNumber     = 0;
+                fMesonLambdaRightTailpar_Start_ByFit_ParameterNumber    = 2;
+
+                //PeakRange_WidthFactor                                   = 10.00;
+                //PeakRange_WidthFactor                                   = 9.50;
+                //PeakRange_WidthFactor                                   = 9.00;
+                //PeakRange_WidthFactor                                   = 8.50;
+                //PeakRange_WidthFactor                                   = 8.00;
+                //PeakRange_WidthFactor                                   = 7.50;
+                //PeakRange_WidthFactor                                   = 7.00;
+                //PeakRange_WidthFactor                                   = 6.50;
+                //PeakRange_WidthFactor                                   = 6.00;
+                //PeakRange_WidthFactor                                   = 5.50;
+                //PeakRange_WidthFactor                                   = 5.00;
+                //PeakRange_WidthFactor                                   = 4.50;
+                //PeakRange_WidthFactor                                   = 4.00;
+                //PeakRange_WidthFactor                                   = 3.50;
+                //PeakRange_WidthFactor                                   = 3.00;
+                //PeakRange_WidthFactor                                   = 2.50;
+                //PeakRange_WidthFactor                                   = 2.00;
+
+                PeakRange_WidthFactor                                    = 5.00;
+                IntRange_WidthFactor_Narrow                              = 4.;
+                IntRange_WidthFactor_Normal                              = 5.;
+                IntRange_WidthFactor_Wide                                = 6.;
             } else if(      mode == 61){        //PCM-EMCAL
-                useFitIntDeltaRange = kTRUE;
-                useFitIntDeltaRange_FunctionNumber      = 0;
-                useFitIntDeltaRange_ParameterNumber     = 1;
+                useFitIntDeltaRange                                     = kTRUE;
+                fDoPeakRange_ByWidth_ByFit                              = kTRUE;
+                //-
+                fDoMesonWidth_Start_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Start_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Start_ByFit                  = kTRUE;
+                //-
+                fDoMesonWidth_Limit_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Limit_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Limit_ByFit                  = kTRUE;
+                //-
+                fDoTrueStartParametersAndLimits_ByFit                   = kTRUE;
+                //-
+                fMesonMass_Start_ByFit_FunctionNumber                   = 2;
+                fMesonMass_Start_ByFit_ParameterNumber                  = 1;
+                //-
+                fMesonWidth_Start_ByFit_FunctionNumber                  = 2;
+                fMesonWidth_Start_ByFit_ParameterNumber                 = 1;
+                //-
+                fMesonLambdaTailpar_Start_ByFit_FunctionNumber          = 2;
+                fMesonLambdaTailpar_Start_ByFit_ParameterNumber         = 1;
+                //-
+                fMesonLambdaRightTailpar_Start_ByFit_FunctionNumber     = 2;
+                fMesonLambdaRightTailpar_Start_ByFit_ParameterNumber    = 1;
+
+                //PeakRange_WidthFactor                                   = 10.00;
+                //PeakRange_WidthFactor                                   = 9.50;
+                //PeakRange_WidthFactor                                   = 9.00;
+                //PeakRange_WidthFactor                                   = 8.50;
+                //PeakRange_WidthFactor                                   = 8.00;
+                //PeakRange_WidthFactor                                   = 7.50;
+                //PeakRange_WidthFactor                                   = 7.00;
+                //PeakRange_WidthFactor                                   = 6.50;
+                //PeakRange_WidthFactor                                   = 6.00;
+                //PeakRange_WidthFactor                                   = 5.50;
+                //PeakRange_WidthFactor                                   = 5.00;
+                //PeakRange_WidthFactor                                   = 4.50;
+                //PeakRange_WidthFactor                                   = 4.00;
+                //PeakRange_WidthFactor                                   = 3.50;
+                //PeakRange_WidthFactor                                   = 3.00;
+                //PeakRange_WidthFactor                                   = 2.50;
+                //PeakRange_WidthFactor                                   = 2.00;
+
+                if (fTriggerInt == 83) { //EG1
+                    PeakRange_WidthFactor                                    = 3.0;
+                    IntRange_WidthFactor_Narrow                              = 4.5;
+                    IntRange_WidthFactor_Normal                              = 5.;
+                    IntRange_WidthFactor_Wide                                = 6.;
+                } else if (fTriggerInt == 85) { //EG2
+                    PeakRange_WidthFactor                                    = 4.5;
+                    IntRange_WidthFactor_Narrow                              = 4.;
+                    IntRange_WidthFactor_Normal                              = 5.;
+                    IntRange_WidthFactor_Wide                                = 6.;
+                } else { //MB
+                    PeakRange_WidthFactor                                    = 5.00;
+                    IntRange_WidthFactor_Narrow                              = 4.;
+                    IntRange_WidthFactor_Normal                              = 5.;
+                    IntRange_WidthFactor_Wide                                = 6.;
+                }
             } else if(      mode == 62){        //PCM-PHOS
-                useFitIntDeltaRange = kTRUE;
-                useFitIntDeltaRange_FunctionNumber      = 1;
-                useFitIntDeltaRange_ParameterNumber     = 4;
+                useFitIntDeltaRange                                     = kTRUE;
+                fDoPeakRange_ByWidth_ByFit                              = kTRUE;
+                //-
+                fDoMesonWidth_Start_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Start_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Start_ByFit                  = kTRUE;
+                //-
+                fDoMesonWidth_Limit_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Limit_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Limit_ByFit                  = kTRUE;
+                //-
+                fDoTrueStartParametersAndLimits_ByFit                   = kTRUE;
+                //-
+                fMesonMass_Start_ByFit_FunctionNumber                   = 0;
+                fMesonMass_Start_ByFit_ParameterNumber                  = 4;
+                //-
+                fMesonWidth_Start_ByFit_FunctionNumber                  = 0;
+                fMesonWidth_Start_ByFit_ParameterNumber                 = 4;
+                //-
+                fMesonLambdaTailpar_Start_ByFit_FunctionNumber          = 0;
+                fMesonLambdaTailpar_Start_ByFit_ParameterNumber         = 4;
+                //-
+                fMesonLambdaRightTailpar_Start_ByFit_FunctionNumber     = 0;
+                fMesonLambdaRightTailpar_Start_ByFit_ParameterNumber    = 4;
+
+                //PeakRange_WidthFactor                                   = 10.00;
+                //PeakRange_WidthFactor                                   = 9.50;
+                //PeakRange_WidthFactor                                   = 9.00;
+                //PeakRange_WidthFactor                                   = 8.50;
+                //PeakRange_WidthFactor                                   = 8.00;
+                //PeakRange_WidthFactor                                   = 7.50;
+                //PeakRange_WidthFactor                                   = 7.00;
+                //PeakRange_WidthFactor                                   = 6.50;
+                //PeakRange_WidthFactor                                   = 6.00;
+                //PeakRange_WidthFactor                                   = 5.50;
+                //PeakRange_WidthFactor                                   = 5.00;
+                //PeakRange_WidthFactor                                   = 4.50;
+                //PeakRange_WidthFactor                                   = 4.00;
+                //PeakRange_WidthFactor                                   = 3.50;
+                //PeakRange_WidthFactor                                   = 3.00;
+                //PeakRange_WidthFactor                                   = 2.50;
+                //PeakRange_WidthFactor                                   = 2.00;
+
+                PeakRange_WidthFactor                                    = 5.00;
+                IntRange_WidthFactor_Narrow                              = 4.;
+                IntRange_WidthFactor_Normal                              = 5.;
+                IntRange_WidthFactor_Wide                                = 6.;
             } else if(      mode == 64){        //EMCAL
-                useFitIntDeltaRange = kTRUE;
-                useFitIntDeltaRange_FunctionNumber      = 0;
-                useFitIntDeltaRange_ParameterNumber     = 0;
+                useFitIntDeltaRange                                     = kTRUE;
+                fDoPeakRange_ByWidth_ByFit                              = kTRUE;
+                //-
+                fDoMesonWidth_Start_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Start_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Start_ByFit                  = kTRUE;
+                //-
+                fDoMesonWidth_Limit_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Limit_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Limit_ByFit                  = kTRUE;
+                //-
+                fDoTrueStartParametersAndLimits_ByFit                   = kTRUE;
+                //-
+                fMesonMass_Start_ByFit_FunctionNumber                   = 2;
+                fMesonMass_Start_ByFit_ParameterNumber                  = 0;
+                //-
+                fMesonWidth_Start_ByFit_FunctionNumber                  = 2;
+                fMesonWidth_Start_ByFit_ParameterNumber                 = 0;
+                //-
+                fMesonLambdaTailpar_Start_ByFit_FunctionNumber          = 2;
+                fMesonLambdaTailpar_Start_ByFit_ParameterNumber         = 0;
+                //-
+                fMesonLambdaRightTailpar_Start_ByFit_FunctionNumber     = 2;
+                fMesonLambdaRightTailpar_Start_ByFit_ParameterNumber    = 0;
+
+                //PeakRange_WidthFactor                                   = 10.00;
+                //PeakRange_WidthFactor                                   = 9.50;
+                //PeakRange_WidthFactor                                   = 9.00;
+                //PeakRange_WidthFactor                                   = 8.50;
+                //PeakRange_WidthFactor                                   = 8.00;
+                //PeakRange_WidthFactor                                   = 7.50;
+                //PeakRange_WidthFactor                                   = 7.00;
+                //PeakRange_WidthFactor                                   = 6.50;
+                //PeakRange_WidthFactor                                   = 6.00;
+                //PeakRange_WidthFactor                                   = 5.50;
+                //PeakRange_WidthFactor                                   = 5.00;
+                //PeakRange_WidthFactor                                   = 4.50;
+                //PeakRange_WidthFactor                                   = 4.00;
+                //PeakRange_WidthFactor                                   = 3.50;
+                //PeakRange_WidthFactor                                   = 3.00;
+                //PeakRange_WidthFactor                                   = 2.50;
+                //PeakRange_WidthFactor                                   = 2.00;
+
+                if (fTriggerInt == 83) { //EG1
+                    PeakRange_WidthFactor                                    = 3.0;
+                    IntRange_WidthFactor_Narrow                              = 4.5;
+                    IntRange_WidthFactor_Normal                              = 5.;
+                    IntRange_WidthFactor_Wide                                = 6.;
+                } else if (fTriggerInt == 85) { //EG2
+                    PeakRange_WidthFactor                                    = 4.5;
+                    IntRange_WidthFactor_Narrow                              = 4.;
+                    IntRange_WidthFactor_Normal                              = 5.;
+                    IntRange_WidthFactor_Wide                                = 6.;
+                } else { //MB
+                    PeakRange_WidthFactor                                    = 5.00;
+                    IntRange_WidthFactor_Narrow                              = 4.;
+                    IntRange_WidthFactor_Normal                              = 5.;
+                    IntRange_WidthFactor_Wide                                = 6.;
+                }
             } else if(      mode == 65){        //PHOS
-                useFitIntDeltaRange = kTRUE;
-                useFitIntDeltaRange_FunctionNumber      = 1;
-                useFitIntDeltaRange_ParameterNumber     = 3;
+                useFitIntDeltaRange                                     = kTRUE;
+                fDoPeakRange_ByWidth_ByFit                              = kTRUE;
+                //-
+                fDoMesonWidth_Start_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Start_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Start_ByFit                  = kTRUE;
+                //-
+                fDoMesonWidth_Limit_ByFit                               = kTRUE;
+                fDoMesonLambdaTailpar_Limit_ByFit                       = kTRUE;
+                fDoMesonLambdaRightTailpar_Limit_ByFit                  = kTRUE;
+                //-
+                fDoTrueStartParametersAndLimits_ByFit                   = kTRUE;
+                //-
+                fMesonMass_Start_ByFit_FunctionNumber                   = 0;
+                fMesonMass_Start_ByFit_ParameterNumber                  = 3;
+                //-
+                fMesonWidth_Start_ByFit_FunctionNumber                  = 0;
+                fMesonWidth_Start_ByFit_ParameterNumber                 = 3;
+                //-
+                fMesonLambdaTailpar_Start_ByFit_FunctionNumber          = 0;
+                fMesonLambdaTailpar_Start_ByFit_ParameterNumber         = 3;
+                //-
+                fMesonLambdaRightTailpar_Start_ByFit_FunctionNumber     = 0;
+                fMesonLambdaRightTailpar_Start_ByFit_ParameterNumber    = 3;
+
+                //PeakRange_WidthFactor                                   = 10.00;
+                //PeakRange_WidthFactor                                   = 9.50;
+                //PeakRange_WidthFactor                                   = 9.00;
+                //PeakRange_WidthFactor                                   = 8.50;
+                //PeakRange_WidthFactor                                   = 8.00;
+                //PeakRange_WidthFactor                                   = 7.50;
+                //PeakRange_WidthFactor                                   = 7.00;
+                //PeakRange_WidthFactor                                   = 6.50;
+                //PeakRange_WidthFactor                                   = 6.00;
+                //PeakRange_WidthFactor                                   = 5.50;
+                //PeakRange_WidthFactor                                   = 5.00;
+                //PeakRange_WidthFactor                                   = 4.50;
+                //PeakRange_WidthFactor                                   = 4.00;
+                //PeakRange_WidthFactor                                   = 3.50;
+                //PeakRange_WidthFactor                                   = 3.00;
+                //PeakRange_WidthFactor                                   = 2.50;
+                //PeakRange_WidthFactor                                   = 2.00;
+
+                PeakRange_WidthFactor                                    = 5.00;
+                IntRange_WidthFactor_Narrow                              = 4.;
+                IntRange_WidthFactor_Normal                              = 5.;
+                IntRange_WidthFactor_Wide                                = 6.;
             }
 
-        }
+            if ( (fTotalBackFitMode == 9)||(fTotalBackFitMode == 10) ){
+                ;//fDoTurnOffPar_Pol4_ifLow_LastFit_BG           = kTRUE;
+            }
+        } //(fEnergyFlag.Contains("13TeV"))
 
         // set medium pt range (currently for all modes the same)
         if(mode == 40 || mode == 41 || mode == 42 || mode == 44 || mode == 45){
@@ -1233,6 +1711,23 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
 
              fPeakRange_FixedPzPiZero[0] = fPeakRange[0];
              fPeakRange_FixedPzPiZero[1] = fPeakRange[1];
+             if (fEnergyFlag.Contains("13TeV")){
+                 if(     mode == 60 ||   //PCM
+                         mode == 61 ||   //PCM-EMCAL
+                         mode == 62 ||   //PCM-PHOS
+                         mode == 64 ||   //EMCAL
+                         mode == 65)     //PHOS
+                 {
+                     fPeakRange[0]               = 0.70;
+                     fPeakRange[1]               = 0.87;
+
+                     fPeakRange_SubPiZero[0]     = fPeakRange[0];
+                     fPeakRange_SubPiZero[1]     = fPeakRange[1];
+
+                     fPeakRange_FixedPzPiZero[0] = fPeakRange[0];
+                     fPeakRange_FixedPzPiZero[1] = fPeakRange[1];
+                 }
+             }
          }
 
         // Initialze fit range
@@ -1555,6 +2050,12 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonLambdaTailRange[1]     = 0.0007;
              fMesonLambdaTailRangeTrue[0] = 0.0005;
              fMesonLambdaTailRangeTrue[1] = 0.0020;
+             fMesonLambdaRightTail            = fMesonLambdaTail;
+             fMesonLambdaRightTailRange[0]    = fMesonLambdaTailRange[0];
+             fMesonLambdaRightTailRange[1]    = fMesonLambdaTailRange[1];
+             fMesonLambdaRightTailTrue         = fMesonLambdaTailTrue;
+             fMesonLambdaRightTailRangeTrue[0] = fMesonLambdaTailRangeTrue[0];
+             fMesonLambdaRightTailRangeTrue[1] = fMesonLambdaTailRangeTrue[1];
 
              fFullPt[0]                   = 0.4;
              fFullPt[1]                   = 15;
@@ -1564,6 +2065,23 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthExpectMC   = fMesonWidthExpect;
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
+
+             if (fEnergyFlag.Contains("13TeV")){
+                 fMesonLambdaTail                   = 0.0007;
+                 fMesonLambdaTailTrue               = 0.0030;
+                 fMesonLambdaTailRange[0]           = 0.0007;
+                 fMesonLambdaTailRange[1]           = 0.0007;
+                 fMesonLambdaTailRangeTrue[0]       = 0.0100;
+                 fMesonLambdaTailRangeTrue[1]       = 0.0200;
+                 fMesonLambdaRightTail              = fMesonLambdaTail;
+                 fMesonLambdaRightTailRange[0]      = fMesonLambdaTailRange[0];
+                 fMesonLambdaRightTailRange[1]      = fMesonLambdaTailRange[1];
+                 fMesonLambdaRightTailTrue          = fMesonLambdaTailTrue;
+                 fMesonLambdaRightTailRangeTrue[0]  = fMesonLambdaTailRangeTrue[0];
+                 fMesonLambdaRightTailRangeTrue[1]  = fMesonLambdaTailRangeTrue[1];
+
+                 fMesonLambdaTailMC                 = fMesonLambdaTail;
+             }
 
          } else if(mode == 41 || mode == 61){ //PCM-EMCAL
              FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
@@ -1579,6 +2097,12 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonLambdaTailTrue         = 0.0007;
              fMesonLambdaTailRangeTrue[0] = 0.0005;
              fMesonLambdaTailRangeTrue[1] = 0.0020;
+             fMesonLambdaRightTail            = fMesonLambdaTail;
+             fMesonLambdaRightTailRange[0]    = fMesonLambdaTailRange[0];
+             fMesonLambdaRightTailRange[1]    = fMesonLambdaTailRange[1];
+             fMesonLambdaRightTailTrue         = fMesonLambdaTailTrue;
+             fMesonLambdaRightTailRangeTrue[0] = fMesonLambdaTailRangeTrue[0];
+             fMesonLambdaRightTailRangeTrue[1] = fMesonLambdaTailRangeTrue[1];
 
              fFullPt[0]                  = 0.4;
              fFullPt[1]                  = 15;
@@ -1588,6 +2112,53 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthExpectMC   = fMesonWidthExpect;
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
+
+             if (fEnergyFlag.Contains("13TeV")){
+                 if (fTriggerInt == 83) { //EG1
+                     fMesonLambdaTailTrue               = 0.0170;
+                     fMesonLambdaTailRangeTrue[0]       = 0.0130;
+                     fMesonLambdaTailRangeTrue[1]       = 0.0200;
+                     fMesonLambdaTail                   = fMesonLambdaTailTrue;
+                     fMesonLambdaTailRange[0]           = fMesonLambdaTailRangeTrue[0];
+                     fMesonLambdaTailRange[1]           = fMesonLambdaTailRangeTrue[1];
+                     //-
+                     fMesonLambdaRightTail              = 0.0200;
+                     fMesonLambdaRightTailRange[0]      = 0.0110;
+                     fMesonLambdaRightTailRange[1]      = 0.0280;
+                     fMesonLambdaRightTailTrue          = fMesonLambdaRightTail;
+                     fMesonLambdaRightTailRangeTrue[0]  = fMesonLambdaRightTailRange[0];
+                     fMesonLambdaRightTailRangeTrue[1]  = fMesonLambdaRightTailRange[1];
+                 } else if (fTriggerInt == 85) { //EG2
+                     fMesonLambdaTailTrue               = 0.0150;
+                     fMesonLambdaTailRangeTrue[0]       = 0.0120;
+                     fMesonLambdaTailRangeTrue[1]       = 0.0190;
+                     fMesonLambdaTail                   = fMesonLambdaTailTrue;
+                     fMesonLambdaTailRange[0]           = fMesonLambdaTailRangeTrue[0];
+                     fMesonLambdaTailRange[1]           = fMesonLambdaTailRangeTrue[1];
+                     //-
+                     fMesonLambdaRightTail              = 0.0150;
+                     fMesonLambdaRightTailRange[0]      = 0.0120;
+                     fMesonLambdaRightTailRange[1]      = 0.0200;
+                     fMesonLambdaRightTailTrue          = fMesonLambdaRightTail;
+                     fMesonLambdaRightTailRangeTrue[0]  = fMesonLambdaRightTailRange[0];
+                     fMesonLambdaRightTailRangeTrue[1]  = fMesonLambdaRightTailRange[1];
+                 } else {
+                     fMesonLambdaTailTrue               = 0.0230;
+                     fMesonLambdaTailRangeTrue[0]       = 0.0110;
+                     fMesonLambdaTailRangeTrue[1]       = 0.0200;
+                     fMesonLambdaTail                   = fMesonLambdaTailTrue;
+                     fMesonLambdaTailRange[0]           = fMesonLambdaTailRangeTrue[0];
+                     fMesonLambdaTailRange[1]           = fMesonLambdaTailRangeTrue[1];
+                     //-
+                     fMesonLambdaRightTail              = 0.0140;
+                     fMesonLambdaRightTailRange[0]      = 0.0100;
+                     fMesonLambdaRightTailRange[1]      = 0.0190;
+                     fMesonLambdaRightTailTrue          = fMesonLambdaRightTail;
+                     fMesonLambdaRightTailRangeTrue[0]  = fMesonLambdaRightTailRange[0];
+                     fMesonLambdaRightTailRangeTrue[1]  = fMesonLambdaRightTailRange[1];
+                 }
+                 fMesonLambdaTailMC                 = fMesonLambdaTail;
+             }
          } else if(mode == 42 || mode == 62){ //PCM-PHOS
              FitRangeSigBckRatioOption   = 20; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
              usePolNForBackgroundScaling = 1;
@@ -1602,6 +2173,12 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonLambdaTailTrue         = 0.0007;
              fMesonLambdaTailRangeTrue[0] = 0.0005;
              fMesonLambdaTailRangeTrue[1] = 0.0020;
+             fMesonLambdaRightTail            = fMesonLambdaTail;
+             fMesonLambdaRightTailRange[0]    = fMesonLambdaTailRange[0];
+             fMesonLambdaRightTailRange[1]    = fMesonLambdaTailRange[1];
+             fMesonLambdaRightTailTrue         = fMesonLambdaTailTrue;
+             fMesonLambdaRightTailRangeTrue[0] = fMesonLambdaTailRangeTrue[0];
+             fMesonLambdaRightTailRangeTrue[1] = fMesonLambdaTailRangeTrue[1];
 
              fFullPt[0]                  = 0.4;
              fFullPt[1]                  = 15;
@@ -1611,6 +2188,23 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthExpectMC   = fMesonWidthExpect;
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
+
+             if (fEnergyFlag.Contains("13TeV")){
+                 fMesonLambdaTail                   = 0.0007;
+                 fMesonLambdaTailTrue               = 0.0030;
+                 fMesonLambdaTailRange[0]           = 0.0007;
+                 fMesonLambdaTailRange[1]           = 0.0007;
+                 fMesonLambdaTailRangeTrue[0]       = 0.0100;
+                 fMesonLambdaTailRangeTrue[1]       = 0.0200;
+                 fMesonLambdaRightTail              = fMesonLambdaTail;
+                 fMesonLambdaRightTailRange[0]      = fMesonLambdaTailRange[0];
+                 fMesonLambdaRightTailRange[1]      = fMesonLambdaTailRange[1];
+                 fMesonLambdaRightTailTrue          = fMesonLambdaTailTrue;
+                 fMesonLambdaRightTailRangeTrue[0]  = fMesonLambdaTailRangeTrue[0];
+                 fMesonLambdaRightTailRangeTrue[1]  = fMesonLambdaTailRangeTrue[1];
+
+                 fMesonLambdaTailMC                 = fMesonLambdaTail;
+             }
          } else if(mode == 44 || mode == 64){ //EMCAL
              FitRangeSigBckRatioOption   = 23; //xy; x: 1== Gaus, 2==GausExp ;y: 0 == wide range, 1 == narrow range, 2 = mid range
              usePolNForBackgroundScaling = 2;
@@ -1625,12 +2219,78 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonLambdaTailTrue         = 0.0007;
              fMesonLambdaTailRangeTrue[0] = 0.0005;
              fMesonLambdaTailRangeTrue[1] = 0.0020;
+             fMesonLambdaRightTail            = fMesonLambdaTail;
+             fMesonLambdaRightTailRange[0]    = fMesonLambdaTailRange[0];
+             fMesonLambdaRightTailRange[1]    = fMesonLambdaTailRange[1];
+             fMesonLambdaRightTailTrue         = fMesonLambdaTailTrue;
+             fMesonLambdaRightTailRangeTrue[0] = fMesonLambdaTailRangeTrue[0];
+             fMesonLambdaRightTailRangeTrue[1] = fMesonLambdaTailRangeTrue[1];
 
              fFullPt[0]                  = 0.4;
              fFullPt[1]                  = 15;
 
              if (fEnergyFlag.Contains("13TeV")){
-                 fMesonWidthRange[1]         = 0.050;
+                 if (fTriggerInt == 83) { //EG1
+                     fMesonWidthExpect           = 0.06;
+                     fMesonWidthRange[0]         = 0.005;
+                     fMesonWidthRange[1]         = 0.030;
+                     fMesonWidthRangeTrue[0]      = 0.005;
+                     fMesonWidthRangeTrue[1]      = 0.100;
+                     //-
+                     fMesonLambdaTailTrue               = 0.0230;
+                     fMesonLambdaTailRangeTrue[0]       = 0.0200;
+                     fMesonLambdaTailRangeTrue[1]       = 0.0400;
+                     fMesonLambdaTail                   = fMesonLambdaTailTrue;
+                     fMesonLambdaTailRange[0]           = fMesonLambdaTailRangeTrue[0];
+                     fMesonLambdaTailRange[1]           = fMesonLambdaTailRangeTrue[1];
+                     //-
+                     fMesonLambdaRightTail              = 0.0180;
+                     fMesonLambdaRightTailRange[0]      = 0.0160;
+                     fMesonLambdaRightTailRange[1]      = 0.0800;
+                     fMesonLambdaRightTailTrue          = fMesonLambdaRightTail;
+                     fMesonLambdaRightTailRangeTrue[0]  = fMesonLambdaRightTailRange[0];
+                     fMesonLambdaRightTailRangeTrue[1]  = fMesonLambdaRightTailRange[1];
+                 } else if (fTriggerInt == 85) { //EG2
+                     fMesonWidthExpect           = 0.06;
+                     fMesonWidthRange[0]         = 0.005;
+                     fMesonWidthRange[1]         = 0.030;
+                     fMesonWidthRangeTrue[0]      = 0.005;
+                     fMesonWidthRangeTrue[1]      = 0.100;
+                     //-
+                     fMesonLambdaTailTrue               = 0.0230;
+                     fMesonLambdaTailRangeTrue[0]       = 0.0200;
+                     fMesonLambdaTailRangeTrue[1]       = 0.0400;
+                     fMesonLambdaTail                   = fMesonLambdaTailTrue;
+                     fMesonLambdaTailRange[0]           = fMesonLambdaTailRangeTrue[0];
+                     fMesonLambdaTailRange[1]           = fMesonLambdaTailRangeTrue[1];
+                     //-
+                     fMesonLambdaRightTail              = 0.0180;
+                     fMesonLambdaRightTailRange[0]      = 0.0160;
+                     fMesonLambdaRightTailRange[1]      = 0.0800;
+                     fMesonLambdaRightTailTrue          = fMesonLambdaRightTail;
+                     fMesonLambdaRightTailRangeTrue[0]  = fMesonLambdaRightTailRange[0];
+                     fMesonLambdaRightTailRangeTrue[1]  = fMesonLambdaRightTailRange[1];
+                 } else {
+                     fMesonWidthExpect           = 0.010;
+                     fMesonWidthRange[0]         = 0.008;
+                     fMesonWidthRange[1]         = 0.014;
+                     fMesonWidthRangeTrue[0]      = 0.005;
+                     fMesonWidthRangeTrue[1]      = 0.100;
+                     //-
+                     fMesonLambdaTailTrue               = 0.0230;
+                     fMesonLambdaTailRangeTrue[0]       = 0.0200;
+                     fMesonLambdaTailRangeTrue[1]       = 0.0260;
+                     fMesonLambdaTail                   = fMesonLambdaTailTrue;
+                     fMesonLambdaTailRange[0]           = fMesonLambdaTailRangeTrue[0];
+                     fMesonLambdaTailRange[1]           = fMesonLambdaTailRangeTrue[1];
+                     //-
+                     fMesonLambdaRightTail              = 0.0180;
+                     fMesonLambdaRightTailRange[0]      = 0.0160;
+                     fMesonLambdaRightTailRange[1]      = 0.0220;
+                     fMesonLambdaRightTailTrue          = fMesonLambdaRightTail;
+                     fMesonLambdaRightTailRangeTrue[0]  = fMesonLambdaRightTailRange[0];
+                     fMesonLambdaRightTailRangeTrue[1]  = fMesonLambdaRightTailRange[1];
+                 }
              }
 
              // Settings for MC
@@ -1652,6 +2312,12 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonLambdaTailRange[1]    = 0.0007;
              fMesonLambdaTailRangeTrue[0] = 0.0005;
              fMesonLambdaTailRangeTrue[1] = 0.0020;
+             fMesonLambdaRightTail            = fMesonLambdaTail;
+             fMesonLambdaRightTailRange[0]    = fMesonLambdaTailRange[0];
+             fMesonLambdaRightTailRange[1]    = fMesonLambdaTailRange[1];
+             fMesonLambdaRightTailTrue         = fMesonLambdaTailTrue;
+             fMesonLambdaRightTailRangeTrue[0] = fMesonLambdaTailRangeTrue[0];
+             fMesonLambdaRightTailRangeTrue[1] = fMesonLambdaTailRangeTrue[1];
 
              fFullPt[0]                  = 0.4;
              fFullPt[1]                  = 15;
@@ -1661,6 +2327,23 @@ void InitializeWindows(TString setPi0, Int_t mode, TString trigger, Int_t trigge
              fMesonWidthExpectMC   = fMesonWidthExpect;
              fMesonWidthRangeMC[0] = fMesonWidthRange[0];
              fMesonWidthRangeMC[1] = fMesonWidthRange[1];
+
+             if (fEnergyFlag.Contains("13TeV")){
+                 fMesonLambdaTail                   = 0.0007;
+                 fMesonLambdaTailTrue               = 0.0030;
+                 fMesonLambdaTailRange[0]           = 0.0007;
+                 fMesonLambdaTailRange[1]           = 0.0007;
+                 fMesonLambdaTailRangeTrue[0]       = 0.0100;
+                 fMesonLambdaTailRangeTrue[1]       = 0.0200;
+                 fMesonLambdaRightTail              = fMesonLambdaTail;
+                 fMesonLambdaRightTailRange[0]      = fMesonLambdaTailRange[0];
+                 fMesonLambdaRightTailRange[1]      = fMesonLambdaTailRange[1];
+                 fMesonLambdaRightTailTrue          = fMesonLambdaTailTrue;
+                 fMesonLambdaRightTailRangeTrue[0]  = fMesonLambdaTailRangeTrue[0];
+                 fMesonLambdaRightTailRangeTrue[1]  = fMesonLambdaTailRangeTrue[1];
+
+                 fMesonLambdaTailMC                 = fMesonLambdaTail;
+             }
         }
     }
     if (setPi0.CompareTo("EtaPrime") == 0){
