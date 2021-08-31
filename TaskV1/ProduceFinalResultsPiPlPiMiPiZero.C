@@ -153,9 +153,6 @@ void  ProduceFinalResultsPiPlPiMiPiZero(   TString fileListNameOmega     = "trig
 
     if (optionEnergy.CompareTo("13TeV")==0){
         doLinesStatErr              = kTRUE;
-        if (debugLevel==0){
-            debugLevel              = 2;
-        }
     }
 
     TString dateForOutput           = ReturnDateStringForOutput();
