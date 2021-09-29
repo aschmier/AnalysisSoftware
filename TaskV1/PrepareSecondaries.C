@@ -91,6 +91,7 @@ void PrepareSecondaries(    TString     meson                       = "",
 
     //************************** Set global variables ***************************************************************
     fEnergyFlag                                                 = option;
+    if ( option.CompareTo("13TeVMult") == 0)  fEnergyFlag = "13TeV";
     fPeriodFlag                                                 = period;
     fDirectPhoton                                               = directphotonPlots;
     fSuffix                                                     = suffix;
@@ -215,7 +216,9 @@ void PrepareSecondaries(    TString     meson                       = "",
     }
     cout<< __LINE__<< endl;
     //***************************** read cocktail settings and input ******************************************************
+    cout<< nameFileCocktailInput<< endl;
 	TFile* cocktailInputFile = new TFile(nameFileCocktailInput);
+    cout<< Form("%s_%s", fEnergyFlag.Data(), nameCocktailFolder.Data())<< endl;
     TDirectoryFile* cocktailInputFileDirectory = (TDirectoryFile*) cocktailInputFile->Get(Form("%s_%s", fEnergyFlag.Data(), nameCocktailFolder.Data()));
 
     if (doFlexCocktail) {
@@ -1214,8 +1217,8 @@ void PrepareSecondaries(    TString     meson                       = "",
     }
 
     //***************************** Save histograms *****************************************************************
-    SaveMesonHistos();
-    if (doSecondaryGamma) SavePhotonHistos();
+    SaveMesonHistos(option);
+    if (doSecondaryGamma) SavePhotonHistos(option);
     CreateBRTableLatex();
 }
 
@@ -1380,8 +1383,8 @@ void SetHistogramTitles(TH1F* input, TString title, TString xTitle, TString yTit
 }
 
 //************************** Routine for saving histograms **********************************************************
-void SaveMesonHistos() {
-    TString nameOutput                  = Form("%s/%s/Secondary%s%s_%s_%s.root",fCutSelection.Data(),fEnergyFlag.Data(),fAnalyzedMeson.Data(),fPeriodFlag.Data(),frapidityAndeta.Data(),fCutSelection.Data());
+void SaveMesonHistos(TString sEnergy = fEnergyFlag) {
+    TString nameOutput                  = Form("%s/%s/Secondary%s%s_%s_%s.root",fCutSelection.Data(),sEnergy.Data(),fAnalyzedMeson.Data(),fPeriodFlag.Data(),frapidityAndeta.Data(),fCutSelection.Data());
     cout << "INFO: writing into: " << nameOutput << endl;
     TFile *outputFile                   = new TFile(nameOutput,"RECREATE");
 
@@ -1428,8 +1431,8 @@ void SaveMesonHistos() {
 }
 
 //************************** Routine for saving histograms **********************************************************
-void SavePhotonHistos() {
-    TString nameOutput                  = Form("%s/%s/SecondaryGamma%s_%s_%s.root",fCutSelection.Data(),fEnergyFlag.Data(),fPeriodFlag.Data(),frapidityAndeta.Data(),fCutSelection.Data());
+void SavePhotonHistos(TString sEnergy = fEnergyFlag) {
+    TString nameOutput                  = Form("%s/%s/SecondaryGamma%s_%s_%s.root",fCutSelection.Data(),sEnergy.Data(),fPeriodFlag.Data(),frapidityAndeta.Data(),fCutSelection.Data());
     cout << "INFO: writing into: " << nameOutput << endl;
     TFile *outputFile                   = new TFile(nameOutput,"RECREATE");
 

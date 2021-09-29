@@ -124,8 +124,8 @@ void        Initialize                              (   TString     meson,
 void        RebinSpectrum                           (   TH1F*       Spectrum,
                                                         TH1F*       SpectrumForBinning,
                                                         TString     NewName             );
-void        SaveMesonHistos                         (                                   );
-void        SavePhotonHistos                        (                                   );
+void        SaveMesonHistos                         (   TString     sEnergy             );
+void        SavePhotonHistos                        (   TString     sEnergy             );
 Double_t    GetMass                                 (   TString     particle            );
 void        SetHistogramTitles                      (   TH1F*       input,
                                                         TString     title,

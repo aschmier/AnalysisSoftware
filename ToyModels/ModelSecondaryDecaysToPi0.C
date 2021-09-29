@@ -180,6 +180,7 @@ void ModelSecondaryDecaysToPi0(     Int_t nEvts             = 1000000,
     gROOT->Reset();
     gROOT->SetStyle("Plain");
 
+
     StyleSettingsThesis(suffix);
     SetPlotStyle();
 
@@ -314,7 +315,7 @@ void ModelSecondaryDecaysToPi0(     Int_t nEvts             = 1000000,
             namedNdEta          = "histoChargedHadrondNdEtaALICEPP8TeV";
         } else if (energy.CompareTo("7TeV") == 0){
             namedNdEta          = "histoChargedHadrondNdEtaALICEPP7TeV";
-        } else if (energy.CompareTo("13TeV") == 0){
+        } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVMult") == 0){
             namedNdEta          = "histoChargedHadrondNdEtaALICEPP13TeV";
         }
         chHadDNdEta             = (TH1D*)inputFile->Get(namedNdEta.Data());
@@ -388,7 +389,7 @@ void ModelSecondaryDecaysToPi0(     Int_t nEvts             = 1000000,
               nParam                  = 3;
               maxOrSpec               = 12;
               fitPtPartInput          = FitObject("l","fitPtPartInput","K",NULL,fitRange[0],fitRange[1]);
-            } else if (energy.CompareTo("13TeV") == 0){
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVMult") == 0){
               histoPartInputPt        = (TH1D*)inputFile->Get("hstat_k0s_pp13");
               fitRange[0]             = 0.8;
               fitRange[1]             = 35;
@@ -432,7 +433,7 @@ void ModelSecondaryDecaysToPi0(     Int_t nEvts             = 1000000,
             } else if (energy.BeginsWith("8TeV")){
                 fitRange[0]             = 5;
                 fitRange[1]             = 50;
-            } else if (energy.CompareTo("13TeV") == 0){
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVMult") == 0){
                 fitRange[0]             = 5;
                 fitRange[1]             = 20;
             }
@@ -544,7 +545,7 @@ void ModelSecondaryDecaysToPi0(     Int_t nEvts             = 1000000,
               maxOrSpec               = 10;
               fitPtPartInput          = FitObject("l","fitPtPartInput","Lambda",NULL,fitRange[0],fitRange[1]);
               fitPtPartInputlow       = FitObject("l","fitPtPartInputLow","Lambda",NULL,fitRangeLow[0],fitRangeLow[1]);
-            } else if (energy.CompareTo("13TeV") == 0){
+            } else if (energy.CompareTo("13TeV") == 0 || energy.CompareTo("13TeVMult") == 0){
               histoPartInputPt        = (TH1D*)inputFile->Get("hstat_lambda_pp13");
               fitRange[0]             = 1.1;
               fitRange[1]             = 35;
