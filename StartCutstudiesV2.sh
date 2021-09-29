@@ -1,5 +1,11 @@
 #!/bin/bash
 
+
+
+source ExtractionFunctions.sh
+
+
+
 # energyDir="13TeVSys"
 energyDir="13TeV"
 # energyDir=$1
@@ -10,59 +16,6 @@ mode=$1
 stdCut=$2
 
 
-##########################################################
-
-
-function CutStudiesOverview() {
-    energy="13TeV"
-    if [[ $# = 4 ]]; then energy=$4; fi
-    root -l -q -b 'TaskV1/CutStudiesOverview.C+("CutSelection.log", "eps", "Pi0", "kFALSE",     "", "'$energy'", "'$1'", '$2', 0, "", "LHC161718", '$3', 0, 1, 1)'
-    root -l -q -b 'TaskV1/CutStudiesOverview.C+("CutSelection.log", "eps", "Pi0", "kTRUE",      "", "'$energy'", "'$1'", '$2', 0, "", "LHC161718", '$3', 0, 1, 1)'
-    root -l -q -b 'TaskV1/CutStudiesOverview.C+("CutSelection.log", "eps", "Eta", "kFALSE",     "", "'$energy'", "'$1'", '$2', 0, "", "LHC161718", '$3', 0, 1, 1)'
-    root -l -q -b 'TaskV1/CutStudiesOverview.C+("CutSelection.log", "eps", "Eta", "kTRUE",      "", "'$energy'", "'$1'", '$2', 0, "", "LHC161718", '$3', 0, 1, 1)'
-    root -l -q -b 'TaskV1/CutStudiesOverview.C+("CutSelection.log", "eps", "Pi0EtaBinning", "kFALSE",     "", "'$energy'", "'$1'", '$2', 0, "", "LHC161718", '$3', 0, 1, 0)'
-    root -l -q -b 'TaskV1/CutStudiesOverview.C+("CutSelection.log", "eps", "Pi0EtaBinning", "kTRUE",      "", "'$energy'", "'$1'", '$2', 0, "", "LHC161718", '$3', 0, 1, 0)'
-}
-function CompareDifferentDirectories() {
-    root -l -b -q 'TaskV1/CompareDifferentDirectories.C+("CutSelection.log", "eps", "Pi0", 0, "13TeV", '$2', "No", '$3',"'$1'")'
-    root -l -b -q 'TaskV1/CompareDifferentDirectories.C+("CutSelection.log", "eps", "Pi0", 1, "13TeV", '$2', "No", '$3',"'$1'")'
-    root -l -b -q 'TaskV1/CompareDifferentDirectories.C+("CutSelection.log", "eps", "Eta", 0, "13TeV", '$2', "No", '$3',"'$1'")'
-    root -l -b -q 'TaskV1/CompareDifferentDirectories.C+("CutSelection.log", "eps", "Eta", 1, "13TeV", '$2', "No", '$3',"'$1'")'
-    root -l -b -q 'TaskV1/CompareDifferentDirectories.C+("CutSelection.log", "eps", "Pi0EtaBinning", 0, "13TeV", '$2', "No", '$3',"'$1'")'
-    root -l -b -q 'TaskV1/CompareDifferentDirectories.C+("CutSelection.log", "eps", "Pi0EtaBinning", 1, "13TeV", '$2', "No", '$3',"'$1'")'
-}
-
-function AddToList(){
-	if [ -f $1 ]; then
-		for tmp in `cat $1`
-		do
-			if [[ -f $2 ]]; then
-				if [[ `grep $tmp $2 | wc -l` < 1 ]]; then
-					echo "$tmp" >> $2
-				fi
-			else
-				echo "$tmp" >> $2
-			fi
-		done
-		rm $1
-	fi
-}
-
-
-# gridpath="/media/adrian/Data/grid_data"
-# dir="$gridpath/MergedDecayMCs/variations/"
-# if [[ ! -f "CutSelectionAll.log" ]]; then
-#     for file in `ls $dir`; do
-#         root -l -b -q 'TaskV1/MakeCutLog.C("'$dir/$file'","CutSelection.log",'$mode')' &> /dev/null
-#         echo $file
-#         cat "CutSelection.log"
-#         AddToList "CutSelection.log" "CutSelectionAll.log"
-#     done
-#     echo
-#     echo "-----------------------"
-#     echo
-#     cat "CutSelectionAll.log"
-# fi
 
 if [[  -f "CutSelectionAll.log" ]]; then rm "CutSelectionAll.log"; fi
 for Cut in `ls | grep 000`; do
@@ -77,8 +30,65 @@ echo "-----------------------"
 echo
 # cat "CutSelectionAll.log"
 
+declare -A cutstringConv
 declare -A cutstringConvCalo
 declare -A cutstringCalo
+
+
+cutstringConv[0]="HeavyIon"
+cutstringConv[1]="CentralityMin"
+cutstringConv[2]="CentralityMax"
+cutstringConv[3]="Trigger"
+cutstringConv[4]="Trigger"
+cutstringConv[5]="RemovePileUp"
+cutstringConv[6]="RejectExtraSignals"
+cutstringConv[7]="VertexCut"
+cutstringConv[8]="_"
+cutstringConv[9]="V0FinderType"
+cutstringConv[10]="EtaCut"
+cutstringConv[11]="MinRCut"
+cutstringConv[12]="EtaForPhiCut"
+cutstringConv[13]="MinPhiCut"
+cutstringConv[14]="MaxPhiCut"
+cutstringConv[15]="SinglePt"
+cutstringConv[16]="TPCCluster"
+cutstringConv[17]="dEdxE"
+cutstringConv[18]="dEdxPi"
+cutstringConv[19]="dEdxPivsp"
+cutstringConv[20]="dEdxPivsp"
+cutstringConv[21]="dEdxPivsp"
+cutstringConv[22]="TOFelectronPID"
+cutstringConv[23]="ITSelectronPID"
+cutstringConv[24]="TRDelectronPID"
+cutstringConv[25]="Qt"
+cutstringConv[26]="Chi2"
+cutstringConv[27]="PsiPair"
+cutstringConv[28]="DoPhotonAsymmetryCut"
+cutstringConv[29]="cosPA"
+cutstringConv[30]="SharedElectronCuts"
+cutstringConv[31]="RejectToCloseV0s"
+cutstringConv[32]="DcaRPrimVtx"
+cutstringConv[33]="DcaZPrimVtx"
+cutstringConv[34]="EventPlane"
+cutstringConv[35]="_"
+cutstringConv[36]="MesonKind"
+cutstringConv[37]="BackgroundScheme"
+cutstringConv[38]="NumberOfBGEvents"
+cutstringConv[39]="DegreesForRotationMethod"
+cutstringConv[40]="RapidityMesonCut"
+cutstringConv[41]="PtCut"
+cutstringConv[42]="Alpha"
+cutstringConv[43]="SelectionWindow"
+cutstringConv[44]="SharedElectronCuts"
+cutstringConv[45]="RejectToCloseV0s"
+cutstringConv[46]="MCSmearing"
+cutstringConv[47]="DcaGammaGamma"
+cutstringConv[48]="DcaRPrimVtx"
+cutstringConv[49]="DcaZPrimVtx"
+cutstringConv[50]="OpeningAngle"
+cutstringConv[51]="OpeningAngle"
+
+
 
 cutstringConvCalo[0]="HeavyIon"
 cutstringConvCalo[1]="CentralityMin"
@@ -206,13 +216,18 @@ echo
 for Cut in `cat "CutSelectionAll.log"`; do
     NVar=0
     NameStudy=""
+    # printf "$Cut\n"
     for StringPos in  {0..71}; do 
         if [[ ! ${Cut:$StringPos:1} = ${stdCut:$StringPos:1} ]]; then 
             ((NVar++))
             if [[ $mode = "2" ]] || [[ $mode = "3" ]]; then
                 NameStudyTmp="${cutstringConvCalo[$StringPos]}"
-            else
+            elif [[ $mode = "4" ]] || [[ $mode = "5" ]]; then
                 NameStudyTmp="${cutstringCalo[$StringPos]}"
+            elif [[ $mode = "0" ]]; then
+                NameStudyTmp="${cutstringConv[$StringPos]}"
+            else
+                NameStudyTmp="${cutstringConvCalo[$StringPos]}"
             fi
             if [[ $NameStudy == "" ]]; then
                 NameStudy="$NameStudyTmp"
@@ -224,6 +239,7 @@ for Cut in `cat "CutSelectionAll.log"`; do
             # printf "[$StringPos:${Cut:$StringPos:1}-${stdCut:$StringPos:1}] "
         fi
     done
+    # printf "\n"
     # echo 
     if [[ $NVar > 0 ]]; then
         if [[ $NVar > 3 ]]; then 
@@ -245,7 +261,7 @@ if [[ $# < 3 ]]; then
         FileCuts2=${FileCuts#*CutsForVariation}
         NameStudy=${FileCuts2%.log}
         printf "$NameStudy \n"
-        if  [[ $NameStudy == "Many" ]] || [[ $NameStudy == "Trigger" ]]; then echo; continue; fi
+        # if  [[ $NameStudy == "Many" ]] || [[ $NameStudy == "Trigger" ]]; then echo; continue; fi
         cat $FileCuts
         echo
     done
@@ -263,7 +279,8 @@ if [[ $# < 3 ]]; then
                 echo -e "$Cut" >>   CutSelection.log
             done
             NCuts=`cat CutSelection.log | wc  -l`
-            CutStudiesOverview $NameStudy $NCuts $mode $energyDir
+            echo "CutStudiesOverview $NameStudy $NCuts $mode $energyDir"
+            CutStudiesOverviewSys $NameStudy $NCuts $mode $energyDir
         fi
     done
 else
@@ -280,7 +297,8 @@ else
         echo -e "$Cut" >>   CutSelection.log
     done
     NCuts=`cat CutSelection.log | wc  -l`
-    CutStudiesOverview $NameStudy $NCuts $mode $energyDir
+    echo "CutStudiesOverview $NameStudy $NCuts $mode $energyDir"
+    CutStudiesOverviewSys $NameStudy $NCuts $mode $energyDir
 fi
 
 
