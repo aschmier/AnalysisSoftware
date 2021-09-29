@@ -4767,7 +4767,7 @@
     //**********************************************************************************
     //********************** Determine name for systematics ****************************
     //**********************************************************************************
-    TString GetSystematicsName  (  TString variationName = "" ){
+    TString GetSystematicsName  (  TString variationName = "" , Int_t mode = -1){
 
         if ( variationName.CompareTo("PileupDCA") == 0 || variationName.CompareTo("BGEstimateIterations")==0 )
             return "OB pileup B";
@@ -4851,8 +4851,10 @@
             return "#sigma_{long}^{2}";
         if ( variationName.CompareTo("CellTiming") == 0 )
             return "cell time";
-        if ( variationName.CompareTo("ClusterMaterialTRD") == 0 )
-            return "mat. infront of EMCal";
+        if ( variationName.CompareTo("ClusterMaterialTRD") == 0 ) {
+            if ( mode == 3 || mode == 5 ) return "mat. infront of PHOS";
+            else return "mat. infront of EMCal";
+        }
         if ( variationName.CompareTo("Trigger") == 0 )
             return "trigger normalization";
         if ( variationName.CompareTo("PileUp") == 0 )
