@@ -1292,7 +1292,49 @@
         }
         return returnGraph;
     }
-
+//___________________________________________________________________________________________________________________________
+    //*******************************************************************************************
+    //*******************************************************************************************
+    //*******************************************************************************************
+    void CalculateOffsets(   TH1D** histoStat,    TGraphAsymmErrors** graphSyst,
+                                                            Double_t* xPtLimits,  Int_t nPtLimits,
+                                                            Int_t* startOffsets, Int_t* sysOffsets) {
+        Int_t debugOutput = 1;    
+        Int_t  TMPOffset = 0;           
+        const Int_t maxNMeasurements  = 11;   
+        Double_t xValue = 0;                                            
+        Double_t xErr = 0;                                            
+        Double_t xValueSys = 0;                                            
+        for (Int_t meas = 0; meas< maxNMeasurements; meas++){
+            if (histoStat[meas] && graphSyst[meas] ){
+                TMPOffset = 0;  
+                for (Int_t ptBin = 0; ptBin < nPtLimits; ptBin++){
+                    if (debugOutput>=1) cout << "Bin: " << ptBin << "  boarders: " << xPtLimits[ptBin] <<" - "<< xPtLimits[ptBin+1] << "\t meas:" <<  histoStat[meas]->GetXaxis()->GetBinLowEdge(ptBin-TMPOffset+1) <<" - "<< histoStat[meas]->GetXaxis()->GetBinUpEdge(ptBin-TMPOffset+1) << "  TMPOffset:  " << TMPOffset << endl;
+                    if (xPtLimits[ptBin] < 0.00001 || histoStat[meas]->GetXaxis()->GetBinLowEdge(ptBin-TMPOffset+1) < 0.0001 ) continue;
+                    if (TMath::Abs(xPtLimits[ptBin]-histoStat[meas]->GetXaxis()->GetBinLowEdge(ptBin-TMPOffset+1) < 0.0001) &&  TMath::Abs(xPtLimits[ptBin+1]-histoStat[meas]->GetXaxis()->GetBinUpEdge(ptBin-TMPOffset+1)) < 0.0001 ){
+                        if (debugOutput>=1) cout << "matching bin edges " << endl;
+                        break;
+                    } else TMPOffset++;
+                }
+                startOffsets[meas] = TMPOffset;
+                TMPOffset = 0;  
+                for (Int_t ptBin = 0; ptBin < nPtLimits; ptBin++){
+                    xValue                   = xPtLimits[ptBin] + (xPtLimits[ptBin+1]-xPtLimits[ptBin])/2;
+                    xErr                     = (xPtLimits[ptBin+1]-xPtLimits[ptBin])/2;
+                    xValueSys                = graphSyst[meas]->GetX()[ptBin-TMPOffset];
+                    if (debugOutput>=1) cout << "Sys Bin: "<< ptBin << "\t"<< TMPOffset << "\t"<< xValue << "  -   " << xValueSys << endl;
+                    if ( xValueSys > xValue + 0.00001 ) TMPOffset++;
+                    if (TMath::Abs(xValueSys - xValue) < 0.0001) {
+                        if (debugOutput>=1) cout << "matching bin centers " << endl;
+                        break;
+                    }
+                }
+                sysOffsets[meas] = TMPOffset;
+                cout << "CalculateOffsets: startOffsets[" << meas << "] = " << startOffsets[meas] << "\t sysOffsets[" << meas << "] = " << sysOffsets[meas]<< endl;
+                TMPOffset = 0;  
+            }
+        }
+    }
     //___________________________________________________________________________________________________________________________
     //*******************************************************************************************
     //*******************************************************************************************
