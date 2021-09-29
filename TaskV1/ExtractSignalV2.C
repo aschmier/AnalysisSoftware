@@ -225,6 +225,10 @@ void ExtractSignalV2(
         if (fEventCutSelectionRead.BeginsWith("e")) fEventCutSelectionRead.Replace(0,1,"8");
         if (fEventCutSelectionRead.BeginsWith("h") ||
             fEventCutSelectionRead.BeginsWith("m") ||
+            fEventCutSelectionRead.BeginsWith("q") ||
+            fEventCutSelectionRead.BeginsWith("r") ||
+            fEventCutSelectionRead.BeginsWith("p") ||
+            fEventCutSelectionRead.BeginsWith("o") ||
             fEventCutSelectionRead.BeginsWith("n")) fEventCutSelectionRead.Replace(0,1,"0");
 //         if ((fEnergyFlag.CompareTo("pPb_5.023TeV") == 0 || fEnergyFlag.CompareTo("pPb_5.023TeVCent") == 0 ) && (mode == 2 || mode == 3 || mode == 4 ) ) fEventCutSelectionRead.Replace(3,1,"0");
         cout << fEventCutSelectionRead.Data() << endl;
@@ -899,11 +903,19 @@ void ExtractSignalV2(
     if (debugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
 
     if (debugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
-    ProcessEM_switch( fMesonFullPtSignal, fMesonFullPtBackground, fBGFitRange);
+    if ( iBckSwitch == 5 ) {
+        ProcessEM_FitBins(fMesonFullPtSignal, fMesonFullPtBackground);
+    } else {
+        ProcessEM(fMesonFullPtSignal, fMesonFullPtBackground, fBGFitRange);
+    }
     fMesonFullPtBackNorm                        = fBckNorm;
 
     if (debugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
-    ProcessEM_switch( fFittingHistMidPtSignal, fFittingHistMidPtBackground, fBGFitRange);
+    if ( iBckSwitch == 5 ) {
+        ProcessEM_FitBins(fFittingHistMidPtSignal, fFittingHistMidPtBackground);
+    } else {
+        ProcessEM(fFittingHistMidPtSignal, fFittingHistMidPtBackground, fBGFitRange);
+    }
     fFittingHistMidPtSignalSub                  = fSignal;
 
     if (debugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
@@ -975,8 +987,11 @@ void ExtractSignalV2(
 //         }
 
         if (debugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
-
-        ProcessEM_switch( fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[iPt], fBGFitRange);
+        if ( iBckSwitch == 5 ) {
+            ProcessEM_FitBins(fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[iPt]);
+        } else {
+            ProcessEM(fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[iPt], fBGFitRange);
+        }
         if (debugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
         fHistoMappingSignalInvMassPtBin[iPt]            = fSignal;
         fHistoMappingBackNormInvMassPtBin[iPt]          = fBckNorm;
@@ -1759,7 +1774,12 @@ void ExtractSignalV2(
         // Function to subtract GG minus Bck
         cout << fBinsPt[iPt] <<"-" << fBinsPt[iPt+1] << endl;
         if (debugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
-        ProcessEM_switch( fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[iPt], fBGFitRangeLeft);
+        if ( iBckSwitch == 5 ) {
+            ProcessEM_FitBins(fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[iPt]);
+            // ProcessEM(fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[iPt], fBGFitRange);
+        } else {
+            ProcessEM(fHistoMappingGGInvMassPtBin[iPt], fHistoMappingBackInvMassPtBin[iPt], fBGFitRangeLeft);
+        }
         if (debugOutputLevel>=1){cout << "Debug; ExtractSignalV2.C, line " << __LINE__ << endl;}
         fHistoMappingSignalInvMassLeftPtBin[iPt]        = fSignal;
         fHistoMappingBackNormInvMassLeftPtBin[iPt]      = fBckNorm;
@@ -4248,15 +4268,6 @@ void ProduceBckWithoutWeighting(TH2D *fBckInvMassVSPtDummy){
 //****************************************************************************
 //************** Remove BG from Signal ***************************************
 //****************************************************************************
-void ProcessEM_switch(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM){
-    if ( iBckSwitch == 0 ){
-        ProcessEM(fGammaGamma, fBck, fBGFitRangeEM);
-    } else if ( iBckSwitch == 5 ) {
-        ProcessEM_FitBins(fGammaGamma, fBck, fBGFitRangeEM);
-    } else {
-        ProcessEM(fGammaGamma, fBck, fBGFitRangeEM);
-    }
-}
 
 void ProcessEM(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) {
     for (Int_t binx= 0; binx < fGammaGamma->GetNbinsX()+1; binx++){
@@ -4671,7 +4682,7 @@ Double_t FitFunctionPHOSBckPol3_withGausExp(Double_t *x, Double_t *par){
 }
 
 
-void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) {
+void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck) {
     Int_t debugOutputLevel=0;
     Double_t NumberOfZeroesRatioLimit=0.5;
     Double_t CurrentNumberOfZeroesRatio;
@@ -4689,7 +4700,7 @@ void ProcessEM_FitBins(TH1D* fGammaGamma, TH1D* fBck, Double_t * fBGFitRangeEM) 
     Double_t AmplitudeBaselineRight;
     //Double_t AmplitudeBaselineAbs; //outcommented as currently not used
     if (debugOutputLevel>=1){
-        cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; usePolNForBackgroundScaling: "<<usePolNForBackgroundScaling<<"; FitRangeSigBckRatioOption: "<<FitRangeSigBckRatioOption<<"; fBGFitRangeEM[0]: "<<fBGFitRangeEM[0]<<"; fBGFitRangeEM[1]: "<<fBGFitRangeEM[1]<<endl;
+        cout<<"Debug Output, ExtractSignalV2.C, ProcessEM_FitBins(), Line: "<<__LINE__<<"; usePolNForBackgroundScaling: "<<usePolNForBackgroundScaling<<"; FitRangeSigBckRatioOption: "<<FitRangeSigBckRatioOption<<endl;
     }
     //Just for crosschecks
     //fFitReco = new TF1("GaussExpLinear","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)+(x>=[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp(-(x-[1])/[6])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2)))+[4]+[5]*x)",fMesonFitRange[0],fMesonFitRange[1]);
@@ -5998,45 +6009,36 @@ void FitSubtractedInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Do
             } else if (fMode == 2 || fMode == 13 ) {                // PCM-EMC, PCM-DMC
                 TString trigger = fEventCutSelection(GetEventSelectSpecialTriggerCutPosition(),2);
                 if( fEnergyFlag.BeginsWith("8TeV") ){
-                  mesonAmplitudeMin = mesonAmplitude*90./100.;
-                  mesonAmplitudeMax = mesonAmplitude*600./100.;
+                    mesonAmplitudeMin = mesonAmplitude*90./100.;
+                    mesonAmplitudeMax = mesonAmplitude*600./100.;
                     fMesonFitRange[0] = 0.03;
                     fMesonFitRange[1] = 0.30;
+                } else if( fEnergyFlag.Contains("13TeV") ){ 
+                    //&& (trigger.CompareTo("8d") == 0 || trigger.CompareTo("8e") == 0 || trigger.CompareTo("9b") == 0)) {
+                    fMesonIntDeltaRange[0]      = -0.032;
+                    fMesonIntDeltaRange[1]      = 0.022;
+                    // fMesonLambdaTailRange[0]        = 0.012;
+                    if (fBinsPt[ptBin] >= 10.) {
+                        fMesonIntDeltaRange[0]      = fMesonIntDeltaRange[0]*1.2;
+                        fMesonIntDeltaRange[1]      = fMesonIntDeltaRange[1]*1.1;
+                    } else if (fBinsPt[ptBin] >= 16.) {
+                        // fMesonLambdaTail            = 0.005; 
+                        // fMesonLambdaTailRange[0]    = 0.005;
+                        // fMesonLambdaTailRange[1]    = 0.005;
+                        // fMesonLambdaTailRangeMC[0]  = 0.005;
+                        // fMesonLambdaTailRangeMC[1]  = 0.005;
+                        fMesonIntDeltaRange[0]      = -0.05;
+                        fMesonIntDeltaRange[1]      = 0.05;
+                    }
+                    fMesonIntDeltaRangeWide[0]  = fMesonIntDeltaRange[0]*1.5;
+                    fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1]*1.5;
+                    fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1]*0.5;
+                    fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0]*0.5;
                 }else if(fDoJetAnalysis){
                     fMesonWidthRange[0]         = 0.007;
                     fMesonWidthRange[1]         = 0.020;
                     mesonAmplitudeMin = mesonAmplitude*98./100.;
-                    mesonAmplitudeMax = mesonAmplitude*600./100.;
-                } else if( fEnergyFlag.CompareTo("13TeV") == 0 && (trigger.CompareTo("8d") == 0 || trigger.CompareTo("8e") == 0 || trigger.CompareTo("9b") == 0) ){
-                      mesonAmplitudeMin = mesonAmplitude*98./100.;
-                      mesonAmplitudeMax = mesonAmplitude*600./100.;
-
-                      fMesonWidthExpect               = 0.005;
-                      fMesonWidthRange[0]             = 0.0045;
-                      fMesonWidthRange[1]             = 0.04;
-
-                      fMesonLambdaTail                = 0.015;
-                      fMesonLambdaTailRange[0]        = 0.01;
-                      fMesonLambdaTailRange[1]        = 0.04;
-                      if ( fBinsPt[ptBin] >= 30.) {
-                          fMesonLambdaTail                = 0.035;
-                          fMesonLambdaTailRange[0]        = 0.03;
-                          fMesonLambdaTailRange[1]        = 0.04;
-                      }
-
-                      // if ( fBinsPt[ptBin] > 5.) {
-                      //     fMesonWidthExpect               = 0.00168025 + fBinsPt[ptBin] * 0.000841804;
-                      //     fMesonWidthRange[0]             = fMesonWidthExpect * 0.8;
-                      //     fMesonWidthRange[1]             = fMesonWidthExpect * 1.2;
-                      // }
-                      // if ( fBinsPt[ptBin] > 15.) {
-                      //     fMesonLambdaTail               = -0.00178933 + fBinsPt[ptBin] * 0.00134097;
-                      //     fMesonLambdaTailRange[0]             = 0.01;
-                      //     fMesonLambdaTailRange[1]             = 0.2;
-                      //
-                      //     fMesonWidthRange[0]             = fMesonWidthExpect * 0.5;
-                      //     fMesonWidthRange[1]             = fMesonWidthExpect * 1.5;
-                      // }
+                    mesonAmplitudeMax = mesonAmplitude*600./100.;  
                 } else {
                     mesonAmplitudeMin = mesonAmplitude*98./100.;
                     mesonAmplitudeMax = mesonAmplitude*600./100.;
@@ -7511,22 +7513,27 @@ void FitTrueInvMassInPtBins(TH1D* histoMappingSignalInvMassPtBinSingle, Double_t
                 if( fPrefix.CompareTo("Eta") == 0) {
                     mesonAmplitudeMin               = mesonAmplitude*70./100.;
                 }
-            } else if (fEnergyFlag.Contains("13TeV")  ){
-                mesonAmplitudeMin = mesonAmplitude*98./100.;
-                mesonAmplitudeMax = mesonAmplitude*600./100.;
-
-                fMesonWidthExpect               = 0.005;
-                fMesonWidthRangeMC[0]             = 0.0045;
-                fMesonWidthRangeMC[1]             = 0.04;
-
-                fMesonLambdaTailMC                = 0.015;
-                fMesonLambdaTailRangeMC[0]        = 0.01;
-                fMesonLambdaTailRangeMC[1]        = 0.04;
-                if ( fBinsPt[ptBin] >= 30.) {
-                    fMesonLambdaTailMC                = 0.035;
-                    fMesonLambdaTailRangeMC[0]        = 0.03;
-                    fMesonLambdaTailRangeMC[1]        = 0.04;
+            } else if( fEnergyFlag.Contains("13TeV") ){
+                // && (trigger.CompareTo("8d") == 0 || trigger.CompareTo("8e") == 0 || trigger.CompareTo("9b") == 0)) {
+                fMesonIntDeltaRange[0]      = -0.032;
+                fMesonIntDeltaRange[1]      = 0.022;
+                // fMesonLambdaTailRange[0]        = 0.012;
+                if (fBinsPt[ptBin] >= 10.) {
+                    fMesonIntDeltaRange[0]      = fMesonIntDeltaRange[0]*1.2;
+                    fMesonIntDeltaRange[1]      = fMesonIntDeltaRange[1]*1.1;
+                } else if (fBinsPt[ptBin] >= 16.) {
+                    // fMesonLambdaTail            = 0.005; 
+                    // fMesonLambdaTailRange[0]    = 0.005;
+                    // fMesonLambdaTailRange[1]    = 0.005;
+                    // fMesonLambdaTailRangeMC[0]  = 0.005;
+                    // fMesonLambdaTailRangeMC[1]  = 0.005;
+                    fMesonIntDeltaRange[0]      = -0.05;
+                    fMesonIntDeltaRange[1]      = 0.05;
                 }
+                fMesonIntDeltaRangeWide[0]  = fMesonIntDeltaRange[0]*1.5;
+                fMesonIntDeltaRangeWide[1]  = fMesonIntDeltaRange[1]*1.5;
+                fMesonIntDeltaRangeNarrow[1]= fMesonIntDeltaRange[1]*0.5;
+                fMesonIntDeltaRangeNarrow[0]= fMesonIntDeltaRange[0]*0.5;
             }
         } else if (fMode == 4 || fMode == 12 || fMode == 5 || fMode==14) {
             if( fEnergyFlag.BeginsWith("8TeV")  ){
@@ -8035,10 +8042,14 @@ void IntegrateFitFuncAndError(TF1 * fFunc, TFitResultPtr theFitResult,  TH1D *  
     if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; IntegrateFitFuncAndError(); Line: "<<__LINE__<<" "<<endl;}
     fYieldsFunc = fFunc->Integral(fMesonIntRangeInt[0],fMesonIntRangeInt[1])/ binWidth;
     if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; IntegrateFitFuncAndError(); Line: "<<__LINE__<<" "<<endl;}
-    fYieldsFuncError = fFunc->IntegralError(fMesonIntRangeInt[0],
+    if ((int) theFitResult == 0) {
+        fYieldsFuncError = fFunc->IntegralError(fMesonIntRangeInt[0],
                                             fMesonIntRangeInt[1],
                                             nullptr,
                                             theFitResult->GetCovarianceMatrix().GetMatrixArray()) / binWidth;
+    } else {
+        fYieldsFuncError = 100000;
+    }
     if (debugOutputLevel>=1){cout<<"Debug Output; ExtractSignalV2.C; IntegrateFitFuncAndError(); Line: "<<__LINE__<<" "<<endl;}
 
 }
@@ -8982,7 +8993,7 @@ void CalculateFWHM(TF1 * fFunc){
         TF1* fFunc_plus;
         fFunc_plus = new TF1("fFunc_plus","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2))))+(x>=[1])*([0]*TMath::Exp(-0.5*((x-[1])/[2])^2))",fMesonFitRange[0],fMesonFitRange[1]);
         fFunc_plus->SetParameter(0,fFunc->GetParameter(0) + fFunc->GetParError(0));
-        fFunc_plus->SetParameter(1,fFunc->GetParameter(1) + fFunc->GetParError(1));
+        fFunc_plus->SetParameter(1,fFunc->GetParameter(1));
         fFunc_plus->SetParameter(2,fFunc->GetParameter(2) + fFunc->GetParError(2));
         fFunc_plus->SetParameter(3,fFunc->GetParameter(3) + fFunc->GetParError(3));
         Double_t FWHM_plus = fFunc_plus->GetX(fFunc_plus->GetParameter(0)*0.5,fFunc_plus->GetParameter(1), fMesonFitRange[1]) - fFunc_plus->GetX(fFunc_plus->GetParameter(0)*0.5,fMesonFitRange[0],fFunc_plus->GetParameter(1));
@@ -8991,16 +9002,25 @@ void CalculateFWHM(TF1 * fFunc){
         TF1* fFunc_minus;
         //   fFunc_minus = fFunc;
         fFunc_minus = new TF1("fFunc_minus","(x<[1])*([0]*(TMath::Exp(-0.5*((x-[1])/[2])^2)+TMath::Exp((x-[1])/[3])*(1.-TMath::Exp(-0.5*((x-[1])/[2])^2))))+(x>=[1])*([0]*TMath::Exp(-0.5*((x-[1])/[2])^2))",fMesonFitRange[0],fMesonFitRange[1]);
-        fFunc_minus->SetParameter(0,fFunc->GetParameter(0) - fFunc->GetParError(0));
-        fFunc_minus->SetParameter(1,fFunc->GetParameter(1) - fFunc->GetParError(1));
-        fFunc_minus->SetParameter(2,fFunc->GetParameter(2) - fFunc->GetParError(2));
-        fFunc_minus->SetParameter(3,fFunc->GetParameter(3) - fFunc->GetParError(3));
+        Double_t fFunc_minus_par0 = fFunc->GetParameter(0) - fFunc->GetParError(0);
+        if ( fFunc_minus_par0 < 0 ) fFunc_minus_par0 = 0;
+        Double_t fFunc_minus_par2 = fFunc->GetParameter(2) - fFunc->GetParError(2);
+        if ( fFunc_minus_par2 < 0 ) fFunc_minus_par2 = 0;
+        Double_t fFunc_minus_par3 = fFunc->GetParameter(3) - fFunc->GetParError(3);
+        if ( fFunc_minus_par3 < 0 ) fFunc_minus_par3 = 0;
+        fFunc_minus->SetParameter(0,fFunc_minus_par0);
+        fFunc_minus->SetParameter(1,fFunc->GetParameter(1));
+        fFunc_minus->SetParameter(2,fFunc_minus_par2);
+        fFunc_minus->SetParameter(3,fFunc_minus_par3);
 
         Double_t FWHM_minus =  fFunc_minus->GetX(fFunc_minus->GetParameter(0)*0.5,fFunc_minus->GetParameter(1), fMesonFitRange[1]) -fFunc_minus->GetX(fFunc_minus->GetParameter(0)*0.5,fMesonFitRange[0],fFunc_minus->GetParameter(1));
 
         if(isnan(FWHM_plus) || isnan(FWHM_minus)){
             cout << "ERROR in ExtractSignalV2.C CalculateFWHM(): fFWHMFuncError can not be calculated. Most likely, the reason is that one of fFunc_plus or fFunc_minus ";
             cout << "does not drop to half of its maximum value in both windows provided.\nSetting fFWHMFuncError to 1e+12!\n";
+            printf("%.5f,\t%.5f,\t%.5f,\t%.5f\n",fFunc->GetParameter(0),fFunc->GetParameter(1),fFunc->GetParameter(2),fFunc->GetParameter(3));
+            if(isnan(FWHM_minus)) printf("It was FWHM_minus \n");
+            if(isnan(FWHM_plus)) printf("It was FWHM_plus \n");
             fFWHMFuncError = 1e+12;
             return;
         }
