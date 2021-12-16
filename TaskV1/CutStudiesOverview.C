@@ -646,7 +646,7 @@ void CutStudiesOverview(TString CombineCutsName                 = "CombineCuts.d
         if (histoCorrectedYieldCut[i]) {
             histoRatioCorrectedYieldCut[i]                      = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("histoRatioCorrectedYieldCut_%s", cutNumber[i].Data()));
             histoRatioCorrectedYieldCut[i]->Divide(histoRatioCorrectedYieldCut[i],histoCorrectedYieldCut[0],1.,1.,"B");
-            histoCorrectedYieldCutRebinned[i]                      = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("%s2_%s", "CorrectedYieldNormEff",cutNumber[i].Data()));
+            if ( i == 0 ) histoCorrectedYieldCutRebinned[i]                      = (TH1D*) histoCorrectedYieldCut[i]->Clone(Form("%s2_%s", "CorrectedYieldNormEff",cutNumber[i].Data()));
         }
     }
 
