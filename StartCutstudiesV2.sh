@@ -1,13 +1,23 @@
+
 #!/bin/bash
 
 
+CutStudiesOverviewSys() {
+    # echo "CutStudiesOverviewSys $@"
+    energy="13TeV"
+    if [[ $# > 3 ]]; then energy=$4; fi
+    root -l -q -b 'TaskV1/CutStudiesOverview.C+("CutSelection.log", "eps", "Pi0", "kFALSE",     "", "'$energy'", "'$1'", '$2', 0, "", "LHC161718", '$3', 0, 1, 0)'
+    root -l -q -b 'TaskV1/CutStudiesOverview.C+("CutSelection.log", "eps", "Eta", "kFALSE",     "", "'$energy'", "'$1'", '$2', 0, "", "LHC161718", '$3', 0, 1, 0)'
+    root -l -q -b 'TaskV1/CutStudiesOverview.C+("CutSelection.log", "eps", "Pi0EtaBinning", "kFALSE",     "", "'$energy'", "'$1'", '$2', 0, "", "LHC161718", '$3', 0, 1, 0)'
+}
 
-source ExtractionFunctions.sh
 
-
+energyDir="13TeV"
+if [[ $# > 2 ]]; then
+    energyDir="$3"
+fi
 
 # energyDir="13TeVSys"
-energyDir="13TeV"
 # energyDir=$1
 # mode="3"
 mode=$1
@@ -256,7 +266,7 @@ done
 
 
 
-if [[ $# < 3 ]]; then
+if [[ $# < 4 ]]; then
     for FileCuts in  `ls CutsForVariation*`; do 
         FileCuts2=${FileCuts#*CutsForVariation}
         NameStudy=${FileCuts2%.log}
@@ -279,15 +289,16 @@ if [[ $# < 3 ]]; then
                 echo -e "$Cut" >>   CutSelection.log
             done
             NCuts=`cat CutSelection.log | wc  -l`
-            echo "CutStudiesOverview $NameStudy $NCuts $mode $energyDir"
+            if  [[ $NameStudy == "" ]]; then continue; fi
+            echo "CutStudiesOverview $NameStudy, $NCuts, $mode, $energyDir"
             CutStudiesOverviewSys $NameStudy $NCuts $mode $energyDir
         fi
     done
 else
     if [[ $mode = "2" ]]  || [[ $mode = "3" ]]; then
-        NameStudy="${cutstringConvCalo[$3]}"
+        NameStudy="${cutstringConvCalo[$4]}"
     else
-        NameStudy="${cutstringCalo[$3]}"
+        NameStudy="${cutstringCalo[$4]}"
     fi
     FileCuts="CutsForVariation$NameStudy.log"
     printf "$NameStudy \n"
@@ -297,7 +308,11 @@ else
         echo -e "$Cut" >>   CutSelection.log
     done
     NCuts=`cat CutSelection.log | wc  -l`
-    echo "CutStudiesOverview $NameStudy $NCuts $mode $energyDir"
+    echo "CutStudiesOverview $NameStudy, $NCuts, $mode, $energyDir"
+    if  [[ ` wc -c $NameStudy` = 0  ]]; then 
+        echo "skip"
+        continue
+    fi
     CutStudiesOverviewSys $NameStudy $NCuts $mode $energyDir
 fi
 
