@@ -55,8 +55,8 @@
 #include "QA.h"
 #include "EventQA_Runwise.C"
 #include "PhotonQA_Runwise.C"
-#include "ClusterQA_Runwise.C"
-// #include "ClusterQA_Runwise_V2.C"
+// #include "ClusterQA_Runwise.C"
+#include "ClusterQA_Runwise_V2.C"
 #include "PrimaryTrackQA_Runwise.C"
 
 void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selected config file
@@ -285,12 +285,18 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
                             doExtQA, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist, addPhotonCutNr);
     }
     if (doClusterQA){
-//       if (SwithManyRuns) ClusterQA_Runwise_V2(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr, doExtQA, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist, kFALSE, 50, onlytrending );
+//       if (SwithManyRuns) 
+        ClusterQA_Runwise_V2(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr, doExtQA, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist, kFALSE, 80, onlytrending );
 //       else
-          ClusterQA_Runwise(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr, doExtQA, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist );
+//           ClusterQA_Runwise(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr, doExtQA, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist );
     }
-    if (doMergedQA)     ClusterQA_Runwise(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr,
-                                            1, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist, kTRUE );
+    if (doMergedQA){    
+      ClusterQA_Runwise_V2(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr, 
+                             1, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist, kFALSE, 80, onlytrending );
+
+//       ClusterQA_Runwise(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr,
+//                           1, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist, kTRUE );
+    }
     if ( doPrimaryTrackQA ) {
         PrimaryTrackQA_Runwise (nSets, nData, fEnergyFlag, filePath, fileName, DataSets,  plotDataSets, mode, cutNr, doExtQA, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist);
     }

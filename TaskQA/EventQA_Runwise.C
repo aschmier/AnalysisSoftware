@@ -193,6 +193,7 @@ void EventQA_Runwise(
     TFile* fCutFile             = NULL;
     while ( (fCutFile==NULL)&&(ActualRunIndexInVector<vecRuns.size()) ){
         fCutFile             = new TFile(Form("%s/%s/%s/%s", filePath.Data(), ((TString)vecDataSet.at(0)).Data(), ((TString)vecRuns.at(ActualRunIndexInVector)).Data(), fileName.Data()));
+        cout << Form("%s/%s/%s/%s", filePath.Data(), ((TString)vecDataSet.at(0)).Data(), ((TString)vecRuns.at(ActualRunIndexInVector)).Data(), fileName.Data()) << endl;
         if(fCutFile->IsZombie()) {
             cout << "ERROR: ROOT file '" << Form("%s/%s/%s/%s", filePath.Data(), ((TString)vecDataSet.at(0)).Data(), ((TString)vecRuns.at(ActualRunIndexInVector)).Data(), fileName.Data()) << "' could not be openend, return!" << endl;
             fCutFile->Close();
@@ -209,6 +210,7 @@ void EventQA_Runwise(
     if (fixedTopDir.CompareTo("") == 0){
         TIter next(fCutFile->GetListOfKeys());
         while ((key=(TKey*)next())){
+            cout << __LINE__ << endl;
             cout << Form("Found TopDir: '%s' ",key->GetName())<< endl;
             nameMainDir             = key->GetName();
             if (nameMainDir.Contains("Gamma")) break;
@@ -227,6 +229,7 @@ void EventQA_Runwise(
         TFile* fCutFileMC=NULL;
         while ( (fCutFileMC==NULL)&&(ActualRunIndexInVector<vecRuns.size()) ){
             fCutFileMC             = new TFile(Form("%s/%s/%s/%s", filePath.Data(), ((TString)vecDataSet.at(nData)).Data(), ((TString)vecRuns.at(ActualRunIndexInVector)).Data(), fileNameMC.Data()));
+            cout << Form("%s/%s/%s/%s", filePath.Data(), ((TString)vecDataSet.at(nData)).Data(), ((TString)vecRuns.at(ActualRunIndexInVector)).Data(), fileNameMC.Data()) << endl;
             if(fCutFileMC->IsZombie()) {
                 cout << "ERROR: MC ROOT file '" << Form("%s/%s/%s/%s", filePath.Data(), ((TString)vecDataSet.at(nData)).Data(), ((TString)vecRuns.at(ActualRunIndexInVector)).Data(), fileNameMC.Data()) << "' could not be openend" << endl;
                 fCutFileMC->Close();

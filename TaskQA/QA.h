@@ -1617,16 +1617,14 @@ void DrawVectorRunwiseTH1D( TCanvas *canvas, TLegend *legendRuns, std::vector<TH
                             Bool_t doTrigger, TString fTrigger, Bool_t data, TString outputDirDataSet, TString saveString, TString plotDataSets, Bool_t doXaxisExp,
                             TString fCollisionSystem, TString calo, TString suffix, Bool_t logX, Bool_t logY, Bool_t logZ, Bool_t doXRange = kTRUE, Bool_t doYRange = kTRUE){
 
-    if(vec.size()==0) { cout << "WARNING: in DrawVectorRunwiseTH1D - vector size 0!" << endl; return;}
-    if(vec.size()!=vecRuns.size()) { cout << "WARNING: in DrawVectorRunwiseTH1D - vec.size()!=vecRuns.size()" << endl; return;}
+    if(vec.size()==0) { cout << saveString.Data() << "\t WARNING: in DrawVectorRunwiseTH1D - vector size 0!" << endl; return;}
+    if(vec.size()!=vecRuns.size()) { cout << saveString.Data() << "\t WARNING: in DrawVectorRunwiseTH1D - vec.size()!=vecRuns.size()" << endl; return;}
     Int_t min = 0;
     Int_t max = 0;
-    //cout << "hier x adjust" << endl;
+    cout << "*******************************************************"<< endl;
+    cout << saveString.Data() << endl;
     if(doXRange) GetMinMaxBin(vec,min,max);
-    //cout << "hier y adjust" << endl;
-
     if(doYRange) AdjustHistRange(vec,lowerAdjust,higherAdjust,adjustIncludeError);
-    //cout << "hier before hist loop" << endl;
     for(Int_t h=0; h<(Int_t) vec.size(); h++){
         TString draw = (h==0)?"p":"p, same";
         EditRunwiseHists(((TH1D*) vec.at(h)), h, "");
@@ -1635,7 +1633,6 @@ void DrawVectorRunwiseTH1D( TCanvas *canvas, TLegend *legendRuns, std::vector<TH
         ((TH1D*) vec.at(h))->Draw(draw.Data());
         legendRuns->AddEntry(((TH1D*) vec.at(h)),Form("%s",vecRuns.at(h).Data()),"p");
     }
-    //cout << "hier after hist loop" << endl;
     legendRuns->Draw();
 
     //if(calo.IsNull()) putLabel5+=0.04;
@@ -1645,10 +1642,10 @@ void DrawVectorRunwiseTH1D( TCanvas *canvas, TLegend *legendRuns, std::vector<TH
     }else{
         PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), calo.Data());
     }
-    //cout << "hier out" << endl;
-    SaveCanvas(canvas, Form("%s/%s_%s.%s", outputDirDataSet.Data(), saveString.Data(), plotDataSets.Data(),suffix.Data()),logX,logY,logZ);
+    TString canvasName = Form("%s/%s_%s.%s", outputDirDataSet.Data(), saveString.Data(), plotDataSets.Data(),suffix.Data());
+    cout << canvasName.Data() << endl;
+    SaveCanvas(canvas, canvasName ,logX,logY,logZ);
     legendRuns->Clear();
-    //cout << "hier clear" << endl;
     return;
 }
 
