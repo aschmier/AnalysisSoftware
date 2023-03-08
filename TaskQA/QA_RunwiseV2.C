@@ -54,6 +54,7 @@
 #include <queue>
 #include "QA.h"
 #include "EventQA_Runwise.C"
+#include "JetQA_Runwise.C"
 #include "PhotonQA_Runwise.C"
 // #include "ClusterQA_Runwise.C"
 #include "ClusterQA_Runwise_V2.C"
@@ -64,7 +65,8 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
                     Bool_t  doPhotonQA      = kFALSE,               // switch on PCM-PhotonQA
                     Bool_t  doClusterQA     = kFALSE,               // switch on ClusterQA
                     Bool_t  doMergedQA      = kFALSE,               // switch on merged ClusterQA
-                    Bool_t doPrimaryTrackQA = kFALSE,           // switch on primary electron and pion QA
+                    Bool_t doPrimaryTrackQA = kFALSE,               // switch on primary electron and pion QA
+                    Bool_t doJetQA          = kFALSE,               // switch on Jet QA
                     Int_t   doExtQA         = 2,                    // 0: switched off, 1: normal extQA, 2: with Cell level plots
                     TString suffix          = "eps"                 // output format of plots
 ){
@@ -74,12 +76,14 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
     TString     folderRunlists          = "DownloadAndDataPrep/runlists";
     const Int_t maxSets                 = 40;
     Int_t       cutNr                   = -1;               // if -1 & not overwritten in configFile: you have to choose number at runtime
+    TString     jetType                 = "";               // for jet QA only: Full, Charged, or Neutral
     Int_t       mode                    = -1;               // will abort if not set in file
 
     Int_t       nSets                   = 0;                // nSets == 0 is always data!
     Int_t       nData                   = 0;
     TString     fEnergyFlag             = "";
     TString     filePath                = "";
+    TString     filePathMC              = "";
     TString     fileName                = "";
     TString     fileNameMC              = "";
     TString     fileNamePhoton          = "";
@@ -164,8 +168,10 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
             fEnergyFlag         = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if (tempValue.BeginsWith("filePathPhoton",TString::kIgnoreCase)){
             filePathPhoton      = (TString)((TObjString*)tempArr->At(1))->GetString();
-        } else if (tempValue.BeginsWith("filePath",TString::kIgnoreCase)){
+        } else if ((tempValue.BeginsWith("filePath",TString::kIgnoreCase))&&!(tempValue.BeginsWith("filePathMC",TString::kIgnoreCase))){
             filePath            = (TString)((TObjString*)tempArr->At(1))->GetString();
+        } else if (tempValue.BeginsWith("filePathMC",TString::kIgnoreCase)){
+            filePathMC          = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if ((tempValue.BeginsWith("fileNamePhoton",TString::kIgnoreCase))&&!(tempValue.BeginsWith("fileNamePhotonMC",TString::kIgnoreCase))){
             fileNamePhoton      = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if (tempValue.BeginsWith("fileNamePhotonMC",TString::kIgnoreCase)){
@@ -180,6 +186,8 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
             addLabelRunlist     = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if (tempValue.BeginsWith("cutNr",TString::kIgnoreCase)){
             cutNr               = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
+                } else if (tempValue.BeginsWith("jetType",TString::kIgnoreCase)){
+            jetType             = ((TString)((TObjString*)tempArr->At(1))->GetString()) + " Jets";
         } else if (tempValue.BeginsWith("mode",TString::kIgnoreCase)){
             mode                = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
         } else if (tempValue.BeginsWith("markerSize",TString::kIgnoreCase)){
@@ -236,9 +244,11 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
     cout << "fileName:              " << fileName.Data()            << endl;
     cout << "fileNameMC:            " << fileNameMC.Data()            << endl;
     cout << "filePath:              " << filePath.Data()            << endl;
+    cout << "filePathMC:            " << filePathMC.Data()            << endl;
     cout << "filePathPhoton:        " << filePathPhoton.Data()      << endl;
     cout << "fileNamePhoton:        " << fileNamePhoton.Data()      << endl;
     cout << "cutNr:                 " << cutNr                      << endl;
+    cout << "jetType:               " << jetType                    << endl;
     cout << "mode:                  " << mode                       << endl;
     cout << endl;
     cout << "markerSize:            " << markerSize                 << endl;
@@ -261,6 +271,10 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
         return;
     }
 
+    if (mode == -2 ){
+        cout << "Mode is set to -2. This setting is for Jet QA only. Macro will fail if any other QA is attemted." << endl;
+    }
+
     cout << "**************************************************************************" << endl;
     cout << "Data set setup: " << endl;
     for (Int_t i = 0; i < nSets; i++){
@@ -278,6 +292,9 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
     if (doEventQA)      EventQA_Runwise(    nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr,
                                             doExtQA,doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, nSigmasBadRun,
                                             addLabelRunlist, fixedTopDir );
+    if (doJetQA)      JetQA_Runwise(    nSets, nData, fEnergyFlag, filePath, filePathMC, fileName, fileNameMC, DataSets, plotDataSets, cutNr,
+                                            jetType, doExtQA,doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, nSigmasBadRun,
+                                            addLabelRunlist, fixedTopDir );
     if (doPhotonQA) {
         TString                         path = filePath;
         if(!filePathPhoton.IsNull())    path = filePathPhoton;
@@ -285,13 +302,13 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
                             doExtQA, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist, addPhotonCutNr);
     }
     if (doClusterQA){
-//       if (SwithManyRuns) 
+//       if (SwithManyRuns)
         ClusterQA_Runwise_V2(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr, doExtQA, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist, kFALSE, 80, onlytrending );
 //       else
 //           ClusterQA_Runwise(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr, doExtQA, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist );
     }
-    if (doMergedQA){    
-      ClusterQA_Runwise_V2(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr, 
+    if (doMergedQA){
+      ClusterQA_Runwise_V2(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr,
                              1, doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, addLabelRunlist, kFALSE, 80, onlytrending );
 
 //       ClusterQA_Runwise(  nSets, nData, fEnergyFlag, filePath, fileName, fileNameMC, DataSets, plotDataSets, mode, cutNr,

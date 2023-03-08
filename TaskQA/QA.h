@@ -75,6 +75,7 @@ using namespace std;
 #include "../CommonHeaders/ConversionFunctionsBasicsAndLabeling.h"
 #include "../CommonHeaders/ConversionFunctions.h"
 #include "../CommonHeaders/AdjustHistRange.h"
+#include "../CommonHeaders/AdjustHistRangeTH1F.h"
 
 
 //**************************************************************************************************************************
@@ -523,6 +524,7 @@ void OnlyEditTH1(TH1* hist, Style_t markerStyle, Size_t markerSize, Color_t mark
 void EditTH1NoRunwise(TH1* hist, Style_t markerStyle, Size_t markerSize, Color_t markerColor, Color_t lineColor, Float_t xOffset=1, Float_t yOffset=0.8);
 void EditTH2(TH2 *hist, Float_t titleOffsetX, Float_t titleOffsetY);
 void EditRunwiseHists(TH1D *hist, Int_t nHist, TString title, Double_t Ymin = -1, Double_t Ymax = -1);
+void EditRunwiseHists(TH1F *hist, Int_t nHist, TString title, Double_t Ymin = -1, Double_t Ymax = -1);
 Bool_t readin(TString fileRuns, std::vector<TString> &vec, Bool_t output = kTRUE, Bool_t badCells = kFALSE, Int_t Offset = 0, Int_t Range = 100000000);
 Bool_t writeout(TString fileRuns, std::vector<TString> &vec, Bool_t output = kTRUE);
 void DrawAutoGammaCompare3H(TH1* histo1,
@@ -567,6 +569,7 @@ void CheckCellsDataMC(CellQAObj* obj, TH2* fHistDataCell, TH2* fHistMCCell, TStr
 Double_t GetHistogramIntegral(TH1D* hist, Float_t lowX, Float_t highX);
 Double_t GetHistogramIntegralError(TH1D* hist, Float_t lowX, Float_t highX);
 Bool_t isBadRun(badRunCalc* sBadRunCalc, Int_t bin);
+std::vector<vector<TH1D*>> transpose2DTH1D(std::vector<vector<TH1D*>> vec);
 //**********************************************************************************************************
 
 //*********************** definition of functions **********************************************************
@@ -689,6 +692,33 @@ void WriteHistogramTH1DVec(TFile* file, std::vector<TH1D*> vec, TString dir){
     }
     return;
 }
+void WriteHistogramTH1DMat(TFile* file, std::vector<vector<TH1D*>> preVec, string preDir){
+    std::vector<vector<TH1D*>> vec = transpose2DTH1D(preVec);
+    file->cd();
+    for(Int_t j=0; j<(Int_t) vec.size(); j++)
+    {
+        for(Int_t k=0; k<(Int_t) vec.at(j).size(); k++)
+        {
+            TString dir = Form("%s_%i_%i",preDir.c_str(),j,k);
+            TDirectory *tmpDir = file->mkdir(dir.Data());
+            tmpDir->cd();
+            WriteHistogram(vec.at(j).at(k));
+            delete vec.at(j).at(k);
+        }
+    }
+    return;
+}
+void WriteHistogramTH1FVec(TFile* file, std::vector<TH1F*> vec, TString dir){
+    file->cd();
+    TDirectory *tmpDir = file->mkdir(dir.Data());
+    tmpDir->cd();
+    for(Int_t j=0; j<(Int_t) vec.size(); j++)
+    {
+        WriteHistogram(vec.at(j));
+        delete vec.at(j);
+    }
+    return;
+}
 void WriteHistogramTProfileVec(TFile* file, std::vector<TProfile*> vec, TString dir){
     file->cd();
     TDirectory *tmpDir = file->mkdir(dir.Data());
@@ -720,6 +750,23 @@ void DeleteVecTH1D(std::vector<TH1D*> vec){
 void DeleteVecTH2D(std::vector<TH2D*> vec){
     for(Int_t i=0; i<(Int_t) vec.size(); i++){
         delete vec.at(i);
+    }
+}
+void DeleteVecTH1F(std::vector<TH1F*> vec){
+    for(Int_t i=0; i<(Int_t) vec.size(); i++){
+        delete vec.at(i);
+    }
+}
+void DeleteVecTH2F(std::vector<TH2F*> vec){
+    for(Int_t i=0; i<(Int_t) vec.size(); i++){
+        delete vec.at(i);
+    }
+}
+void Delete2DVecTH1D(std::vector<vector<TH1D*>> vec){
+    for(Int_t i=0; i<(Int_t) vec.size(); i++){
+        for(Int_t j=0; j<(Int_t) vec.at(i).size(); j++){
+            delete vec.at(i).at(j);
+        }
     }
 }
 void DeleteVecTString(std::vector<TString> vec){
@@ -883,6 +930,25 @@ void GetMinMaxBinY(TH2* hist2D, Int_t &iMin, Int_t &iMax){
 }
 
 void GetMinMaxBin(std::vector<TH1D*> &vec, Int_t &iMin, Int_t &iMax){
+
+    if(vec.size()<1) { cout << "WARNING: in GetMinMaxBin(std::vector<TH1D*>,Int_t,Int_t - vector size <1!" << endl; return;}
+    TH1* temp = (TH1*) vec.at(0);
+    GetMinMaxBin(temp,iMin,iMax);
+
+    Int_t iMinTemp = 0;
+    Int_t iMaxTemp = 0;
+    for(Int_t i=1; i<(Int_t) vec.size(); i++){
+        temp = (TH1*) vec.at(i);
+        if(temp->Integral()==0) continue;
+        GetMinMaxBin(temp,iMinTemp,iMaxTemp);
+        if(iMinTemp<iMin) iMin = iMinTemp;
+        if(iMaxTemp>iMax) iMax = iMaxTemp;
+    }
+
+    return;
+}
+
+void GetMinMaxBin(std::vector<TH1F*> &vec, Int_t &iMin, Int_t &iMax){
 
     if(vec.size()<1) { cout << "WARNING: in GetMinMaxBin(std::vector<TH1D*>,Int_t,Int_t - vector size <1!" << endl; return;}
     TH1* temp = (TH1*) vec.at(0);
@@ -1098,6 +1164,43 @@ void EditRunwiseHists(TH1D* hist, Int_t nHist, TString title, Double_t Ymin, Dou
     return;
 }
 
+void EditRunwiseHists(TH1F* hist, Int_t nHist, TString title, Double_t Ymin, Double_t Ymax)
+{
+    //2,4,5 20-30
+    Int_t markerStyles[14]={2,4,5,20,21,22,23,24,25,26,27,28,29,30};
+    Int_t nMarker = nHist % 14;
+
+    Int_t nColor = (nHist + 1) % 45;
+    if(nColor == 10){nColor = 45;}
+    if(nColor == 18){nColor = 46;}
+    if(nColor == 19){nColor = 47;}
+    if(nColor == 0){nColor = 48;}
+
+    //cout << "nHist: " << nHist << "nMarker: " << nMarker << "nColor: " << nColor << endl;
+    hist->SetMarkerStyle(markerStyles[nMarker]);
+    hist->SetMarkerColor(nColor);
+    hist->SetLineColor(nColor);
+    hist->SetLineWidth(1);
+
+    if(Ymin!=-1 && Ymax!=-1) hist->GetYaxis()->SetRangeUser(Ymin,Ymax);
+    hist->SetTitle(title.Data());
+
+    hist->GetXaxis()->SetLabelFont(42);
+    hist->GetXaxis()->SetTitleFont(62);
+    hist->GetXaxis()->SetLabelSize(0.03);
+    hist->GetXaxis()->SetTitleSize(0.035);
+    hist->GetXaxis()->SetTitleOffset(1.1);
+    hist->GetXaxis()->SetNoExponent();
+
+    hist->GetYaxis()->SetLabelFont(42);
+    hist->GetYaxis()->SetTitleFont(62);
+    hist->GetYaxis()->SetLabelSize(0.03);
+    hist->GetYaxis()->SetTitleSize(0.035);
+    hist->GetYaxis()->SetTitleOffset(1.1);
+    hist->GetYaxis()->SetDecimals();
+
+    return;
+}
 
 Bool_t readin(TString fileRuns, std::vector<TString> &vec, Bool_t output, Bool_t badCells, Int_t Offset, Int_t Range)
 {
@@ -1297,7 +1400,8 @@ void DrawPeriodQACompareHistoTH1(   TCanvas* canvas,Double_t leftMargin,Double_t
     canvas->SetTopMargin(topMargin);
     canvas->SetBottomMargin(bottomMargin);
     canvas->SetLogx(logX);
-    canvas->SetLogy(logY); canvas->SetLogz(logZ);
+    canvas->SetLogy(logY);
+    canvas->SetLogz(logZ);
 
 
     //TLegend* leg1 = new TLegend( 0.14,0.93-(0.04*((Int_t) vecHist.size())),0.41,0.95);
@@ -1334,6 +1438,94 @@ void DrawPeriodQACompareHistoTH1(   TCanvas* canvas,Double_t leftMargin,Double_t
     Int_t iStart = (Int_t) vecHist.size()-1;
     for(Int_t i=iStart; i>=0; i--){
         TH1D* fHist = (TH1D*) vecHist.at(i);
+        //x-axis
+        fHist->GetXaxis()->SetTitleOffset(xOffset);
+        fHist->SetXTitle(xTitle.Data());
+        fHist->GetXaxis()->SetLabelFont(42);
+        fHist->GetXaxis()->SetTitleFont(62);
+        fHist->GetXaxis()->SetTitleSize(0.04);
+        fHist->GetXaxis()->SetLabelSize(0.035);
+        if (logX){
+            fHist->GetXaxis()->SetLabelOffset(-0.01);
+        }
+        //y-axis
+        fHist->GetYaxis()->SetTitleOffset(yOffset);
+        fHist->SetYTitle(yTitle.Data());
+        fHist->GetYaxis()->SetLabelFont(42);
+        fHist->GetYaxis()->SetTitleFont(62);
+        fHist->GetYaxis()->SetTitleSize(0.04);
+        fHist->GetYaxis()->SetLabelSize(0.035);
+        fHist->GetYaxis()->SetDecimals();
+        //draw
+
+        fHist->SetTitle(title.Data());
+
+        if(iStart==0) fHist->DrawCopy("x0,e,p");
+        else if(i==0) fHist->DrawCopy("x0,e,p,same");
+        else if(i==iStart) fHist->DrawCopy("e,hist");
+        else fHist->DrawCopy("e,hist,same");
+    }
+//	leg1->SetX1(leg1X1);
+    leg1->Draw();
+
+    PutProcessLabelAndEnergyOnPlot(p1,p2,p3, fCollisionSystem.Data(), fClusters.Data(), "", 42, 0.03, "", 1, 1.25, textAlign);
+
+    return;
+}
+
+void DrawPeriodQACompareHistoTH1F(   TCanvas* canvas,Double_t leftMargin,Double_t rightMargin,Double_t topMargin,Double_t bottomMargin,Bool_t logX, Bool_t logY, Bool_t logZ,
+                                    std::vector<TH1F*> vecHist, TString title,TString xTitle,TString yTitle, Double_t xOffset, Double_t yOffset,
+                                    TString labelData, Color_t *color, Bool_t adjustRange, Double_t rangeMin, Double_t rangeMax, Bool_t useErrors,
+                                    Double_t p1,Double_t p2,Double_t p3, TString fCollisionSystem, TString* plotDataSets, TString fClusters, Int_t textAlign = 31)
+{
+    if((Int_t) vecHist.size()<1) {
+        cout << "ERROR: DrawPeriodQACompareHistoTH1, vector size <1! Returning...";
+        return;
+    }
+
+    canvas->cd();
+    canvas->SetLeftMargin(leftMargin);
+    canvas->SetRightMargin(rightMargin);
+    canvas->SetTopMargin(topMargin);
+    canvas->SetBottomMargin(bottomMargin);
+    canvas->SetLogx(logX);
+    canvas->SetLogy(logY); canvas->SetLogz(logZ);
+
+
+    //TLegend* leg1 = new TLegend( 0.14,0.93-(0.04*((Int_t) vecHist.size())),0.41,0.95);
+//	TLegend* leg1 = new TLegend( 0.77,0.83-(0.04*((Int_t) vecHist.size())),0.97,0.85);
+//	leg1->SetTextSize(0.03);
+//	leg1->SetFillColor(0);
+
+    TLegend *leg1 = new TLegend(0.16,0.96,0.95,0.99);
+    leg1->SetNColumns((Int_t) vecHist.size());
+    leg1->SetFillColor(0);
+    leg1->SetLineColor(0);
+    leg1->SetTextSize(0.03);
+    leg1->SetTextFont(42);
+
+    if(adjustRange) AdjustHistRangeTH1F(vecHist,rangeMin,rangeMax,useErrors,0,0,logY);
+
+//	Double_t leg1X1 = 0.77;
+    Int_t iEnd = (Int_t) vecHist.size();
+    for(Int_t i=0; i<iEnd; i++){
+        TH1F* fHist = (TH1F*) vecHist.at(i);
+//		Double_t tempD;
+        if(i==0){
+            DrawGammaSetMarker(fHist, 24, 0.5, color[i], color[i]);
+            leg1->AddEntry(fHist,labelData.Data(),"p");
+//			tempD = 1.08-(((Double_t) labelData.Length() * 2.)/100.);
+        }else{
+            DrawGammaSetMarker(fHist, 1, 0.5, color[i], color[i]);
+            leg1->AddEntry(fHist,plotDataSets[i].Data());
+//			tempD = 1.08-(((Double_t) plotDataSets[i].Length() * 2.)/100.);
+        }
+//		if(tempD<leg1X1) leg1X1 = tempD;
+    }
+
+    Int_t iStart = (Int_t) vecHist.size()-1;
+    for(Int_t i=iStart; i>=0; i--){
+        TH1F* fHist = (TH1F*) vecHist.at(i);
         //x-axis
         fHist->GetXaxis()->SetTitleOffset(xOffset);
         fHist->SetXTitle(xTitle.Data());
@@ -1488,6 +1680,125 @@ void DrawPeriodQACompareHistoRatioTH1(  TCanvas* canvas,Double_t leftMargin,Doub
     return;
 }
 
+void DrawPeriodQACompareHistoRatioTH1F(  TCanvas* canvas,Double_t leftMargin,Double_t rightMargin,Double_t topMargin,Double_t bottomMargin,Bool_t logX, Bool_t logY, Bool_t logZ,
+                                        std::vector<TH1F*> vecHist, TString title,TString xTitle,TString yTitle, Double_t xOffset, Double_t yOffset,
+                                        TString labelData, Color_t *color, Bool_t adjustRange, Double_t rangeMin, Double_t rangeMax, Bool_t useErrors,
+                                        Double_t p1,Double_t p2,Double_t p3, TString fCollisionSystem, TString* plotDataSets, TString fClusters, Int_t textAlign = 31)
+{
+    if((Int_t) vecHist.size()<2) {
+        cout << "INFO: DrawPeriodQACompareHistoRatioTH1F, vector size <2! Histogram name at(0): " << endl;
+        if((Int_t) vecHist.size()==1) cout << "\t" << vecHist.at(0)->GetName() << "...skipping CompareHistoRatio!";
+        else cout << "\nERROR: size of vector is zero!\n";
+        cout << " Returning..." << endl;
+        return;
+    }
+
+    canvas->cd();
+    canvas->SetLeftMargin(0.05);
+    canvas->SetRightMargin(rightMargin);
+    canvas->SetTopMargin(topMargin);
+    canvas->SetBottomMargin(bottomMargin);
+
+//	TLegend* leg1 = new TLegend( 0.08,0.93-(0.04*((Int_t) vecHist.size())),0.25,0.95);
+//	leg1->SetTextSize(0.03);
+//	leg1->SetFillColor(0);
+
+    TLegend *leg1 = new TLegend(0.15,0.96,0.95,0.99);
+    leg1->SetNColumns((Int_t) vecHist.size()-1);
+    leg1->SetFillColor(0);
+    leg1->SetLineColor(0);
+    leg1->SetTextSize(0.03);
+    leg1->SetTextFont(42);
+
+    std::vector<TH1F*> vecTemp;
+    Int_t tempMin = vecHist.at(0)->GetXaxis()->GetFirst();
+    Int_t tempMax = vecHist.at(0)->GetXaxis()->GetLast();
+    for(Int_t iMC=1; iMC<(Int_t) vecHist.size(); iMC++){
+    tempMin = (tempMin > vecHist.at(iMC)->GetXaxis()->GetFirst()) ? tempMin : vecHist.at(iMC)->GetXaxis()->GetFirst();
+    tempMax = (tempMax < vecHist.at(iMC)->GetXaxis()->GetLast()) ? tempMax : vecHist.at(iMC)->GetXaxis()->GetLast();
+    }
+    SetXRange(vecHist.at(0), tempMin, tempMax);
+
+    for(Int_t iMC=1; iMC<(Int_t) vecHist.size(); iMC++){
+        vecTemp.push_back((TH1F*) vecHist.at(iMC));
+        Int_t iVec = iMC-1;
+        if(vecHist.at(0)->GetNbinsX() != vecTemp.at(iVec)->GetNbinsX()){
+        cout << "*******" << endl;
+        cout << "WARNING: in DrawPeriodQACompareHistoRatioTH1, histogram: " << vecHist.at(0)->GetName() << endl;
+        cout << "Different number of bins: " << vecHist.at(0)->GetNbinsX() << " & iVec: " << iVec << ": " << vecTemp.at(iVec)->GetNbinsX() << endl;
+        cout << "Correcting by cloning from data hist...";
+        TH1F* temp = (TH1F*) vecTemp.at(iVec)->Clone("duplicateHist");
+        TH1F* temp2 = (TH1F*) vecHist.at(0)->Clone("newHist");
+        for(Int_t iX=temp->GetXaxis()->FindBin(temp->GetXaxis()->GetXmin()); iX<=temp->GetXaxis()->FindBin(temp->GetXaxis()->GetXmax()) ; iX++)
+            temp2->SetBinContent(iX,temp->GetBinContent(iX));
+        vecTemp.at(iVec) = temp2;
+        delete temp;
+        cout << "done!" << endl;
+        cout << "*******" << endl;
+        }
+
+        SetXRange(vecTemp.at(iVec), tempMin, tempMax);
+//                cout << vecHist.at(0)->GetName() << endl;
+//                cout << vecHist.at(0)->GetXaxis()->GetXmax() << endl;
+//                cout << vecTemp.at(iVec)->GetXaxis()->GetXmax() << endl;cout << "*******" << endl;
+//                cout << vecHist.at(0)->GetXaxis()->GetFirst() << endl;
+//                cout << vecTemp.at(iVec)->GetXaxis()->GetFirst() << endl;cout << "*******" << endl;
+//                cout << vecHist.at(0)->GetXaxis()->GetLast() << endl;
+//                cout << vecTemp.at(iVec)->GetXaxis()->GetLast() << endl;cout << "*******" << endl;
+        vecTemp.at(iVec)->Divide(vecHist.at(0));
+        //x-axis
+        vecTemp.at(iVec)->GetXaxis()->SetTitleOffset(xOffset);
+        vecTemp.at(iVec)->SetXTitle(xTitle.Data());
+        vecTemp.at(iVec)->GetXaxis()->SetLabelFont(42);
+        vecTemp.at(iVec)->GetXaxis()->SetTitleFont(62);
+        vecTemp.at(iVec)->GetXaxis()->SetTitleSize(0.04);
+        vecTemp.at(iVec)->GetXaxis()->SetLabelSize(0.035);
+        //y-axis
+        vecTemp.at(iVec)->GetYaxis()->SetTitleOffset(yOffset);
+        vecTemp.at(iVec)->SetYTitle("");
+        vecTemp.at(iVec)->GetYaxis()->SetRangeUser(0,2);
+        vecTemp.at(iVec)->GetYaxis()->SetLabelFont(42);
+        vecTemp.at(iVec)->GetYaxis()->SetTitleFont(62);
+        vecTemp.at(iVec)->GetYaxis()->SetTitleSize(0.04);
+        vecTemp.at(iVec)->GetYaxis()->SetLabelSize(0.035);
+        vecTemp.at(iVec)->GetYaxis()->SetDecimals();
+        //draw
+        vecTemp.at(iVec)->SetTitle(title.Data());
+    }
+
+    if(adjustRange){
+        cout << "ATTENTION: range min and max will not be applied \t" << rangeMin << "\t" << rangeMax << "\t" << useErrors << endl;
+    }
+
+    //if(adjustRange) AdjustHistRange(vecTemp,rangeMin,rangeMax,useErrors);
+
+//	Double_t leg1X2 = 0.25;
+    for(Int_t iMC=0; iMC<(Int_t) vecTemp.size(); iMC++){
+        DrawGammaSetMarker(vecTemp.at(iMC), 24, 0.5, color[iMC+1], color[iMC+1]);
+        TString tempStr = Form("%s / %s",plotDataSets[iMC+1].Data(), labelData.Data());
+//		Double_t tempD = (((Double_t) tempStr.Length())/100.)+0.15;
+//		if(tempD>leg1X2) leg1X2 = tempD;
+        leg1->AddEntry(vecTemp.at(iMC), tempStr.Data(),"p");
+
+        if(iMC==0) vecTemp.at(iMC)->DrawCopy("x0,e,p");
+        else vecTemp.at(iMC)->DrawCopy("x0,e,p,same");
+    }
+    TLine *line = new TLine();
+    line->SetLineStyle(2);
+    line->SetLineWidth(2);
+    line->SetLineColor(1);
+    line->DrawLine(vecHist.at(0)->GetXaxis()->GetBinLowEdge(vecHist.at(0)->GetXaxis()->GetFirst()),1,
+                vecHist.at(0)->GetXaxis()->GetBinUpEdge(vecHist.at(0)->GetXaxis()->GetLast()),1);
+    //leg1->SetX2(leg1X2);
+    leg1->Draw();
+    vecTemp.clear();
+
+    PutProcessLabelAndEnergyOnPlot(p1,p2,p3, fCollisionSystem.Data(), fClusters.Data(), "", 42, 0.03, "", 1, 1.25, textAlign);
+    canvas->SetLogx(kFALSE); canvas->SetLogy(kFALSE); canvas->SetLogz(kFALSE);
+
+    return;
+}
+
 void DrawVectorOverviewTH2D(    TCanvas* canvas, std::vector<TH2D*> vec, TString saveString, TString outputDirDataSet, TString suffix,
                                 Double_t padL, Double_t padR, Double_t padT, Double_t padB, Double_t offsetX, Double_t offsetY,
                                 Double_t latX, Double_t latY, TBox* box, Bool_t logY, Bool_t logZ){
@@ -1554,6 +1865,108 @@ void DrawVectorOverviewTH1D(TCanvas* canvas, std::vector<TH1D*> vec, TString sav
         EditTH1ForRunwise(((TH1D*) vec.at(j)), offsetX, offsetY);
         ((TH1D*) vec.at(j))->SetTitle("");
         ((TH1D*) vec.at(j))->Draw();
+
+        if(box) box->Draw();
+        TLatex *alice = new TLatex(latX,latY,title.Data());
+        alice->SetNDC();
+        alice->SetTextColor(1);
+        alice->SetTextSize(0.08);
+        alice->Draw();
+    }
+    SaveCanvas(canvas, Form("%s/%s_p%i.%s", outputDirDataSet.Data(), saveString.Data(), varDraw, suffix.Data()));
+
+    return;
+}
+
+std::vector<vector<TH1D*>> transpose2DTH1D(std::vector<vector<TH1D*>> vec)
+{
+    TH1D *element;
+    std::vector<vector<TH1D*>> vecTranspose;
+    for(Int_t j = 0; j < vec.at(0).size(); j++)
+    {
+        std::vector<TH1D*> temp;
+        for(Int_t i = 0; i < vec.size(); i++)
+        {
+            element = (TH1D*)vec.at(i).at(j);
+            temp.push_back(element);
+        }
+        vecTranspose.push_back(temp);
+    }
+    return vecTranspose;
+}
+
+void DrawMatrixOverviewTH1D(TCanvas* canvas, std::vector<vector<TH1D*>> vec, string preSaveString, TString outputDirDataSet, TString suffix,
+                            Double_t padL, Double_t padR, Double_t padT, Double_t padB, Double_t offsetX, Double_t offsetY,
+                            Double_t latX, Double_t latY, TBox* box, Bool_t logY, Bool_t logZ){
+
+    TString saveString;
+    for(Int_t k=0; k<(Int_t) vec.size(); k++)
+    {
+        Int_t iD = 1;
+        Int_t varDraw = 0;
+        canvas->Divide(4,4);
+        for(Int_t j=0; j<(Int_t) vec.at(k).size(); j++, iD++)
+        {
+            TString saveString = Form("%s_%i_%i",preSaveString.c_str(),k,j);
+            if( iD > 16 )
+            {
+                SaveCanvas(canvas, Form("%s/%s_p%i.%s", outputDirDataSet.Data(), saveString.Data(), varDraw++, suffix.Data()));
+                canvas->Divide(4,4);
+                iD = 1;
+            }
+            TPad* currPad = (TPad*) canvas->cd(iD);
+            currPad->SetLeftMargin(padL);
+            currPad->SetRightMargin(padR);
+            currPad->SetTopMargin(padT);
+            currPad->SetBottomMargin(padB);
+            currPad->SetLogy(logY);
+            currPad->SetLogz(logZ);
+
+            TString title = ((TH1D*) vec.at(k).at(j))->GetTitle();
+            EditTH1ForRunwise(((TH1D*) vec.at(k).at(j)), offsetX, offsetY);
+            ((TH1D*) vec.at(k).at(j))->SetTitle("");
+            ((TH1D*) vec.at(k).at(j))->Draw();
+
+            if(box) box->Draw();
+            TLatex *alice = new TLatex(latX,latY,title.Data());
+            alice->SetNDC();
+            alice->SetTextColor(1);
+            alice->SetTextSize(0.08);
+            alice->Draw();
+        }
+        saveString = Form("%s_%i",preSaveString.c_str(),k);
+        SaveCanvas(canvas, Form("%s/%s_p%i.%s", outputDirDataSet.Data(), saveString.Data(), varDraw, suffix.Data()));
+    }
+
+    return;
+}
+
+void DrawVectorOverviewTH1F(TCanvas* canvas, std::vector<TH1F*> vec, TString saveString, TString outputDirDataSet, TString suffix,
+                            Double_t padL, Double_t padR, Double_t padT, Double_t padB, Double_t offsetX, Double_t offsetY,
+                            Double_t latX, Double_t latY, TBox* box, Bool_t logY, Bool_t logZ){
+    Int_t iD = 1;
+    Int_t varDraw = 0;
+    canvas->Divide(4,4);
+    for(Int_t j=0; j<(Int_t) vec.size(); j++, iD++)
+    {
+        if( iD > 16 )
+        {
+            SaveCanvas(canvas, Form("%s/%s_p%i.%s", outputDirDataSet.Data(), saveString.Data(), varDraw++, suffix.Data()));
+            canvas->Divide(4,4);
+            iD = 1;
+        }
+        TPad* currPad = (TPad*) canvas->cd(iD);
+        currPad->SetLeftMargin(padL);
+        currPad->SetRightMargin(padR);
+        currPad->SetTopMargin(padT);
+        currPad->SetBottomMargin(padB);
+        currPad->SetLogy(logY);
+        currPad->SetLogz(logZ);
+
+        TString title = ((TH1F*) vec.at(j))->GetTitle();
+        EditTH1ForRunwise(((TH1F*) vec.at(j)), offsetX, offsetY);
+        ((TH1F*) vec.at(j))->SetTitle("");
+        ((TH1F*) vec.at(j))->Draw();
 
         if(box) box->Draw();
         TLatex *alice = new TLatex(latX,latY,title.Data());
@@ -1646,6 +2059,242 @@ void DrawVectorRunwiseTH1D( TCanvas *canvas, TLegend *legendRuns, std::vector<TH
     cout << canvasName.Data() << endl;
     SaveCanvas(canvas, canvasName ,logX,logY,logZ);
     legendRuns->Clear();
+    return;
+}
+
+void DrawVectorRunwiseTH1D( Bool_t isJetQA, TCanvas *canvas, TLegend *legendRuns, std::vector<TH1D*> vec, std::vector<TString> vecRuns,
+                            Double_t lowerAdjust, Double_t higherAdjust, Bool_t adjustIncludeError, Double_t addRight,
+                            Double_t putLabel1, Double_t putLabel2, Double_t putLabel3, Double_t putLabel4, Double_t putLabel5, Double_t putLabel6,
+                            Bool_t doTrigger, TString fTrigger, Bool_t data, TString outputDirDataSet, TString saveString, TString plotDataSets, Bool_t doXaxisExp,
+                            TString fCollisionSystem, TString calo, TString suffix, Bool_t logX, Bool_t logY, Bool_t logZ, Bool_t doXRange = kTRUE, Bool_t doYRange = kTRUE){
+
+    if(vec.size()==0) { cout << saveString.Data() << "\t WARNING: in DrawVectorRunwiseTH1D - vector size 0!" << endl; return;}
+    if(vec.size()!=vecRuns.size()) { cout << saveString.Data() << "\t WARNING: in DrawVectorRunwiseTH1D - vec.size()!=vecRuns.size()" << endl; return;}
+    Int_t min = 0;
+    Int_t max = 0;
+    cout << "*******************************************************"<< endl;
+    cout << saveString.Data() << endl;
+    if(doXRange) GetMinMaxBin(vec,min,max);
+    if(doYRange) AdjustHistRange(vec,lowerAdjust,higherAdjust,adjustIncludeError);
+
+    Int_t l = 0;
+    Int_t h = 0;
+    for(Int_t k = 0; k <(Int_t) vec.size(); k++){
+        TString draw = (h==0)?"p":"p, same";
+        EditRunwiseHists(((TH1D*) vec.at(k)), k, "");
+        if(doXaxisExp) ((TH1D*) vec.at(h))->GetXaxis()->SetNoExponent(kFALSE);
+        if(doXRange) SetXRange(((TH1D*) vec.at(h)), min, max);
+        ((TH1D*) vec.at(k))->Draw(draw.Data());
+        legendRuns->AddEntry(((TH1D*) vec.at(k)),Form("%s",vecRuns.at(k).Data()),"p");
+
+        if (h == 9 || k == (Int_t) vec.size()-1){
+          legendRuns->Draw();
+          if(doTrigger && data){
+              PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), fTrigger.Data());
+              PutProcessLabelAndEnergyOnPlot(putLabel4-addRight, putLabel5, putLabel6, calo.Data(), "", "");
+          }else{
+              PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), calo.Data());
+          }
+          TString canvasName = Form("%s/%s_%s_%i.%s", outputDirDataSet.Data(), saveString.Data(), plotDataSets.Data(), l, suffix.Data());
+          SaveCanvas(canvas, canvasName ,logX,logY,logZ);
+          h = 0;
+          l++;
+          legendRuns->Clear();
+          continue;
+        }
+        h++;
+    }
+    return;
+}
+
+void DrawMatrixRunwiseTH1D( TCanvas *canvas, TLegend *legendRuns, std::vector<vector<TH1D*>> preVec, std::vector<TString> vecRuns,
+                            Double_t lowerAdjust, Double_t higherAdjust, Bool_t adjustIncludeError, Double_t addRight,
+                            Double_t putLabel1, Double_t putLabel2, Double_t putLabel3, Double_t putLabel4, Double_t putLabel5, Double_t putLabel6,
+                            Bool_t doTrigger, TString fTrigger, Bool_t data, TString outputDirDataSet, TString saveString, TString plotDataSets, Bool_t doXaxisExp,
+                            TString fCollisionSystem, TString calo, TString suffix, Bool_t logX, Bool_t logY, Bool_t logZ, Bool_t doXRange = kTRUE, Bool_t doYRange = kTRUE){
+
+    std::vector<vector<TH1D*>> vec = transpose2DTH1D(preVec);
+
+    if(vec.size()==0) { cout << saveString.Data() << "\t WARNING: in DrawMatrixRunwiseTH1D - matrix size 0!" << endl; return;}
+
+    for(Int_t u=0; u<(Int_t) vec.size(); u++){
+        if(vec.at(u).size()!=vecRuns.size()) { cout << saveString.Data() << "\t WARNING: in DrawMatrixRunwiseTH1D - vec.size()!=vecRuns.size()" << endl; return;}
+
+        Int_t min = 0;
+        Int_t max = 0;
+        cout << "*******************************************************"<< endl;
+        cout << saveString.Data() << endl;
+        if(doXRange) GetMinMaxBin(vec.at(u),min,max);
+
+        if(doYRange) AdjustHistRange(vec.at(u),lowerAdjust,higherAdjust,adjustIncludeError);
+
+        for(Int_t h=0; h<(Int_t) vec.at(u).size(); h++){
+            TString draw = (h==0)?"p":"p, same";
+            EditRunwiseHists(((TH1D*) vec.at(u).at(h)), h, "");
+            if(doXaxisExp) ((TH1D*) vec.at(u).at(h))->GetXaxis()->SetNoExponent(kFALSE);
+            if(doXRange) SetXRange(((TH1D*) vec.at(u).at(h)), min, max);
+            ((TH1D*) vec.at(u).at(h))->Draw(draw.Data());
+            legendRuns->AddEntry(((TH1D*) vec.at(u).at(h)),Form("%s",vecRuns.at(h).Data()),"p");
+        }
+
+        legendRuns->Draw();
+
+        //if(calo.IsNull()) putLabel5+=0.04;
+        if(doTrigger && data){
+            PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), fTrigger.Data());
+            PutProcessLabelAndEnergyOnPlot(putLabel4-addRight, putLabel5, putLabel6, calo.Data(), "", "");
+        }else{
+            PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), calo.Data());
+        }
+
+        TString canvasName = Form("%s/%s_%i_%s.%s", outputDirDataSet.Data(), saveString.Data(), u, plotDataSets.Data(), suffix.Data());
+        cout << canvasName.Data() << endl;
+        SaveCanvas(canvas, canvasName ,logX,logY,logZ);
+        legendRuns->Clear();
+    }
+    return;
+}
+
+void DrawMatrixRunwiseTH1D( Bool_t isJetQA, TCanvas *canvas, TLegend *legendRuns, std::vector<vector<TH1D*>> preVec, std::vector<TString> vecRuns, Double_t *binLabels,
+                            Double_t lowerAdjust, Double_t higherAdjust, Bool_t adjustIncludeError, Double_t addRight,
+                            Double_t putLabel1, Double_t putLabel2, Double_t putLabel3, Double_t putLabel4, Double_t putLabel5, Double_t putLabel6,
+                            Bool_t doTrigger, TString fTrigger, Bool_t data, TString outputDirDataSet, TString saveString, TString plotDataSets, Bool_t doXaxisExp,
+                            TString fCollisionSystem, TString calo, TString suffix, Bool_t logX, Bool_t logY, Bool_t logZ, Bool_t doXRange = kTRUE, Bool_t doYRange = kTRUE){
+
+    std::vector<vector<TH1D*>> vec = transpose2DTH1D(preVec);
+
+    if(vec.size()==0) { cout << saveString.Data() << "\t WARNING: in DrawMatrixRunwiseTH1D - matrix size 0!" << endl; return;}
+
+    for(Int_t u=0; u<(Int_t) vec.size(); u++){
+        if(vec.at(u).size()!=vecRuns.size()) { cout << saveString.Data() << "\t WARNING: in DrawMatrixRunwiseTH1D - vec.size()!=vecRuns.size()" << endl; return;}
+        Int_t min = 0;
+        Int_t max = 0;
+        cout << "*******************************************************"<< endl;
+        cout << saveString.Data() << endl;
+        if(doXRange) GetMinMaxBin(vec.at(u),min,max);
+        if(doYRange) AdjustHistRange(vec.at(u),lowerAdjust,higherAdjust,adjustIncludeError);
+
+        Int_t l = 0;
+        Int_t h = 0;
+        for(Int_t k = 0; k <(Int_t) vec.at(u).size(); k++){
+            TString draw = (h==0)?"p":"p, same";
+            EditRunwiseHists(((TH1D*) vec.at(u).at(k)), k, "");
+            if(doXaxisExp) ((TH1D*) vec.at(u).at(k))->GetXaxis()->SetNoExponent(kFALSE);
+            if(doXRange) SetXRange(((TH1D*) vec.at(u).at(k)), min, max);
+            ((TH1F*) vec.at(u).at(k))->Draw(draw.Data());
+            legendRuns->AddEntry(((TH1D*) vec.at(u).at(k)),Form("%s",vecRuns.at(k).Data()),"p");
+
+            if (h == 9 || k == (Int_t) vec.at(u).size()-1){
+                legendRuns->Draw();
+                if(doTrigger && data)
+                {
+                    PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), fTrigger.Data());
+                    PutProcessLabelAndEnergyOnPlot(putLabel4-addRight, putLabel5, putLabel6, calo.Data(), "", "");
+                }else{
+                    PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), calo.Data());
+                }
+                drawLatexAdd(Form("Range = {%1.1f, %1.1f}",binLabels[u],binLabels[u+1]),0.8,0.76, 0.03,kFALSE, kFALSE, kTRUE);
+                TString canvasName = Form("%s/%s_bin%i_%s_rg%i.%s", outputDirDataSet.Data(), saveString.Data(), u, plotDataSets.Data(), l, suffix.Data());
+                SaveCanvas(canvas, canvasName ,logX,logY,logZ);
+                h = 0;
+                l++;
+                legendRuns->Clear();
+                continue;
+            }
+            h++;
+        }
+
+    }
+    return;
+}
+
+
+void DrawVectorRunwiseTH1F( TCanvas *canvas, TLegend *legendRuns, std::vector<TH1F*> vec, std::vector<TString> vecRuns,
+                            Double_t lowerAdjust, Double_t higherAdjust, Bool_t adjustIncludeError, Double_t addRight,
+                            Double_t putLabel1, Double_t putLabel2, Double_t putLabel3, Double_t putLabel4, Double_t putLabel5, Double_t putLabel6,
+                            Bool_t doTrigger, TString fTrigger, Bool_t data, TString outputDirDataSet, TString saveString, TString plotDataSets, Bool_t doXaxisExp,
+                            TString fCollisionSystem, TString calo, TString suffix, Bool_t logX, Bool_t logY, Bool_t logZ, Bool_t doXRange = kTRUE, Bool_t doYRange = kTRUE){
+
+    if(vec.size()==0) { cout << "WARNING: in DrawVectorRunwiseTH1F - vector size 0!" << endl; return;}
+    if(vec.size()!=vecRuns.size()) { cout << "WARNING: in DrawVectorRunwiseTH1F - vec.size()!=vecRuns.size()" << endl; return;}
+    Int_t min = 0;
+    Int_t max = 0;
+    //cout << "hier x adjust" << endl;
+    if(doXRange) GetMinMaxBin(vec,min,max);
+    //cout << "hier y adjust" << endl;
+
+    if(doYRange) AdjustHistRangeTH1F(vec,lowerAdjust,higherAdjust,adjustIncludeError);
+    //cout << "hier before hist loop" << endl;
+    for(Int_t h=0; h<(Int_t) vec.size(); h++){
+        TString draw = (h==0)?"p":"p, same";
+        EditRunwiseHists(((TH1F*) vec.at(h)), h, "");
+        if(doXaxisExp) ((TH1F*) vec.at(h))->GetXaxis()->SetNoExponent(kFALSE);
+        if(doXRange) SetXRange(((TH1F*) vec.at(h)), min, max);
+        ((TH1D*) vec.at(h))->Draw(draw.Data());
+        legendRuns->AddEntry(((TH1F*) vec.at(h)),Form("%s",vecRuns.at(h).Data()),"p");
+    }
+    //cout << "hier after hist loop" << endl;
+    legendRuns->Draw();
+
+    //if(calo.IsNull()) putLabel5+=0.04;
+    if(doTrigger && data){
+        PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), fTrigger.Data());
+        PutProcessLabelAndEnergyOnPlot(putLabel4-addRight, putLabel5, putLabel6, calo.Data(), "", "");
+    }else{
+        PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), calo.Data());
+    }
+    //cout << "hier out" << endl;
+    SaveCanvas(canvas, Form("%s/%s_%s.%s", outputDirDataSet.Data(), saveString.Data(), plotDataSets.Data(),suffix.Data()),logX,logY,logZ);
+    legendRuns->Clear();
+    //cout << "hier clear" << endl;
+    return;
+}
+
+void DrawVectorRunwiseTH1F( Bool_t isJetQA, TCanvas *canvas, TLegend *legendRuns, std::vector<TH1F*> vec, std::vector<TString> vecRuns,
+                            Double_t lowerAdjust, Double_t higherAdjust, Bool_t adjustIncludeError, Double_t addRight,
+                            Double_t putLabel1, Double_t putLabel2, Double_t putLabel3, Double_t putLabel4, Double_t putLabel5, Double_t putLabel6,
+                            Bool_t doTrigger, TString fTrigger, Bool_t data, TString outputDirDataSet, TString saveString, TString plotDataSets, Bool_t doXaxisExp,
+                            TString fCollisionSystem, TString calo, TString suffix, Bool_t logX, Bool_t logY, Bool_t logZ, Bool_t doXRange = kTRUE, Bool_t doYRange = kTRUE){
+
+    if(vec.size()==0) { cout << "WARNING: in DrawVectorRunwiseTH1F - vector size 0!" << endl; return;}
+    if(vec.size()!=vecRuns.size()) { cout << "WARNING: in DrawVectorRunwiseTH1F - vec.size()!=vecRuns.size()" << endl; return;}
+    Int_t min = 0;
+    Int_t max = 0;
+
+    if(doXRange) GetMinMaxBin(vec,min,max);
+    if(doYRange) AdjustHistRangeTH1F(vec,lowerAdjust,higherAdjust,adjustIncludeError);
+    TH1F* dummyHist = NULL;
+
+    Int_t l = 0;
+    Int_t h = 0;
+    for(Int_t k = 0; k <(Int_t) vec.size(); k++){
+        EditRunwiseHists(((TH1F*) vec.at(k)), k, "");
+        if (h == 0){
+          dummyHist = (TH1F*)vec.at(k);
+          if(doXaxisExp) dummyHist->GetXaxis()->SetNoExponent(kFALSE);
+          if(doXRange) SetXRange(dummyHist, min, max);
+          dummyHist->Draw("p");
+        }
+
+        else ((TH1F*) vec.at(k))->Draw("p same");
+        legendRuns->AddEntry(((TH1F*) vec.at(k)),Form("%s",vecRuns.at(k).Data()),"p");
+
+        if (h == 9 || k == (Int_t) vec.size()-1){
+          legendRuns->Draw();
+          if(doTrigger && data){
+              PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), fTrigger.Data());
+              PutProcessLabelAndEnergyOnPlot(putLabel4-addRight, putLabel5, putLabel6, calo.Data(), "", "");
+          }else{
+              PutProcessLabelAndEnergyOnPlot(putLabel1-addRight, putLabel2, putLabel3, fCollisionSystem.Data(), plotDataSets.Data(), calo.Data());
+          }
+          SaveCanvas(canvas, Form("%s/%s_%s_%i.%s", outputDirDataSet.Data(), saveString.Data(), plotDataSets.Data(), l, suffix.Data()),logX,logY,logZ);
+          h = 0;
+          l++;
+          legendRuns->Clear();
+          continue;
+        }
+        h++;
+    }
     return;
 }
 
@@ -3430,6 +4079,17 @@ Bool_t isBadRun(badRunCalc* sBadRunCalc, Int_t bin){
   sBadRunCalc->value = (sBadRunCalc->histo)->GetBinContent(bin);
   sBadRunCalc->error = (sBadRunCalc->histo)->GetBinError(bin);
   if(TMath::Abs(sBadRunCalc->mean-sBadRunCalc->value) > TMath::Abs(sBadRunCalc->nSigmaBad*sBadRunCalc->error)){
+    sBadRunCalc->nRunsBad++;
+    return kTRUE;
+  } else return kFALSE;
+}
+
+Bool_t isBadRunJet(badRunCalc* sBadRunCalc, Int_t bin, TH1F *histo){
+  // Label a run bad if the total error is greater than 5 sigmas
+  Double_t mean_error = histo->GetMeanError(); // Error on mean of all run means means
+  sBadRunCalc->error = (sBadRunCalc->histo)->GetBinError(bin); // Error on mean of single run
+  Double_t totalError = sqrt( pow(mean_error,2) + pow(sBadRunCalc->error,2) ); // Add errors in quadrature
+  if(TMath::Abs(totalError) > TMath::Abs((sBadRunCalc->nSigmaBad)*mean_error)){
     sBadRunCalc->nRunsBad++;
     return kTRUE;
   } else return kFALSE;

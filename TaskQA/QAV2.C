@@ -55,6 +55,7 @@
 #include <queue>
 #include "QA.h"
 #include "EventQA.C"
+#include "JetQA.C"
 #include "PhotonQA.C"
 #include "ClusterQA.C"
 #include "PrimaryTrackQA.C"
@@ -69,6 +70,7 @@ void QAV2(      TString configFileName  = "config.txt",     // set selected
                 Bool_t doClusterQA      = kFALSE,           // switch on ClusterQA
                 Bool_t doMergedQA       = kFALSE,           // switch on merged ClusterQA
                 Bool_t doPrimaryTrackQA = kFALSE,           // switch on primary electron and pion QA
+                Bool_t doJetQA          = kFALSE,           // switch on jet QA
                 Int_t doExtQA           = 2,                // 0: switched off, 1: normal extQA, 2: with Cell level plots
                 TString suffix          = "eps",            // output format of plots
                 Bool_t doCellQASummary  = kFALSE           // enables the summary for the cell QA
@@ -79,6 +81,7 @@ void QAV2(      TString configFileName  = "config.txt",     // set selected
     //**************************************************************************************************************
     const Int_t maxSets             = 40;
     Int_t cutNr                     = -1;               // if -1 & not overwritten in configFile: you have to choose number at runtime
+    TString jetType                 = "";
     Int_t mode                      = -1;               // will abort if not set in file
 
     //nSets == 0 is always data!
@@ -177,6 +180,8 @@ void QAV2(      TString configFileName  = "config.txt",     // set selected
             labelData       = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if (tempValue.BeginsWith("cutNr",TString::kIgnoreCase)){
             cutNr           = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
+        } else if (tempValue.BeginsWith("jetType",TString::kIgnoreCase)){
+            jetType         = ((TString)((TObjString*)tempArr->At(1))->GetString());
         } else if (tempValue.BeginsWith("mode",TString::kIgnoreCase)){
             mode            = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
         } else if (tempValue.BeginsWith("addPhotonCutNr",TString::kIgnoreCase)){
@@ -295,6 +300,7 @@ void QAV2(      TString configFileName  = "config.txt",     // set selected
     cout << "nSets:\t"<< nSets << endl;
     cout << "fEnergyFlag:\t"<< fEnergyFlag.Data() << endl;
     cout << "cutNr:\t"<< cutNr << endl;
+    cout << "jetType:\t"<< jetType << endl;
     cout << "mode:\t"<< mode << endl;
     cout << "addSubfolder:\t"<< addSubfolder << endl;
     cout << "labelData:\t" << labelData.Data() << endl;
@@ -358,6 +364,7 @@ void QAV2(      TString configFileName  = "config.txt",     // set selected
     //******************************  Starting individual QA macros ***********************************************
     //**************************************************************************************************************
     if ( doEventQA )    EventQA     (nSets, fEnergyFlag, DataSets, plotDataSets, pathDataSets, fixedCutSelections, mode, cutNr, suffix, labelData, addSubfolder);
+    if ( doJetQA )      JetQA     (nSets, fEnergyFlag, DataSets, plotDataSets, pathDataSets, cutNr, jetType, suffix, labelData, addSubfolder);
     if ( doPhotonQA )   PhotonQA    (nSets, fEnergyFlag, DataSets, plotDataSets, pathPhotonQA, mode, cutNr, suffix, labelData, addSubfolder, addPhotonCutNr, useConsistentCut);
     if ( doClusterQA){
         if(fuseClusterQAValues==1)

@@ -2759,6 +2759,46 @@
         }
     }
 
+    void PutNameAndJetTypeOnPlot(           Double_t startTextX,
+                                            Double_t startTextY,
+                                            Size_t textHeight,
+                                            TString jetType             = "",
+                                            TString trigName            = "",
+                                            TString binRange            = "",
+                                            Style_t textFont            = 62,
+                                            Size_t textHeightRel        = 0.03,
+                                            TString fPeriodName         = "",
+                                            Color_t textColor           = 1,
+                                            Float_t textHeightFac       = 1.25,
+                                            Int_t textAlign             = 11
+                                    ){
+
+        Double_t differenceText     = textHeight*textHeightFac;
+        if (textFont == 63 || textFont == 43) differenceText = textHeightRel*textHeightFac;
+
+        Double_t jetPos        = startTextY-2*differenceText;
+        Double_t trigPos        = startTextY-4*differenceText;
+        Double_t rPos          = startTextY-3*differenceText;
+
+        TLatex *tJet          = new TLatex(startTextX, jetPos, jetType);
+        TLatex *nTrigger      = new TLatex(startTextX, trigPos, trigName);
+        TLatex *bRange        = new TLatex(startTextX, rPos, binRange);
+
+        tJet->SetNDC();
+        tJet->SetTextColor(textColor);
+        tJet->SetTextFont(textFont);
+        tJet->SetTextSize(textHeight);
+        tJet->SetTextAlign(textAlign);
+        tJet->Draw();
+
+        bRange->SetNDC();
+        bRange->SetTextColor(textColor);
+        bRange->SetTextFont(textFont);
+        bRange->SetTextSize(textHeight);
+        bRange->SetTextAlign(textAlign);
+        bRange->Draw();
+    }
+
     void PutThisThesisLabel(Double_t    startTextX,
                             Double_t    startTextY,
                             Size_t      textHeight,
@@ -3039,6 +3079,10 @@
                     return 426;
                 } else if (!generator.CompareTo("LHC14e2c") || generator.Contains("LHC15h2")){
                     return 806;
+                } else if (generator.Contains("LHC16c2")){
+                    return kRed;
+                } else if (generator.Contains("Meta_pp_2012_minbias")){
+                    return kGreen+4;
                 }
             } else {
                 return kGreen-5;
@@ -3518,9 +3562,9 @@
                     || (generator.BeginsWith("LHC12")&&generator.EndsWith("-kEMC8EGA"))
                     || (generator.BeginsWith("LHC12")&&generator.EndsWith("-kEMCEJE"))){
                 return 29;
-            } else if(!generator.CompareTo("LHC14e2a") || generator.Contains("LHC15h1")){
+            } else if(!generator.CompareTo("LHC14e2a") || generator.Contains("LHC15h1") || generator.Contains("Meta_pp_2012_minbias")){
                 return 30;
-            } else if(!generator.CompareTo("LHC14e2b")){
+            } else if(!generator.CompareTo("LHC14e2b") || generator.Contains("LHC16c2")){
                 return 27;
             } else if(!generator.CompareTo("LHC14e2c") || generator.Contains("LHC15h2")){
                 return 28;

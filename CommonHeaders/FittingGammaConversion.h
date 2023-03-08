@@ -234,7 +234,6 @@
         TF1 *FitFunction = new TF1();
         TString ClassName = Obj_Dummy->ClassName();
 
-
         if(ClassName.BeginsWith("TH1")){
             TH1D *Obj = (TH1D*)Obj_Dummy;
             if(type.BeginsWith("xqcd") || type.BeginsWith("XQCD")){
