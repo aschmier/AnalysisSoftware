@@ -3266,14 +3266,16 @@
                     return kViolet+6;
                 } else if (generator.Contains("LHC18f3")){
                     return kViolet+1;
-                } else if (generator.Contains("LHC18b9")){
+                } else if (!generator.CompareTo("LHC18b9b")){
                     return kViolet+6;
+                } else if (!generator.CompareTo("LHC18b9c")){
+                    return kRed+3;
                 } else if (generator.Contains("LHC17g8")){
                     return kViolet-8;
                 } else if (!generator.CompareTo("LHC16r")){
                     return kBlack;
                 } else if (!generator.CompareTo("LHC16s")){
-                    return kBlack;
+                    return kBlue+2;
                 } else if (!generator.CompareTo("LHC16r_mcp2") || !generator.CompareTo("LHC16r_{mcp}")){
                     return kGray+2;
                 } else if (!generator.CompareTo("LHC16s_mcp2") || !generator.CompareTo("LHC16s_{mcp}")){

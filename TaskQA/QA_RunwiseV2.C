@@ -55,6 +55,7 @@
 #include "QA.h"
 #include "EventQA_Runwise.C"
 #include "JetQA_Runwise.C"
+#include "JetQA_Runwise_pPb.C"
 #include "PhotonQA_Runwise.C"
 // #include "ClusterQA_Runwise.C"
 #include "ClusterQA_Runwise_V2.C"
@@ -67,6 +68,7 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
                     Bool_t  doMergedQA      = kFALSE,               // switch on merged ClusterQA
                     Bool_t doPrimaryTrackQA = kFALSE,               // switch on primary electron and pion QA
                     Bool_t doJetQA          = kFALSE,               // switch on Jet QA
+                    Bool_t doJetQApPb       = kFALSE,
                     Int_t   doExtQA         = 2,                    // 0: switched off, 1: normal extQA, 2: with Cell level plots
                     TString suffix          = "eps"                 // output format of plots
 ){
@@ -92,6 +94,8 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
     TString     select                  = "";
     TString     addPhotonCutNr          = "";
     TString     addLabelRunlist         = "";
+    TString     addLabelRunlistMC       = "";
+    TString     mcFolderExtension       = "";
     // initialize arrays
     TString     DataSets[maxSets];
     TString     plotDataSets[maxSets];
@@ -175,15 +179,19 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
         } else if ((tempValue.BeginsWith("fileNamePhoton",TString::kIgnoreCase))&&!(tempValue.BeginsWith("fileNamePhotonMC",TString::kIgnoreCase))){
             fileNamePhoton      = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if (tempValue.BeginsWith("fileNamePhotonMC",TString::kIgnoreCase)){
-            fileNamePhotonMC      = (TString)((TObjString*)tempArr->At(1))->GetString();
+            fileNamePhotonMC    = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if ((tempValue.BeginsWith("fileName",TString::kIgnoreCase))&&!(tempValue.BeginsWith("fileNameMC",TString::kIgnoreCase))){
             fileName            = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if (tempValue.BeginsWith("fileNameMC",TString::kIgnoreCase)){
-            fileNameMC            = (TString)((TObjString*)tempArr->At(1))->GetString();
+            fileNameMC          = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if (tempValue.BeginsWith("addPhotonCutNr",TString::kIgnoreCase)){
             addPhotonCutNr      = (TString)((TObjString*)tempArr->At(1))->GetString();
-        } else if (tempValue.BeginsWith("addLabelRunlist",TString::kIgnoreCase)){
+        } else if ((tempValue.BeginsWith("addLabelRunlist",TString::kIgnoreCase))&&!(tempValue.BeginsWith("addLabelRunlistMC",TString::kIgnoreCase))){
             addLabelRunlist     = (TString)((TObjString*)tempArr->At(1))->GetString();
+        } else if (tempValue.BeginsWith("addLabelRunlistMC",TString::kIgnoreCase)){
+            addLabelRunlistMC   = (TString)((TObjString*)tempArr->At(1))->GetString();
+        } else if (tempValue.BeginsWith("mcFolderExtension",TString::kIgnoreCase)){
+            mcFolderExtension   = (TString)((TObjString*)tempArr->At(1))->GetString();
         } else if (tempValue.BeginsWith("cutNr",TString::kIgnoreCase)){
             cutNr               = ((TString)((TObjString*)tempArr->At(1))->GetString()).Atoi();
                 } else if (tempValue.BeginsWith("jetType",TString::kIgnoreCase)){
@@ -295,6 +303,9 @@ void QA_RunwiseV2(  TString configFileName  = "configRunwise.txt",  // set selec
     if (doJetQA)      JetQA_Runwise(    nSets, nData, fEnergyFlag, filePath, filePathMC, fileName, fileNameMC, DataSets, plotDataSets, cutNr,
                                             jetType, doExtQA,doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, nSigmasBadRun,
                                             addLabelRunlist, fixedTopDir );
+    if (doJetQApPb)      JetQA_Runwise_pPb(    nSets, nData, fEnergyFlag, filePath, filePathMC, mcFolderExtension, fileName, fileNameMC, DataSets, plotDataSets, cutNr,
+                                            jetType, doExtQA,doEquidistantXaxis, doTrigger, doHistsForEverySet, addSubFolder, useDataRunListForMC, markerSize, suffix, folderRunlists, nSigmasBadRun,
+                                            addLabelRunlist, addLabelRunlistMC, fixedTopDir );
     if (doPhotonQA) {
         TString                         path = filePath;
         if(!filePathPhoton.IsNull())    path = filePathPhoton;
